@@ -30,11 +30,16 @@
 				 * les gestionnaires de dépendances tels que requirejs)
 				 * Voir http://requirejs.org/docs/api.html#config-shim (11/10/2013) */
 				shim: {
-					/* Fichier davis.min.js
+					/* Bibliothèque Davis (plugin hashrouting nécessitant Davis)
 					 * Utilisation future : require(["lib/davis.min"], function(Davis) { ... }); */
 					"lib/davis.min": {
-						deps: [], // Aucune dépendance particulière pour davis.js
+						deps: ["jquery"], // jquery nécessaire pour davis.js, et bibliothèque de base
 						exports: "Davis" // Utilisation du nom "Davis" en argument de la fonction le récupérant
+					},
+					
+					"lib/davis.hashrouting": {
+						deps: ["lib/davis.min"], // jquery nécessaire pour davis.js, et bibliothèque de base
+						exports: "DavisHashrouting" // Utilisation du nom "Davis" en argument de la fonction le récupérant
 					}
 				}
 		
