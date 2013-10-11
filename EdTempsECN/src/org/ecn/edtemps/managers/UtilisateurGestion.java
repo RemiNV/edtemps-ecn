@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
@@ -25,6 +27,11 @@ public class UtilisateurGestion {
 	
 	// TODO : déplacer en base de données (et garder bien secret !)
 	private static final String KEY_TOKENS = "IAmASecretKey";
+	
+	// Configuration pour accéder à LDAP depuis l'extérieur
+	private static final String ADRESSE_LDAP = "ldaps.nomade.ec-nantes.fr";
+	private static final int PORT_LDAP = 636;
+	private static final boolean USE_SSL_LDAP = true;
 	
 	/**
 	 * Calcul du HMAC_SHA256 d'une chaîne avec un mot de passe donné.
@@ -85,7 +92,17 @@ public class UtilisateurGestion {
 		// Connexion à LDAP
 		String dn = "uid=" + utilisateur + ",ou=people,dc=ec-nantes,dc=fr";
 		try {
-			LDAPConnection connection = new LDAPConnection("rldap.ec-nantes.fr", 389, dn, pass);
+			
+			// SocketFactory selon l'utilisation de SSL
+			SocketFactory socketFactoryConnection;
+			if(USE_SSL_LDAP) {
+				socketFactoryConnection = SSLSocketFactory.getDefault();
+			}
+			else {
+				socketFactoryConnection = SocketFactory.getDefault();
+			}
+			
+			LDAPConnection connection = new LDAPConnection(socketFactoryConnection, ADRESSE_LDAP, PORT_LDAP, dn, pass);
 			
 			// Succès de la connexion : récupération de l'identifiant entier uid (uidnumber) de l'utilisateur
 			String filtre = "(uid=" + utilisateur + ")";
@@ -110,7 +127,7 @@ public class UtilisateurGestion {
 			// Insertion du token en base
 			String token = genererToken(uidNumber);
 			
-			ResultSet results = BddGestion.executeRequest("SELECT utilisateur_id FROM utilisateur WHERE utilisateur_id_ldap=" + uidNumber);
+			ResultSet results = BddGestion.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + uidNumber);
 			
 			if(results.next()) { // Utilisateur déjà présent en base
 				// Token valable 1h, heure du serveur de base de donnée
@@ -120,6 +137,8 @@ public class UtilisateurGestion {
 				BddGestion.executeRequest("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_token_expire) VALUES(" +
 						uidNumber + "," + token + ",now() + 'interval 1 hour'");
 			}
+			
+			results.close();
 			
 			return token;
 			

@@ -21,7 +21,7 @@ define(["jquery"], function() {
 		var me = this;
 		
 		// Connection depuis le serveur
-		this.effectuerRequete("PUT", "identification/connexion", { username: identifiant, password: pass }, 
+		this.effectuerRequete("POST", "identification/connexion", { username: identifiant, password: pass }, 
 			function(success, data) {
 				if(success) { // Succès de la requête (pas forcément de la connexion)
 					if(data.resultCode == 0) { // Succès de l'identification

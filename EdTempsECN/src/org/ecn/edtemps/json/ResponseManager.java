@@ -2,6 +2,7 @@ package org.ecn.edtemps.json;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.exceptions.ResultCode;
@@ -21,11 +22,17 @@ public class ResponseManager {
 	 * @return
 	 */
 	public static String generateResponse(ResultCode repCode, String message, JsonValue data) {
-		JsonObject res = Json.createObjectBuilder()
+		
+		JsonObjectBuilder builder = Json.createObjectBuilder()
 				.add("resultCode", repCode.getCode())
-				.add("message", message)
-				.add("data", data)
-				.build();
+				.add("message", message);
+		
+		if(data == null)
+			builder.addNull("data");
+		else
+			builder.add("data", data);
+				
+		JsonObject res = builder.build();
 		
 		// Représentation JSON de l'objet
 		return res.toString();

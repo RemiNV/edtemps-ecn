@@ -24,7 +24,7 @@ public class IdentificationServlet extends HttpServlet {
 	 * (token: 'tokendeconnexion')
 	 */
 	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
 		// Retour sous forme JSON
 		resp.setContentType("application/json");

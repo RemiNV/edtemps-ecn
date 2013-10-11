@@ -81,7 +81,6 @@ public class BddGestion {
 				// Exécute la requête et récupère le résultat s'il y en a un
 				if (requetePreparee.execute()) {
 					resultat = requetePreparee.getResultSet();
-					resultat.close();
 				}
 
 				// Fermeture de la requête
@@ -93,7 +92,6 @@ public class BddGestion {
 		}
 
 		return resultat;
-
 	}
 
 }
