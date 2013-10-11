@@ -83,9 +83,6 @@ public class BddGestion {
 					resultat = requetePreparee.getResultSet();
 				}
 
-				// Fermeture de la requête
-				requetePreparee.close();
-
 			} catch (Exception e) {
 				throw new DatabaseException(e);
 			}

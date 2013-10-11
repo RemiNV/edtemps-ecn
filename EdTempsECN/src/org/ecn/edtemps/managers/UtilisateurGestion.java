@@ -64,7 +64,7 @@ public class UtilisateurGestion {
 	/**
 	 * Génération d'un token de connexion pour l'utilisateur. Les tokens générés sont aléatoires.
 	 * Algorithme : 
-	 * - Générer une chaîne de 10 caractères aléatoires (exemple 1è483A5e35) qu’on appelle s
+	 * - Générer une chaîne de 10 caractères alphanumériques aléatoires (exemple 1b483A5e35) qu’on appelle s
 	 * - Définir t = s + “_” + id d’utilisateur
 	 * - Calculer le hmac_sha256 de t, au format base64. On le note h. La clé du hmac_sha256 est un mot de passe stocké sur le serveur.
 	 * - Renvoyer t + “_” + h
@@ -79,7 +79,7 @@ public class UtilisateurGestion {
 	 */
 	public static String genererToken(long idUtilisateur) throws InvalidKeyException, NoSuchAlgorithmException {
 		// Génération de 10 caractères aléatoires
-		String randomSeed = RandomStringUtils.randomAscii(10);
+		String randomSeed = RandomStringUtils.randomAlphanumeric(10);
 		String tokenHeader = randomSeed + "_" + idUtilisateur;
 		
 		String res = hmac_sha256(KEY_TOKENS, tokenHeader);
@@ -130,12 +130,12 @@ public class UtilisateurGestion {
 			ResultSet results = BddGestion.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + uidNumber);
 			
 			if(results.next()) { // Utilisateur déjà présent en base
-				// Token valable 1h, heure du serveur de base de donnée
-				BddGestion.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=" + token + ", utilisateur_token_expire=now() + interval '1 hour'");
+				// Token valable 1h, heure du serveur de base de donnée. Le token est constitué de caractères alphanumériques et de "_" : pas d'échappement nécessaire
+				BddGestion.executeRequest("UPDATE edt.utilisateur SET utilisateur_token='" + token + "', utilisateur_token_expire=now() + interval '1 hour'");
 			}
 			else { // Utilisateur absent de la base : insertion
 				BddGestion.executeRequest("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_token_expire) VALUES(" +
-						uidNumber + "," + token + ",now() + 'interval 1 hour'");
+						uidNumber + ",'" + token + "',now() + interval '1 hour')");
 			}
 			
 			results.close();
@@ -143,8 +143,13 @@ public class UtilisateurGestion {
 			return token;
 			
 		} catch (com.unboundid.ldap.sdk.LDAPException e) {
-			// TODO : différencier les erreurs de connexion à LDAP et les mauvais identifiants
-			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Erreur d'identification sur LDAP : " + e.getResultCode().getName());
+			
+			if(e.getResultCode() == com.unboundid.ldap.sdk.ResultCode.INVALID_CREDENTIALS) {
+				throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Identifiants LDAP invalides.");
+			}
+			else {
+				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Erreur de connexion à LDAP : " + e.getResultCode().getName());
+			}
 		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
 			System.out.println("Erreur de génération de token : machine Java hôte incompatible");
 			e.printStackTrace();
