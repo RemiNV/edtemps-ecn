@@ -1,0 +1,37 @@
+
+/* Table de couleurs : (à compléter avec chaque couleur et remplacer éventuellement)
+ * Fond foncé générique : #bfc2bf
+ * Message d'alerte : red
+ */
+
+
+body {
+	font-family: sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0px;
+}
+
+#colonne_gauche, #main_content {
+	float: left;
+}
+
+#formulaire_connexion {
+	background-color: #bfc2bf;
+	padding: 20px;
+	overflow: hidden;
+}
+
+#table_connexion {
+	margin-top: 20px;
+	margin-left: 60px;
+}
+
+#btn_connexion {
+	float: right;
+}
+
+.message_alerte {
+	color: red;
+}
