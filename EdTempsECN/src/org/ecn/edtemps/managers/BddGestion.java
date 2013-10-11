@@ -94,9 +94,4 @@ public class BddGestion {
 
 	}
 
-	public static void main(String[] arg) throws DatabaseException {
-		executeRequest("INSERT INTO edt.salle (salle_id, salle_batiment, salle_niveau, salle_numero, salle_capacite) VALUES (4, 'B', 1, 8, 60)");
-		executeRequest("SELECT * FROM edt.salle");
-	}
-
 }
