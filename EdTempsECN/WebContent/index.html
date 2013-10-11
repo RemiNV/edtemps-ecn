@@ -3,6 +3,10 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Emploi du temps ECN</title>
+		
+		<link rel="stylesheet" type="text/css" href="main.css" />
+		
+		
 		<!-- 
 			Chargement de requirejs et de son plugin text, définition de scripts/main.js comme script d'entrée.
 			require.js peut utiliser le plugin text.js pour charger des fichiers texte 	(pour les pages HTML ou templates),
@@ -18,7 +22,8 @@
 				
 				/* Configuration des bibliothèques compatibles AMD (Asynchronous Module Definition, pour requirejs entre autres) */
 				paths: {
-					jquery: "lib/jquery-1.10.2.min"
+					jquery: "lib/jquery-1.10.2.min",
+					text: "lib/text"
 				},
 			
 				/* Configuration des bibliothèques non AMD (non compatibles avec 
@@ -35,11 +40,15 @@
 				}
 		
 			});
-			
-		
 		</script>
 	</head>
 	<body>
-		<h1>Fichier principal</h1>
+		<div id="colonne_gauche">
+			<img src="img/icone_appli.png" alt="Emploi du temps ECN" />
+		</div>
+		<div id="main_content">
+			<!-- Contenu remplacé en JavaScript -->
+			<h2>Chargement de l'application...</h2>
+		</div>
 	</body>
 </html>
