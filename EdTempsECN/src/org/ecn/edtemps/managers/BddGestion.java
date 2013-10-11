@@ -80,11 +80,7 @@ public class BddGestion {
 				// Exécute la requête et récupère le résultat s'il y en a un
 				if (requetePreparee.execute()) {
 					resultat = requetePreparee.getResultSet();
-					resultat.close();
 				}
-
-				// Fermeture de la requête
-				requetePreparee.close();
 
 			} catch (Exception e) {
 				throw new DatabaseException(e);
@@ -92,7 +88,6 @@ public class BddGestion {
 		}
 
 		return resultat;
-
 	}
 
 }
