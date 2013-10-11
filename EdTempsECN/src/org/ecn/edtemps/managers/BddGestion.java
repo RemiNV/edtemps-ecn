@@ -16,6 +16,8 @@ import org.ecn.edtemps.exceptions.DatabaseException;
  * @author Joffrey
  */
 public class BddGestion {
+	
+	private static Connection _connection;
 
 	/**
 	 * Méthode de connexion à la base de données
@@ -26,8 +28,9 @@ public class BddGestion {
 	 *             si une erreur intervient lors de la connexion
 	 */
 	public static Connection connect() throws DatabaseException {
-
-		Connection connexion = null;
+		
+		if(_connection != null)
+			return _connection;
 
 		try {
 
@@ -38,15 +41,14 @@ public class BddGestion {
 			String user = "edtemps-ecn";
 			String passwd = "passwordEdtemps";
 
-			connexion = DriverManager.getConnection(url, user, passwd);
+			_connection = DriverManager.getConnection(url, user, passwd);
 			System.out.println("Connexion OK");
 
 		} catch (Exception e) {
 			throw new DatabaseException(e);
 		}
 
-		return connexion;
-
+		return _connection;
 	}
 
 	/**
