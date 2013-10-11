@@ -13,24 +13,47 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 	
 	var init = function() {
 	
-		if(!restManager.isConnected()) {
-			chargerInterfaceConnection();
-		}
-		else {
-			chargerInterfacePrincipale();
-		}
-		
-		/* Chargement des routes */
 		// Plugin hashrouting : routage par hash (le serveur ne contient qu'une page, pas d'accès possible sans JS)
 		Davis.extend(Davis.hashRouting({ forceHashRouting: true })); 
+		
+		/*** Routes de l'application ***/
 		this.app = Davis(function() {
 			
-			this.get("cal", function() {
-				chargerInterfacePrincipale();
+			// Page principale (connecté)
+			this.get("agenda", function(req) {
+				if(restManager.isConnected()) {
+					chargerInterfacePrincipale();
+				}
+				else {
+					req.redirect("connexion");
+				}
+			});
+			
+			// Page de connexion
+			this.get("connexion", function(req) {
+				if(restManager.isConnected()) {
+					req.redirect("agenda");
+				}
+				else {
+					chargerInterfaceConnection();
+				}
+			});
+			
+			// Page racine : redirection vers la page principale ou celle de connexion
+			this.get("/", function(req) {
+				if(restManager.isConnected()) {
+					req.redirect("agenda");
+				}
+				else {
+					req.redirect("connexion");
+				}
 			});
 		});
 		
 		this.app.start();
+		
+		// Parsing de la position actuelle
+		Davis.location.assign(Davis.location.current());
 	};
 	
 	var chargerInterfaceConnection = function() {
@@ -51,7 +74,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 					if(success) {
 						if(identifiantsValides) {
 							// Redirection vers la page d'agenda
-							Davis.location.assign(new Davis.Request("cal"));
+							Davis.location.assign("agenda");
 						}
 						else {
 							$("#msg_identifiants_invalides").css("display", "inline");
