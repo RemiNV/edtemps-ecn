@@ -3,10 +3,41 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Emploi du temps ECN</title>
-		<!-- Chargement de requirejs et de son plugin text, définition de scripts/main.js comme script d'entrée. -->
+		<!-- 
+			Chargement de requirejs et de son plugin text, définition de scripts/main.js comme script d'entrée.
+			require.js peut utiliser le plugin text.js pour charger des fichiers texte 	(pour les pages HTML ou templates),
+			et pas seulement des fichiers JavaScript.
+		-->
 		<script data-main="scripts/main" src="scripts/lib/require.js"></script>
-		<!-- Plugin permettant de charger des fichiers texte par requirejs (pour les pages HTML ou templates), et pas seulement des fichiers JavaScript -->
-		<script src="scripts/lib/text.js"></script>
+		
+		<!-- Configuration de require.js -->
+		<script type="text/javascript">
+			requirejs.config({
+			
+				baseUrl: "scripts/",
+				
+				/* Configuration des bibliothèques compatibles AMD (Asynchronous Module Definition, pour requirejs entre autres) */
+				paths: {
+					jquery: "lib/jquery-1.10.2.min"
+				},
+			
+				/* Configuration des bibliothèques non AMD (non compatibles avec 
+				 * les gestionnaires de dépendances tels que requirejs)
+				 * Voir http://requirejs.org/docs/api.html#config-shim (11/10/2013) */
+				shim: {
+					/* Fichier davis.min.js
+					 * Utilisation future : require(["lib/davis.min"], function(Davis) { ... }); */
+					"lib/davis.min": {
+						deps: [], // Aucune dépendance particulière pour davis.js
+						exports: "Davis" // Utilisation du nom "Davis" en argument de la fonction le récupérant
+						
+					}
+				}
+		
+			});
+			
+		
+		</script>
 	</head>
 	<body>
 		
