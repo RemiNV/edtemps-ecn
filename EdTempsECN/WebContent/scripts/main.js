@@ -2,7 +2,7 @@
 /* Fonction d'entrée du programme. 
  * Le plugin davis est appelé par le mot-clé "davis" (configuré dans index.html)
  * Placer jquery en dernier dans la liste (ne se charge pas dans les arguments de la fonction) */
-require(["lib/davis.min", "RestManager", "jquery"], function(Davis, RestManager) {
+require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], function(Davis, RestManager) {
 	/* Davis est chargé de manière locale avec le mot-clé "Davis" dans cette fonction (passé en argument) : 
 	 * le plugin est configuré pour être chargé de cette manière dans le index.html
 	 * 
@@ -19,6 +19,18 @@ require(["lib/davis.min", "RestManager", "jquery"], function(Davis, RestManager)
 		else {
 			chargerInterfacePrincipale();
 		}
+		
+		/* Chargement des routes */
+		// Plugin hashrouting : routage par hash (le serveur ne contient qu'une page, pas d'accès possible sans JS)
+		Davis.extend(Davis.hashRouting({ forceHashRouting: true })); 
+		this.app = Davis(function() {
+			
+			this.get("cal", function() {
+				chargerInterfacePrincipale();
+			});
+		});
+		
+		this.app.start();
 	};
 	
 	var chargerInterfaceConnection = function() {
@@ -38,7 +50,8 @@ require(["lib/davis.min", "RestManager", "jquery"], function(Davis, RestManager)
 				restManager.connexion(username, pass, function(success, identifiantsValides) {
 					if(success) {
 						if(identifiantsValides) {
-							chargerInterfacePrincipale();
+							// Redirection vers la page d'agenda
+							Davis.location.assign(new Davis.Request("cal"));
 						}
 						else {
 							$("#msg_identifiants_invalides").css("display", "inline");
