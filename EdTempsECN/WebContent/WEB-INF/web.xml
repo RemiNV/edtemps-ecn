@@ -13,6 +13,6 @@
   
   <servlet-mapping>
       <servlet-name>Identification</servlet-name>
-      <url-pattern>/identification</url-pattern>
+      <url-pattern>/identification/*</url-pattern>
   </servlet-mapping>
 </web-app>
