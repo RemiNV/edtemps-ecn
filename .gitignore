@@ -4,3 +4,6 @@
 *.jar
 *.war
 *.ear
+
+# Fichiers de bibliothèques à inclure
+!EdTempsECN/lib/*.jar
