@@ -2,11 +2,24 @@ package org.ecn.edtemps.managers;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.IdentificationException;
+import org.ecn.edtemps.exceptions.ResultCode;
+
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPException;
 
 public class UtilisateurGestion {
 	
@@ -57,7 +70,7 @@ public class UtilisateurGestion {
 	 * @throws InvalidKeyException Clé serveur invalide (ne devrait jamais se produire)
 	 * @throws NoSuchAlgorithmException La machine Java hôte est incapable de produire un HMAC_SHA256 (ne devrait jamais se produire)
 	 */
-	public String genererToken(int idUtilisateur) throws InvalidKeyException, NoSuchAlgorithmException {
+	public static String genererToken(long idUtilisateur) throws InvalidKeyException, NoSuchAlgorithmException {
 		// Génération de 10 caractères aléatoires
 		String randomSeed = RandomStringUtils.randomAscii(10);
 		String tokenHeader = randomSeed + "_" + idUtilisateur;
@@ -65,5 +78,60 @@ public class UtilisateurGestion {
 		String res = hmac_sha256(KEY_TOKENS, tokenHeader);
 		
 		return tokenHeader + "_" + res;
+	}
+	
+	public static String seConnecter(String utilisateur, String pass) throws IdentificationException, DatabaseException {
+		
+		// Connexion à LDAP
+		String dn = "uid=" + utilisateur + ",ou=people,dc=ec-nantes,dc=fr";
+		try {
+			LDAPConnection connection = new LDAPConnection("rldap.ec-nantes.fr", 389, dn, pass);
+			
+			// Succès de la connexion : récupération de l'identifiant entier uid (uidnumber) de l'utilisateur
+			String filtre = "(uid=" + utilisateur + ")";
+			SearchRequest request = new SearchRequest("ou=people, dc=ec-nantes, dc=fr", SearchScope.SUB, filtre, "uidNumber");
+			
+			SearchResult searchResult = connection.search(request);
+			List<SearchResultEntry> lstResults = searchResult.getSearchEntries();
+			
+			// Récupération de l'entrée de l'utilisateur
+			if(lstResults.isEmpty()) {
+				System.out.println("Erreur de récupération de l'ID LDAP de l'utilisateur : " + utilisateur);
+				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Impossible de récupérer l'ID LDAP de l'utilisateur.");
+			}
+			
+			Long uidNumber = lstResults.get(0).getAttributeValueAsLong("uidNumber");
+			
+			if(uidNumber == null) {
+				System.out.println("Format d'uidNumer invalide pour l'utilisateur : " + utilisateur);
+				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Format d'uidNumber invalide sur le serveur LDAP");
+			}
+			
+			// Insertion du token en base
+			String token = genererToken(uidNumber);
+			
+			ResultSet results = BddGestion.executeRequest("SELECT utilisateur_id FROM utilisateur WHERE utilisateur_id_ldap=" + uidNumber);
+			
+			if(results.next()) { // Utilisateur déjà présent en base
+				// Token valable 1h, heure du serveur de base de donnée
+				BddGestion.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=" + token + ", utilisateur_token_expire=now() + interval '1 hour'");
+			}
+			else { // Utilisateur absent de la base : insertion
+				BddGestion.executeRequest("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_token_expire) VALUES(" +
+						uidNumber + "," + token + ",now() + 'interval 1 hour'");
+			}
+			
+			return token;
+			
+		} catch (com.unboundid.ldap.sdk.LDAPException e) {
+			// TODO : différencier les erreurs de connexion à LDAP et les mauvais identifiants
+			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Erreur d'identification sur LDAP : " + e.getResultCode().getName());
+		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
+			System.out.println("Erreur de génération de token : machine Java hôte incompatible");
+			e.printStackTrace();
+			throw new IdentificationException(ResultCode.CRYPTOGRAPHIC_ERROR, "Erreur de génération de token : machine Java hôte incompatible");
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 	}
 }
