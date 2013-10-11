@@ -22,6 +22,7 @@ define([], function() {
 		// Non encore implémenté : succès automatique
 		setTimeout(function() {
 			me._token = "tokendetest";
+			me._isConnected = true;
 			callback(true, true); // Succès
 		}, 1000); // Appel de la fonction de callback après 1 seconde
 	};
