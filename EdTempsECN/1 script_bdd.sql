@@ -1,17 +1,18 @@
 
 CREATE TABLE edt.Salle (
                 salle_id INTEGER NOT NULL,
-                salle_batiment VARCHAR NOT NULL,
-                salle_niveau INTEGER NOT NULL,
-                salle_numero INTEGER NOT NULL,
-                salle_capacite INTEGER NOT NULL,
+                salle_batiment VARCHAR,
+                salle_niveau INTEGER,
+                salle_nom VARCHAR,
+                salle_numero INTEGER,
+                salle_capacite INTEGER,
                 CONSTRAINT salle_id PRIMARY KEY (salle_id)
 );
 
 
 CREATE TABLE edt.Materiel (
                 materiel_id INTEGER NOT NULL,
-                materiel_nom VARCHAR NOT NULL,
+                materiel_nom VARCHAR,
                 CONSTRAINT materiel_id PRIMARY KEY (materiel_id)
 );
 
@@ -19,32 +20,32 @@ CREATE TABLE edt.Materiel (
 CREATE TABLE edt.ContientMateriel (
                 salle_id INTEGER NOT NULL,
                 materiel_id INTEGER NOT NULL,
-                contientMateriel_quantite INTEGER NOT NULL,
+                contientMateriel_quantite INTEGER,
                 CONSTRAINT salle_id_materiel_id PRIMARY KEY (salle_id, materiel_id)
 );
 
 
 CREATE TABLE edt.TypeCalendrier (
                 typeCal_id INTEGER NOT NULL,
-                typeCal_libelle VARCHAR NOT NULL,
+                typeCal_libelle VARCHAR,
                 CONSTRAINT typecal_id PRIMARY KEY (typeCal_id)
 );
 
 
 CREATE TABLE edt.GroupedeParticipant (
                 groupeParticipant_id INTEGER NOT NULL,
-                groupeParticipant_nom VARCHAR NOT NULL,
-                groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
-                groupedeParticipant_id_parent INTEGER NOT NULL,
+                groupeParticipant_nom VARCHAR,
+                groupeParticipant_rattachementAutorise BOOLEAN,
+                groupedeParticipant_id_parent INTEGER,
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
 
 
 CREATE TABLE edt.Evenement (
                 eve_id INTEGER NOT NULL,
-                eve_nom VARCHAR NOT NULL,
-                eve_dateDebut TIMESTAMP NOT NULL,
-                eve_dateFin TIMESTAMP NOT NULL,
+                eve_nom VARCHAR,
+                eve_dateDebut TIMESTAMP,
+                eve_dateFin TIMESTAMP,
                 CONSTRAINT eve_id PRIMARY KEY (eve_id)
 );
 
@@ -65,16 +66,16 @@ CREATE TABLE edt.NecessiteMateriel (
 
 CREATE TABLE edt.Matiere (
                 matiere_id INTEGER NOT NULL,
-                matiere_nom VARCHAR NOT NULL,
+                matiere_nom VARCHAR,
                 CONSTRAINT matiere_id PRIMARY KEY (matiere_id)
 );
 
 
 CREATE TABLE edt.Calendrier (
                 cal_id INTEGER NOT NULL,
-                matiere_id INTEGER NOT NULL,
-                cal_nom VARCHAR NOT NULL,
-                typeCal_id INTEGER NOT NULL,
+                matiere_id INTEGER,
+                cal_nom VARCHAR,
+                typeCal_id INTEGER,
                 CONSTRAINT cal_id PRIMARY KEY (cal_id)
 );
 
@@ -94,11 +95,9 @@ CREATE TABLE edt.EvenementAppartient (
 
 
 CREATE TABLE edt.Utilisateur (
-                utilisateur_id SERIAL NOT NULL,
+                utilisateur_id INTEGER NOT NULL,
                 utilisateur_url_ical VARCHAR,
-				utilisateur_id_ldap INTEGER UNIQUE,
-				utilisateur_token TEXT,
-				utilisateur_token_expire TIMESTAMP,
+                utilisateur_id_ldap INTEGER,
                 CONSTRAINT utilisateur_id PRIMARY KEY (utilisateur_id)
 );
 
@@ -113,7 +112,7 @@ CREATE TABLE edt.ProprietaireGroupedeParticipant (
 CREATE TABLE edt.AbonneGroupeParticipant (
                 utilisateur_id INTEGER NOT NULL,
                 groupeParticipant_id INTEGER NOT NULL,
-                abonnementGroupeParticipant_obligatoire BOOLEAN NOT NULL,
+                abonnementGroupeParticipant_obligatoire BOOLEAN,
                 CONSTRAINT abonnement_utilisateur_id_groupeparticipant_id PRIMARY KEY (utilisateur_id, groupeParticipant_id)
 );
 
@@ -148,7 +147,7 @@ CREATE TABLE edt.ProprietaireMatiere (
 
 CREATE TABLE edt.TypeUtilisateur (
                 type_id INTEGER NOT NULL,
-                type_libelle VARCHAR NOT NULL,
+                type_libelle VARCHAR,
                 CONSTRAINT type_id PRIMARY KEY (type_id)
 );
 
@@ -162,7 +161,7 @@ CREATE TABLE edt.EstDeType (
 
 CREATE TABLE edt.Droits (
                 droits_id INTEGER NOT NULL,
-                droits_libelle VARCHAR NOT NULL,
+                droits_libelle VARCHAR,
                 CONSTRAINT droits_id PRIMARY KEY (droits_id)
 );
 
