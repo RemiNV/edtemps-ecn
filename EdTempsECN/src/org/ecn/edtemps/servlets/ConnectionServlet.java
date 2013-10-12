@@ -13,7 +13,7 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 
-public class IdentificationServlet extends HttpServlet {
+public class ConnectionServlet extends HttpServlet {
 
 	
 	/**

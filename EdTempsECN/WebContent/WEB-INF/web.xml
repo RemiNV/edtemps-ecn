@@ -7,12 +7,22 @@
   
   
   <servlet>
-      <servlet-name>Identification</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.IdentificationServlet</servlet-class>
+      <servlet-name>Connection</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.ConnectionServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+      <servlet-name>CheckConnection</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.CheckConnectionServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>
-      <servlet-name>Identification</servlet-name>
-      <url-pattern>/identification/*</url-pattern>
+      <servlet-name>Connection</servlet-name>
+      <url-pattern>/identification/connection</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>CheckConnection</servlet-name>
+      <url-pattern>/identification/checkconnection</url-pattern>
   </servlet-mapping>
 </web-app>

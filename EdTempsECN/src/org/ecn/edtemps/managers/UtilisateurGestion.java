@@ -98,16 +98,16 @@ public class UtilisateurGestion {
 	 * @throws IdentificationException Token de l'utilisateur invalide ou expiré
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	public int verifierConnexion(String token) throws IdentificationException, DatabaseException {
+	public static int verifierConnexion(String token) throws IdentificationException, DatabaseException {
 		
 		if(!StringUtils.isAlphanumeric(token))
 			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Format de token invalide");
 		
-		ResultSet res = BddGestion.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='" + token + "' AND utilisateur_token_expire < now()");
+		ResultSet res = BddGestion.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='" + token + "' AND utilisateur_token_expire > now()");
 		
 		try {
 			if(res.next()) {
-				return res.getInt(0);
+				return res.getInt(1);
 			}
 			else {
 				throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Token invalide ou expiré");
@@ -131,7 +131,7 @@ public class UtilisateurGestion {
 		
 		try {
 			if(results.next()) {
-				id = results.getInt(0);
+				id = results.getInt(1);
 			}
 			results.close();
 		} catch (SQLException e) {
