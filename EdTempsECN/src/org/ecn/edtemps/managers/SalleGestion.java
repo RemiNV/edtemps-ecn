@@ -1,6 +1,7 @@
 package org.ecn.edtemps.managers;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.models.Salle;
@@ -28,11 +29,8 @@ public class SalleGestion {
 				if (batiment != null && niveau != null && numero != null
 						&& capacite != null) {
 
-					ResultSet res = BddGestion
-							.executeRequest("SELECT nextval('Salle')");
-
 					BddGestion
-							.executeRequest("INSERT INTO edt.salle (salle_id, salle_batiment, salle_niveau, salle_numero, salle_capacite) VALUES ('', '"
+							.executeRequest("INSERT INTO edt.salle (salle_id, salle_batiment, salle_niveau, salle_numero, salle_capacite) VALUES (nextval('edt.seq_salle'), '"
 									+ batiment
 									+ "', '"
 									+ niveau
@@ -47,12 +45,6 @@ public class SalleGestion {
 
 		}
 
-	}
-
-	public static void main(String[] arg) {
-		Salle salle = new Salle("B", 1, 11, 30);
-
-		SalleGestion.sauverSalle(salle);
 	}
 
 }
