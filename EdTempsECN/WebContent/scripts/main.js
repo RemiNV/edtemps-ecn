@@ -19,9 +19,9 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 		/*** Routes de l'application ***/
 		this.app = Davis(function() {
 			
-			// Page principale (connecté)
+			// Page principale
 			this.get("agenda", function(req) {
-				if(restManager.isConnected()) {
+				if(restManager.isConnected()) { // RestManager.checkConnection() ou RestManager.connection() appelé
 					chargerInterfacePrincipale();
 				}
 				else {
@@ -31,22 +31,21 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			
 			// Page de connexion
 			this.get("connexion", function(req) {
-				if(restManager.isConnected()) {
-					req.redirect("agenda");
-				}
-				else {
-					chargerInterfaceConnection();
-				}
+
+				// Déjà connecté ?
+				restManager.checkConnection(function(networkSuccess, validConnection) {
+					if(networkSuccess && validConnection) {
+						req.redirect("agenda"); // Déjà connecté : redirection
+					}
+					else {
+						chargerInterfaceConnection();
+					}
+				});
 			});
 			
-			// Page racine : redirection vers la page principale ou celle de connexion
+			// Page racine : redirection vers la page de connexion
 			this.get("/", function(req) {
-				if(restManager.isConnected()) {
-					req.redirect("agenda");
-				}
-				else {
-					req.redirect("connexion");
-				}
+				req.redirect("connexion");
 			});
 		});
 		
@@ -70,7 +69,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 				$("#msg_identifiants_invalides").css("display", "none");
 				
 				// Connexion
-				restManager.connexion(username, pass, function(success, identifiantsValides) {
+				restManager.connection(username, pass, function(success, identifiantsValides) {
 					if(success) {
 						if(identifiantsValides) {
 							// Redirection vers la page d'agenda

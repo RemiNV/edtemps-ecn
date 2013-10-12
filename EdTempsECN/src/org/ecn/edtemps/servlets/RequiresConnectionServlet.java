@@ -64,11 +64,13 @@ public abstract class RequiresConnectionServlet extends HttpServlet {
 		resp.getWriter().write(ResponseManager.generateResponse(result, message, null));
 	}
 	
+	// Surclasser la méthode doPostAfterLogin à la place de celle-ci
 	@Override
 	protected final void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		doMethod(SupportedMethods.POST, req, resp);
 	}
 	
+	// Surclasser la méthode doGetAFterLogin à la place de celle-ci
 	@Override
 	protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		doMethod(SupportedMethods.GET, req, resp);

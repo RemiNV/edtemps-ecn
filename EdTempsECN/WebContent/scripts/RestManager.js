@@ -5,8 +5,23 @@ define(["jquery"], function() {
 	
 	// Constructeur
 	var RestManager = function() {
-		this._token = null; // Token non défini au départ
-		this._isConnected = false;
+		
+		// Récupération du dernier token de connection depuis le stockage local.
+		// Il peut avoir expiré.
+		if(window.localStorage) {
+			this._token = window.localStorage["token"];
+		}
+		else
+			this._token = null; // Navigateurs ne supportant pas localStorage
+			
+		this._connected = false; // Appeler connexion() ou checkConnexion() pour mettre à jour ce statut
+	};
+	
+	RestManager.prototype.setToken = function(token) {
+		this._token = token;
+		if(window.localStorage) {
+			window.localStorage["token"] = token;
+		}
 	};
 	
 	/* Fonction de connexion auprès du serveur.
@@ -14,37 +29,37 @@ define(["jquery"], function() {
 	 * Param pass : mot de passe de l'utilisateur
 	 * Param callback : fonction de rappel appelée pour fournir les résultats de la requête
 	 * 	La fonction callback prend les arguments : 
-	 * 	- success (booléen) : succès de la connexion au serveur
+	 * 	- networkSuccess (booléen) : succès de la connexion au serveur
 	 *  - identifiantsValides (booléen) : succès de l'identification de l'utilisateur, fourni en cas de succès de la connexion
 	 * Valeur de retour : aucune */
-	RestManager.prototype.connexion = function(identifiant, pass, callback) {
+	RestManager.prototype.connection = function(identifiant, pass, callback) {
 		var me = this;
 		
 		// Connection depuis le serveur
 		this.effectuerRequete("POST", "identification/connection", { username: identifiant, password: pass }, 
 			function(success, response) {
+			
+				var networkSuccess;
+				var identifiantsValides;
+			
 				if(success) { // Succès de la requête (pas forcément de la connexion)
+					networkSuccess = true;
 					if(response.resultCode == 0) { // Succès de l'identification
-						me._token = response.data.token;
+						me.setToken(response.data.token);
 						me._isConnected = true;
-						callback(true, true);
+						identifiantsValides = true;
 					}
 					else { // Erreur d'identification
-						callback(true, false);
+						identifiantsValides = false;
 					}
 				}
 				else { // Erreur de connexion au serveur
-					callback(false);
+					networkSuccess = false;
 				}
+				
+				callback(networkSuccess, identifiantsValides);
 			}
 		);
-	};
-
-	/* Indique si l'utilisateur en cours est connecté.
-	 * L'utilisateur peut être connecté sans appel de connexion() préalable
-	 * (si les informations de connexion ont été stockées dans le navigateur par exemple) */
-	RestManager.prototype.isConnected = function() {
-		return this._isConnected;
 	};
 	
 	/* Récupère le token de connexion en cours */
@@ -53,36 +68,51 @@ define(["jquery"], function() {
 	};
 	
 	/* Dans le cas où l'application possède un token de connexion,
-	 * vérifie auprès du serveur que ce token est valide.
+	 * vérifie auprès du serveur que ce token est (encore) valide.
 	 * Param callback : fonction de rappel appelée une fois la requête effectuée. Arguments : 
 	 * - networkSuccess (booléen) : false si il y a eu une erreur de réseau
 	 * - validConnection (booléen) : true si il existe un token de connexion valide
 	 */
 	RestManager.prototype.checkConnection = function(callback) {
+		var me = this;
+		var networkSuccess;
+		var validConnection;
 		if(this._token) {
 			this.effectuerRequete("GET", "identification/checkconnection", { token: this._token }, function(success, data) {
 				if(success) {
+					networkSuccess = true;
 					if(data.resultCode == 0) { // Succès
-						callback(true, true);
+						me._isConnected = true;
+						validConnection = true;
 					}
 					else {
-						callback(true, false);
+						me._isConnected = false;
+						validConnection = false;
 					}
 				}
 				else {
-					callback(false);
+					networkSuccess = false;
 				}
+				
+				callback(networkSuccess, validConnection);
 			});
 		}
 		else {
-			callback(true, false);
+			callback(true, false); // Aucune requête serveur nécessaire
 		}
+	};
+	
+	/* Indique si l'utilisateur en cours est connecté.
+	 * L'utilisateur peut être connecté sans appel de connexion() préalable
+	 * (si les informations de connexion ont été stockées dans le navigateur par exemple) */
+	RestManager.prototype.isConnected = function() {
+		return this._isConnected;
 	};
 	
 	/* Effectue une requête AJAX avec la méthode donnée ('GET', 'POST', 'PUT' ou 'DELETE'),
 	 * pour l'URL donnée, avec les données fournies.
 	 * La fonction de callback prend en argument : 
-	 * - success (booléen) : succès de la requête
+	 * - success (booléen) : succès de la connexion réseau
 	 * - data (object) : résultat de la requête (non fourni si pas de succès)
 	 */
 	RestManager.prototype.effectuerRequete = function(method, url, data, callback) {
@@ -97,6 +127,10 @@ define(["jquery"], function() {
 		.fail(function(data) {
 			callback(false);
 		});
+	};
+	
+	RestManager.prototype.disconnect = function() {
+		this.setToken(null); // Remise à zéro du token
 	};
 	
 	// Renvoyer RestManager dans cette fonction le définit comme l'objet de ce fichier de module
