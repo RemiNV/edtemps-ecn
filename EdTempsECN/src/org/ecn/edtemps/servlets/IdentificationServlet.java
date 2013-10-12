@@ -36,7 +36,7 @@ public class IdentificationServlet extends HttpServlet {
 		String reponse;
 		
 		if(username == null || password == null) { // Paramètres incomplets
-			reponse = ResponseManager.generateResponse(ResultCode.WRONG_ARGUMENTS_FOR_REQUEST, "Nom d'utilisateur ou mot de passe manquant", null);
+			reponse = ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Nom d'utilisateur ou mot de passe manquant", null);
 		}
 		else {
 			

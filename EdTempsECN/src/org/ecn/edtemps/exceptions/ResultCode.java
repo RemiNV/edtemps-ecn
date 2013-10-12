@@ -7,13 +7,17 @@ package org.ecn.edtemps.exceptions;
  */
 public enum ResultCode {
 
+	/** Requête effectuée avec succès */
 	SUCCESS(0),
+	
+	/** Erreur d'identification : identifiants ou token incorrects ou expirés notamment */
 	IDENTIFICATION_ERROR(1),
-	IDENTIFICATION_EXPIRED(2),
 	LDAP_CONNECTION_ERROR(3),
 	DATABASE_ERROR(4),
 	CRYPTOGRAPHIC_ERROR(5),
-	WRONG_ARGUMENTS_FOR_REQUEST(6);
+	
+	/** La requête a été effectuée sans tous les paramètres nécessaires */
+	WRONG_PARAMETERS_FOR_REQUEST(6);
 	
 	private int code;
 	
