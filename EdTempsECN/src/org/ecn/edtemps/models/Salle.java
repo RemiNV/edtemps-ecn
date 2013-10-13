@@ -22,6 +22,9 @@ public class Salle {
 	/** Niveau de la salle */
 	protected int niveau;
 
+	/** Nom de la salle */
+	protected String nom;
+
 	/** Numéro de la salle */
 	protected int numero;
 
@@ -35,12 +38,13 @@ public class Salle {
 	/**
 	 * Constructeur avec tous les paramètres
 	 */
-	public Salle(String batiment, int capacite, int niveau, int numero,
-			List<Materiel> materiels) {
+	public Salle(String batiment, String nom, int capacite, int niveau,
+			int numero, List<Materiel> materiels) {
 		this.batiment = batiment;
 		this.capacite = capacite;
 		this.niveau = niveau;
 		this.numero = numero;
+		this.nom = nom;
 		this.materiels = materiels;
 	}
 
@@ -70,6 +74,13 @@ public class Salle {
 	 */
 	public int getNiveau() {
 		return niveau;
+	}
+
+	/**
+	 * @return nom
+	 */
+	public String getNom() {
+		return nom;
 	}
 
 	/**
@@ -113,6 +124,15 @@ public class Salle {
 	 */
 	public void setNiveau(int niveau) {
 		this.niveau = niveau;
+	}
+
+	/**
+	 * Affecte une valeur à l'attribut nom
+	 * 
+	 * @param nom
+	 */
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 
 	/**
