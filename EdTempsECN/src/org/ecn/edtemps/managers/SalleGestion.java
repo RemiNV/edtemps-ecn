@@ -1,9 +1,11 @@
 package org.ecn.edtemps.managers;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.Salle;
 
 /**
@@ -13,7 +15,16 @@ import org.ecn.edtemps.models.Salle;
  */
 public class SalleGestion {
 
-	public static void sauverSalle(Salle salle) {
+	/**
+	 * Enregistre une salle dans la base de données
+	 * 
+	 * @param salle
+	 *            salle à enregistrer
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur de connexion avec la base de données
+	 */
+	public static void sauverSalle(Salle salle) throws EdtempsException {
 
 		if (salle != null) {
 
@@ -24,6 +35,7 @@ public class SalleGestion {
 				Integer niveau = salle.getNiveau();
 				Integer numero = salle.getNumero();
 				Integer capacite = salle.getCapacite();
+				List<Materiel> materiels = salle.getMateriels();
 
 				// Vérification de la cohérence des valeurs
 				if (batiment != null && niveau != null && numero != null
@@ -39,8 +51,7 @@ public class SalleGestion {
 				}
 
 			} catch (DatabaseException e) {
-				// TODO : faire quelque chose
-				e.printStackTrace();
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 			}
 
 		}

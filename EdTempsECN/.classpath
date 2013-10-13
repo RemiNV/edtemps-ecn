@@ -14,8 +14,17 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.2-1003.jdbc3.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/EdTempsECN/lib/commons-lang3-3.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/unboundid-ldapsdk-se.jar"/>
 	<classpathentry kind="lib" path="lib/javax.json-1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/EdTempsECN/lib/commons-collections-3.2.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
