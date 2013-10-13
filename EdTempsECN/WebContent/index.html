@@ -5,6 +5,8 @@
 		<title>Emploi du temps ECN</title>
 		
 		<link rel="stylesheet" type="text/css" href="main.css" />
+		<link rel="stylesheet" type="text/css" href="jquery-ui-1.10.3.notheme.css" />
+		<link rel="stylesheet" type="text/css" href="fullcalendar.css" />
 		
 		
 		<!-- 
@@ -23,6 +25,7 @@
 				/* Configuration des bibliothèques compatibles AMD (Asynchronous Module Definition, pour requirejs entre autres) */
 				paths: {
 					jquery: "lib/jquery-1.10.2.min",
+					jqueryui: "lib/jquery-ui-1.10.3.notheme.min",
 					text: "lib/text"
 				},
 			
@@ -40,6 +43,14 @@
 					"lib/davis.hashrouting": {
 						deps: ["lib/davis.min"], // jquery nécessaire pour davis.js, et bibliothèque de base
 						exports: "DavisHashrouting" // Utilisation du nom "Davis" en argument de la fonction le récupérant
+					},
+					
+					"lib/jquery-ui-1.10.3.notheme.min": {
+						deps: ["jquery"]
+					},
+					
+					"lib/fullcalendar.translated.min": {
+						deps: ["jqueryui"]
 					}
 				}
 		

@@ -1,10 +1,3 @@
-
-/* Table de couleurs : (à compléter avec chaque couleur et remplacer éventuellement)
- * Fond foncé générique : #bfc2bf
- * Message d'alerte : red
- */
-
-
 body {
 	font-family: sans-serif;
 }
@@ -13,14 +6,22 @@ h1, h2, h3, h4, h5, h6 {
 	margin: 0px;
 }
 
-#colonne_gauche, #main_content {
+#colonne_gauche {
 	float: left;
+}
+
+#main_content {
+	overflow: hidden;
 }
 
 #formulaire_connexion {
 	background-color: #bfc2bf;
 	padding: 20px;
 	overflow: hidden;
+	width: 500px;
+	position: absolute;
+	left: 50%;
+	margin-left: -250px;
 }
 
 #table_connexion {
@@ -35,3 +36,85 @@ h1, h2, h3, h4, h5, h6 {
 .message_alerte {
 	color: red;
 }
+
+.button {
+	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	border: 1px solid #bfc2bf;
+	border-radius: 4px;
+	cursor: pointer;
+	padding: 5px 10px 5px 10px;
+}
+
+.button:hover {
+	background-image: none;
+	background-color: #e6e6e6;
+}
+
+ul.button_nav {
+	margin: 0px;
+	padding: 0px;
+}
+
+ul.button_nav li {
+	float: left;
+	padding: 5px 10px 5px 10px;
+	border: 1px solid #bfc2bf;
+	border-left: none;
+	list-style-type: none;
+	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	cursor: pointer;
+}
+
+ul.button_nav li:hover, ul.button_nav li.selected{
+	background-image: none;
+	background-color: #e6e6e6;
+}
+
+ul.button_nav li:first-child {
+	border-left: 1px solid #bfc2bf;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+ul.button_nav li:last-child {
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+#lien_deconnexion {
+	float: right;
+}
+
+#btn_chercher_salle {
+	float: left;
+	margin-left: 20px;
+}
+
+#div_filtres {
+	clear: both;
+	float: right;
+	margin: 20px;
+	position: relative;
+	top: 50px;
+	margin-top: -50px;
+}
+
+#div_header_filtres {
+	float: left;
+	padding: 5px 10px 0px 0px;
+}
+
+#formulaire_filtres{
+	overflow: hidden;
+	border-left: 2px solid #bfc2bf;
+	padding-left: 5px;
+}
+
+#btn_ajout_evenement, #bloc_vos_agendas {
+	margin-top: 40px;
+}
+
+#liste_groupes {
+	margin: 20px 10px 0px 0px;
+	border: 1px solid #bfc2bf;
+	height: 300px

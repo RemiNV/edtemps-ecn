@@ -1,0 +1,50 @@
+<div id="colonne_gauche">
+	<div>
+		<img src="img/icone_appli.png" alt="Emploi du temps ECN" />
+	</div>
+	
+	<span class="button" id="btn_ajout_evenement">+ Evènement</span>
+	
+	<div id="bloc_vos_agendas">
+		Vos agendas : <span id="btn_gerer_agendas" class="button">Gérer</span>
+		<div id="liste_groupes">
+		
+		</div>
+	</div>
+</div>
+
+<div id="main_content">
+	
+	<a id="lien_deconnexion" href="#">Déconnexion</a>
+	
+	<ul id="nav_vue_agenda" class="button_nav">
+		<li class="selected">Mes abonnements</li>
+		<li>Mes évènements</li>
+		<li>Vue agenda</li>
+		<li>Vue salle</li>
+	</ul>
+	
+	<span id="btn_chercher_salle" class="button">Chercher une salle libre</span>
+	
+	<div id="div_filtres">
+		<div id="div_header_filtres">Filtrer : </div>
+		<div id="formulaire_filtres">
+			<table>
+				<tr>
+					<td><label for="dropdown_filtre_matiere">par matière :</label></td>
+					<td><select id="dropdown_filtre_matiere"></select></td>
+				</tr>
+				<tr>
+					<td><label for="dropdown_filtre_type">par type :</label></td>
+					<td><select id="dropdown_filtre_type"></select></td>
+				</tr>
+				<tr>
+					<td><label for="dropdown_filtre_responsable">par responsable :</label></td>
+					<td><select id="dropdown_filtre_responsable"></select></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<div id="calendar"></div>
+</div>

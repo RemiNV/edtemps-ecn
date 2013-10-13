@@ -88,10 +88,23 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 	};
 	
 	var chargerInterfacePrincipale = function() {
-		// A implémenter
-		$("#main_content").fadeOut(200, function() {
-			$(this).empty().append("<h1>Connecté. Affichage non implémenté</h1>").fadeIn(200);
+		var jqBody = $("body");
+		jqBody.fadeOut(200);
+
+		require(["EcranAccueil", "text!../templates/page_accueil.html"], function(EcranAccueil, pageAccueilHtml) {
+			// A n'exécuter que si l'animation terminée
+			jqBody.queue(function(next) {
+				jqBody.empty().append($(pageAccueilHtml))
+				
+				// Initialisation
+				new EcranAccueil().init();
+				next();
+			});
+			
+			jqBody.fadeIn(200); // Ajouté à la suite de la queue (après la fonction précédente)
 		});
+		
+		
 	};
 	
 	init();
