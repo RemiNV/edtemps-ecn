@@ -17,6 +17,16 @@ import org.ecn.edtemps.models.identifie.SalleIdentifie;
  * @author Joffrey
  */
 public class SalleGestion {
+	
+	protected BddGestion _bdd;
+	
+	/**
+	 * Initialise un gestionnaire de salles
+	 * @param bdd Gestionnaire de base de données à utiliser
+	 */
+	public SalleGestion(BddGestion bdd) {
+		_bdd = bdd;
+	}
 
 	/**
 	 * Enregistrer une salle dans la base de données
@@ -45,8 +55,7 @@ public class SalleGestion {
 				if (batiment != null && niveau != null && numero != null
 						&& capacite != null && nom != null) {
 
-					BddGestion
-							.executeRequest("INSERT INTO edt.salle (salle_id, salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES (nextval('edt.seq_salle'), '"
+					_bdd.executeRequest("INSERT INTO edt.salle (salle_id, salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES (nextval('edt.seq_salle'), '"
 									+ batiment
 									+ "', '"
 									+ niveau
@@ -60,8 +69,7 @@ public class SalleGestion {
 
 					// Récupérer l'identifiant de la ligne qui vient d'être
 					// ajoutée
-					BddGestion
-							.executeRequest("SELECT currval('edt.seq_salle');");
+					_bdd.executeRequest("SELECT currval('edt.seq_salle');");
 				}
 
 			} catch (DatabaseException e) {
@@ -90,8 +98,7 @@ public class SalleGestion {
 		try {
 
 			// Récupère la salle en base
-			ResultSet resultat = BddGestion
-					.executeRequest("SELECT * FROM edt.salle WHERE salle_id="
+			ResultSet resultat = _bdd.executeRequest("SELECT * FROM edt.salle WHERE salle_id="
 							+ identifiant);
 
 			// Accède au premier élément du résultat

@@ -19,7 +19,7 @@ import org.ecn.edtemps.exceptions.ResultCode;
  */
 public class BddGestion {
 	
-	private static Connection _connection;
+	private Connection _connection;
 
 	/**
 	 * Méthode de connexion à la base de données
@@ -29,11 +29,9 @@ public class BddGestion {
 	 * @throws DatabaseException
 	 *             si une erreur intervient lors de la connexion
 	 */
-	public static Connection connect() throws DatabaseException {
-		
-		if(_connection != null)
-			return _connection;
+	private static Connection connect() throws DatabaseException {
 
+		Connection connection;
 		try {
 
 			Class.forName("org.postgresql.Driver");
@@ -43,15 +41,41 @@ public class BddGestion {
 			String user = "edtemps-ecn";
 			String passwd = "passwordEdtemps";
 
-			_connection = DriverManager.getConnection(url, user, passwd);
+			connection = DriverManager.getConnection(url, user, passwd);
 			System.out.println("Connexion OK");
 
 		} catch (Exception e) {
 			throw new DatabaseException(e);
 		}
 
-		return _connection;
+		return connection;
 	}
+	
+	/**
+	 * Constructeur principale. Effectue une connection à la base de données
+	 * @throws DatabaseException Erreur de connexion à la base de données
+	 */
+	public BddGestion() throws DatabaseException {
+		_connection = connect();
+	}
+	
+	
+	/**
+	 * Démarre une transaction avec la connection associée à cet objet BddGestion 
+	 * @throws SQLException
+	 */
+	public void startTransaction() throws SQLException {
+		_connection.setAutoCommit(false);
+	}
+	
+	/**
+	 * Commit une transaction associée à la connection de cet objet BddGestion
+	 * @throws SQLException
+	 */
+	public void commit() throws SQLException {
+		_connection.commit();
+	}
+	
 
 	/**
 	 * Exécuter une requête SQL
@@ -65,7 +89,7 @@ public class BddGestion {
 	 * @throws DatabaseException
 	 *             si une erreur intervient lors d'exécution de la requête
 	 */
-	public static ResultSet executeRequest(String request)
+	public ResultSet executeRequest(String request)
 			throws DatabaseException {
 
 		ResultSet resultat = null;
@@ -73,12 +97,8 @@ public class BddGestion {
 		if (StringUtils.isNotBlank(request)) {
 			try {
 
-				// Connexion à la base de données
-				Connection connexion = connect();
-
 				// Préparation de la requête
-				PreparedStatement requetePreparee = connexion
-						.prepareStatement(request);
+				PreparedStatement requetePreparee = _connection.prepareStatement(request);
 
 				// Exécute la requête et récupère le résultat s'il y en a un
 				if (requetePreparee.execute()) {
@@ -106,14 +126,14 @@ public class BddGestion {
 	 * @throws DatabaseException
 	 *            si une erreur intervient lors d'exécution de la requête
 	 */
-	public static int recupererId(String request, String nomColonne)
+	public int recupererId(String request, String nomColonne)
 			throws EdtempsException {
 		
 		int id = -1;
 		
 		try {
 			// Execution requete de récupération de la ligne cherchée
-			ResultSet resultat = BddGestion.executeRequest(request);
+			ResultSet resultat = this.executeRequest(request);
 			// Parcourt du resultat
 			while(resultat.next()){
 				 id = resultat.getInt(nomColonne);

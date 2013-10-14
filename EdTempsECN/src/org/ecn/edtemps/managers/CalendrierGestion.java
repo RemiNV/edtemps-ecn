@@ -20,6 +20,17 @@ import org.ecn.edtemps.models.identifie.Utilisateur;
  */
 public class CalendrierGestion {
 	
+	protected BddGestion _bdd;
+	
+	/**
+	 * Initialise un gestionnaire de calendriers
+	 * @param bdd Gestionnaire de base de données à utiliser
+	 */
+	public CalendrierGestion(BddGestion bdd) {
+		_bdd = bdd;
+	}
+	
+	
 	/**
 	 * Méthode (statique) d'enregistrement du calendrier <calendrier> dans la base de données
 	 * Le propriétaire du calendrier à enregistrer est l'utilisateur <proprietaire>
@@ -29,7 +40,7 @@ public class CalendrierGestion {
 	 * @param calendrier
 	 * @param proprietaire
 	 */
-	public static void sauverCalendrier(Calendrier calendrier) throws EdtempsException {
+	public void sauverCalendrier(Calendrier calendrier) throws EdtempsException {
 		
 		// Récupération des attributs du calendrier
 		String matiere = calendrier.getMatiere();
@@ -41,8 +52,8 @@ public class CalendrierGestion {
 		int matiere_id;
 		int type_id;
 		try {
-			matiere_id = BddGestion.recupererId("SELECT * FROM matiere WHERE matiere_nom LIKE '" + matiere + "'", "matiere_id");
-			type_id = BddGestion.recupererId("SELECT * FROM typecalendrier WHERE typecal_libelle LIKE '" + type + "'", "typecal_id");
+			matiere_id = _bdd.recupererId("SELECT * FROM matiere WHERE matiere_nom LIKE '" + matiere + "'", "matiere_id");
+			type_id = _bdd.recupererId("SELECT * FROM typecalendrier WHERE typecal_libelle LIKE '" + type + "'", "typecal_id");
 		} catch (DatabaseException e){
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
@@ -52,7 +63,7 @@ public class CalendrierGestion {
 			
 			try {
 				// On crée le calendrier dans la base de données
-				BddGestion.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
+				_bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
 						+ "VALUES ( "
 						+ matiere_id
 						+ "', '"
@@ -61,7 +72,7 @@ public class CalendrierGestion {
 						+ type_id
 						+ "')");
 				// On récupère l'id du calendrier créé
-				int id_calendrier = BddGestion.recupererId(
+				int id_calendrier = _bdd.recupererId(
 						"SELECT * FROM calendrier "
 						+ "WHERE matiere_id = '" + matiere_id + "' "
 						+ "AND cal_nom = '" + nom + "' "
@@ -72,7 +83,7 @@ public class CalendrierGestion {
 				Iterator<Integer> itr = idProprietaires.iterator();
 				while (itr.hasNext()){
 					int id_utilisateur = itr.next();
-					BddGestion.executeRequest("INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
+					_bdd.executeRequest("INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
 							+ "VALUES ("
 							+ id_utilisateur
 							+ "', '"
@@ -93,7 +104,7 @@ public class CalendrierGestion {
 	}
 	
 	
-	public static Calendrier getCalendrier(int idCalendrier) throws EdtempsException {
+	public Calendrier getCalendrier(int idCalendrier) throws EdtempsException {
 		
 		Calendrier result = new Calendrier();
 		String nom = null, matiere = null, type = null;
@@ -102,7 +113,7 @@ public class CalendrierGestion {
 		try {
 			
 			// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
-			ResultSet rs_calendrier = BddGestion.executeRequest(
+			ResultSet rs_calendrier = _bdd.executeRequest(
 					"SELECT * FROM calendrier "
 					+ "INNER JOIN matiere ON calendrier.matiere_id = matiere.matiere_id "
 					+ "INNER JOIN typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
@@ -125,7 +136,7 @@ public class CalendrierGestion {
 				result.setType(type);
 				
 				// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
-				ResultSet rs_proprios = BddGestion.executeRequest(
+				ResultSet rs_proprios = _bdd.executeRequest(
 						"SELECT * FROM proprietairecalendrier WHERE cal_id =" + idCalendrier );
 				
 				while(rs_proprios.next()){
