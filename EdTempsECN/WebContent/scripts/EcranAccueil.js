@@ -12,9 +12,9 @@ define(["lib/fullcalendar.translated.min"], function() {
 		var m = date.getMonth();
 		var y = date.getFullYear();
 
-	
+		var jqCalendar = $("#calendar");
 		// Initialisation du calendrier
-		$("#calendar").fullCalendar({
+		jqCalendar.fullCalendar({
 			firstDay: 0,
 			editable: true,
 			defaultView: "agendaWeek",
@@ -36,6 +36,9 @@ define(["lib/fullcalendar.translated.min"], function() {
 				left: 'prev,next today month,agendaWeek,agendaDay'
 			},
 			height: Math.max(window.innerHeight - 150, 500),
+			windowResize: function(view) {
+				jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 150, 500));
+			},
 			events: [{
 						title: 'Meeting',
 						start: new Date(y, m, d, 10, 30),
@@ -54,6 +57,14 @@ define(["lib/fullcalendar.translated.min"], function() {
 						allDay: false
 					}]
 		});
+		
+		// Initialisation des listeners
+		$("#btn_gerer_agendas").click(function(e) {
+			Davis.location.assign("parametres");
+		});	
+		
+		// Mise à jour de la taille de l'agenda au redimensionnement fenêtre
+		
 	};
 
 	

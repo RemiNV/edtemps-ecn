@@ -4,10 +4,9 @@
 		<meta charset="utf-8" />
 		<title>Emploi du temps ECN</title>
 		
-		<link rel="stylesheet" type="text/css" href="main.css" />
-		<link rel="stylesheet" type="text/css" href="jquery-ui-1.10.3.notheme.css" />
 		<link rel="stylesheet" type="text/css" href="fullcalendar.css" />
-		
+		<link rel="stylesheet" type="text/css" href="multi-select.css" />
+		<link rel="stylesheet" type="text/css" href="main.css" />
 		
 		<!-- 
 			Chargement de requirejs et de son plugin text, définition de scripts/main.js comme script d'entrée.
@@ -26,7 +25,9 @@
 				paths: {
 					jquery: "lib/jquery-1.10.2.min",
 					jqueryui: "lib/jquery-ui-1.10.3.notheme.min",
-					text: "lib/text"
+					jquerymultiselect: "lib/jquery.multi-select",
+					text: "lib/text",
+					jqueryquicksearch: "lib/jquery.quicksearch"
 				},
 			
 				/* Configuration des bibliothèques non AMD (non compatibles avec 
@@ -51,6 +52,14 @@
 					
 					"lib/fullcalendar.translated.min": {
 						deps: ["jqueryui"]
+					},
+					
+					"lib/jquery.quicksearch": {
+						deps: ["jquery"]
+					},
+					
+					"lib/jquery.multi-select": {
+						deps: ["jquery"]
 					}
 				}
 		
