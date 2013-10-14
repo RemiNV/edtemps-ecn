@@ -12,7 +12,7 @@ CREATE TABLE edt.Salle (
 );
 
 
-ALTER SEQUENCE edt.salle_salle_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.salle_salle_id_seq OWNER TO "edtemps-ecn";
 
 CREATE SEQUENCE edt.materiel_materiel_id_seq;
 
@@ -23,7 +23,7 @@ CREATE TABLE edt.Materiel (
 );
 
 
-ALTER SEQUENCE edt.materiel_materiel_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.materiel_materiel_id_seq OWNER TO "edtemps-ecn";
 
 CREATE TABLE edt.ContientMateriel (
                 salle_id INTEGER NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE edt.TypeCalendrier (
 );
 
 
-ALTER SEQUENCE edt.typecalendrier_typecal_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.typecalendrier_typecal_id_seq OWNER TO "edtemps-ecn";
 
 CREATE SEQUENCE edt.groupedeparticipant_groupeparticipant_id_seq;
 
@@ -55,7 +55,7 @@ CREATE TABLE edt.GroupedeParticipant (
 );
 
 
-ALTER SEQUENCE edt.groupedeparticipant_groupeparticipant_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.groupedeparticipant_groupeparticipant_id_seq OWNER TO "edtemps-ecn";
 
 CREATE SEQUENCE edt.evenement_eve_id_seq;
 
@@ -68,7 +68,7 @@ CREATE TABLE edt.Evenement (
 );
 
 
-ALTER SEQUENCE edt.evenement_eve_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.evenement_eve_id_seq OWNER TO "edtemps-ecn";
 
 CREATE TABLE edt.ALieuenSalle (
                 eve_id INTEGER NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE edt.Matiere (
 );
 
 
-ALTER SEQUENCE edt.matiere_matiere_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.matiere_matiere_id_seq OWNER TO "edtemps-ecn";
 
 CREATE SEQUENCE edt.calendrier_cal_id_seq;
 
@@ -106,7 +106,7 @@ CREATE TABLE edt.Calendrier (
 );
 
 
-ALTER SEQUENCE edt.calendrier_cal_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.calendrier_cal_id_seq OWNER TO "edtemps-ecn";
 
 CREATE TABLE edt.CalendrierAppartientGroupe (
                 groupeParticipant_id INTEGER NOT NULL,
@@ -134,7 +134,7 @@ CREATE TABLE edt.Utilisateur (
 );
 
 
-ALTER SEQUENCE edt.utilisateur_utilisateur_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.utilisateur_utilisateur_id_seq OWNER TO "edtemps-ecn";
 
 CREATE TABLE edt.ProprietaireGroupedeParticipant (
                 utilisateur_id INTEGER NOT NULL,
@@ -188,7 +188,7 @@ CREATE TABLE edt.TypeUtilisateur (
 );
 
 
-ALTER SEQUENCE edt.typeutilisateur_type_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.typeutilisateur_type_id_seq OWNER TO "edtemps-ecn";
 
 CREATE TABLE edt.EstDeType (
                 type_id INTEGER NOT NULL,
@@ -206,7 +206,7 @@ CREATE TABLE edt.Droits (
 );
 
 
-ALTER SEQUENCE edt.droits_droits_id_seq OWNED BY "edtemps-ecn";
+ALTER SEQUENCE edt.droits_droits_id_seq OWNER TO "edtemps-ecn";
 
 CREATE TABLE edt.ALeDroitDe (
                 type_id INTEGER NOT NULL,
