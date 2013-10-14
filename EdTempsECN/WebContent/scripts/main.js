@@ -11,6 +11,8 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 	
 	var restManager = new RestManager();
 	
+	var currentPage = { nom: null, manager: null };
+	
 	var init = function() {
 	
 		// Plugin hashrouting : routage par hash (le serveur ne contient qu'une page, pas d'accès possible sans JS)
@@ -20,14 +22,20 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 		this.app = Davis(function() {
 			
 			// Page principale
-			this.get("agenda", function(req) {
+			var routePagePrincipale = function(req) {
 				if(restManager.isConnected()) { // RestManager.checkConnection() ou RestManager.connection() appelé
-					chargerInterfacePrincipale();
+					if(currentPage.nom != "agenda")
+						chargerInterfacePrincipale(req.params["vue"]);
+					else
+						currentPage.manager.setVue(req.params["vue"]);
 				}
 				else {
 					req.redirect("connexion/agenda");
 				}
-			});
+				
+			};
+			this.get("agenda/:vue", routePagePrincipale); // Valeurs pour :vue : "mes_abonnements", "mes_evenements", "vue_groupe", "vue_salle"
+			this.get("agenda", routePagePrincipale);
 			
 			// Page de paramètres
 			this.get("parametres", function(req) {
@@ -41,7 +49,6 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			
 			// Page de connexion
 			this.get("connexion/:target", function(req) {
-
 				// Déjà connecté ?
 				restManager.checkConnection(function(networkSuccess, validConnection) {
 					if(networkSuccess && validConnection) {
@@ -89,6 +96,8 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 		require(["text!../templates/formulaire_connexion.html"], function(htmlFormulaireConnexion) {
 			// Ajout au DOM
 			$(htmlFormulaireConnexion).appendTo($("#main_content").empty());
+			currentPage.manager = null;
+			currentPage.nom = "connexion";
 			
 			// Callback de connexion
 			$("#btn_connexion").click(function(event) {
@@ -98,14 +107,22 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 				$("#msg_identifiants_invalides").css("display", "none");
 				
 				// Connexion
-				restManager.connexion(username, pass, function(success, identifiantsValides) {
+				restManager.connexion(username, pass, function(success, resultCode) {
 					if(success) {
-						if(identifiantsValides) {
+						switch(resultCode) {
+						case RestManager.resultCode_Success:
 							// Redirection vers la page d'agenda
 							Davis.location.assign("agenda");
-						}
-						else {
-							$("#msg_identifiants_invalides").css("display", "inline");
+							break;
+							
+						case RestManager.resultCode_LdapError:
+							$("#msg_erreur").html("Erreur de connexion au serveur LDAP").css("display", "inline");
+							break;
+						
+						default:
+						case RestManager.resultCode_IdentificationError:
+							$("#msg_erreur").html("Identifiants invalides").css("display", "inline");
+							break;
 						}
 					}
 					else {
@@ -143,13 +160,16 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 		});
 	};
 	
-	var chargerInterfacePrincipale = function() {
+	var chargerInterfacePrincipale = function(vue) {
 	
 		transitionInterface(["EcranAccueil", "text!../templates/page_accueil.html"], function(EcranAccueil, pageAccueilHtml) {
 			$("body").empty().append($(pageAccueilHtml))
 			
 			// Initialisation
-			new EcranAccueil().init();
+			currentPage.manager = new EcranAccueil();
+			currentPage.manager.init();
+			currentPage.manager.setVue(vue);
+			currentPage.nom = "agenda"
 		});
 	};
 	
@@ -158,7 +178,9 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			$("body").empty().append($(pageAccueilHtml))
 			
 			// Initialisation
-			new EcranParametres().init();
+			currentPage.manager = new EcranParametres();
+			currentPage.manager.init();
+			currentPage.nom="parametres"
 		});
 	};
 	

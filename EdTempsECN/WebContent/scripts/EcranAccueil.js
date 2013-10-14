@@ -2,7 +2,7 @@ define(["lib/fullcalendar.translated.min"], function() {
 	
 	// Constructeur
 	var EcranAccueil = function() {
-	
+		this._idVue = EcranAccueil.ID_VUE_MES_ABONNEMENTS;
 	};
 	
 	EcranAccueil.prototype.init = function() {
@@ -61,10 +61,32 @@ define(["lib/fullcalendar.translated.min"], function() {
 		// Initialisation des listeners
 		$("#btn_gerer_agendas").click(function(e) {
 			Davis.location.assign("parametres");
-		});	
+		});
 		
-		// Mise à jour de la taille de l'agenda au redimensionnement fenêtre
+		this.setVue("mes_abonnements");
+	};
+	
+	EcranAccueil.prototype.setVue = function(vue) {
+	
+		// SÃ©lection de l'onglet
+		$("#nav_vue_agenda li").removeClass("selected");
+		switch(vue) {
+		case "vue_groupe":
+			$("#nav_vue_agenda #tab_vue_groupe").addClass("selected");
+			break;
+		case "vue_salle":
+			$("#nav_vue_agenda #tab_vue_salle").addClass("selected");
+			break;
 		
+		case "mes_evenements":
+			$("#nav_vue_agenda #tab_mes_evenements").addClass("selected");
+			break;
+			
+		case "mes_abonnements":
+		default:
+			$("#nav_vue_agenda #tab_mes_abonnements").addClass("selected");
+			break;
+		}
 	};
 
 	

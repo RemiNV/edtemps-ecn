@@ -17,8 +17,10 @@ define(["jquery"], function() {
 		this._connected = false; // Appeler connexion() ou checkConnexion() pour mettre à jour ce statut
 	};
 	
+	// Correspondent aux codes définis dans le Java
 	RestManager.resultCode_Success = 0;
 	RestManager.resultCode_IdentificationError = 1;
+	RestManager.resultCode_LdapError = 3;
 	
 	RestManager.prototype.setToken = function(token) {
 		this._token = token;
@@ -33,7 +35,7 @@ define(["jquery"], function() {
 	 * Param callback : fonction de rappel appelée pour fournir les résultats de la requête
 	 * 	La fonction callback prend les arguments : 
 	 * 	- networkSuccess (booléen) : succès de la communication réseau
-	 *  - identifiantsValides (booléen) : succès de l'identification de l'utilisateur, fourni en cas de succès de la connexion
+	 *  - resultCode (entier) : résultat de la connexion, correspondant à RestManager.resultCode_*
 	 * Valeur de retour : aucune */
 	RestManager.prototype.connexion = function(identifiant, pass, callback) {
 		var me = this;
@@ -42,25 +44,17 @@ define(["jquery"], function() {
 		this.effectuerRequete("POST", "identification/connection", { username: identifiant, password: pass }, 
 			function(success, response) {
 			
-				var networkSuccess;
-				var identifiantsValides;
-			
 				if(success) { // Succès de la requête (pas forcément de la connexion)
-					networkSuccess = true;
 					if(response.resultCode == 0) { // Succès de l'identification
 						me.setToken(response.data.token);
 						me._isConnected = true;
-						identifiantsValides = true;
 					}
-					else { // Erreur d'identification
-						identifiantsValides = false;
-					}
+					
+					callback(true, response.resultCode);
 				}
 				else { // Erreur de connexion au serveur
-					networkSuccess = false;
+					callback(false);
 				}
-				
-				callback(networkSuccess, identifiantsValides);
 			}
 		);
 	};
@@ -140,7 +134,8 @@ define(["jquery"], function() {
 		
 		$.ajax(url, {
 			data: data,
-			type: method
+			type: method,
+			timeout: 15000 // 15 sec.
 		})
 		.done(function(data) {
 			callback(true, data);
