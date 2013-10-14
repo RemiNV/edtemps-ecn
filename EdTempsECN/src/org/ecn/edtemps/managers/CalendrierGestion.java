@@ -1,12 +1,12 @@
 package org.ecn.edtemps.managers;
 
-import Neuneu;
-
 import java.sql.ResultSet;
 import java.util.Iterator;
 import java.util.List;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Calendrier;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.models.identifie.Utilisateur;
@@ -27,7 +27,7 @@ public class CalendrierGestion {
 	 * @param calendrier
 	 * @param proprietaire
 	 */
-	public static void sauverCalendrier(Calendrier calendrier) {
+	public static void sauverCalendrier(Calendrier calendrier) throws EdtempsException {
 		
 		// Récupération des attributs du calendrier
 		String matiere = calendrier.getMatiere();
@@ -35,17 +35,23 @@ public class CalendrierGestion {
 		String type = calendrier.getType();
 		List<Integer> idProprietaires = calendrier.getIdProprietaires(); 
 				
-		// Récupération de l'id de la matiere
-		int matiere_id = BddGestion.recupererId("SELECT * FROM matiere WHERE matiere_nom LIKE '" + matiere + "'", "matiere_id");
-		// Récupération de l'id du type
-		int type_id = BddGestion.recupererId("SELECT * FROM typecalendrier WHERE typecal_libelle LIKE '" + type + "'", "typecal_id");
+		// Récupération de l'id de la matiere et du type
+		int matiere_id;
+		int type_id;
+		try {
+			matiere_id = BddGestion.recupererId("SELECT * FROM matiere WHERE matiere_nom LIKE '" + matiere + "'", "matiere_id");
+			type_id = BddGestion.recupererId("SELECT * FROM typecalendrier WHERE typecal_libelle LIKE '" + type + "'", "typecal_id");
+		} catch (DatabaseException e){
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+		
 		// Vérification unicité/existence des id récupérés 
-		if ((matiere_id != -1) && (type_id != -1)) { 				
+		if ((matiere_id != -1) && (type_id != -1)) { 			
+			
 			try {
 				// On crée le calendrier dans la base de données
-				BddGestion.executeRequest("INSERT INTO edt.calendrier (cal_id, matiere_id, cal_nom, typeCal_id) "
-						+ "VALUES ("
-						+ "nextval('edt.seq_calendrier'), '"
+				BddGestion.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
+						+ "VALUES ( "
 						+ matiere_id
 						+ "', '"
 						+ nom
@@ -72,18 +78,14 @@ public class CalendrierGestion {
 							+ "')");
 				}
 			} 
-			catch (NullPointerException e) {
-				// TODO : exception générée quand salle mal définie / remplie
-				e.printStackTrace();
-			}
 			catch (DatabaseException e) {
-				// TODO : je propose qu'on la remonte... puisqu'il faudra une fonction au dessus pour créer la salle
-				e.printStackTrace();
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 			}
 			
 		}
+		//pour debug
 		else {
-			//throw new 
+			System.out.println("ID matiere ou type non existant/unique");
 		}
 			
 	}
