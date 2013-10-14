@@ -17,6 +17,9 @@ define(["jquery"], function() {
 		this._connected = false; // Appeler connexion() ou checkConnexion() pour mettre à jour ce statut
 	};
 	
+	RestManager.resultCode_Success = 0;
+	RestManager.resultCode_IdentificationError = 1;
+	
 	RestManager.prototype.setToken = function(token) {
 		this._token = token;
 		if(window.localStorage) {
@@ -29,10 +32,10 @@ define(["jquery"], function() {
 	 * Param pass : mot de passe de l'utilisateur
 	 * Param callback : fonction de rappel appelée pour fournir les résultats de la requête
 	 * 	La fonction callback prend les arguments : 
-	 * 	- networkSuccess (booléen) : succès de la connexion au serveur
+	 * 	- networkSuccess (booléen) : succès de la communication réseau
 	 *  - identifiantsValides (booléen) : succès de l'identification de l'utilisateur, fourni en cas de succès de la connexion
 	 * Valeur de retour : aucune */
-	RestManager.prototype.connection = function(identifiant, pass, callback) {
+	RestManager.prototype.connexion = function(identifiant, pass, callback) {
 		var me = this;
 		
 		// Connection depuis le serveur
@@ -60,6 +63,24 @@ define(["jquery"], function() {
 				callback(networkSuccess, identifiantsValides);
 			}
 		);
+	};
+	
+	/**
+	 * Fonction de déconnexion auprès du serveur
+	 * Param callback : fonction appelée une fois la requête terminée. Arguments : 
+	 * - networkSuccess (booléen) : succès de la communication réseau
+	 * - resultCode (entier) : code de résultat renvoyé par le serveur. 0 en cas de succès de la déconnexion. */
+	RestManager.prototype.deconnexion = function(callback) {
+		this.effectuerRequete("GET", "identification/disconnect", { token: this._token }, function(networkSuccess, data) {
+			// On considère que la déconnexion est un succès si il y a une erreur d'identification
+			if(networkSuccess && (data.resultCode === RestManager.resultCode_Success || data.resultCode === RestManager.resultCode_IdentificationError)) {
+				this._isConnected = false;
+				this._token = null;
+				callback(true, RestManager.resultCode_Success);
+			}
+			else
+				callback(networkSuccess, data.resultCode);
+		});
 	};
 	
 	/* Récupère le token de connexion en cours */

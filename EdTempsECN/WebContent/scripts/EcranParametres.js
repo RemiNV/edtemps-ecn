@@ -3,12 +3,21 @@ define(["jqueryquicksearch", "jqueryui", "jquerymultiselect"], function() {
 	var EcranParametres = function() {
 		
 	};
-
-	EcranParametres.prototype.init = function() {
 	
+	EcranParametres.prototype.init = function() {
+		
 		// Initialisaion de la navigation par tabs
 		$("#tabs").tabs();
-			
+		
+		// Listeners
+		$("#btn_parametres_retour").click(function() {
+			Davis.location.assign("agenda");
+		});
+		
+		this.initMesAbonnements();
+	};
+
+	EcranParametres.prototype.initMesAbonnements = function() {
 		$("#select-abonnements").multiSelect({
 			selectableHeader: "<h3>Mes abonnements : </h3><input type='text' class='select-abonnements-filtre' autocomplete='off' placeholder='Filtrer...'>",
 			selectionHeader: "<h3>Agendas disponibles : </h3><input type='text' class='select-abonnements-filtre' autocomplete='off' placeholder='Filtrer...'>",
@@ -30,11 +39,6 @@ define(["jqueryquicksearch", "jqueryui", "jquerymultiselect"], function() {
 				this.qs1.cache();
 				this.qs2.cache();
 			}
-		});
-		
-		// Listeners
-		$("#btn_parametres_retour").click(function() {
-			Davis.location.assign("agenda");
 		});
 	};
 	

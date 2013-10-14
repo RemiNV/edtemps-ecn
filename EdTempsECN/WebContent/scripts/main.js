@@ -31,7 +31,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			
 			// Page de paramètres
 			this.get("parametres", function(req) {
-				if(restManager.isConnected()) { // RestManager.checkConnection() ou RestManager.connection() appelé
+				if(restManager.isConnected()) { // RestManager.checkConnection() ou RestManager.connexion() appelé
 					chargerInterfaceParametres();
 				}
 				else {
@@ -50,6 +50,25 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 					else {
 						chargerInterfaceConnection();
 					}
+				});
+			});
+			
+			this.get("deconnexion", function(req) {
+				restManager.deconnexion(function(networkSuccess, resultCode) {
+					if(!networkSuccess) {
+						alert("Erreur réseau : vérifiez votre connexion.");
+						req.redirect("agenda");
+						return;
+					}
+					
+					if(resultCode != RestManager.resultCode_Success && resultCode != RestManager.resultCode_IdentificationError) {
+						alert("Erreur de la déconnexion. Code retour : " + resultCode);
+						req.redirect("agenda");
+						return;
+					}
+					
+					// Pas d'erreur
+					req.redirect("connexion/agenda");
 				});
 			});
 			
@@ -79,7 +98,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 				$("#msg_identifiants_invalides").css("display", "none");
 				
 				// Connexion
-				restManager.connection(username, pass, function(success, identifiantsValides) {
+				restManager.connexion(username, pass, function(success, identifiantsValides) {
 					if(success) {
 						if(identifiantsValides) {
 							// Redirection vers la page d'agenda

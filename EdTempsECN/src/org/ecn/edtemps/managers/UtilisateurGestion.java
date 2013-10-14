@@ -142,6 +142,16 @@ public class UtilisateurGestion {
 	}
 	
 	/**
+	 * Déconnexion d'un utilisateur
+	 * @param idUtilisateur ID de l'utilisateur à déconnecter
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	public static void seDeconnecter(int idUtilisateur) throws DatabaseException {
+		// Invalidation du token
+		BddGestion.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=NULL,utilisateur_token_expire=NULL WHERE utilisateur_id=" + idUtilisateur);
+	}
+	
+	/**
 	 * Connexion de l'utilisateur et création d'un token de connexion (inséré en base de données)
 	 * @param utilisateur Nom d'utilisateur
 	 * @param pass Mot de passe
