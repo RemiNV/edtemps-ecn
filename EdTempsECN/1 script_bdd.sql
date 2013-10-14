@@ -95,9 +95,11 @@ CREATE TABLE edt.EvenementAppartient (
 
 
 CREATE TABLE edt.Utilisateur (
-                utilisateur_id INTEGER NOT NULL,
+                utilisateur_id SERIAL NOT NULL,
                 utilisateur_url_ical VARCHAR,
-                utilisateur_id_ldap INTEGER,
+                utilisateur_id_ldap INTEGER UNIQUE,
+				utilisateur_token TEXT UNIQUE,
+				utilisateur_token_expire TIMESTAMP,
                 CONSTRAINT utilisateur_id PRIMARY KEY (utilisateur_id)
 );
 

@@ -43,6 +43,7 @@ h1, h2, h3, h4, h5, h6 {
 	border-radius: 4px;
 	cursor: pointer;
 	padding: 5px 10px 5px 10px;
+	display: inline-block;
 }
 
 .button:hover {
@@ -65,7 +66,17 @@ ul.button_nav li {
 	cursor: pointer;
 }
 
-ul.button_nav li:hover, ul.button_nav li.selected{
+ul.button_nav li a {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+ul.button_nav li a:focus {
+	outline: none;
+}
+
+ul.button_nav li:hover, ul.button_nav li.selected, ul.button_nav li.ui-tabs-active{
 	background-image: none;
 	background-color: #e6e6e6;
 }
@@ -118,3 +129,46 @@ ul.button_nav li:last-child {
 	margin: 20px 10px 0px 0px;
 	border: 1px solid #bfc2bf;
 	height: 300px
+}
+
+/* CSS jquery ui */
+
+.ui-tabs-panel {
+	clear: both;
+	padding-top: 20px;
+}
+
+
+/* Fin CSS jquery ui */
+
+/* Liste de sélection des abonnements */
+#ms-select-abonnements .ms-list{
+	height: 500px;
+}
+
+#ms-select-abonnements {
+	width: 700px;
+}
+
+.select-abonnements-filtre {
+	width: 100%;
+	box-sizing: border-box;
+	margin-top: 10px;
+}
+
+/* Inversion de l'ordre des listes de sélection */
+.ms-container .ms-selection{
+  float: left;
+}
+
+.ms-container .ms-selectable{
+  float: right;
+}
+
+#btn_enregistrer_abonnements {
+	margin-top: 20px;
+}
+
+#btn_parametres_retour {
+	margin-left: 40px;
+}
