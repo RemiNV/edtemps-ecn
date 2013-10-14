@@ -1,5 +1,7 @@
 package org.ecn.edtemps.models;
 
+import java.util.List;
+
 /**
  * Classe modèle d'un calendrier
  * 
@@ -10,21 +12,23 @@ public class Calendrier {
 	/** Nom du calendrier */
 	protected String nom;
 
-	/** Type du calendrier 
-	 *  Ex: "CM", "TD", "TP", ... 
-	 */
+	/** Type du calendrier. Ex: "CM", "TD", "TP", ... */
 	protected String type;
 
 	/** Matière associée au calendrier */
 	protected String matiere;
 
+	/** Proprietaires du calendrier */
+	protected List<Integer> idProprietaires;
+	
+	
 	/**	
 	 * Constructeur par défaut
 	 */
 	public Calendrier() {
 		
 	}
-	
+
 	/** 
 	 * Constructeur avec tous les attributs
 	 * 
@@ -90,6 +94,25 @@ public class Calendrier {
 	 */
 	public void setMatiere(String matiere) {
 		this.matiere = matiere;
+	}
+	
+	
+	/**
+	 * Getter de la liste des proprietaires
+	 * 
+	 * @return
+	 */
+	public List<Integer> getIdProprietaires() {
+		return idProprietaires;
+	}
+
+	/**
+	 * Setter de la liste des proprietaires
+	 * 
+	 * @param idProprietaires
+	 */
+	public void setIdProprietaires(List<Integer> idProprietaires) {
+		this.idProprietaires = idProprietaires;
 	}
 	
 }

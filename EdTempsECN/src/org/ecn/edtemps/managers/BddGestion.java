@@ -90,4 +90,44 @@ public class BddGestion {
 		return resultat;
 	}
 
+	
+	/**
+	 * Récupérer l'ID (contenu dans la colonne <nomColonne>) d'une ligne spécifique d'une table
+	 * 
+	 * @param requete : requête à effectuer, devant retourner une et une seule ligne 
+	 * @param nomColonne : nom de la colonne contenant l'id
+	 * 
+	 * @return id : id de la ligne cherchée 
+	 * 			  ou -1 si le résultat n'existe pas / n'est pas unique
+	 * 
+	 * @throws DatabaseException
+	 *            si une erreur intervient lors d'exécution de la requête
+	 */
+	public static int recupererId(String request, String nomColonne)
+			throws DatabaseException {
+		
+		int id = -1;
+		
+		try {
+			// Execution requete de récupération de la ligne cherchée
+			ResultSet resultat = BddGestion.executeRequest(request);
+			// Parcourt du resultat
+			while(resultat.next()){
+				 id = resultat.getInt(nomColonne);
+			}
+			// Si le nombre de lignes du ResultSet n'est pas égal à 1 : erreur ! On renvoie -1
+			if (resultat.getRow() != 1) {
+				id = -1;
+			}
+		} catch (Exception e) {
+			throw new DatabaseException(e);
+		}
+		
+	
+		return id;
+		
+	}
+
+	
+	
 }
