@@ -25,17 +25,27 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 					chargerInterfacePrincipale();
 				}
 				else {
-					req.redirect("connexion");
+					req.redirect("connexion/agenda");
+				}
+			});
+			
+			// Page de paramètres
+			this.get("parametres", function(req) {
+				if(restManager.isConnected()) { // RestManager.checkConnection() ou RestManager.connection() appelé
+					chargerInterfaceParametres();
+				}
+				else {
+					req.redirect("connexion/parametres");
 				}
 			});
 			
 			// Page de connexion
-			this.get("connexion", function(req) {
+			this.get("connexion/:target", function(req) {
 
 				// Déjà connecté ?
 				restManager.checkConnection(function(networkSuccess, validConnection) {
 					if(networkSuccess && validConnection) {
-						req.redirect("agenda"); // Déjà connecté : redirection
+						req.redirect(req.params["target"]); // Déjà connecté : redirection
 					}
 					else {
 						chargerInterfaceConnection();
@@ -45,7 +55,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			
 			// Page racine : redirection vers la page de connexion
 			this.get("/", function(req) {
-				req.redirect("connexion");
+				req.redirect("connexion/agenda");
 			});
 		});
 		
@@ -87,24 +97,50 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 		});
 	};
 	
-	var chargerInterfacePrincipale = function() {
+	/**
+	 * Effectue une transition d'interface par fadeOut - fadeIn : 
+	 * 1) fadeOut, et chargement des dépendances en parallèle
+	 * 2) Animation terminée et dépendances chargées : appel de callback
+	 * 3) Callback terminé : fadeIn
+	 * Arguments : 
+	 * - dependencies : tableau de chaînes indiquant les dépendances à charger par requirejs
+	 * - callback : fonction appelée à l'étape 2), avec les dépendances demandées chargées en argument */
+	var transitionInterface = function(dependencies, callback) {
 		var jqBody = $("body");
 		jqBody.fadeOut(200);
 
-		require(["EcranAccueil", "text!../templates/page_accueil.html"], function(EcranAccueil, pageAccueilHtml) {
+		require(dependencies, function() {
+		
+			var obtainedDependencies = arguments;
+		
 			// A n'exécuter que si l'animation terminée
 			jqBody.queue(function(next) {
-				jqBody.empty().append($(pageAccueilHtml))
+				callback.apply(jqBody.get(0), obtainedDependencies);
 				
-				// Initialisation
-				new EcranAccueil().init();
 				next();
 			});
 			
 			jqBody.fadeIn(200); // Ajouté à la suite de la queue (après la fonction précédente)
 		});
-		
-		
+	};
+	
+	var chargerInterfacePrincipale = function() {
+	
+		transitionInterface(["EcranAccueil", "text!../templates/page_accueil.html"], function(EcranAccueil, pageAccueilHtml) {
+			$("body").empty().append($(pageAccueilHtml))
+			
+			// Initialisation
+			new EcranAccueil().init();
+		});
+	};
+	
+	var chargerInterfaceParametres = function() {
+		transitionInterface(["EcranParametres", "text!../templates/page_parametres.html"], function(EcranParametres, pageAccueilHtml) {
+			$("body").empty().append($(pageAccueilHtml))
+			
+			// Initialisation
+			new EcranParametres().init();
+		});
 	};
 	
 	init();

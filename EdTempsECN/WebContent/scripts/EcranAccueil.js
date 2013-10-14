@@ -54,6 +54,11 @@ define(["lib/fullcalendar.translated.min"], function() {
 						allDay: false
 					}]
 		});
+		
+		// Initialisation des listeners
+		$("#btn_gerer_agendas").click(function(e) {
+			Davis.location.assign("parametres");
+		});	
 	};
 
 	
