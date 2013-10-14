@@ -1,5 +1,8 @@
 package org.ecn.edtemps.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Classe d'objet de salle
  * 
@@ -13,6 +16,9 @@ public class Salle {
 	/** Capacité de la salle */
 	protected int capacite;
 
+	/** Liste du matériel qui équipe la salle */
+	protected List<Materiel> materiels;
+
 	/** Niveau de la salle */
 	protected int niveau;
 
@@ -23,17 +29,19 @@ public class Salle {
 	 * Constructeur vide
 	 */
 	public Salle() {
-
+		this.materiels = new ArrayList<Materiel>();
 	}
 
 	/**
 	 * Constructeur avec tous les paramètres
 	 */
-	public Salle(String batiment, int capacite, int niveau, int numero) {
+	public Salle(String batiment, int capacite, int niveau, int numero,
+			List<Materiel> materiels) {
 		this.batiment = batiment;
 		this.capacite = capacite;
 		this.niveau = niveau;
 		this.numero = numero;
+		this.materiels = materiels;
 	}
 
 	/**
@@ -48,6 +56,13 @@ public class Salle {
 	 */
 	public int getCapacite() {
 		return capacite;
+	}
+
+	/**
+	 * @return materiels
+	 */
+	public List<Materiel> getMateriels() {
+		return materiels;
 	}
 
 	/**
@@ -80,6 +95,15 @@ public class Salle {
 	 */
 	public void setCapacite(int capacite) {
 		this.capacite = capacite;
+	}
+
+	/**
+	 * Affecte une valeur à l'attribut materiels
+	 * 
+	 * @param materiels
+	 */
+	public void setMateriels(List<Materiel> materiels) {
+		this.materiels = materiels;
 	}
 
 	/**
