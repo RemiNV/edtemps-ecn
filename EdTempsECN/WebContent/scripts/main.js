@@ -95,7 +95,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 		// Récupération de l'interface depuis les templates
 		require(["text!../templates/formulaire_connexion.html"], function(htmlFormulaireConnexion) {
 			// Ajout au DOM
-			$(htmlFormulaireConnexion).appendTo($("#main_content").empty());
+			$(htmlFormulaireConnexion).appendTo($("body").empty());
 			currentPage.manager = null;
 			currentPage.nom = "connexion";
 			
