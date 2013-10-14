@@ -1,6 +1,8 @@
 package org.ecn.edtemps.managers;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -88,6 +90,70 @@ public class CalendrierGestion {
 			System.out.println("ID matiere ou type non existant/unique");
 		}
 			
+	}
+	
+	
+	public static Calendrier getCalendrier(int idCalendrier) throws EdtempsException {
+		
+		Calendrier result = new Calendrier();
+		String nom = null, matiere = null, type = null;
+		List<Integer> idProprietaires = new ArrayList<Integer>(); 
+		
+		try {
+			
+			// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
+			ResultSet rs_calendrier = BddGestion.executeRequest(
+					"SELECT * FROM calendrier "
+					+ "INNER JOIN matiere ON calendrier.matiere_id = matiere.matiere_id "
+					+ "INNER JOIN typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
+					+ "WHERE cal_id =" + idCalendrier );
+
+			while(rs_calendrier.next()){
+				 nom = rs_calendrier.getString("cal_nom");
+				 matiere = rs_calendrier.getString("matiere_nom");
+				 type = rs_calendrier.getString("typeCal_libelle");
+			}
+			
+			/* Si le ResultSet contient bien une et une seule ligne
+			 * Sinon, exception EdtempsException
+			 */
+			if (rs_calendrier.getRow() == 1) {
+				
+				// On remplit les attributs du Calendrier result 
+				result.setNom(nom);
+				result.setMatiere(matiere);
+				result.setType(type);
+				
+				// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
+				ResultSet rs_proprios = BddGestion.executeRequest(
+						"SELECT * FROM proprietairecalendrier WHERE cal_id =" + idCalendrier );
+				
+				while(rs_proprios.next()){
+					 idProprietaires.add(rs_proprios.getInt("utilisateur_id"));
+				}
+				
+				/* Si au moins un proprio existe, le ou les ajouter aux attibuts du Calendrier. 
+				 * Sinon, exception EdtempsException
+				 */
+				if (rs_proprios.getRow() != 0) {
+					result.setIdProprietaires(idProprietaires);
+				}
+				else {
+					throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : liste des proprietaires vides");
+				}
+			}
+			else {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : pas de calendrier correspondant à l'idCalendrier en argument");
+			}
+			
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+		
+		return result;
+		
 	}
 	
 

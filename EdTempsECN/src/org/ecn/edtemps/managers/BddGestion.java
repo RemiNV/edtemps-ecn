@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.ResultCode;
 
 /**
  * Classe d'outils pour se connecter à la base de données et exécuter des
@@ -104,7 +107,7 @@ public class BddGestion {
 	 *            si une erreur intervient lors d'exécution de la requête
 	 */
 	public static int recupererId(String request, String nomColonne)
-			throws DatabaseException {
+			throws EdtempsException {
 		
 		int id = -1;
 		
@@ -119,8 +122,10 @@ public class BddGestion {
 			if (resultat.getRow() != 1) {
 				id = -1;
 			}
-		} catch (Exception e) {
-			throw new DatabaseException(e);
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 		
 	

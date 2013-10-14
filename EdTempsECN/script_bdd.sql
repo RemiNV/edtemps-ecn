@@ -1,6 +1,8 @@
 
+CREATE SEQUENCE edt.salle_salle_id_seq;
+
 CREATE TABLE edt.Salle (
-                salle_id INTEGER NOT NULL,
+                salle_id INTEGER NOT NULL DEFAULT nextval('edt.salle_salle_id_seq'),
                 salle_batiment VARCHAR,
                 salle_niveau INTEGER,
                 salle_nom VARCHAR,
@@ -10,12 +12,18 @@ CREATE TABLE edt.Salle (
 );
 
 
+ALTER SEQUENCE edt.salle_salle_id_seq OWNED BY "edtemps-ecn";
+
+CREATE SEQUENCE edt.materiel_materiel_id_seq;
+
 CREATE TABLE edt.Materiel (
-                materiel_id INTEGER NOT NULL,
+                materiel_id INTEGER NOT NULL DEFAULT nextval('edt.materiel_materiel_id_seq'),
                 materiel_nom VARCHAR,
                 CONSTRAINT materiel_id PRIMARY KEY (materiel_id)
 );
 
+
+ALTER SEQUENCE edt.materiel_materiel_id_seq OWNED BY "edtemps-ecn";
 
 CREATE TABLE edt.ContientMateriel (
                 salle_id INTEGER NOT NULL,
@@ -25,15 +33,21 @@ CREATE TABLE edt.ContientMateriel (
 );
 
 
+CREATE SEQUENCE edt.typecalendrier_typecal_id_seq;
+
 CREATE TABLE edt.TypeCalendrier (
-                typeCal_id INTEGER NOT NULL,
-                typeCal_libelle VARCHAR,
+                typeCal_id INTEGER NOT NULL DEFAULT nextval('edt.typecalendrier_typecal_id_seq'),
+                typeCal_libelle VARCHAR UNIQUE,
                 CONSTRAINT typecal_id PRIMARY KEY (typeCal_id)
 );
 
 
+ALTER SEQUENCE edt.typecalendrier_typecal_id_seq OWNED BY "edtemps-ecn";
+
+CREATE SEQUENCE edt.groupedeparticipant_groupeparticipant_id_seq;
+
 CREATE TABLE edt.GroupedeParticipant (
-                groupeParticipant_id INTEGER NOT NULL,
+                groupeParticipant_id INTEGER NOT NULL DEFAULT nextval('edt.groupedeparticipant_groupeparticipant_id_seq'),
                 groupeParticipant_nom VARCHAR,
                 groupeParticipant_rattachementAutorise BOOLEAN,
                 groupedeParticipant_id_parent INTEGER,
@@ -41,14 +55,20 @@ CREATE TABLE edt.GroupedeParticipant (
 );
 
 
+ALTER SEQUENCE edt.groupedeparticipant_groupeparticipant_id_seq OWNED BY "edtemps-ecn";
+
+CREATE SEQUENCE edt.evenement_eve_id_seq;
+
 CREATE TABLE edt.Evenement (
-                eve_id INTEGER NOT NULL,
+                eve_id INTEGER NOT NULL DEFAULT nextval('edt.evenement_eve_id_seq'),
                 eve_nom VARCHAR,
                 eve_dateDebut TIMESTAMP,
                 eve_dateFin TIMESTAMP,
                 CONSTRAINT eve_id PRIMARY KEY (eve_id)
 );
 
+
+ALTER SEQUENCE edt.evenement_eve_id_seq OWNED BY "edtemps-ecn";
 
 CREATE TABLE edt.ALieuenSalle (
                 eve_id INTEGER NOT NULL,
@@ -64,21 +84,29 @@ CREATE TABLE edt.NecessiteMateriel (
 );
 
 
+CREATE SEQUENCE edt.matiere_matiere_id_seq;
+
 CREATE TABLE edt.Matiere (
-                matiere_id INTEGER NOT NULL,
-                matiere_nom VARCHAR,
+                matiere_id INTEGER NOT NULL DEFAULT nextval('edt.matiere_matiere_id_seq'),
+                matiere_nom VARCHAR UNIQUE,
                 CONSTRAINT matiere_id PRIMARY KEY (matiere_id)
 );
 
 
+ALTER SEQUENCE edt.matiere_matiere_id_seq OWNED BY "edtemps-ecn";
+
+CREATE SEQUENCE edt.calendrier_cal_id_seq;
+
 CREATE TABLE edt.Calendrier (
-                cal_id INTEGER NOT NULL,
+                cal_id INTEGER NOT NULL DEFAULT nextval('edt.calendrier_cal_id_seq'),
                 matiere_id INTEGER,
-                cal_nom VARCHAR,
+                cal_nom VARCHAR UNIQUE,
                 typeCal_id INTEGER,
                 CONSTRAINT cal_id PRIMARY KEY (cal_id)
 );
 
+
+ALTER SEQUENCE edt.calendrier_cal_id_seq OWNED BY "edtemps-ecn";
 
 CREATE TABLE edt.CalendrierAppartientGroupe (
                 groupeParticipant_id INTEGER NOT NULL,
@@ -94,15 +122,19 @@ CREATE TABLE edt.EvenementAppartient (
 );
 
 
+CREATE SEQUENCE edt.utilisateur_utilisateur_id_seq;
+
 CREATE TABLE edt.Utilisateur (
-                utilisateur_id SERIAL NOT NULL,
+                utilisateur_id INTEGER NOT NULL DEFAULT nextval('edt.utilisateur_utilisateur_id_seq'),
                 utilisateur_url_ical VARCHAR,
                 utilisateur_id_ldap INTEGER UNIQUE,
-				utilisateur_token TEXT UNIQUE,
-				utilisateur_token_expire TIMESTAMP,
+                utilisateur_token VARCHAR UNIQUE,
+                utilisateur_token_expire TIMESTAMP,
                 CONSTRAINT utilisateur_id PRIMARY KEY (utilisateur_id)
 );
 
+
+ALTER SEQUENCE edt.utilisateur_utilisateur_id_seq OWNED BY "edtemps-ecn";
 
 CREATE TABLE edt.ProprietaireGroupedeParticipant (
                 utilisateur_id INTEGER NOT NULL,
@@ -147,12 +179,16 @@ CREATE TABLE edt.ProprietaireMatiere (
 );
 
 
+CREATE SEQUENCE edt.typeutilisateur_type_id_seq;
+
 CREATE TABLE edt.TypeUtilisateur (
-                type_id INTEGER NOT NULL,
+                type_id INTEGER NOT NULL DEFAULT nextval('edt.typeutilisateur_type_id_seq'),
                 type_libelle VARCHAR,
                 CONSTRAINT type_id PRIMARY KEY (type_id)
 );
 
+
+ALTER SEQUENCE edt.typeutilisateur_type_id_seq OWNED BY "edtemps-ecn";
 
 CREATE TABLE edt.EstDeType (
                 type_id INTEGER NOT NULL,
@@ -161,12 +197,16 @@ CREATE TABLE edt.EstDeType (
 );
 
 
+CREATE SEQUENCE edt.droits_droits_id_seq;
+
 CREATE TABLE edt.Droits (
-                droits_id INTEGER NOT NULL,
+                droits_id INTEGER NOT NULL DEFAULT nextval('edt.droits_droits_id_seq'),
                 droits_libelle VARCHAR,
                 CONSTRAINT droits_id PRIMARY KEY (droits_id)
 );
 
+
+ALTER SEQUENCE edt.droits_droits_id_seq OWNED BY "edtemps-ecn";
 
 CREATE TABLE edt.ALeDroitDe (
                 type_id INTEGER NOT NULL,
@@ -377,3 +417,27 @@ REFERENCES edt.Droits (droits_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
+
+ALTER TABLE edt.salle OWNER TO "edtemps-ecn";
+ALTER TABLE edt.materiel OWNER TO "edtemps-ecn";
+ALTER TABLE edt.contientmateriel OWNER TO "edtemps-ecn";
+ALTER TABLE edt.typecalendrier OWNER TO "edtemps-ecn";
+ALTER TABLE edt.groupedeparticipant OWNER TO "edtemps-ecn";
+ALTER TABLE edt.evenement OWNER TO "edtemps-ecn";
+ALTER TABLE edt.aLieuensalle OWNER TO "edtemps-ecn";
+ALTER TABLE edt.necessitemateriel OWNER TO "edtemps-ecn";
+ALTER TABLE edt.matiere OWNER TO "edtemps-ecn";
+ALTER TABLE edt.calendrier OWNER TO "edtemps-ecn";
+ALTER TABLE edt.calendrierappartientgroupe OWNER TO "edtemps-ecn";
+ALTER TABLE edt.evenementappartient OWNER TO "edtemps-ecn";
+ALTER TABLE edt.utilisateur OWNER TO "edtemps-ecn";
+ALTER TABLE edt.proprietairegroupedeparticipant OWNER TO "edtemps-ecn";
+ALTER TABLE edt.abonnegroupeparticipant OWNER TO "edtemps-ecn";
+ALTER TABLE edt.responsableevenement OWNER TO "edtemps-ecn";
+ALTER TABLE edt.intervenantevenement OWNER TO "edtemps-ecn";
+ALTER TABLE edt.proprietairecalendrier OWNER TO "edtemps-ecn";
+ALTER TABLE edt.proprietairematiere OWNER TO "edtemps-ecn";
+ALTER TABLE edt.typeutilisateur OWNER TO "edtemps-ecn";
+ALTER TABLE edt.estdetype OWNER TO "edtemps-ecn";
+ALTER TABLE edt.droits OWNER TO "edtemps-ecn";
+ALTER TABLE edt.aledroitde OWNER TO "edtemps-ecn";
