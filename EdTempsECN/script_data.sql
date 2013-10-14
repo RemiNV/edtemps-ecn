@@ -1,4 +1,4 @@
-
-/* Table des matériels */
+ï»¿
+/* Table des matÃ©riels */
 INSERT INTO edt.materiel (materiel_id, materiel_nom) VALUES ('1', 'Ordinateur');
-INSERT INTO edt.materiel (materiel_id, materiel_nom) VALUES ('2', 'Vidéoprojecteur');
+INSERT INTO edt.materiel (materiel_id, materiel_nom) VALUES ('2', 'VidÃ©oprojecteur');
