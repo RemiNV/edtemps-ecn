@@ -26,6 +26,7 @@ public class ConnectionServlet extends HttpServlet {
 		
 		// Retour sous forme JSON
 		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf-8");
 		
 		// Identifiants passés en paramètre
 		String username = req.getParameter("username");

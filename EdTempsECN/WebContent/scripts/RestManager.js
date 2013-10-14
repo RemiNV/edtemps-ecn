@@ -72,8 +72,10 @@ define(["jquery"], function() {
 				this._token = null;
 				callback(true, RestManager.resultCode_Success);
 			}
-			else
+			else if(networkSuccess)
 				callback(networkSuccess, data.resultCode);
+			else
+				callback(false);
 		});
 	};
 	
