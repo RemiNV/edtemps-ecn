@@ -7,3 +7,6 @@
 
 # Fichiers de bibliothèques à inclure
 !EdTempsECN/lib/*.jar
+
+#inclusion du dossier de paramètres Eclipse
+!.settings
