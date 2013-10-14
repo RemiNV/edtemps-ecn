@@ -57,6 +57,11 @@ public class SalleGestion {
 									+ "', '"
 									+ nom
 									+ "')");
+
+					// Récupérer l'identifiant de la ligne qui vient d'être
+					// ajoutée
+					BddGestion
+							.executeRequest("SELECT currval('edt.seq_salle');");
 				}
 
 			} catch (DatabaseException e) {
