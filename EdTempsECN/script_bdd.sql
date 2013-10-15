@@ -51,6 +51,7 @@ CREATE TABLE edt.GroupeParticipant (
                 groupeParticipant_rattachementAutorise BOOLEAN,
                 groupeParticipant_id_parent INTEGER,
 				groupeParticipant_estCours BOOLEAN,
+				groupeParticipant_estCalendrierUnique BOOLEAN,
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
 
