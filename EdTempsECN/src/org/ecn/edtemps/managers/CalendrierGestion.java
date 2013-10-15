@@ -10,6 +10,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Calendrier;
+import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 
 /** 
  * Classe de gestion des calendriers 
