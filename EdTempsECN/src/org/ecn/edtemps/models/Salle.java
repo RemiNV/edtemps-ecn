@@ -1,10 +1,10 @@
 package org.ecn.edtemps.models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Classe d'objet de salle
+ * Classe modèle d'une salle
  * 
  * @author Joffrey
  */
@@ -16,8 +16,8 @@ public class Salle {
 	/** Capacité de la salle */
 	protected int capacite;
 
-	/** Liste du matériel qui équipe la salle */
-	protected List<Materiel> materiels;
+	/** Map du matériel qui équipe la salle avec la quantité */
+	protected Map<Integer, Integer> materiels;
 
 	/** Niveau de la salle */
 	protected int niveau;
@@ -32,14 +32,14 @@ public class Salle {
 	 * Constructeur vide
 	 */
 	public Salle() {
-		this.materiels = new ArrayList<Materiel>();
+		this.materiels = new HashMap<Integer, Integer>();
 	}
 
 	/**
 	 * Constructeur avec tous les paramètres
 	 */
 	public Salle(String batiment, String nom, int capacite, int niveau,
-			int numero, List<Materiel> materiels) {
+			int numero, Map<Integer, Integer> materiels) {
 		this.batiment = batiment;
 		this.capacite = capacite;
 		this.niveau = niveau;
@@ -65,7 +65,7 @@ public class Salle {
 	/**
 	 * @return materiels
 	 */
-	public List<Materiel> getMateriels() {
+	public Map<Integer, Integer> getMateriels() {
 		return materiels;
 	}
 
@@ -113,7 +113,7 @@ public class Salle {
 	 * 
 	 * @param materiels
 	 */
-	public void setMateriels(List<Materiel> materiels) {
+	public void setMateriels(Map<Integer, Integer> materiels) {
 		this.materiels = materiels;
 	}
 

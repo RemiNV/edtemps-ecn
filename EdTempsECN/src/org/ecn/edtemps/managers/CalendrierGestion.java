@@ -11,7 +11,6 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Calendrier;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
-import org.ecn.edtemps.models.identifie.Utilisateur;
 
 /** 
  * Classe de gestion des calendriers 
@@ -62,23 +61,23 @@ public class CalendrierGestion {
 		if ((matiere_id != -1) && (type_id != -1)) { 			
 			
 			try {
+				// Début transaction
+				_bdd.startTransaction();
+				
 				// On crée le calendrier dans la base de données
-				_bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
+				ResultSet rs_ligneCreee = _bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
 						+ "VALUES ( "
 						+ matiere_id
 						+ "', '"
 						+ nom
 						+ "', '"
 						+ type_id
-						+ "')");
+						+ "') RETURNING cal_id");
+				
 				// On récupère l'id du calendrier créé
-				int id_calendrier = _bdd.recupererId(
-						"SELECT * FROM calendrier "
-						+ "WHERE matiere_id = '" + matiere_id + "' "
-						+ "AND cal_nom = '" + nom + "' "
-						+ "AND typeCal_id = '" + type_id + "' ",
-						"cal_id");
-				;
+				rs_ligneCreee.next();
+				int id_calendrier = rs_ligneCreee.getInt(1);
+	
 				// On définit les utilisateurs idProprietaires comme proprietaires du calendrier créé
 				Iterator<Integer> itr = idProprietaires.iterator();
 				while (itr.hasNext()){
@@ -90,15 +89,20 @@ public class CalendrierGestion {
 							+ id_calendrier 
 							+ "')");
 				}
+				
+				// Fin transaction
+				_bdd.commit();
 			} 
 			catch (DatabaseException e) {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 			}
+			catch (SQLException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			}
 			
 		}
-		//pour debug
 		else {
-			System.out.println("ID matiere ou type non existant/unique");
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID matiere ou type non existant ou non unique");
 		}
 			
 	}
@@ -167,5 +171,118 @@ public class CalendrierGestion {
 		
 	}
 	
+	
+	/**
+	 * Méthode modifierCalendrier(CalendrierIdentifie calId)
+	 * 
+	 * Permet de remplacer, dans la base de données, 
+	 * les anciennes valeurs du calendrier défini par l'id de calId (en attribut) 
+	 * par les valeurs contenues dans calId (en attributs)
+	 * 
+	 * @param calId : CalendrierIdentifie
+	 * @throws EdtempsException
+	 */
+	public void modifierCalendrier(CalendrierIdentifie calId) 
+			throws EdtempsException {
+		
+		try {
+			
+			// Commencer une transaction
+			_bdd.startTransaction();
+			
+			// Modifier matiere, nom, type du calendrier
+			_bdd.executeRequest(
+					"UPDATE calendrier "
+					+ "SET (matiere_id, cal_nom, typeCal_id) = ('" + calId.getMatiere() +"', '" + calId.getNom() + "', '" + calId.getType() + "') "
+					+ "WHERE cal_id = " + calId.getId() );
+		
+			// Supprimer ancienne liste de propriétaires du calendrier
+			_bdd.executeRequest(
+					"DELETE FROM proprietairecalendrier "
+					 + "WHERE cal_id = " + calId.getId() 
+			);
+			
+			// Ajouter nouvelle liste de propriétaires du calendrier		
+			Iterator<Integer> itrProprios = calId.getIdProprietaires().iterator();
+			while (itrProprios.hasNext()){
+				_bdd.executeRequest(
+						"INSERT INTO proprietairecalendrier "
+						 + " VALUES (utilisateur_id, cal_id) = ('" + itrProprios.next() +"', '" + calId.getId() + "') " 
+				);
+			}
+			
+			// Fin transaction
+			_bdd.commit();
+			
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+		
+	}
 
+	
+	
+	/**
+	 * Méthode supprimerCalendrier(int idCalendrier)
+	 * 
+	 * Permet de supprimer un calendrier dans la base de données,
+	 * calendrier défini par l'entier en argument, correspondant à l'ID du calendrier 
+	 * 
+	 * @param idCalendrier
+	 * @throws EdtempsException
+	 */
+	public void supprimerCalendrier(int idCalendrier) 
+			throws EdtempsException {
+		
+		try {
+			// Début transaction
+			_bdd.startTransaction();
+			
+			// Supprimer liste de propriétaires du calendrier
+			_bdd.executeRequest(
+					"DELETE FROM proprietairecalendrier "
+					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 );
+			// Supprimer dépendance avec les groupes de participants
+			_bdd.executeRequest(
+					"DELETE FROM calendrierAppartientGroupe "
+					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 );
+			/* Supprimer les événements associés au calendrier
+			 * 		1 - Récupération des id des evenements associés
+			 * 		2 - Suppression du lien entre les evenements et le calendrier
+			 * 		3 - Suppression des evenements eux-même
+			 */
+			ResultSet rs_evenementsAssocies = _bdd.executeRequest(
+					"SELECT * FROM  evenementAppartient "
+					+ "WHERE cal_id = " + idCalendrier + " ;"
+					);
+			_bdd.executeRequest(
+					"DELETE FROM evenementAppartient "
+					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 );
+			while(rs_evenementsAssocies.next()){
+				EvenementGestion eveGestionnaire = new EvenementGestion();
+				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"));
+			}
+			// Supprimer calendrier
+			_bdd.executeRequest(
+					"DELETE FROM calendrier "
+					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 );
+			// Fin transaction
+			_bdd.commit(); 
+
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+		
+	}	
+	
+	
+	
 }

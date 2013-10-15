@@ -22,7 +22,6 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPException;
 
 public class UtilisateurGestion {
 	
@@ -135,7 +134,7 @@ public class UtilisateurGestion {
 	 * @return ID de l'utilisateur, ou null si il n'est pas présent dans la base
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	public Integer getUserIdFromLdapId(long ldapId) throws DatabaseException {
+	private Integer getUserIdFromLdapId(long ldapId) throws DatabaseException {
 		ResultSet results = _bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + ldapId);
 		
 		Integer id = null;
@@ -162,7 +161,6 @@ public class UtilisateurGestion {
 		_bdd.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=NULL,utilisateur_token_expire=NULL WHERE utilisateur_id=" + idUtilisateur);
 	}
 	
-	
 	/**
 	 * Connexion de l'utilisateur et création d'un token de connexion (inséré en base de données)
 	 * @param utilisateur Nom d'utilisateur
@@ -188,8 +186,6 @@ public class UtilisateurGestion {
 			
 			SearchResult searchResult = connection.search(request);
 			List<SearchResultEntry> lstResults = searchResult.getSearchEntries();
-			
-			connection.close();
 			
 			// Entrée correspondant à l'utilisateur dans la recherche
 			if(lstResults.isEmpty()) {
