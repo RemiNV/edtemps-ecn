@@ -248,6 +248,28 @@ public class CalendrierGestion {
 					"DELETE FROM proprietairecalendrier "
 					 + "WHERE cal_id = " + idCalendrier + " ;" 
 					 );
+			// Supprimer dépendance avec les groupes de participants
+			_bdd.executeRequest(
+					"DELETE FROM calendrierAppartientGroupe "
+					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 );
+			/* Supprimer les événements associés au calendrier
+			 * 		1 - Récupération des id des evenements associés
+			 * 		2 - Suppression du lien entre les evenements et le calendrier
+			 * 		3 - Suppression des evenements eux-même
+			 */
+			ResultSet rs_evenementsAssocies = _bdd.executeRequest(
+					"SELECT * FROM  evenementAppartient "
+					+ "WHERE cal_id = " + idCalendrier + " ;"
+					);
+			_bdd.executeRequest(
+					"DELETE FROM evenementAppartient "
+					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 );
+			while(rs_evenementsAssocies.next()){
+				EvenementGestion eveGestionnaire = new EvenementGestion();
+				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"));
+			}
 			// Supprimer calendrier
 			_bdd.executeRequest(
 					"DELETE FROM calendrier "
