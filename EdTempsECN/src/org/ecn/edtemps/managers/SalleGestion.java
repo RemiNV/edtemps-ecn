@@ -100,6 +100,78 @@ public class SalleGestion {
 	}
 
 	/**
+	 * Modifie une salle en base de données
+	 * 
+	 * @param salle
+	 *            salle à modifier
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur
+	 */
+	public void modifierSalle(SalleIdentifie salle) throws EdtempsException {
+
+		if (salle != null) {
+
+			try {
+				// Récupération des nouvelles informations sur la salle
+				int id = salle.getId();
+				String batiment = salle.getBatiment();
+				if (StringUtils.isBlank(batiment)) {
+					batiment = "";
+				}
+				String nom = salle.getNom();
+				Integer niveau = salle.getNiveau();
+				Integer numero = salle.getNumero();
+				Integer capacite = salle.getCapacite();
+				Map<Integer, Integer> materiels = salle.getMateriels();
+
+				// Vérification de la cohérence des valeurs
+				if (StringUtils.isNotBlank(nom)) {
+
+					// Modifie les informations sur la salle
+					_bdd.executeRequest("UPDATE edt.salle SET salle_batiment='"
+							+ batiment + "', salle_niveau='" + niveau
+							+ "', salle_numero='" + numero + "', salle_capacite='"
+							+ capacite + "', salle_nom='" + nom
+							+ "' WHERE salle_id='" + id + "'");
+
+					// Suppression de l'ancienne liste des matériels
+					_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id='"
+							+ id + "'");
+
+					// Ajout des nouveaux liens avec les matériels
+					for (Entry<Integer, Integer> materiel : materiels
+							.entrySet()) {
+						_bdd.executeRequest("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) VALUES ('"
+								+ id
+								+ "', '"
+								+ materiel.getKey()
+								+ "', '"
+								+ materiel.getValue() + "')");
+					}
+
+				} else {
+					throw new EdtempsException(ResultCode.DATABASE_ERROR,
+							"Tentative d'enregistrer une salle en base de données sans nom.");
+				}
+
+				// Termine la transaction
+				_bdd.commit();
+
+			} catch (DatabaseException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			} catch (SQLException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			}
+
+		} else {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,
+					"Tentative d'enregistrer un objet NULL en base de données.");
+		}
+
+	}
+
+	/**
 	 * Enregistrer une salle dans la base de données
 	 * 
 	 * @param salle
@@ -131,20 +203,17 @@ public class SalleGestion {
 				// Vérification de la cohérence des valeurs
 				if (StringUtils.isNotBlank(nom)) {
 
-					_bdd.executeRequest("INSERT INTO edt.salle (salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES ('"
+					// Ajoute la salle dans la bdd et récupère l'identifiant de la ligne
+					ResultSet resultat = _bdd.executeRequest("INSERT INTO edt.salle (salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES ('"
 							+ batiment
 							+ "', '"
 							+ niveau
 							+ "', '"
 							+ numero
-							+ "', '" + capacite + "', '" + nom + "')");
-
-					// Récupérer l'identifiant de la ligne qui vient d'être
-					// ajoutée
-					ResultSet resultat = _bdd
-							.executeRequest("SELECT currval('edt.salle_salle_id_seq');");
+							+ "', '" + capacite + "', '" + nom + "') RETURNING salle_id");
 					resultat.next();
 					int lastInsert = resultat.getInt(1);
+					resultat.close();
 
 					// Ajout du lien avec les matériels
 					for (Entry<Integer, Integer> materiel : materiels
@@ -173,6 +242,45 @@ public class SalleGestion {
 		} else {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR,
 					"Tentative d'enregistrer un objet NULL en base de données.");
+		}
+
+	}
+
+	/**
+	 * Supprime une salle en base de données
+	 * 
+	 * @param idSalle
+	 *            identifiant de la salle à supprimer
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur
+	 */
+	public void supprimerSalle(int idSalle) throws EdtempsException {
+
+		try {
+
+			// Démarre une transaction
+			_bdd.startTransaction();
+
+			// Supprime le matériel
+			_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id='"
+					+ idSalle + "'");
+
+			// Supprime les liens avec les événements
+			_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE salle_id='"
+					+ idSalle + "'");
+
+			// Supprime la salle
+			_bdd.executeRequest("DELETE FROM edt.salle WHERE salle_id='"
+					+ idSalle + "'");
+
+			// Termine la transaction
+			_bdd.commit();
+
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
 	}
