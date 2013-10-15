@@ -62,6 +62,9 @@ public class CalendrierGestion {
 		if ((matiere_id != -1) && (type_id != -1)) { 			
 			
 			try {
+				// Début transaction
+				_bdd.startTransaction();
+				
 				// On crée le calendrier dans la base de données
 				_bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
 						+ "VALUES ( "
@@ -90,15 +93,20 @@ public class CalendrierGestion {
 							+ id_calendrier 
 							+ "')");
 				}
+				
+				// Fin transaction
+				_bdd.commit();
 			} 
 			catch (DatabaseException e) {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 			}
+			catch (SQLException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			}
 			
 		}
-		//pour debug
 		else {
-			System.out.println("ID matiere ou type non existant/unique");
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID matiere ou type non existant ou non unique");
 		}
 			
 	}
@@ -167,5 +175,96 @@ public class CalendrierGestion {
 		
 	}
 	
+	
+	/**
+	 * Méthode modifierCalendrier(CalendrierIdentifie calId)
+	 * 
+	 * Permet de remplacer, dans la base de données, 
+	 * les anciennes valeurs du calendrier défini par l'id de calId (en attribut) 
+	 * par les valeurs contenues dans calId (en attributs)
+	 * 
+	 * @param calId : CalendrierIdentifie
+	 * @throws EdtempsException
+	 */
+	public void modifierCalendrier(CalendrierIdentifie calId) 
+			throws EdtempsException {
+		
+		try {
+			
+			// Commencer une transaction
+			_bdd.startTransaction();
+			
+			// Modifier matiere, nom, type du calendrier
+			_bdd.executeRequest(
+					"UPDATE calendrier "
+					+ "SET (matiere_id, cal_nom, typeCal_id) = ('" + calId.getMatiere() +"', '" + calId.getNom() + "', '" + calId.getType() + "') "
+					+ "WHERE cal_id = " + calId.getId() );
+		
+			// Supprimer ancienne liste de propriétaires du calendrier
+			_bdd.executeRequest(
+					"DELETE FROM proprietairecalendrier "
+					 + "WHERE cal_id = " + calId.getId() 
+			);
+			
+			// Ajouter nouvelle liste de propriétaires du calendrier		
+			Iterator<Integer> itrProprios = calId.getIdProprietaires().iterator();
+			while (itrProprios.hasNext()){
+				_bdd.executeRequest(
+						"INSERT INTO proprietairecalendrier "
+						 + " VALUES (utilisateur_id, cal_id) = ('" + itrProprios.next() +"', '" + calId.getId() + "') " 
+				);
+			}
+			
+			// Fin transaction
+			_bdd.commit();
+			
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+		
+	}
 
+	
+	
+	/**
+	 * Méthode supprimerCalendrier(int idCalendrier)
+	 * 
+	 * Permet de supprimer un calendrier dans la base de données,
+	 * calendrier défini par l'entier en argument, correspondant à l'ID du calendrier 
+	 * 
+	 * @param idCalendrier
+	 * @throws EdtempsException
+	 */
+	public void supprimerCalendrier(int idCalendrier) 
+			throws EdtempsException {
+		
+		try {
+			// Début transaction
+			_bdd.startTransaction();
+			
+			// Supprimer liste de propriétaires du calendrier
+			_bdd.executeRequest(
+					"DELETE FROM proprietairecalendrier "
+					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 );
+			// Supprimer calendrier
+			_bdd.executeRequest(
+					"DELETE FROM calendrier "
+					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 );
+			// Fin transaction
+			_bdd.commit(); 
+
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+		
+	}	
+	
+	
+	
 }
