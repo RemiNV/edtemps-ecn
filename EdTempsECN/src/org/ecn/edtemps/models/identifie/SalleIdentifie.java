@@ -13,6 +13,13 @@ public class SalleIdentifie extends Salle {
 	protected int id;
 
 	/**
+	 * Constructeur vide
+	 */
+	public SalleIdentifie() {
+		super();
+	}
+
+	/**
 	 * @return id
 	 */
 	public int getId() {
@@ -27,5 +34,5 @@ public class SalleIdentifie extends Salle {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+	
 }
