@@ -11,7 +11,6 @@ public class CalendrierIdentifie extends Calendrier {
 
 	/** Identifiant du calendrier dans la base de données */
 	protected int id;
-
 	
 	/** Constructeur par défaut */
 	public CalendrierIdentifie() {
@@ -23,7 +22,7 @@ public class CalendrierIdentifie extends Calendrier {
 		super(nom, type, matiere);
 		this.id = id;
 	}
-
+	
 	/**
 	 * Getter de l'ID
 	 * 

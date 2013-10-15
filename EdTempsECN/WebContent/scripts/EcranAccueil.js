@@ -15,6 +15,8 @@ define(["lib/fullcalendar.translated.min"], function() {
 		var jqCalendar = $("#calendar");
 		// Initialisation du calendrier
 		jqCalendar.fullCalendar({
+			weekNumbers: true,
+			weekNumberTitle: "Sem.",
 			firstDay: 0,
 			editable: true,
 			defaultView: "agendaWeek",

@@ -47,5 +47,4 @@ public class EvenementIdentifie extends Evenement {
 	public void setId(int id) {
 		this.id = id;
 	}
-
 }
