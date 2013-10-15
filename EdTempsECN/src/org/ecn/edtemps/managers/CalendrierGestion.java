@@ -32,13 +32,11 @@ public class CalendrierGestion {
 	
 	
 	/**
-	 * Méthode d'enregistrement du calendrier <calendrier> dans la base de données
-	 * Le propriétaire du calendrier à enregistrer est l'utilisateur <proprietaire>
-	 * 
+	 * Méthode d'enregistrement du Calendrier "calendrier" dans la base de données
+	 *
 	 * NB : le rattachement d'un calendrier à un groupeDeParticipants n'est pas réalisé dans cette fonction.
 	 * 
 	 * @param calendrier
-	 * @param proprietaire
 	 */
 	public void sauverCalendrier(Calendrier calendrier) throws EdtempsException {
 		
