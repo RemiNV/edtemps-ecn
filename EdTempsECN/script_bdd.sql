@@ -81,6 +81,7 @@ CREATE TABLE edt.ALieuenSalle (
 CREATE TABLE edt.NecessiteMateriel (
                 eve_id INTEGER NOT NULL,
                 materiel_id INTEGER NOT NULL,
+				necessitemateriel_quantite INTEGER NOT NULL,
                 CONSTRAINT eve_id_materiel_id PRIMARY KEY (eve_id, materiel_id)
 );
 
