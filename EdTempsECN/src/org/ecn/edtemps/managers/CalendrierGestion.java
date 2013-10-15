@@ -14,6 +14,7 @@ import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 
 /** 
  * Classe de gestion des calendriers 
+ * 
  * @author Maxime TERRADE
  *
  */
@@ -31,7 +32,7 @@ public class CalendrierGestion {
 	
 	
 	/**
-	 * Méthode (statique) d'enregistrement du calendrier <calendrier> dans la base de données
+	 * Méthode d'enregistrement du calendrier <calendrier> dans la base de données
 	 * Le propriétaire du calendrier à enregistrer est l'utilisateur <proprietaire>
 	 * 
 	 * NB : le rattachement d'un calendrier à un groupeDeParticipants n'est pas réalisé dans cette fonction.
@@ -264,7 +265,7 @@ public class CalendrierGestion {
 					 + "WHERE cal_id = " + idCalendrier + " ;" 
 					 );
 			while(rs_evenementsAssocies.next()){
-				EvenementGestion eveGestionnaire = new EvenementGestion();
+				EvenementGestion eveGestionnaire = new EvenementGestion(this._bdd);
 				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"));
 			}
 			// Supprimer calendrier
