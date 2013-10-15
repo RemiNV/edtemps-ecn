@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Classe d'objet de salle
+ * Classe modèle d'une salle
  * 
  * @author Joffrey
  */
