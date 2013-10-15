@@ -1,0 +1,436 @@
+[33mcommit 5173e6b0f78c0bd84dc452ce7f7e12de3c288fa4[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 10:41:53 2013 +0200
+
+    Rectification import dans classe CalendrierGestion
+
+[33mcommit 34a114d4c812e23b01a2f43559bf41af5cd9dacf[m
+Merge: 9889d8d 7b7feb7
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 10:37:23 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 9889d8d1a4a550b1294c0db4d32125b6574a0cae[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 10:37:11 2013 +0200
+
+    Création des méthodes modifier/supprimerCalendrier (dans la classe
+    CalendrierGestion)
+
+[33mcommit 7b7feb7be1fa98b9513cd21f60470ea74274e09c[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 08:27:46 2013 +0200
+
+    Suppression d'imports inutiles
+
+[33mcommit 29bb68f13be49c7a9e4598da18ed69a971b260f0[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 08:27:24 2013 +0200
+
+    Suppression de la classe Materiel inutile pour le moment
+
+[33mcommit 347f53288ca7b3f56eb0a45ed81f8649416b5c4b[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 01:27:39 2013 +0200
+
+    Modification de l'encodage du script d'insertion de données
+
+[33mcommit 444089a39f428701d7a876fc65cf3920e63dd37e[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 01:22:24 2013 +0200
+
+    Ajout d'un script d'insertion de données (pour la table matériel)
+
+[33mcommit 5bfef59f34c8628254c0fd0c88415085c8a3eb88[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 01:19:26 2013 +0200
+
+    Modification des méthodes getSalle() et sauverSalle()
+
+[33mcommit 0c1425db1a441e638d51bdfba2f7e9b359d5a236[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Tue Oct 15 00:10:47 2013 +0200
+
+    Modification des scripts de base de donnnées car non fonctionnel chez
+    moi
+
+[33mcommit ab93f631aa8638a1dacfb001f34838af4a824b7b[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 23:37:46 2013 +0200
+
+    Script SQL de nettoyage de la base de données
+
+[33mcommit f404335a6dad3dc387831137b5fdde25539794f5[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 22:46:18 2013 +0200
+
+    Modification des methodes utilisant la BDD pour ne pas partager la connexion entre les clients de l'appli (methodes non statiques)
+
+[33mcommit 2023cedb352c94767b5a8d948bd7814747ecf7fe[m
+Merge: 75eee5d f8da718
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 20:11:38 2013 +0200
+
+    Merge branch 'master' of github.com:RemiNV/edtemps-ecn
+
+[33mcommit 75eee5d062bac31b52eea99dac490d195cc9204e[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 20:11:17 2013 +0200
+
+    Ajout d'un indicateur de connexion pendant le chargement
+
+[33mcommit f8da718ee2ad89546d4879853b1f716c3396abb0[m
+Merge: ac73263 0bcd26c
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 17:58:32 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit ac7326387e4be6300862d6c97d6b7a7baf979a1a[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 17:58:25 2013 +0200
+
+    Ecriture de la fonction getCalendrier (dans la classe
+    CalendrierGestion), avec gestion des erreurs (4 erreurs EdtempsException
+    peuvent être générées)
+
+[33mcommit 0bcd26c944341a9c6a21739bc373732d7952aaa9[m
+Merge: 4ca2027 ae7418f
+Author: Lixfe <felix@Green.(none)>
+Date:   Mon Oct 14 17:54:22 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 4ca20275ec4445c7454d2933fd856ec189deacd3[m
+Author: Lixfe <felix@Green.(none)>
+Date:   Mon Oct 14 17:53:06 2013 +0200
+
+    Modification des scripts sql : fusion des 3 scripts sql. Ajout des colonnes utilisateur_token et utilisateur_token_expire
+
+[33mcommit dd9aad0b4238b5b166b6e98b946bc56c1ec5068c[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 17:29:12 2013 +0200
+
+    modification gestion exception pour la méthode recupererId de la classe
+    BddGestion
+
+[33mcommit ae7418f420c28332601078961c425064d31190bd[m
+Merge: 180e677 ed0f955
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 17:03:28 2013 +0200
+
+    Merge branch 'master' of github.com:RemiNV/edtemps-ecn
+
+[33mcommit 180e677d853c10c72e26559bc1c33ee7f40ca2ee[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 17:02:09 2013 +0200
+
+    Correction noeud de rattachement formulaire inscription
+
+[33mcommit ed0f95503c65f959ceea2cc92d53de51b821b2bc[m
+Author: Lixfe <felix@Green.(none)>
+Date:   Mon Oct 14 16:49:51 2013 +0200
+
+    modification nom des fichiers sql : suppression des espaces
+
+[33mcommit 5f1c3cdef85284f713a7a970e48d8de0e8f88819[m
+Merge: 20d9e08 98a6527
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 15:52:05 2013 +0200
+
+    Merge branch 'master' of github.com:RemiNV/edtemps-ecn
+
+[33mcommit 20d9e089732f023aedf2bf41a3bac09b908b9634[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 15:51:47 2013 +0200
+
+    Corrections de navigation, gestion des vues (onglets) de la page principale
+
+[33mcommit 98a65270e4b3837a40f7d5b1ad0a5fd52ad1f75e[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 15:17:15 2013 +0200
+
+    Maj d'un fichier de config pour le dossier de test
+
+[33mcommit 2789ba189e4f01dfdfcde9a5d11e8a30a1101b04[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:49:46 2013 +0200
+
+    Ajout du plugin JUnit et d'une première classe de test.
+
+[33mcommit a9b750c93b07f7ac68ed307c833e56cdbfc92bb4[m
+Merge: 3fd43f8 87182fd
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:48:58 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 87182fde6135ac2f9bfeb3cc677c4062ce544872[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:48:28 2013 +0200
+
+    Debug et finition de la fonction sauverCalendrier()
+
+[33mcommit 3fd43f8242d1e839be915676050141bc86ac4e4f[m
+Merge: 4931dfe 9166838
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:34:37 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 9166838e791cfa68f4f24f942db933f8d5fa36b5[m
+Merge: 0127c31 2606ceb
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:31:56 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 0127c310654227c86fd7692c01731a3ced598ffe[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:25:21 2013 +0200
+
+    Création sauverCalendrier (dans la classe CalendrierGestion)
+
+[33mcommit 4931dfee04f90f2f99a87e6c84cfc8417e5e7b5f[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:24:10 2013 +0200
+
+    Méthode de récupération d'une salle
+
+[33mcommit 305baf8253c8c2aa0445e798ec5271f3abe25e89[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:21:38 2013 +0200
+
+    Merge (bug Eclipse?!)
+
+[33mcommit 5b2f9879347b87d79436fcc29d8f2992f7d8eb8c[m
+Merge: 94257ae 2606ceb
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 14:03:16 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 2606cebc4ce9eec2714a6249cdf01b47d76cd990[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 14:01:09 2013 +0200
+
+    Modification des colonnes table utilisateur
+
+[33mcommit 94257ae5e2931895e4a3456ab640d7cbd82594c8[m
+Merge: 4181341 455222f
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 13:55:58 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 455222ff8d5bba83c7b40746a97f1761c550dd24[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 13:55:46 2013 +0200
+
+    Ajout icone de chargement et parametres du projet
+
+[33mcommit 4181341c5de5bfb8fec48de8308c41c0264819be[m
+Merge: 2279e43 1befda6
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 13:14:24 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 1befda68a82d241db48b952a173dfd51fa0fad5d[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 11:40:58 2013 +0200
+
+    Ajout de la gestion du redimensionnement pour le calendrier
+
+[33mcommit 46314bffd38d868df13f985946b8315933606c60[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 11:29:07 2013 +0200
+
+    Ajout de la deconnexion
+
+[33mcommit 0c220bc9563160c2ca08bd3552ecffb6cf793adf[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 11:18:58 2013 +0200
+
+    Ajout d'un attribut à la classe Calendrier : List<Integer>
+    idProprietaires, contenant les id des proprio du calendrier
+
+[33mcommit 78e32372ff99d41cc2145e2a06f91ba808fe4c3e[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Mon Oct 14 10:59:50 2013 +0200
+
+    Ajout d'une fonctionnalité pour BddGestion :
+    la méthode "recupererId(requete, nomColonne)" permet de récupérer
+    l'identifiant d'une ligne donnée, déterminée par la requete <requete>.
+
+[33mcommit 2861e1826020ad9a613fa03de694497123f3a244[m
+Merge: 4e064dc b084701
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 10:47:29 2013 +0200
+
+    Merge branch 'master' of github.com:RemiNV/edtemps-ecn
+
+[33mcommit 4e064dc7405c5f31d7c982360c432b80ec17f2e2[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Mon Oct 14 10:47:00 2013 +0200
+
+    Ajout de la page de parametres
+
+[33mcommit 2279e432bb5298838be74e503baf45682b0ceae5[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Sun Oct 13 23:40:39 2013 +0200
+
+    Ajout de la colonne nom dans les entités de salle + ajout de la méthode
+    de récupération d'une salle en base de données
+
+[33mcommit b08470119d9b6d2ef2cbab3b92ea11d0d7b00570[m
+Merge: 362dce5 6d863f3
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Sun Oct 13 23:02:22 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 6d863f3abc7c4b76343eaaf70e647840e500e1d6[m
+Author: Maxime TERRADE <maxime.terrade@eleves.ec-nantes.fr>
+Date:   Sun Oct 13 22:59:38 2013 +0200
+
+    Implémentation des classes "Calendrier" et "CalendrierIdentifie"
+
+[33mcommit 362dce5140742ad377bf2b523ef0d01cf10d6283[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Sun Oct 13 22:57:38 2013 +0200
+
+    Ajout d'une liste de matériel dans l'objet salle
+
+[33mcommit 5a23d6ba2721543cebc6e1b65c5cea59efba9e67[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Sun Oct 13 22:57:04 2013 +0200
+
+    Ajout de librairies
+
+[33mcommit 68153fb3fafc21665a73c20ab453528d202342f3[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Sun Oct 13 02:10:51 2013 +0200
+
+    Ajout d'evenements de test
+
+[33mcommit a6cde99db0a4f218cbbbda1ca14466cd78a7d220[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Sun Oct 13 02:04:06 2013 +0200
+
+    Ajout de l'interface de la page principale
+
+[33mcommit 310c951823da2265426b236440cb7633dac4ae98[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Sat Oct 12 17:11:11 2013 +0200
+
+    Support de la reprise de connexion si reouverture de la page plus tard
+
+[33mcommit 6710e07adc7869498aa55c643bb8276b20540425[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Sat Oct 12 15:49:31 2013 +0200
+
+    Verification de la connexion fonctionnelle, ajout d'un servlet de base pour verifier le token
+
+[33mcommit 47c9fd243ff51985b9486e0ab2bb4f9f6d96e540[m
+Merge: 33290ed 8be4edf
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Sat Oct 12 12:44:05 2013 +0200
+
+    Merge branch 'master' of github.com:RemiNV/edtemps-ecn
+
+[33mcommit 33290ed2c4f75e49b09b8ee1cf557e3534dff1b8[m
+Merge: ee5c745 0e28b5a
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Sat Oct 12 12:43:44 2013 +0200
+
+    Merge avec la version serveur
+
+[33mcommit 8be4edfab356703702cf960e243d444924495753[m
+Author: Lixfe <felix@Green.(none)>
+Date:   Sat Oct 12 12:40:16 2013 +0200
+
+    modification contraintes NOT NULL, ajout champ utilisateur_id_ldap, ajout champ salle_nom
+
+[33mcommit ee5c7450f0d9c39bb8b3fb7bbc6388bd9c885a0e[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Sat Oct 12 12:35:13 2013 +0200
+
+    Ajout de la verification de la connexion
+
+[33mcommit 0e28b5a6d3f04a1e78138a98c57bbf331aa0805d[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Sat Oct 12 10:19:13 2013 +0200
+
+    Ajout des scripts de la bdd + continuation de la méthode
+    d'enregistrement d'une salle en bdd
+
+[33mcommit 94a45038c32d1cd2bbf7722ea58d060d77f5ed49[m
+Merge: 4fe4b8e c580180
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Fri Oct 11 23:48:24 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit 4fe4b8eecbb5e08a5514dbb1bd0b81e3746e8eb5[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Fri Oct 11 23:48:06 2013 +0200
+
+    Initialisation de la classe Salle et début de la création de création de
+    salle
+
+[33mcommit c580180f7d6afd78be8c4582f5cf7645dfe432de[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Fri Oct 11 23:16:35 2013 +0200
+
+    Connexion LDAP fonctionnelle si les certificats SSL sont configures
+
+[33mcommit b3c0b669c28cd3c21e55cc6e13a43a61120861bd[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Fri Oct 11 22:53:06 2013 +0200
+
+    Tests en cours, probleme de resultSet avec BddGestion
+
+[33mcommit 8d5c7d374ea314d657fd52babf9b53ac7633b635[m
+Merge: bf92920 f8addc9
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Fri Oct 11 22:43:44 2013 +0200
+
+    Merge branch 'master' of https://github.com/RemiNV/edtemps-ecn
+
+[33mcommit bf92920093f354df139fdd21e7d445007bf0750c[m
+Author: Joffrey <joffrey.terrade@eleves.ec-nantes.fr>
+Date:   Fri Oct 11 22:38:25 2013 +0200
+
+    Initialisation de la méthode de sauvegarde d'une salle
+
+[33mcommit 4e2da00e7d0056f27b1bcef9cb0deb8ed101a9ab[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Fri Oct 11 21:45:21 2013 +0200
+
+    Modification de la connexion client pour utiliser les methodes serveur
+
+[33mcommit 9cdefe482b08116ad5f9f18e8d418b89caf7af80[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Fri Oct 11 21:28:33 2013 +0200
+
+    identification serveur implementee, a tester
+
+[33mcommit f8addc9c8bd9c6cdbbbea8b6bfa56901bdc934e0[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Fri Oct 11 19:40:51 2013 +0200
+
+    Exception du .gitignore pour autoriser les bibliotheques .jar
+
+[33mcommit 4dfc10f8ee4442a3da472910d15243d0f89c007e[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Fri Oct 11 19:31:53 2013 +0200
+
+    Modification de la connexion pour garder l'objet Connection de maniere statique
+
+[33mcommit 59ff0bf92919b11adddab2ca6bf7a4a0bb857400[m
+Author: Remi NGUYEN VAN <remi.nguyenvan@gmail.com>
+Date:   Fri Oct 11 19:27:53 2013 +0200
+
+    Ajout de fonctions de generation de token de connexion
