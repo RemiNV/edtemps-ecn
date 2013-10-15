@@ -48,6 +48,9 @@ public class SalleGestion {
 
 		try {
 
+			// Démarre une transaction
+			_bdd.startTransaction();
+
 			// Récupère la salle en base
 			ResultSet requeteSalle = _bdd
 					.executeRequest("SELECT * FROM edt.salle WHERE salle_id='"
@@ -83,6 +86,9 @@ public class SalleGestion {
 
 			}
 
+			// Termine la transaction
+			_bdd.commit();
+
 		} catch (DatabaseException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		} catch (SQLException e) {
@@ -107,6 +113,9 @@ public class SalleGestion {
 		if (salle != null) {
 
 			try {
+
+				// Démarre une transaction
+				_bdd.startTransaction();
 
 				// Récupération des arguments sur la salle
 				String batiment = salle.getBatiment();
@@ -151,6 +160,9 @@ public class SalleGestion {
 					throw new EdtempsException(ResultCode.DATABASE_ERROR,
 							"Tentative d'enregistrer une salle en base de données sans nom.");
 				}
+
+				// Termine la transaction
+				_bdd.commit();
 
 			} catch (DatabaseException e) {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
