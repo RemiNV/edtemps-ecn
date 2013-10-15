@@ -1,11 +1,10 @@
 package org.ecn.edtemps.managers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
@@ -39,7 +38,9 @@ public class SalleGestionTest {
 			this.salleGestionnaire.sauverSalle(salle);
 			fail("Une exception doit être levée");
 		} catch (EdtempsException e) {
-			assertTrue(StringUtils.contains(e.getMessage(), "Tentative d'enregistrer un objet NULL en base de données."));
+			assertTrue(StringUtils
+					.contains(e.getMessage(),
+							"Tentative d'enregistrer un objet NULL en base de données."));
 		}
 
 		// Cas vide
@@ -48,7 +49,9 @@ public class SalleGestionTest {
 			this.salleGestionnaire.sauverSalle(salle);
 			fail("Une exception doit être levée");
 		} catch (EdtempsException e) {
-			assertTrue(StringUtils.contains(e.getMessage(), "Tentative d'enregistrer une salle en base de données sans nom."));
+			assertTrue(StringUtils
+					.contains(e.getMessage(),
+							"Tentative d'enregistrer une salle en base de données sans nom."));
 		}
 
 		// Cas minimal sans matériel
@@ -76,5 +79,9 @@ public class SalleGestionTest {
 		this.salleGestionnaire.getSalle(7);
 	}
 
-	
+	@Test
+	public void testSupprimerSalle() throws EdtempsException {
+		this.salleGestionnaire.supprimerSalle(7);
+	}
+
 }
