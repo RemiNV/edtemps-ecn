@@ -60,6 +60,8 @@ public class SalleGestion {
 			requeteSalle.next();
 
 			if (!requeteSalle.wasNull()) {
+				
+				// Informations générales
 				salleRecuperee = new SalleIdentifie();
 				salleRecuperee.setId(requeteSalle.getInt("salle_id"));
 				salleRecuperee.setBatiment(requeteSalle

@@ -49,5 +49,3 @@ public class EvenementIdentifie extends Evenement {
 	}
 
 }
-
-

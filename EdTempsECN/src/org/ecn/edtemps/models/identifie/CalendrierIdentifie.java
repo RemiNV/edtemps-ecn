@@ -2,6 +2,11 @@ package org.ecn.edtemps.models.identifie;
 
 import org.ecn.edtemps.models.Calendrier;
 
+/**
+ * Classe modèle d'un calendrier identifié
+ * 
+ * @author Maxime TERRADE
+ */
 public class CalendrierIdentifie extends Calendrier {
 
 	/** Identifiant du calendrier dans la base de données */

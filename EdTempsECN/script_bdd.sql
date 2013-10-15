@@ -1,4 +1,3 @@
-
 CREATE SEQUENCE edt.salle_salle_id_seq;
 
 CREATE TABLE edt.Salle (
