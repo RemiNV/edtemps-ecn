@@ -26,8 +26,8 @@ public class SalleGestionTest {
 
 	@Before
 	public void initAllTests() throws DatabaseException {
-		bddGestion = new BddGestion();
-		salleGestionnaire = new SalleGestion(bddGestion);
+		this.bddGestion = new BddGestion();
+		this.salleGestionnaire = new SalleGestion(this.bddGestion);
 	}
 
 	@Test
