@@ -65,22 +65,19 @@ public class CalendrierGestion {
 				_bdd.startTransaction();
 				
 				// On crée le calendrier dans la base de données
-				_bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
+				ResultSet rs_ligneCreee = _bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
 						+ "VALUES ( "
 						+ matiere_id
 						+ "', '"
 						+ nom
 						+ "', '"
 						+ type_id
-						+ "')");
+						+ "') RETURNING cal_id");
+				
 				// On récupère l'id du calendrier créé
-				int id_calendrier = _bdd.recupererId(
-						"SELECT * FROM calendrier "
-						+ "WHERE matiere_id = '" + matiere_id + "' "
-						+ "AND cal_nom = '" + nom + "' "
-						+ "AND typeCal_id = '" + type_id + "' ",
-						"cal_id");
-				;
+				rs_ligneCreee.next();
+				int id_calendrier = rs_ligneCreee.getInt(1);
+	
 				// On définit les utilisateurs idProprietaires comme proprietaires du calendrier créé
 				Iterator<Integer> itr = idProprietaires.iterator();
 				while (itr.hasNext()){
