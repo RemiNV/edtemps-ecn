@@ -76,6 +76,13 @@ public class BddGestion {
 		_connection.commit();
 	}
 	
+	/**
+	 * Rollback une transaction associée à la connection de cet objet BddGestion
+	 * @throws SQLException 
+	 */
+	public void rollback() throws SQLException {
+		_connection.rollback();
+	}
 
 	/**
 	 * Exécuter une requête SQL
