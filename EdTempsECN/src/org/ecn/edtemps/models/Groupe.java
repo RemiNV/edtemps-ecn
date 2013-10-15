@@ -1,11 +1,19 @@
 package org.ecn.edtemps.models;
 
+import java.util.List;
+
 /**
  * Classe modèle d'un groupe de participants
  * 
  * @author Joffrey
  */
 public class Groupe {
+
+	/** Liste des identifiants des calendriers */
+	protected List<Integer> idCalendriers;
+
+	/** Liste des identifiants des propriétaires */
+	protected List<Integer> idProprietaires;
 
 	/** Nom du groupe de participants */
 	protected String nom;
@@ -15,6 +23,20 @@ public class Groupe {
 
 	/** Est-ce que le groupe peut avoir un rattachement */
 	protected boolean rattachementAutorise;
+
+	/**
+	 * @return idCalendriers
+	 */
+	public List<Integer> getIdCalendriers() {
+		return idCalendriers;
+	}
+
+	/**
+	 * @return idProprietaires
+	 */
+	public List<Integer> getIdProprietaires() {
+		return idProprietaires;
+	}
 
 	/**
 	 * @return nom
@@ -35,6 +57,24 @@ public class Groupe {
 	 */
 	public boolean getRattachementAutorise() {
 		return rattachementAutorise;
+	}
+
+	/**
+	 * Affecte une valeur à l'attribut idCalendriers
+	 * 
+	 * @param idCalendriers
+	 */
+	public void setIdCalendriers(List<Integer> idCalendriers) {
+		this.idCalendriers = idCalendriers;
+	}
+
+	/**
+	 * Affecte une valeur à l'attribut idProprietaires
+	 * 
+	 * @param idProprietaires
+	 */
+	public void setIdProprietaires(List<Integer> idProprietaires) {
+		this.idProprietaires = idProprietaires;
 	}
 
 	/**
