@@ -65,13 +65,7 @@ public class CalendrierGestion {
 				
 				// On crée le calendrier dans la base de données
 				ResultSet rs_ligneCreee = _bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
-						+ "VALUES ( "
-						+ matiere_id
-						+ "', '"
-						+ nom
-						+ "', '"
-						+ type_id
-						+ "') RETURNING cal_id");
+						+ "VALUES ( " + matiere_id + ", '" + nom + "', " + type_id + ") RETURNING cal_id");
 				
 				// On récupère l'id du calendrier créé
 				rs_ligneCreee.next();
@@ -81,12 +75,10 @@ public class CalendrierGestion {
 				Iterator<Integer> itr = idProprietaires.iterator();
 				while (itr.hasNext()){
 					int id_utilisateur = itr.next();
-					_bdd.executeRequest("INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
-							+ "VALUES ("
-							+ id_utilisateur
-							+ "', '"
-							+ id_calendrier 
-							+ "')");
+					_bdd.executeRequest(
+							"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
+							+ "VALUES (" + id_utilisateur + ", " + id_calendrier + ")"
+							);
 				}
 				
 				// Fin transaction
@@ -120,7 +112,7 @@ public class CalendrierGestion {
 					"SELECT * FROM calendrier "
 					+ "INNER JOIN matiere ON calendrier.matiere_id = matiere.matiere_id "
 					+ "INNER JOIN typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
-					+ "WHERE cal_id =" + idCalendrier );
+					+ "WHERE cal_id = " + idCalendrier );
 
 			while(rs_calendrier.next()){
 				 nom = rs_calendrier.getString("cal_nom");
@@ -140,7 +132,7 @@ public class CalendrierGestion {
 				
 				// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
 				ResultSet rs_proprios = _bdd.executeRequest(
-						"SELECT * FROM proprietairecalendrier WHERE cal_id =" + idCalendrier );
+						"SELECT * FROM proprietairecalendrier WHERE cal_id = " + idCalendrier );
 				
 				while(rs_proprios.next()){
 					 idProprietaires.add(rs_proprios.getInt("utilisateur_id"));
@@ -189,10 +181,21 @@ public class CalendrierGestion {
 			// Commencer une transaction
 			_bdd.startTransaction();
 			
+			// Récupération de l'id de la matiere et du type
+			int matiere_id;
+			int type_id;
+			try {
+				matiere_id = _bdd.recupererId("SELECT * FROM matiere WHERE matiere_nom LIKE '" + calId.getMatiere() + "'", "matiere_id");
+				type_id = _bdd.recupererId("SELECT * FROM typecalendrier WHERE typecal_libelle LIKE '" + calId.getType() + "'", "typecal_id");
+			} catch (DatabaseException e){
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			}
+			
 			// Modifier matiere, nom, type du calendrier
 			_bdd.executeRequest(
 					"UPDATE calendrier "
-					+ "SET (matiere_id, cal_nom, typeCal_id) = ('" + calId.getMatiere() +"', '" + calId.getNom() + "', '" + calId.getType() + "') "
+					+ "SET (matiere_id, cal_nom, typeCal_id) = "
+					+ "(" + matiere_id + ", '" + calId.getNom() + "', " + type_id + ") "
 					+ "WHERE cal_id = " + calId.getId() );
 		
 			// Supprimer ancienne liste de propriétaires du calendrier
@@ -204,9 +207,11 @@ public class CalendrierGestion {
 			// Ajouter nouvelle liste de propriétaires du calendrier		
 			Iterator<Integer> itrProprios = calId.getIdProprietaires().iterator();
 			while (itrProprios.hasNext()){
+				int idProprio = itrProprios.next();
 				_bdd.executeRequest(
 						"INSERT INTO proprietairecalendrier "
-						 + " VALUES (utilisateur_id, cal_id) = ('" + itrProprios.next() +"', '" + calId.getId() + "') " 
+						 + "VALUES (utilisateur_id, cal_id) = "
+						 + "(" + idProprio +", " + calId.getId() + ") " 
 				);
 			}
 			
@@ -242,12 +247,12 @@ public class CalendrierGestion {
 			// Supprimer liste de propriétaires du calendrier
 			_bdd.executeRequest(
 					"DELETE FROM proprietairecalendrier "
-					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			// Supprimer dépendance avec les groupes de participants
 			_bdd.executeRequest(
 					"DELETE FROM calendrierAppartientGroupe "
-					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			/* Supprimer les événements associés au calendrier
 			 * 		1 - Récupération des id des evenements associés
@@ -256,11 +261,11 @@ public class CalendrierGestion {
 			 */
 			ResultSet rs_evenementsAssocies = _bdd.executeRequest(
 					"SELECT * FROM  evenementAppartient "
-					+ "WHERE cal_id = " + idCalendrier + " ;"
+					+ "WHERE cal_id = " + idCalendrier 
 					);
 			_bdd.executeRequest(
 					"DELETE FROM evenementAppartient "
-					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 + "WHERE cal_id = " + idCalendrier  
 					 );
 			while(rs_evenementsAssocies.next()){
 				EvenementGestion eveGestionnaire = new EvenementGestion(this._bdd);
@@ -269,7 +274,7 @@ public class CalendrierGestion {
 			// Supprimer calendrier
 			_bdd.executeRequest(
 					"DELETE FROM calendrier "
-					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			// Fin transaction
 			_bdd.commit(); 
