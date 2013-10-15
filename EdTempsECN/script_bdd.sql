@@ -48,10 +48,10 @@ CREATE SEQUENCE edt.groupeparticipant_groupeparticipant_id_seq;
 CREATE TABLE edt.GroupeParticipant (
                 groupeParticipant_id INTEGER NOT NULL DEFAULT nextval('edt.groupeparticipant_groupeparticipant_id_seq'),
                 groupeParticipant_nom VARCHAR,
-                groupeParticipant_rattachementAutorise BOOLEAN,
+                groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
                 groupeParticipant_id_parent INTEGER,
 				groupeParticipant_estCours BOOLEAN,
-				groupeParticipant_estCalendrierUnique BOOLEAN,
+				groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
 
