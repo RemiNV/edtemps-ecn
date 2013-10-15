@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.models.Groupe;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
 /**
@@ -101,6 +102,16 @@ public class GroupeGestion {
 		}
 
 		return groupeRecuperee;
+
+	}
+
+	/**
+	 * Groupe à enregistrer en base de données
+	 * 
+	 * @param groupe
+	 *            groupe à sauver
+	 */
+	public void sauverGroupe(Groupe groupe) {
 
 	}
 }
