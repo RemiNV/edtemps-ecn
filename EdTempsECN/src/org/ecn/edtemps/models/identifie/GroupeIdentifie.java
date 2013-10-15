@@ -13,6 +13,13 @@ public class GroupeIdentifie extends Groupe {
 	protected int id;
 
 	/**
+	 * Constructeur vide
+	 */
+	public GroupeIdentifie() {
+		super();
+	}
+
+	/**
 	 * @return id
 	 */
 	public int getId() {
@@ -29,3 +36,4 @@ public class GroupeIdentifie extends Groupe {
 	}
 
 }
+
