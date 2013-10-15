@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.models.Salle;
+import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,6 +28,18 @@ public class SalleGestionTest {
 	public void initAllTests() throws DatabaseException {
 		bddGestion = new BddGestion();
 		salleGestionnaire = new SalleGestion(bddGestion);
+	}
+
+	@Test
+	public void testGetSalle() throws EdtempsException {
+		this.salleGestionnaire.getSalle(7);
+	}
+
+	@Test
+	public void testModifierSalle() throws EdtempsException {
+		SalleIdentifie salle = this.salleGestionnaire.getSalle(6);
+		salle.setNom("test");
+		this.salleGestionnaire.modifierSalle(salle);
 	}
 
 	@Test
@@ -72,11 +85,6 @@ public class SalleGestionTest {
 		salle.setMateriels(map);
 		this.salleGestionnaire.sauverSalle(salle);
 
-	}
-
-	@Test
-	public void testGetSalle() throws EdtempsException {
-		this.salleGestionnaire.getSalle(7);
 	}
 
 	@Test
