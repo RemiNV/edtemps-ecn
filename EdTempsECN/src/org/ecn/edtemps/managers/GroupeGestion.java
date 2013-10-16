@@ -299,28 +299,23 @@ public class GroupeGestion {
 
 		// Initialise le gestionnaire des calendriers avec l'accès à la base de
 		// données déjà créé ici
-
-		CalendrierGestion gestionnaireCalendriers = new CalendrierGestion(_bdd);
-
+		
 		try {
-
+			
+			// Vérifie si c'est un groupe unique et, le cas échéant, arrêter la suppression
+			if (!this.getGroupe(idGroupe).estCalendrierUnique()) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, "Impossible de supprimer le groupe unique lié à un calendrier.");
+			}
+			
 			// Démarre une transaction
 			_bdd.startTransaction();
 
-			// Supprime les calendriers
-			ResultSet listeCalendriers = _bdd
-					.executeRequest("SELECT cal_id FROM edt.calendrierappartientgroupe WHERE groupeParticipant_id='"
-							+ idGroupe + "'");
-			while (listeCalendriers.next()) {
-
-				gestionnaireCalendriers
-					.supprimerCalendrier(listeCalendriers.getInt(1));
-
-			}
-			listeCalendriers.close();
-
 			// Supprime les liens avec les propriétaires
 			_bdd.executeRequest("DELETE FROM edt.ProprietaireGroupedeParticipant WHERE groupeParticipant_id='"
+					+ idGroupe + "'");
+
+			// Supprime les liens avec les calendriers
+			_bdd.executeRequest("DELETE FROM edt.CalendrierAppartientGroupe WHERE groupeParticipant_id='"
 					+ idGroupe + "'");
 
 			// Supprime les abonnements
