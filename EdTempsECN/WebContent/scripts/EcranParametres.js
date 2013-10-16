@@ -1,5 +1,8 @@
 define(["jqueryquicksearch", "jqueryui", "jquerymultiselect"], function() {
 	
+	/**
+	 * Cet écran est associé au HTML templates/page_parametres.html.
+	 * Il affiche la page de paramètres, avec ses différents onglets (abonnements, mes agendas, mes groupes...) */
 	var EcranParametres = function() {
 		
 	};

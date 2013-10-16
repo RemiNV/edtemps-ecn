@@ -1,8 +1,10 @@
 define(["lib/fullcalendar.translated.min"], function() {
 	
-	// Constructeur
-	var EcranAccueil = function() {
-		this._idVue = EcranAccueil.ID_VUE_MES_ABONNEMENTS;
+	/**
+	 * Cet écran est associé au HTML templates/page_accueil.html.
+	 * Il s'agit de la page principale d'affichage des évènements. */
+	var EcranAccueil = function() { // Constructeur
+	
 	};
 	
 	EcranAccueil.prototype.init = function() {
