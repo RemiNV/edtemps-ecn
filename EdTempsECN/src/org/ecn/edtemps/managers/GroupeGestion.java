@@ -20,6 +20,8 @@ public class GroupeGestion {
 
 	protected BddGestion _bdd;
 
+	protected CalendrierGestion gestionnaireCalendriers;
+
 	/**
 	 * Initialise un gestionnaire de groupes de participants
 	 * 
@@ -189,5 +191,58 @@ public class GroupeGestion {
 		}
 
 		return idInsertion;
+	}
+
+	/**
+	 * Supprime un groupe en base de données
+	 * 
+	 * @param idGroupe
+	 *            identifiant du groupe à supprimer
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur
+	 */
+	public void supprimerGroupe(int idGroupe) throws EdtempsException {
+
+		// Initialise le gestionnaire des calendriers avec l'accès à la base de
+		// données déjà créé ici
+		this.gestionnaireCalendriers = new CalendrierGestion(_bdd);
+
+		try {
+
+			// Démarre une transaction
+			_bdd.startTransaction();
+
+			// Supprime les calendriers
+			ResultSet listeCalendriers = _bdd
+					.executeRequest("SELECT cal_id FROM edt.calendrierappartientgroupe WHERE groupeParticipant_id='"
+							+ idGroupe + "'");
+			while (listeCalendriers.next()) {
+				this.gestionnaireCalendriers
+						.supprimerCalendrier(listeCalendriers.getInt(1));
+			}
+			listeCalendriers.close();
+
+			// Supprime les liens avec les propriétaires
+			_bdd.executeRequest("DELETE FROM edt.ProprietaireGroupedeParticipant WHERE groupeParticipant_id='"
+					+ idGroupe + "'");
+
+			// Supprime les abonnements
+			_bdd.executeRequest("DELETE FROM edt.AbonneGroupeParticipant WHERE groupeParticipant_id='"
+					+ idGroupe + "'");
+
+			// Supprime le groupe
+			_bdd.executeRequest("DELETE FROM edt.GroupedeParticipant WHERE groupeParticipant_id='"
+					+ idGroupe + "'");
+
+			// Termine la transaction
+			_bdd.commit();
+
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+
 	}
 }
