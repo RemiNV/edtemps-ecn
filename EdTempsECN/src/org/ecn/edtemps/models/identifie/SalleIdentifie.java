@@ -34,6 +34,5 @@ public class SalleIdentifie extends Salle {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
-}
 
+}

@@ -36,4 +36,3 @@ public class GroupeIdentifie extends Groupe {
 	}
 
 }
-

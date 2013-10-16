@@ -3,6 +3,7 @@ package org.ecn.edtemps.managers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 
 /** 
  * Classe de gestion des calendriers 
+ * 
  * @author Maxime TERRADE
  *
  */
@@ -31,13 +33,11 @@ public class CalendrierGestion {
 	
 	
 	/**
-	 * Méthode (statique) d'enregistrement du calendrier <calendrier> dans la base de données
-	 * Le propriétaire du calendrier à enregistrer est l'utilisateur <proprietaire>
-	 * 
+	 * Méthode d'enregistrement du Calendrier "calendrier" dans la base de données
+	 *
 	 * NB : le rattachement d'un calendrier à un groupeDeParticipants n'est pas réalisé dans cette fonction.
 	 * 
 	 * @param calendrier
-	 * @param proprietaire
 	 */
 	public void sauverCalendrier(Calendrier calendrier) throws EdtempsException {
 		
@@ -66,13 +66,7 @@ public class CalendrierGestion {
 				
 				// On crée le calendrier dans la base de données
 				ResultSet rs_ligneCreee = _bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
-						+ "VALUES ( "
-						+ matiere_id
-						+ "', '"
-						+ nom
-						+ "', '"
-						+ type_id
-						+ "') RETURNING cal_id");
+						+ "VALUES ( " + matiere_id + ", '" + nom + "', " + type_id + ") RETURNING cal_id");
 				
 				// On récupère l'id du calendrier créé
 				rs_ligneCreee.next();
@@ -82,12 +76,10 @@ public class CalendrierGestion {
 				Iterator<Integer> itr = idProprietaires.iterator();
 				while (itr.hasNext()){
 					int id_utilisateur = itr.next();
-					_bdd.executeRequest("INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
-							+ "VALUES ("
-							+ id_utilisateur
-							+ "', '"
-							+ id_calendrier 
-							+ "')");
+					_bdd.executeRequest(
+							"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
+							+ "VALUES (" + id_utilisateur + ", " + id_calendrier + ")"
+							);
 				}
 				
 				// Fin transaction
@@ -110,7 +102,7 @@ public class CalendrierGestion {
 	
 	public Calendrier getCalendrier(int idCalendrier) throws EdtempsException {
 		
-		Calendrier result = new Calendrier();
+		Calendrier result;
 		String nom = null, matiere = null, type = null;
 		List<Integer> idProprietaires = new ArrayList<Integer>(); 
 		
@@ -121,7 +113,7 @@ public class CalendrierGestion {
 					"SELECT * FROM calendrier "
 					+ "INNER JOIN matiere ON calendrier.matiere_id = matiere.matiere_id "
 					+ "INNER JOIN typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
-					+ "WHERE cal_id =" + idCalendrier );
+					+ "WHERE cal_id = " + idCalendrier );
 
 			while(rs_calendrier.next()){
 				 nom = rs_calendrier.getString("cal_nom");
@@ -134,14 +126,9 @@ public class CalendrierGestion {
 			 */
 			if (rs_calendrier.getRow() == 1) {
 				
-				// On remplit les attributs du Calendrier result 
-				result.setNom(nom);
-				result.setMatiere(matiere);
-				result.setType(type);
-				
 				// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
 				ResultSet rs_proprios = _bdd.executeRequest(
-						"SELECT * FROM proprietairecalendrier WHERE cal_id =" + idCalendrier );
+						"SELECT * FROM proprietairecalendrier WHERE cal_id = " + idCalendrier );
 				
 				while(rs_proprios.next()){
 					 idProprietaires.add(rs_proprios.getInt("utilisateur_id"));
@@ -151,7 +138,7 @@ public class CalendrierGestion {
 				 * Sinon, exception EdtempsException
 				 */
 				if (rs_proprios.getRow() != 0) {
-					result.setIdProprietaires(idProprietaires);
+					result = new Calendrier(nom, type, matiere, idProprietaires);
 				}
 				else {
 					throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : liste des proprietaires vides");
@@ -190,10 +177,21 @@ public class CalendrierGestion {
 			// Commencer une transaction
 			_bdd.startTransaction();
 			
+			// Récupération de l'id de la matiere et du type
+			int matiere_id;
+			int type_id;
+			try {
+				matiere_id = _bdd.recupererId("SELECT * FROM matiere WHERE matiere_nom LIKE '" + calId.getMatiere() + "'", "matiere_id");
+				type_id = _bdd.recupererId("SELECT * FROM typecalendrier WHERE typecal_libelle LIKE '" + calId.getType() + "'", "typecal_id");
+			} catch (DatabaseException e){
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			}
+			
 			// Modifier matiere, nom, type du calendrier
 			_bdd.executeRequest(
 					"UPDATE calendrier "
-					+ "SET (matiere_id, cal_nom, typeCal_id) = ('" + calId.getMatiere() +"', '" + calId.getNom() + "', '" + calId.getType() + "') "
+					+ "SET (matiere_id, cal_nom, typeCal_id) = "
+					+ "(" + matiere_id + ", '" + calId.getNom() + "', " + type_id + ") "
 					+ "WHERE cal_id = " + calId.getId() );
 		
 			// Supprimer ancienne liste de propriétaires du calendrier
@@ -205,9 +203,11 @@ public class CalendrierGestion {
 			// Ajouter nouvelle liste de propriétaires du calendrier		
 			Iterator<Integer> itrProprios = calId.getIdProprietaires().iterator();
 			while (itrProprios.hasNext()){
+				int idProprio = itrProprios.next();
 				_bdd.executeRequest(
 						"INSERT INTO proprietairecalendrier "
-						 + " VALUES (utilisateur_id, cal_id) = ('" + itrProprios.next() +"', '" + calId.getId() + "') " 
+						 + "VALUES (utilisateur_id, cal_id) = "
+						 + "(" + idProprio +", " + calId.getId() + ") " 
 				);
 			}
 			
@@ -243,12 +243,12 @@ public class CalendrierGestion {
 			// Supprimer liste de propriétaires du calendrier
 			_bdd.executeRequest(
 					"DELETE FROM proprietairecalendrier "
-					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			// Supprimer dépendance avec les groupes de participants
 			_bdd.executeRequest(
 					"DELETE FROM calendrierAppartientGroupe "
-					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			/* Supprimer les événements associés au calendrier
 			 * 		1 - Récupération des id des evenements associés
@@ -257,20 +257,20 @@ public class CalendrierGestion {
 			 */
 			ResultSet rs_evenementsAssocies = _bdd.executeRequest(
 					"SELECT * FROM  evenementAppartient "
-					+ "WHERE cal_id = " + idCalendrier + " ;"
+					+ "WHERE cal_id = " + idCalendrier 
 					);
 			_bdd.executeRequest(
 					"DELETE FROM evenementAppartient "
-					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 + "WHERE cal_id = " + idCalendrier  
 					 );
 			while(rs_evenementsAssocies.next()){
-				EvenementGestion eveGestionnaire = new EvenementGestion();
+				EvenementGestion eveGestionnaire = new EvenementGestion(this._bdd);
 				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"));
 			}
 			// Supprimer calendrier
 			_bdd.executeRequest(
 					"DELETE FROM calendrier "
-					 + "WHERE cal_id = " + idCalendrier + " ;" 
+					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			// Fin transaction
 			_bdd.commit(); 
@@ -283,6 +283,39 @@ public class CalendrierGestion {
 		
 	}	
 	
+	/**
+	 * Listing des types de calendrier disponibles dans la base de données
+	 * @return Hashmap indiquant les ID (clés) et noms (string) des types de calendrier disponibles
+	 * @throws DatabaseException 
+	 * @throws SQLException 
+	 */
+	public HashMap<Integer, String> listerTypesCalendrier() throws DatabaseException, SQLException {
+		HashMap<Integer, String> res = new HashMap<Integer, String>();
+		
+		ResultSet bddRes = _bdd.executeRequest("SELECT typecal_id, typecal_libelle FROM edt.typecalendrier");
+		
+		while(bddRes.next()) {
+			res.put(bddRes.getInt(1), bddRes.getString(2));
+		}
+		return res;
+	}
+	
+	/**
+	 * Listing des matières disponibles dans la base de données
+	 * @return Hashmap indiquant les ID (clés) et noms (string) des matières disponibles
+	 * @throws DatabaseException 
+	 * @throws SQLException 
+	 */
+	public HashMap<Integer, String> listerMatieres() throws DatabaseException, SQLException {
+		HashMap<Integer, String> res = new HashMap<Integer, String>();
+		
+		ResultSet bddRes = _bdd.executeRequest("SELECT matiere_id, matiere_nom FROM edt.matiere");
+		
+		while(bddRes.next()) {
+			res.put(bddRes.getInt(1), bddRes.getString(2));
+		}
+		return res;
+	}
 	
 	
 }

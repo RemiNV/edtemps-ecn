@@ -43,18 +43,20 @@ CREATE TABLE edt.TypeCalendrier (
 
 ALTER SEQUENCE edt.typecalendrier_typecal_id_seq OWNER TO "edtemps-ecn";
 
-CREATE SEQUENCE edt.groupedeparticipant_groupeparticipant_id_seq;
+CREATE SEQUENCE edt.groupeparticipant_groupeparticipant_id_seq;
 
-CREATE TABLE edt.GroupedeParticipant (
-                groupeParticipant_id INTEGER NOT NULL DEFAULT nextval('edt.groupedeparticipant_groupeparticipant_id_seq'),
+CREATE TABLE edt.GroupeParticipant (
+                groupeParticipant_id INTEGER NOT NULL DEFAULT nextval('edt.groupeparticipant_groupeparticipant_id_seq'),
                 groupeParticipant_nom VARCHAR,
-                groupeParticipant_rattachementAutorise BOOLEAN,
-                groupedeParticipant_id_parent INTEGER,
+                groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
+                groupeParticipant_id_parent INTEGER,
+				groupeParticipant_estCours BOOLEAN,
+				groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
 
 
-ALTER SEQUENCE edt.groupedeparticipant_groupeparticipant_id_seq OWNER TO "edtemps-ecn";
+ALTER SEQUENCE edt.groupeparticipant_groupeparticipant_id_seq OWNER TO "edtemps-ecn";
 
 CREATE SEQUENCE edt.evenement_eve_id_seq;
 
@@ -79,6 +81,7 @@ CREATE TABLE edt.ALieuenSalle (
 CREATE TABLE edt.NecessiteMateriel (
                 eve_id INTEGER NOT NULL,
                 materiel_id INTEGER NOT NULL,
+				necessitemateriel_quantite INTEGER NOT NULL,
                 CONSTRAINT eve_id_materiel_id PRIMARY KEY (eve_id, materiel_id)
 );
 
@@ -129,13 +132,15 @@ CREATE TABLE edt.Utilisateur (
                 utilisateur_id_ldap INTEGER UNIQUE,
                 utilisateur_token VARCHAR UNIQUE,
                 utilisateur_token_expire TIMESTAMP,
+				utilisateur_nom TEXT,
+				utilisateur_prenom TEXT,
                 CONSTRAINT utilisateur_id PRIMARY KEY (utilisateur_id)
 );
 
 
 ALTER SEQUENCE edt.utilisateur_utilisateur_id_seq OWNER TO "edtemps-ecn";
 
-CREATE TABLE edt.ProprietaireGroupedeParticipant (
+CREATE TABLE edt.ProprietaireGroupeParticipant (
                 utilisateur_id INTEGER NOT NULL,
                 groupeParticipant_id INTEGER NOT NULL,
                 CONSTRAINT proprietaire_utilisateur_id_groupeparticipant_id PRIMARY KEY (utilisateur_id, groupeParticipant_id)
@@ -249,30 +254,30 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE edt.AbonneGroupeParticipant ADD CONSTRAINT groupedeparticipant_abonnegroupeparticipant_fk
+ALTER TABLE edt.AbonneGroupeParticipant ADD CONSTRAINT groupeparticipant_abonnegroupeparticipant_fk
 FOREIGN KEY (groupeParticipant_id)
-REFERENCES edt.GroupedeParticipant (groupeParticipant_id)
+REFERENCES edt.GroupeParticipant (groupeParticipant_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE edt.ProprietaireGroupedeParticipant ADD CONSTRAINT groupedeparticipant_proprietairegroupedeparticipant_fk
+ALTER TABLE edt.ProprietaireGroupeParticipant ADD CONSTRAINT groupeparticipant_proprietairegroupeparticipant_fk
 FOREIGN KEY (groupeParticipant_id)
-REFERENCES edt.GroupedeParticipant (groupeParticipant_id)
+REFERENCES edt.GroupeParticipant (groupeParticipant_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE edt.CalendrierAppartientGroupe ADD CONSTRAINT groupedeparticipant_calendrierappartiengroupe_fk
+ALTER TABLE edt.CalendrierAppartientGroupe ADD CONSTRAINT groupeparticipant_calendrierappartiengroupe_fk
 FOREIGN KEY (groupeParticipant_id)
-REFERENCES edt.GroupedeParticipant (groupeParticipant_id)
+REFERENCES edt.GroupeParticipant (groupeParticipant_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE edt.GroupedeParticipant ADD CONSTRAINT groupedeparticipant_groupedeparticipant_fk
-FOREIGN KEY (groupedeParticipant_id_parent)
-REFERENCES edt.GroupedeParticipant (groupeParticipant_id)
+ALTER TABLE edt.GroupeParticipant ADD CONSTRAINT groupeparticipant_groupeparticipant_fk
+FOREIGN KEY (groupeParticipant_id_parent)
+REFERENCES edt.GroupeParticipant (groupeParticipant_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
@@ -389,7 +394,7 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE edt.ProprietaireGroupedeParticipant ADD CONSTRAINT utilisateur_proprietairegroupedeparticipant_fk
+ALTER TABLE edt.ProprietaireGroupeParticipant ADD CONSTRAINT utilisateur_proprietairegroupeparticipant_fk
 FOREIGN KEY (utilisateur_id)
 REFERENCES edt.Utilisateur (utilisateur_id)
 ON DELETE NO ACTION
@@ -421,7 +426,7 @@ ALTER TABLE edt.salle OWNER TO "edtemps-ecn";
 ALTER TABLE edt.materiel OWNER TO "edtemps-ecn";
 ALTER TABLE edt.contientmateriel OWNER TO "edtemps-ecn";
 ALTER TABLE edt.typecalendrier OWNER TO "edtemps-ecn";
-ALTER TABLE edt.groupedeparticipant OWNER TO "edtemps-ecn";
+ALTER TABLE edt.groupeparticipant OWNER TO "edtemps-ecn";
 ALTER TABLE edt.evenement OWNER TO "edtemps-ecn";
 ALTER TABLE edt.aLieuensalle OWNER TO "edtemps-ecn";
 ALTER TABLE edt.necessitemateriel OWNER TO "edtemps-ecn";
@@ -430,7 +435,7 @@ ALTER TABLE edt.calendrier OWNER TO "edtemps-ecn";
 ALTER TABLE edt.calendrierappartientgroupe OWNER TO "edtemps-ecn";
 ALTER TABLE edt.evenementappartient OWNER TO "edtemps-ecn";
 ALTER TABLE edt.utilisateur OWNER TO "edtemps-ecn";
-ALTER TABLE edt.proprietairegroupedeparticipant OWNER TO "edtemps-ecn";
+ALTER TABLE edt.proprietairegroupeparticipant OWNER TO "edtemps-ecn";
 ALTER TABLE edt.abonnegroupeparticipant OWNER TO "edtemps-ecn";
 ALTER TABLE edt.responsableevenement OWNER TO "edtemps-ecn";
 ALTER TABLE edt.intervenantevenement OWNER TO "edtemps-ecn";

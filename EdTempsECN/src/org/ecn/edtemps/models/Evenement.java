@@ -97,5 +97,4 @@ public class Evenement {
 	public void setIntervenants(List<String> intervenants) {
 		this.intervenants = intervenants;
 	}
-	
 }
