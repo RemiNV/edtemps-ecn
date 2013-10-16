@@ -1,7 +1,7 @@
 package org.ecn.edtemps.exceptions;
 
 /**
- * 
+ * Exception des méthodes accédant à la base de données
  */
 public class DatabaseException extends EdtempsException {
 
