@@ -13,10 +13,16 @@ public class GroupeIdentifie extends Groupe {
 	protected int id;
 
 	/**
-	 * Constructeur vide
+	 * Constructeur utilisant les informations indispensables
+	 * @param id
+	 * @param nom
+	 * @param rattachementAutorise
+	 * @param estCours
+	 * @param estCalendrierUnique
 	 */
-	public GroupeIdentifie() {
-		super();
+	public GroupeIdentifie(int id, String nom, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique) {
+		super(nom, rattachementAutorise, estCours, estCalendrierUnique);
+		this.id = id;
 	}
 
 	/**
