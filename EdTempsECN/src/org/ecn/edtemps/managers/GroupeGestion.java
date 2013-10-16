@@ -2,9 +2,8 @@ package org.ecn.edtemps.managers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.Map.Entry;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
@@ -108,14 +107,20 @@ public class GroupeGestion {
 
 	}
 
-
 	/**
 	 * Groupe à enregistrer en base de données
 	 * 
 	 * @param groupe
 	 *            groupe à sauver
+	 * 
+	 * @return l'identifiant de la ligne insérée
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur
 	 */
-	public void sauverGroupe(Groupe groupe) {
+	public int sauverGroupe(Groupe groupe) throws EdtempsException {
+
+		int idInsertion = -1;
 
 		if (groupe != null) {
 
@@ -124,16 +129,50 @@ public class GroupeGestion {
 				// Démarre une transaction
 				_bdd.startTransaction();
 
-				// Récupération des arguments sur la salle
-				String batiment = salle.getBatiment();
-				if (StringUtils.isBlank(batiment)) {
-					batiment = "";
+				// Récupération des arguments sur le groupe
+				String nom = groupe.getNom();
+				if (StringUtils.isBlank(nom)) {
+					nom = "";
 				}
-				String nom = salle.getNom();
-				Integer niveau = salle.getNiveau();
-				Integer numero = salle.getNumero();
-				Integer capacite = salle.getCapacite();
-				Map<Integer, Integer> materiels = salle.getMateriels();
+				int parentId = groupe.getParentId();
+				boolean ratachementAutorise = groupe.getRattachementAutorise();
+
+				// Vérification de la cohérence des valeurs
+				if (StringUtils.isNotBlank(nom)) {
+
+					// Ajoute le groupe dans la bdd et récupère l'identifiant de
+					// la ligne
+					ResultSet resultat = _bdd
+							.executeRequest("INSERT INTO edt.groupedeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupedeparticipant_id_parent) VALUES ('"
+									+ nom
+									+ "', '"
+									+ ratachementAutorise
+									+ "', '"
+									+ parentId
+									+ "') RETURNING groupeparticipant_id ");
+					resultat.next();
+					idInsertion = resultat.getInt(1);
+					resultat.close();
+
+					// Ajout des propriétaires
+					if (CollectionUtils.isNotEmpty(groupe.getIdProprietaires())) {
+						for (Integer idProprietaire : groupe
+								.getIdProprietaires()) {
+							_bdd.executeRequest("INSERT INTO edt.ProprietaireGroupedeParticipant (utilisateur_id, groupeParticipant_id) VALUES ('"
+									+ idProprietaire
+									+ "', '"
+									+ idInsertion
+									+ "')");
+						}
+					} else {
+						throw new EdtempsException(ResultCode.DATABASE_ERROR,
+								"Tentative d'enregistrer un groupe en base de données sans propriétaire.");
+					}
+
+				} else {
+					throw new EdtempsException(ResultCode.DATABASE_ERROR,
+							"Tentative d'enregistrer un groupe en base de données sans nom.");
+				}
 
 				// Termine la transaction
 				_bdd.commit();
@@ -148,5 +187,7 @@ public class GroupeGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR,
 					"Tentative d'enregistrer un objet NULL en base de données.");
 		}
+
+		return idInsertion;
 	}
 }
