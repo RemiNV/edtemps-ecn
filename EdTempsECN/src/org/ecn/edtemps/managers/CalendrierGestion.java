@@ -3,6 +3,7 @@ package org.ecn.edtemps.managers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -282,6 +283,39 @@ public class CalendrierGestion {
 		
 	}	
 	
+	/**
+	 * Listing des types de calendrier disponibles dans la base de données
+	 * @return Hashmap indiquant les ID (clés) et noms (string) des types de calendrier disponibles
+	 * @throws DatabaseException 
+	 * @throws SQLException 
+	 */
+	public HashMap<Integer, String> listerTypesCalendrier() throws DatabaseException, SQLException {
+		HashMap<Integer, String> res = new HashMap<Integer, String>();
+		
+		ResultSet bddRes = _bdd.executeRequest("SELECT typecal_id, typecal_libelle FROM edt.typecalendrier");
+		
+		while(bddRes.next()) {
+			res.put(bddRes.getInt(1), bddRes.getString(2));
+		}
+		return res;
+	}
+	
+	/**
+	 * Listing des matières disponibles dans la base de données
+	 * @return Hashmap indiquant les ID (clés) et noms (string) des matières disponibles
+	 * @throws DatabaseException 
+	 * @throws SQLException 
+	 */
+	public HashMap<Integer, String> listerMatieres() throws DatabaseException, SQLException {
+		HashMap<Integer, String> res = new HashMap<Integer, String>();
+		
+		ResultSet bddRes = _bdd.executeRequest("SELECT matiere_id, matiere_nom FROM edt.matiere");
+		
+		while(bddRes.next()) {
+			res.put(bddRes.getInt(1), bddRes.getString(2));
+		}
+		return res;
+	}
 	
 	
 }
