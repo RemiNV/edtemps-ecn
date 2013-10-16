@@ -8,8 +8,6 @@ import java.sql.SQLException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
-import org.ecn.edtemps.exceptions.EdtempsException;
-import org.ecn.edtemps.exceptions.ResultCode;
 
 /**
  * Classe d'outils pour se connecter à la base de données et exécuter des
