@@ -9,9 +9,7 @@ import java.util.List;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
-import org.ecn.edtemps.models.Calendrier;
 import org.ecn.edtemps.models.Evenement;
-import org.ecn.edtemps.models.identifie.SalleIdentifie;
 
 /** 
  * Classe de gestion des evenements

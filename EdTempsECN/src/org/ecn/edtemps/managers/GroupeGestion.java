@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
@@ -121,6 +123,78 @@ public class GroupeGestion {
 
 		return groupeRecupere;
 	}
+	
+	/**
+	 * Modifie un groupe en base de données
+	 * 
+	 * @param groupe
+	 *            groupe à modifier
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur
+	 */
+	public void modifierGroupe(GroupeIdentifie groupe) throws EdtempsException {
+
+		if (groupe != null) {
+
+			try {
+				// Récupération des nouvelles informations sur le groupe
+				int id = groupe.getId();
+				String nom = groupe.getNom();
+				int parentId = groupe.getParentId();
+				boolean ratachementAutorise = groupe.getRattachementAutorise();
+
+				groupe.getIdCalendriers();
+				groupe.getIdProprietaires();
+
+				// Vérification de la cohérence des valeurs
+				if (StringUtils.isNotBlank(nom)) {
+
+					// Modifie les informations sur le groupe
+					_bdd.executeRequest("UPDATE edt.GroupedeParticipant SET groupeParticipant_nom='"
+							+ nom
+							+ "', groupeParticipant_rattachementAutorise='"
+							+ ratachementAutorise
+							+ "', groupedeParticipant_id_parent='"
+							+ parentId
+							+ "' WHERE groupeParticipant_id='" + id + "'");
+
+					// Supprime les liens avec les propriétaires
+					_bdd.executeRequest("DELETE FROM edt.ProprietaireGroupedeParticipant WHERE groupeParticipant_id='"
+							+ id + "'");
+
+					// Ajout des nouveaux propriétaires
+					if (CollectionUtils.isNotEmpty(groupe.getIdProprietaires())) {
+						for (Integer idProprietaire : groupe
+								.getIdProprietaires()) {
+							_bdd.executeRequest("INSERT INTO edt.ProprietaireGroupedeParticipant (utilisateur_id, groupeParticipant_id) VALUES ('"
+									+ idProprietaire + "', '" + id + "')");
+						}
+					} else {
+						throw new EdtempsException(ResultCode.DATABASE_ERROR,
+								"Tentative d'enregistrer un groupe en base de données sans propriétaire.");
+					}
+
+				} else {
+					throw new EdtempsException(ResultCode.DATABASE_ERROR,
+							"Tentative d'enregistrer un groupe en base de données sans nom.");
+				}
+
+				// Termine la transaction
+				_bdd.commit();
+
+			} catch (DatabaseException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			} catch (SQLException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			}
+
+		} else {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,
+					"Tentative de modifier un objet NULL en base de données.");
+		}
+
+	}
 
 
 	/**
@@ -128,8 +202,132 @@ public class GroupeGestion {
 	 * 
 	 * @param groupe
 	 *            groupe à sauver
+	 * 
+	 * @return l'identifiant de la ligne insérée
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur
 	 */
-	public void sauverGroupe(Groupe groupe) {
+	public int sauverGroupe(Groupe groupe) throws EdtempsException {
+
+		int idInsertion = -1;
+
+		if (groupe != null) {
+
+			try {
+
+				// Démarre une transaction
+				_bdd.startTransaction();
+
+				// Récupération des arguments sur le groupe
+				String nom = groupe.getNom();
+				int parentId = groupe.getParentId();
+				boolean ratachementAutorise = groupe.getRattachementAutorise();
+
+				// Vérification de la cohérence des valeurs
+				if (StringUtils.isNotBlank(nom)) {
+
+					// Ajoute le groupe dans la bdd et récupère l'identifiant de
+					// la ligne
+					ResultSet resultat = _bdd
+							.executeRequest("INSERT INTO edt.groupedeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupedeparticipant_id_parent) VALUES ('"
+									+ nom
+									+ "', '"
+									+ ratachementAutorise
+									+ "', '"
+									+ parentId
+									+ "') RETURNING groupeparticipant_id ");
+					resultat.next();
+					idInsertion = resultat.getInt(1);
+					resultat.close();
+
+					// Ajout des propriétaires
+					if (CollectionUtils.isNotEmpty(groupe.getIdProprietaires())) {
+						for (Integer idProprietaire : groupe
+								.getIdProprietaires()) {
+							_bdd.executeRequest("INSERT INTO edt.ProprietaireGroupedeParticipant (utilisateur_id, groupeParticipant_id) VALUES ('"
+									+ idProprietaire
+									+ "', '"
+									+ idInsertion
+									+ "')");
+						}
+					} else {
+						throw new EdtempsException(ResultCode.DATABASE_ERROR,
+								"Tentative d'enregistrer un groupe en base de données sans propriétaire.");
+					}
+
+				} else {
+					throw new EdtempsException(ResultCode.DATABASE_ERROR,
+							"Tentative d'enregistrer un groupe en base de données sans nom.");
+				}
+
+				// Termine la transaction
+				_bdd.commit();
+
+			} catch (DatabaseException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			} catch (SQLException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			}
+
+		} else {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,
+					"Tentative d'enregistrer un objet NULL en base de données.");
+		}
+
+		return idInsertion;
+	}
+	
+	/**
+	 * Supprime un groupe en base de données
+	 * 
+	 * @param idGroupe
+	 *            identifiant du groupe à supprimer
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur
+	 */
+	public void supprimerGroupe(int idGroupe) throws EdtempsException {
+
+		// Initialise le gestionnaire des calendriers avec l'accès à la base de
+		// données déjà créé ici
+		CalendrierGestion gestionnaireCalendriers = new CalendrierGestion(_bdd);
+
+		try {
+
+			// Démarre une transaction
+			_bdd.startTransaction();
+
+			// Supprime les calendriers
+			ResultSet listeCalendriers = _bdd
+					.executeRequest("SELECT cal_id FROM edt.calendrierappartientgroupe WHERE groupeParticipant_id='"
+							+ idGroupe + "'");
+			while (listeCalendriers.next()) {
+				gestionnaireCalendriers
+					.supprimerCalendrier(listeCalendriers.getInt(1));
+			}
+			listeCalendriers.close();
+
+			// Supprime les liens avec les propriétaires
+			_bdd.executeRequest("DELETE FROM edt.ProprietaireGroupedeParticipant WHERE groupeParticipant_id='"
+					+ idGroupe + "'");
+
+			// Supprime les abonnements
+			_bdd.executeRequest("DELETE FROM edt.AbonneGroupeParticipant WHERE groupeParticipant_id='"
+					+ idGroupe + "'");
+
+			// Supprime le groupe
+			_bdd.executeRequest("DELETE FROM edt.GroupedeParticipant WHERE groupeParticipant_id='"
+					+ idGroupe + "'");
+
+			// Termine la transaction
+			_bdd.commit();
+
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
 
 	}
 	
