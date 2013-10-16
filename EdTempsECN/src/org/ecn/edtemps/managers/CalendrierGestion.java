@@ -341,7 +341,7 @@ public class CalendrierGestion {
 	 * @return
 	 * @throws EdtempsException
 	 */
-	public ArrayList<Calendrier> listerCalendriersAbonnements(int userId, boolean createTransaction) throws EdtempsException {
+	public ArrayList<Calendrier> listerCalendriersUtilisateur(int userId, boolean createTransaction) throws EdtempsException {
 		try {
 			if(createTransaction)
 				_bdd.startTransaction();
