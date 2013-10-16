@@ -377,7 +377,7 @@ public class GroupeGestion {
 			nbInsertions = bdd.executeUpdate("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-					"SELECT parent.groupeparticipant_id," +
+					"SELECT DISTINCT parent.groupeparticipant_id," +
 					"parent.groupeparticipant_nom, parent.groupeparticipant_rattachementautorise," +
 					"parent.groupeparticipant_id_parent, parent.groupeparticipant_estcours, parent.groupeparticipant_estcalendrierunique " +
 					"FROM edt.groupeparticipant parent " +
@@ -394,7 +394,7 @@ public class GroupeGestion {
 			nbInsertions = bdd.executeUpdate("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-					"SELECT enfant.groupeparticipant_id," +
+					"SELECT DISTINCT enfant.groupeparticipant_id," +
 					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
 					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
 					"FROM edt.groupeparticipant enfant " +

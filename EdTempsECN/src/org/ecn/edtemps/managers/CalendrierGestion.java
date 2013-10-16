@@ -99,12 +99,44 @@ public class CalendrierGestion {
 			
 	}
 	
+	/**
+	 * Créé un calendrier à partir d'une ligne de base de données
+	 * @param row ResultSet placé à la ligne de base de données à lire
+	 * @return CalendrierIdentifie créé
+	 * @throws EdtempsException 
+	 * @throws SQLException 
+	 */
+	private CalendrierIdentifie inflateCalendrierFromRow(ResultSet row) throws EdtempsException, SQLException {
+		
+		int id = row.getInt("calendrier_id");
+		 String nom = row.getString("cal_nom");
+		 String matiere = row.getString("matiere_nom");
+		 String type = row.getString("typeCal_libelle");
+		
+
+		// Récupération des propriétaires du calendrier
+		ResultSet rs_proprios = _bdd.executeRequest(
+				"SELECT * FROM proprietairecalendrier WHERE cal_id = " + id );
+		
+		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
+		while(rs_proprios.next()){
+			 idProprietaires.add(rs_proprios.getInt("utilisateur_id"));
+		}
+		
+		/* Si au moins un proprio existe, le ou les ajouter aux attibuts du Calendrier. 
+		 * Sinon, exception EdtempsException
+		 */
+		if (idProprietaires.size() != 0) {
+			return new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
+		}
+		else {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : liste des proprietaires vides");
+		}
+	}
 	
 	public Calendrier getCalendrier(int idCalendrier) throws EdtempsException {
 		
 		Calendrier result;
-		String nom = null, matiere = null, type = null;
-		List<Integer> idProprietaires = new ArrayList<Integer>(); 
 		
 		try {
 			
@@ -115,34 +147,8 @@ public class CalendrierGestion {
 					+ "INNER JOIN typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
 					+ "WHERE cal_id = " + idCalendrier );
 
-			while(rs_calendrier.next()){
-				 nom = rs_calendrier.getString("cal_nom");
-				 matiere = rs_calendrier.getString("matiere_nom");
-				 type = rs_calendrier.getString("typeCal_libelle");
-			}
-			
-			/* Si le ResultSet contient bien une et une seule ligne
-			 * Sinon, exception EdtempsException
-			 */
-			if (rs_calendrier.getRow() == 1) {
-				
-				// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
-				ResultSet rs_proprios = _bdd.executeRequest(
-						"SELECT * FROM proprietairecalendrier WHERE cal_id = " + idCalendrier );
-				
-				while(rs_proprios.next()){
-					 idProprietaires.add(rs_proprios.getInt("utilisateur_id"));
-				}
-				
-				/* Si au moins un proprio existe, le ou les ajouter aux attibuts du Calendrier. 
-				 * Sinon, exception EdtempsException
-				 */
-				if (rs_proprios.getRow() != 0) {
-					result = new Calendrier(nom, type, matiere, idProprietaires);
-				}
-				else {
-					throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : liste des proprietaires vides");
-				}
+			if(rs_calendrier.next()){
+				 result = inflateCalendrierFromRow(rs_calendrier);
 			}
 			else {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : pas de calendrier correspondant à l'idCalendrier en argument");
@@ -155,7 +161,6 @@ public class CalendrierGestion {
 		}
 		
 		return result;
-		
 	}
 	
 	
@@ -289,13 +294,17 @@ public class CalendrierGestion {
 	 * @throws DatabaseException 
 	 * @throws SQLException 
 	 */
-	public HashMap<Integer, String> listerTypesCalendrier() throws DatabaseException, SQLException {
+	public HashMap<Integer, String> listerTypesCalendrier() throws DatabaseException {
 		HashMap<Integer, String> res = new HashMap<Integer, String>();
 		
 		ResultSet bddRes = _bdd.executeRequest("SELECT typecal_id, typecal_libelle FROM edt.typecalendrier");
 		
-		while(bddRes.next()) {
-			res.put(bddRes.getInt(1), bddRes.getString(2));
+		try {
+			while(bddRes.next()) {
+				res.put(bddRes.getInt(1), bddRes.getString(2));
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
 		}
 		return res;
 	}
@@ -306,16 +315,59 @@ public class CalendrierGestion {
 	 * @throws DatabaseException 
 	 * @throws SQLException 
 	 */
-	public HashMap<Integer, String> listerMatieres() throws DatabaseException, SQLException {
+	public HashMap<Integer, String> listerMatieres() throws DatabaseException {
 		HashMap<Integer, String> res = new HashMap<Integer, String>();
 		
 		ResultSet bddRes = _bdd.executeRequest("SELECT matiere_id, matiere_nom FROM edt.matiere");
 		
-		while(bddRes.next()) {
-			res.put(bddRes.getInt(1), bddRes.getString(2));
+		try {
+			while(bddRes.next()) {
+				res.put(bddRes.getInt(1), bddRes.getString(2));
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
 		}
 		return res;
 	}
 	
+	/**
+	 * Récupération des calendriers correspondant aux abonnements de l'utilisateur
+	 * 
+	 * Cette méthode <b>doit</b> être exécutée à l'intérieur d'une transaction, ou créer soi-même sa transaction.
+	 * Dans le cas où ceci ne serait pas le cas, une exception indiquant qu'une table temporaire n'existe pas se produira.
+	 * 
+	 * @param userId ID de l'utilisateur dont les calendriers sont à récupérer
+	 * @param createTransaction Transaction à créer à l'intérieur de cette méthode (si pas déjà créée).
+	 * @return
+	 * @throws EdtempsException
+	 */
+	public ArrayList<Calendrier> listerCalendriersAbonnements(int userId, boolean createTransaction) throws EdtempsException {
+		try {
+			if(createTransaction)
+				_bdd.startTransaction();
+			
+			String tableTempAbonnementsGroupes = GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, userId);
+			
+			// Récupération des calendriers des collections abonnement
+			ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.matiere_id, calendrier.cal_nom, calendrier.typecal_id FROM edt.calendrier " +
+					"INNER JOIN edt.calendrierappartientgroupe appartenance ON appartenance.cal_id=calendrier.cal_id " +
+					"INNER JOIN " + tableTempAbonnementsGroupes + " tmpAbonnements ON tmpAbonnements.groupeparticipant_id=appartenance.groupeparticipant_id");
+			
+			ArrayList<Calendrier> res = new ArrayList<Calendrier>();
+			
+			while(results.next()) {
+				res.add(this.inflateCalendrierFromRow(results));
+			}
+			
+			if(createTransaction)
+				_bdd.commit(); // Supprime la table temporaire
+			
+			return res;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+	}
 	
 }
