@@ -168,7 +168,7 @@ public class SalleGestion {
 
 		} else {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR,
-					"Tentative d'enregistrer un objet NULL en base de données.");
+					"Tentative de modifier un objet NULL en base de données.");
 		}
 
 	}

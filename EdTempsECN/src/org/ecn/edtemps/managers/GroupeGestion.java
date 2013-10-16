@@ -2,7 +2,10 @@ package org.ecn.edtemps.managers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
@@ -115,6 +118,37 @@ public class GroupeGestion {
 	 */
 	public void sauverGroupe(Groupe groupe) {
 
+		if (groupe != null) {
+
+			try {
+
+				// Démarre une transaction
+				_bdd.startTransaction();
+
+				// Récupération des arguments sur la salle
+				String batiment = salle.getBatiment();
+				if (StringUtils.isBlank(batiment)) {
+					batiment = "";
+				}
+				String nom = salle.getNom();
+				Integer niveau = salle.getNiveau();
+				Integer numero = salle.getNumero();
+				Integer capacite = salle.getCapacite();
+				Map<Integer, Integer> materiels = salle.getMateriels();
+
+				// Termine la transaction
+				_bdd.commit();
+
+			} catch (DatabaseException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			} catch (SQLException e) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			}
+
+		} else {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,
+					"Tentative d'enregistrer un objet NULL en base de données.");
+		}
 	}
 
 }
