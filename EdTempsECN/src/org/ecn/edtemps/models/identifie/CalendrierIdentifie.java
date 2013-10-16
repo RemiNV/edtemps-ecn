@@ -1,5 +1,7 @@
 package org.ecn.edtemps.models.identifie;
 
+import java.util.List;
+
 import org.ecn.edtemps.models.Calendrier;
 
 /**
@@ -12,14 +14,9 @@ public class CalendrierIdentifie extends Calendrier {
 	/** Identifiant du calendrier dans la base de données */
 	protected int id;
 	
-	/** Constructeur par défaut */
-	public CalendrierIdentifie() {
-		super();
-	}
-	
 	/** Constructeur avec tous les attributs */
-	public CalendrierIdentifie(String nom, String type, String matiere, int id) {
-		super(nom, type, matiere);
+	public CalendrierIdentifie(String nom, String type, String matiere, List<Integer> idProprietaires, int id) {
+		super(nom, type, matiere, idProprietaires);
 		this.id = id;
 	}
 	

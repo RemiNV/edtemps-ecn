@@ -48,9 +48,10 @@ CREATE SEQUENCE edt.groupeparticipant_groupeparticipant_id_seq;
 CREATE TABLE edt.GroupeParticipant (
                 groupeParticipant_id INTEGER NOT NULL DEFAULT nextval('edt.groupeparticipant_groupeparticipant_id_seq'),
                 groupeParticipant_nom VARCHAR,
-                groupeParticipant_rattachementAutorise BOOLEAN,
+                groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
                 groupeParticipant_id_parent INTEGER,
 				groupeParticipant_estCours BOOLEAN,
+				groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
 
@@ -80,6 +81,7 @@ CREATE TABLE edt.ALieuenSalle (
 CREATE TABLE edt.NecessiteMateriel (
                 eve_id INTEGER NOT NULL,
                 materiel_id INTEGER NOT NULL,
+				necessitemateriel_quantite INTEGER NOT NULL,
                 CONSTRAINT eve_id_materiel_id PRIMARY KEY (eve_id, materiel_id)
 );
 
@@ -130,6 +132,8 @@ CREATE TABLE edt.Utilisateur (
                 utilisateur_id_ldap INTEGER UNIQUE,
                 utilisateur_token VARCHAR UNIQUE,
                 utilisateur_token_expire TIMESTAMP,
+				utilisateur_nom TEXT,
+				utilisateur_prenom TEXT,
                 CONSTRAINT utilisateur_id PRIMARY KEY (utilisateur_id)
 );
 

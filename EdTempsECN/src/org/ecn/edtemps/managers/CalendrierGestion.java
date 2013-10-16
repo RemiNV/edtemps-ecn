@@ -101,7 +101,7 @@ public class CalendrierGestion {
 	
 	public Calendrier getCalendrier(int idCalendrier) throws EdtempsException {
 		
-		Calendrier result = new Calendrier();
+		Calendrier result;
 		String nom = null, matiere = null, type = null;
 		List<Integer> idProprietaires = new ArrayList<Integer>(); 
 		
@@ -125,11 +125,6 @@ public class CalendrierGestion {
 			 */
 			if (rs_calendrier.getRow() == 1) {
 				
-				// On remplit les attributs du Calendrier result 
-				result.setNom(nom);
-				result.setMatiere(matiere);
-				result.setType(type);
-				
 				// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
 				ResultSet rs_proprios = _bdd.executeRequest(
 						"SELECT * FROM proprietairecalendrier WHERE cal_id = " + idCalendrier );
@@ -142,7 +137,7 @@ public class CalendrierGestion {
 				 * Sinon, exception EdtempsException
 				 */
 				if (rs_proprios.getRow() != 0) {
-					result.setIdProprietaires(idProprietaires);
+					result = new Calendrier(nom, type, matiere, idProprietaires);
 				}
 				else {
 					throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : liste des proprietaires vides");
