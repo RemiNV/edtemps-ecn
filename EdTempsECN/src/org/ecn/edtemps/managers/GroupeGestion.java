@@ -3,6 +3,8 @@ package org.ecn.edtemps.managers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.ArrayList;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
@@ -20,8 +22,6 @@ public class GroupeGestion {
 
 	protected BddGestion _bdd;
 
-	protected CalendrierGestion gestionnaireCalendriers;
-
 	/**
 	 * Initialise un gestionnaire de groupes de participants
 	 * 
@@ -31,6 +31,59 @@ public class GroupeGestion {
 	public GroupeGestion(BddGestion bdd) {
 		_bdd = bdd;
 	}
+	
+	
+	/**
+	 * Créé un GroupeIdentifie à partir d'une ligne de base de données.
+	 * @param row ResultSet à lire, déjà placé sur la ligne à utiliser.
+	 * @return Le groupe généré
+	 * @throws DatabaseException 
+	 * @throws SQLException 
+	 */
+	private GroupeIdentifie inflateGroupeFromRow(ResultSet row) throws DatabaseException, SQLException {
+		// Informations générales
+		int id = row.getInt("groupeparticipant_id");
+		
+		String nom = row.getString("groupeparticipant_nom");
+		
+		boolean rattachementAutorise = row.getBoolean("groupeparticipant_rattachementautorise");
+		
+		int parentId = row.getInt("groupeparticipant_id_parent");
+		
+		boolean estCours = row.getBoolean("groupeparticipant_estcours");
+		
+		boolean estCalendrierUnique = row.getBoolean("groupeparticipant_estcalendrierunique");
+		
+		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, rattachementAutorise, estCours, estCalendrierUnique);
+		groupeRecupere.setParentId(parentId); // Eventuellement 0
+
+		// Récupérer la liste des identifiants des calendriers */
+		ResultSet requeteCalendriers = _bdd
+				.executeRequest("SELECT * FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id="
+						+ id);
+		
+		ArrayList<Integer> idCalendriers = new ArrayList<Integer>();
+		while (requeteCalendriers.next()) {
+			idCalendriers.add(requeteCalendriers.getInt("cal_id"));
+		}
+		requeteCalendriers.close();
+		groupeRecupere.setIdCalendriers(idCalendriers);
+
+		// Récupérer la liste des identifiants des propriétaires */
+		ResultSet requeteProprietaires = _bdd
+				.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="
+						+ id);
+		
+		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
+		while (requeteProprietaires.next()) {
+			idProprietaires.add(requeteProprietaires.getInt("utilisateur_id"));
+		}
+		requeteProprietaires.close();
+		groupeRecupere.setIdProprietaires(idProprietaires);
+		
+		return groupeRecupere;
+	}
+
 
 	/**
 	 * Récupérer un groupe de participants dans la base de données
@@ -45,7 +98,7 @@ public class GroupeGestion {
 	 */
 	public GroupeIdentifie getGroupe(int identifiant) throws EdtempsException {
 
-		GroupeIdentifie groupeRecuperee = null;
+		GroupeIdentifie groupeRecupere = null;
 
 		try {
 
@@ -54,50 +107,17 @@ public class GroupeGestion {
 
 			// Récupère le groupe en base
 			ResultSet requeteGroupe = _bdd
-					.executeRequest("SELECT * FROM edt.groupedeparticipant WHERE groupeparticipant_id='"
+
+					.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent," +
+							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM edt.groupedeparticipant WHERE groupeparticipant_id='"
 							+ identifiant + "'");
 
 			// Accède au premier élément du résultat
-			requeteGroupe.next();
-
-			if (!requeteGroupe.wasNull()) {
-
-				// Informations générales
-				groupeRecuperee = new GroupeIdentifie();
-				groupeRecuperee.setId(requeteGroupe
-						.getInt("groupeparticipant_id"));
-				groupeRecuperee.setNom(requeteGroupe
-						.getString("groupeparticipant_nom"));
-				groupeRecuperee.setRattachementAutorise(requeteGroupe
-						.getBoolean("groupeparticipant_rattachementautorise"));
-				groupeRecuperee.setParentId(requeteGroupe
-						.getInt("groupedeparticipant_id_parent"));
+			if(requeteGroupe.next()) {
+				groupeRecupere = inflateGroupeFromRow(requeteGroupe);
+				
 				requeteGroupe.close();
-
-				// Récupérer la liste des identifiants des calendriers */
-				ResultSet requeteCalendriers = _bdd
-						.executeRequest("SELECT * FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id="
-								+ identifiant);
-				while (requeteCalendriers.next()) {
-					groupeRecuperee.getIdCalendriers().add(
-							requeteCalendriers.getInt("cal_id"));
-				}
-				requeteCalendriers.close();
-
-				// Récupérer la liste des identifiants des propriétaires */
-				ResultSet requeteProprietaires = _bdd
-						.executeRequest("SELECT * FROM edt.proprietairegroupedeparticipant WHERE groupeparticipant_id="
-								+ identifiant);
-				while (requeteProprietaires.next()) {
-					groupeRecuperee.getIdProprietaires().add(
-							requeteCalendriers.getInt("utilisateur_id"));
-				}
-				requeteProprietaires.close();
-
 			}
-
-			// Termine la transaction
-			_bdd.commit();
 
 		} catch (DatabaseException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
@@ -105,9 +125,9 @@ public class GroupeGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
-		return groupeRecuperee;
-
+		return groupeRecupere;
 	}
+	
 
 	/**
 	 * Modifie un groupe en base de données
@@ -181,6 +201,8 @@ public class GroupeGestion {
 
 	}
 
+
+	
 	/**
 	 * Groupe à enregistrer en base de données
 	 * 
@@ -262,6 +284,8 @@ public class GroupeGestion {
 		return idInsertion;
 	}
 
+	
+	
 	/**
 	 * Supprime un groupe en base de données
 	 * 
@@ -275,7 +299,8 @@ public class GroupeGestion {
 
 		// Initialise le gestionnaire des calendriers avec l'accès à la base de
 		// données déjà créé ici
-		this.gestionnaireCalendriers = new CalendrierGestion(_bdd);
+
+		CalendrierGestion gestionnaireCalendriers = new CalendrierGestion(_bdd);
 
 		try {
 
@@ -287,8 +312,10 @@ public class GroupeGestion {
 					.executeRequest("SELECT cal_id FROM edt.calendrierappartientgroupe WHERE groupeParticipant_id='"
 							+ idGroupe + "'");
 			while (listeCalendriers.next()) {
-				this.gestionnaireCalendriers
-						.supprimerCalendrier(listeCalendriers.getInt(1));
+
+				gestionnaireCalendriers
+					.supprimerCalendrier(listeCalendriers.getInt(1));
+
 			}
 			listeCalendriers.close();
 
@@ -315,4 +342,99 @@ public class GroupeGestion {
 
 	}
 
+	
+	/**
+	 * Créé une table temporaire de groupes d'utilisateur contant les abonnements de l'utilisateur fourni.
+	 * Les abonnements listés dans cette table comprennent les abonnements directs, mais aussi les parents et enfants dans l'arbre.
+	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
+	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
+	 * @param idUtilisateur
+	 * @return Nom de la table créée. Inutile de préciser un nom de schéma (type "edt.") pour y accéder 
+	 * @throws DatabaseException
+	 */
+	public static String makeTempTableListeGroupesAbonnement(BddGestion bdd, int idUtilisateur) throws DatabaseException {
+		// Création d'une table temporaire pour les résultats
+		bdd.executeRequest("CREATE TEMP TABLE tmp_requete_abonnements_groupe(groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
+				"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_estcours BOOLEAN, " +
+				"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL) ON COMMIT DROP");
+		
+		// Ajout des abonnements directs
+		bdd.executeRequest("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
+				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+				"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+				"SELECT groupeparticipant.groupeparticipant_id," +
+				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+				"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
+				"FROM edt.groupeparticipant " +
+				"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
+				"AND abonnegroupeparticipant.utilisateur_id=" + idUtilisateur);
+		
+		// Ajout des parents et enfants
+		int nbInsertions = -1;
+		
+		// Parents
+		while(nbInsertions != 0) {
+			nbInsertions = bdd.executeUpdate("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
+					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"SELECT parent.groupeparticipant_id," +
+					"parent.groupeparticipant_nom, parent.groupeparticipant_rattachementautorise," +
+					"parent.groupeparticipant_id_parent, parent.groupeparticipant_estcours, parent.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant parent " +
+					"INNER JOIN tmp_requete_abonnements_groupe enfant " +
+					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
+					"LEFT JOIN tmp_requete_abonnements_groupe deja_inseres " +
+					"ON deja_inseres.groupeparticipant_id=parent.groupeparticipant_id " +
+					"WHERE deja_inseres.groupeparticipant_id IS NULL");
+		}
+		
+		// Enfants
+		nbInsertions = -1;
+		while(nbInsertions != 0) {
+			nbInsertions = bdd.executeUpdate("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
+					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"SELECT enfant.groupeparticipant_id," +
+					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
+					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant enfant " +
+					"INNER JOIN tmp_requete_abonnements_groupe parent " +
+					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
+					"LEFT JOIN tmp_requete_abonnements_groupe deja_inseres " +
+					"ON deja_inseres.groupeparticipant_id=parent.groupeparticipant_id " +
+					"WHERE deja_inseres.groupeparticipant_id IS NULL");
+		}
+		
+		return "tmp_requete_abonnements_groupe";
+	}
+	
+	public ArrayList<GroupeIdentifie> listerGroupesAbonnement(int idUtilisateur) throws DatabaseException {
+		
+		try {
+			_bdd.startTransaction(); // Définit la durée de vie de la table temporaire
+			
+			String tableTempAbonnements = makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
+			
+			// Lecture des groupes de la table
+			ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent," +
+					"groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM " + tableTempAbonnements);
+			
+			
+			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+			
+			while(resGroupes.next()) {
+				res.add(inflateGroupeFromRow(resGroupes));
+			}
+			
+			// Supprime aussi la table temporaire
+			_bdd.commit();
+			
+			return res;
+		}
+		catch(SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+
+	
 }

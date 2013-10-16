@@ -19,7 +19,7 @@ public class ResponseManager {
 	 * @param repCode Code de réponse à la requête
 	 * @param message Message à indiquer, souvent une chaîne vide si pas d'erreur
 	 * @param data Données à transmettre, ou null si non nécessaire
-	 * @return
+	 * @return Chaîne de réponse JSON générée
 	 */
 	public static String generateResponse(ResultCode repCode, String message, JsonValue data) {
 		

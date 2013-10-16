@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 
+import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.ResultCode;
+
 /**
  * Classe d'outils pour se connecter à la base de données et exécuter des
  * requêtes
@@ -82,6 +85,8 @@ public class BddGestion {
 		_connection.rollback();
 	}
 
+	
+	
 	/**
 	 * Exécuter une requête SQL
 	 * 
@@ -109,14 +114,41 @@ public class BddGestion {
 				if (requetePreparee.execute()) {
 					resultat = requetePreparee.getResultSet();
 				}
-
-			} catch (Exception e) {
+			} catch (SQLException e) {
 				throw new DatabaseException(e);
 			}
 		}
 
 		return resultat;
 	}
+
+	
+	/**
+	 * Exécution d'une requête SQL de type INSERT ou UPDATE, indique le nombre de lignes insérées/mises à jour
+	 * @param request Requête à exécuter
+	 * @return Nombre de lignes mises à jour/insérées, 0 si la requête ne retourne rien, -1 si la requête est vide
+	 * @throws DatabaseException 
+	 */
+	public int executeUpdate(String request) throws DatabaseException  {
+		int count = -1;
+
+		if (StringUtils.isNotBlank(request)) {
+			try {
+
+				// Préparation de la requête
+				PreparedStatement requetePreparee = _connection.prepareStatement(request);
+
+				// Exécute la requête et récupère le résultat s'il y en a un
+				count = requetePreparee.executeUpdate();
+
+			} catch (SQLException e) {
+				throw new DatabaseException(e);
+			}
+		}
+
+		return count;
+	}
+
 
 	
 	/**
@@ -152,9 +184,7 @@ public class BddGestion {
 		
 	
 		return id;
-		
+
 	}
 
-	
-	
 }
