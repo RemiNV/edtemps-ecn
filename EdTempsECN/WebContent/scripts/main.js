@@ -170,24 +170,24 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 	var chargerInterfacePrincipale = function(vue) {
 	
 		transitionInterface(["EcranAccueil", "text!../templates/page_accueil.html"], function(EcranAccueil, pageAccueilHtml) {
-			$("body").empty().append($(pageAccueilHtml))
+			$("body").empty().append($(pageAccueilHtml));
 			
 			// Initialisation
 			currentPage.manager = new EcranAccueil();
 			currentPage.manager.init();
 			currentPage.manager.setVue(vue);
-			currentPage.nom = "agenda"
+			currentPage.nom = "agenda";
 		});
 	};
 	
 	var chargerInterfaceParametres = function() {
 		transitionInterface(["EcranParametres", "text!../templates/page_parametres.html"], function(EcranParametres, pageAccueilHtml) {
-			$("body").empty().append($(pageAccueilHtml))
+			$("body").empty().append($(pageAccueilHtml));
 			
 			// Initialisation
 			currentPage.manager = new EcranParametres();
 			currentPage.manager.init();
-			currentPage.nom="parametres"
+			currentPage.nom="parametres";
 		});
 	};
 	
