@@ -60,7 +60,7 @@ public class SalleGestion {
 			requeteSalle.next();
 
 			if (!requeteSalle.wasNull()) {
-				
+
 				// Informations générales
 				salleRecuperee = new SalleIdentifie();
 				salleRecuperee.setId(requeteSalle.getInt("salle_id"));
@@ -130,12 +130,16 @@ public class SalleGestion {
 				// Vérification de la cohérence des valeurs
 				if (StringUtils.isNotBlank(nom)) {
 
+					// Démarre une transaction
+					_bdd.startTransaction();
+
 					// Modifie les informations sur la salle
 					_bdd.executeRequest("UPDATE edt.salle SET salle_batiment='"
 							+ batiment + "', salle_niveau='" + niveau
-							+ "', salle_numero='" + numero + "', salle_capacite='"
-							+ capacite + "', salle_nom='" + nom
-							+ "' WHERE salle_id='" + id + "'");
+							+ "', salle_numero='" + numero
+							+ "', salle_capacite='" + capacite
+							+ "', salle_nom='" + nom + "' WHERE salle_id='"
+							+ id + "'");
 
 					// Suppression de l'ancienne liste des matériels
 					_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id='"
@@ -152,13 +156,13 @@ public class SalleGestion {
 								+ materiel.getValue() + "')");
 					}
 
+					// Termine la transaction
+					_bdd.commit();
+
 				} else {
 					throw new EdtempsException(ResultCode.DATABASE_ERROR,
 							"Tentative d'enregistrer une salle en base de données sans nom.");
 				}
-
-				// Termine la transaction
-				_bdd.commit();
 
 			} catch (DatabaseException e) {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
@@ -205,14 +209,20 @@ public class SalleGestion {
 				// Vérification de la cohérence des valeurs
 				if (StringUtils.isNotBlank(nom)) {
 
-					// Ajoute la salle dans la bdd et récupère l'identifiant de la ligne
-					ResultSet resultat = _bdd.executeRequest("INSERT INTO edt.salle (salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES ('"
-							+ batiment
-							+ "', '"
-							+ niveau
-							+ "', '"
-							+ numero
-							+ "', '" + capacite + "', '" + nom + "') RETURNING salle_id");
+					// Ajoute la salle dans la bdd et récupère l'identifiant de
+					// la ligne
+					ResultSet resultat = _bdd
+							.executeRequest("INSERT INTO edt.salle (salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES ('"
+									+ batiment
+									+ "', '"
+									+ niveau
+									+ "', '"
+									+ numero
+									+ "', '"
+									+ capacite
+									+ "', '"
+									+ nom
+									+ "') RETURNING salle_id");
 					resultat.next();
 					int lastInsert = resultat.getInt(1);
 					resultat.close();
