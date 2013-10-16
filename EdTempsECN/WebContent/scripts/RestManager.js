@@ -45,7 +45,7 @@ define(["jquery"], function() {
 			function(success, response) {
 			
 				if(success) { // Succès de la requête (pas forcément de la connexion)
-					if(response.resultCode == 0) { // Succès de l'identification
+					if(response.resultCode == RestManager.resultCode_Success) { // Succès de l'identification
 						me.setToken(response.data.token);
 						me._isConnected = true;
 					}
@@ -120,7 +120,7 @@ define(["jquery"], function() {
 	};
 	
 	/* Indique si l'utilisateur en cours est connecté.
-	 * L'utilisateur peut être connecté sans appel de connexion() préalable
+	 * L'utilisateur peut être connecté si on a fait appel à connexion(), ou à checkConnection si un token valide était enregistré
 	 * (si les informations de connexion ont été stockées dans le navigateur par exemple) */
 	RestManager.prototype.isConnected = function() {
 		return this._isConnected;
@@ -145,10 +145,6 @@ define(["jquery"], function() {
 		.fail(function(data) {
 			callback(false);
 		});
-	};
-	
-	RestManager.prototype.disconnect = function() {
-		this.setToken(null); // Remise à zéro du token
 	};
 	
 	// Renvoyer RestManager dans cette fonction le définit comme l'objet de ce fichier de module
