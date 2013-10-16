@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
+import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 
 public class ConnectionServlet extends HttpServlet {
@@ -26,6 +27,7 @@ public class ConnectionServlet extends HttpServlet {
 		
 		// Retour sous forme JSON
 		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf-8");
 		
 		// Identifiants passés en paramètre
 		String username = req.getParameter("username");
@@ -41,7 +43,9 @@ public class ConnectionServlet extends HttpServlet {
 			ResultCode result;
 			
 			try {
-				String token = UtilisateurGestion.seConnecter(username, password);
+				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(new BddGestion());
+				
+				String token = utilisateurGestion.seConnecter(username, password);
 				result = ResultCode.SUCCESS;
 				
 				JsonObject data = Json.createObjectBuilder()

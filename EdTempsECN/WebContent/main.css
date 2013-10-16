@@ -177,3 +177,8 @@ ul.button_nav li:last-child {
 #btn_parametres_retour {
 	margin-left: 40px;
 }
+
+.img_baseline {
+	position: relative;
+	top: 6px;
+}

@@ -30,7 +30,10 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 						currentPage.manager.setVue(req.params["vue"]);
 				}
 				else {
-					req.redirect("connexion/agenda");
+					if(req.params["vue"])
+						req.redirect("connexion/agenda/" + req.params["vue"]);
+					else
+						req.redirect("connexion/agenda");
 				}
 				
 			};
@@ -48,7 +51,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			});
 			
 			// Page de connexion
-			this.get("connexion/:target", function(req) {
+			this.get("connexion/*target", function(req) {
 				// Déjà connecté ?
 				restManager.checkConnection(function(networkSuccess, validConnection) {
 					if(networkSuccess && validConnection) {
@@ -104,10 +107,14 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 				event.preventDefault();
 				var username = $("#txt_identifiant").val();
 				var pass = $("#txt_password").val();
-				$("#msg_identifiants_invalides").css("display", "none");
+				$("#msg_erreur").css("display", "none");
+				$("#msg_connexion").css("display", "block");
+				$(this).attr("disabled", "disabled");
 				
 				// Connexion
 				restManager.connexion(username, pass, function(success, resultCode) {
+					$("#msg_connexion").css("display", "none");
+					$("#btn_connexion").removeAttr("disabled");
 					if(success) {
 						switch(resultCode) {
 						case RestManager.resultCode_Success:

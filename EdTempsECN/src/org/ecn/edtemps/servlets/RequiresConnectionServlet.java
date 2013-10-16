@@ -12,6 +12,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
+import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 
 /**
@@ -34,6 +35,7 @@ public abstract class RequiresConnectionServlet extends HttpServlet {
 		String message;
 		
 		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf-8");
 		
 		if(StringUtils.isBlank(token)) {
 			result = ResultCode.IDENTIFICATION_ERROR;
@@ -41,7 +43,8 @@ public abstract class RequiresConnectionServlet extends HttpServlet {
 		}
 		else {
 			try {
-				int userId = UtilisateurGestion.verifierConnexion(token);
+				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(new BddGestion());
+				int userId = utilisateurGestion.verifierConnexion(token);
 				
 				// Succès de la connexion
 				switch(method) {
@@ -80,7 +83,7 @@ public abstract class RequiresConnectionServlet extends HttpServlet {
 	 * Gestion des requêtes POST après vérification du login. Surclasser cette méthode à la place de doPost()
 	 * @param userId ID de l'utilisateur qui effectue la requête
 	 * @param req HttpServletRequest fourni par doGet
-	 * @param resp HttpServletResponse fourni par doPost, initialisé avec un ContentType application/json
+	 * @param resp HttpServletResponse fourni par doPost, initialisé avec un ContentType application/json et charset utf-8
 	 * @throws ServletException
 	 * @throws IOException
 	 */
@@ -92,7 +95,7 @@ public abstract class RequiresConnectionServlet extends HttpServlet {
 	 * Gestion des requêtes GET après vérification du login. Surclasser cette méthode à la place de doGet()
 	 * @param userId ID de l'utilisateur qui effectue la requête
 	 * @param req HttpServletRequest fourni par doGet
-	 * @param resp HttpServletResponse fourni par doPost, initialisé avec un ContentType application/json
+	 * @param resp HttpServletResponse fourni par doPost, initialisé avec un ContentType application/json et charset utf-8
 	 * @throws ServletException
 	 * @throws IOException
 	 */

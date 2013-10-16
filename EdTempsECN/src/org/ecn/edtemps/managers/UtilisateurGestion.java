@@ -22,7 +22,6 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPException;
 
 public class UtilisateurGestion {
 	
@@ -33,6 +32,17 @@ public class UtilisateurGestion {
 	private static final String ADRESSE_LDAP = "ldaps.nomade.ec-nantes.fr";
 	private static final int PORT_LDAP = 636;
 	private static final boolean USE_SSL_LDAP = true;
+	
+	protected BddGestion _bdd;
+	
+	/**
+	 * Initialise un gestionnaire d'utilisateurs
+	 * @param bdd Base de données à utiliser
+	 */
+	public UtilisateurGestion(BddGestion bdd) {
+		_bdd = bdd;
+	}
+	
 	
 	/**
 	 * Calcul du HMAC_SHA256 d'une chaîne avec un mot de passe donné.
@@ -98,12 +108,12 @@ public class UtilisateurGestion {
 	 * @throws IdentificationException Token de l'utilisateur invalide ou expiré
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	public static int verifierConnexion(String token) throws IdentificationException, DatabaseException {
+	public int verifierConnexion(String token) throws IdentificationException, DatabaseException {
 		
 		if(!StringUtils.isAlphanumeric(token))
 			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Format de token invalide");
 		
-		ResultSet res = BddGestion.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='" + token + "' AND utilisateur_token_expire > now()");
+		ResultSet res = _bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='" + token + "' AND utilisateur_token_expire > now()");
 		
 		try {
 			if(res.next()) {
@@ -124,8 +134,8 @@ public class UtilisateurGestion {
 	 * @return ID de l'utilisateur, ou null si il n'est pas présent dans la base
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	private static Integer getUserIdFromLdapId(long ldapId) throws DatabaseException {
-		ResultSet results = BddGestion.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + ldapId);
+	private Integer getUserIdFromLdapId(long ldapId) throws DatabaseException {
+		ResultSet results = _bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + ldapId);
 		
 		Integer id = null;
 		
@@ -146,9 +156,9 @@ public class UtilisateurGestion {
 	 * @param idUtilisateur ID de l'utilisateur à déconnecter
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	public static void seDeconnecter(int idUtilisateur) throws DatabaseException {
+	public void seDeconnecter(int idUtilisateur) throws DatabaseException {
 		// Invalidation du token
-		BddGestion.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=NULL,utilisateur_token_expire=NULL WHERE utilisateur_id=" + idUtilisateur);
+		_bdd.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=NULL,utilisateur_token_expire=NULL WHERE utilisateur_id=" + idUtilisateur);
 	}
 	
 	/**
@@ -159,7 +169,7 @@ public class UtilisateurGestion {
 	 * @throws IdentificationException Identifiants invalides ou erreur de connexion à LDAP
 	 * @throws DatabaseException Erreur relative à la base de données
 	 */
-	public static String seConnecter(String utilisateur, String pass) throws IdentificationException, DatabaseException {
+	public String seConnecter(String utilisateur, String pass) throws IdentificationException, DatabaseException {
 		
 		// Connexion à LDAP
 		String dn = "uid=" + utilisateur + ",ou=people,dc=ec-nantes,dc=fr";
@@ -194,16 +204,20 @@ public class UtilisateurGestion {
 			// Insertion du token en base
 			String token = genererToken(uidNumber);
 			
+			_bdd.startTransaction();
+			
 			Integer userId = getUserIdFromLdapId(uidNumber);
 			
 			if(userId != null) { // Utilisateur déjà présent en base
 				// Token valable 1h, heure du serveur de base de donnée. Le token est constitué de caractères alphanumériques et de "_" : pas d'échappement nécessaire
-				BddGestion.executeRequest("UPDATE edt.utilisateur SET utilisateur_token='" + token + "', utilisateur_token_expire=now() + interval '1 hour'");
+				_bdd.executeRequest("UPDATE edt.utilisateur SET utilisateur_token='" + token + "', utilisateur_token_expire=now() + interval '1 hour'");
 			}
 			else { // Utilisateur absent de la base : insertion
-				BddGestion.executeRequest("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_token_expire) VALUES(" +
+				_bdd.executeRequest("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_token_expire) VALUES(" +
 						uidNumber + ",'" + token + "',now() + interval '1 hour')");
 			}
+			
+			_bdd.commit();
 			
 			return token;
 			
@@ -219,6 +233,8 @@ public class UtilisateurGestion {
 			System.out.println("Erreur de génération de token : machine Java hôte incompatible");
 			e.printStackTrace();
 			throw new IdentificationException(ResultCode.CRYPTOGRAPHIC_ERROR, "Erreur de génération de token : machine Java hôte incompatible");
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
 		}
 	}
 }
