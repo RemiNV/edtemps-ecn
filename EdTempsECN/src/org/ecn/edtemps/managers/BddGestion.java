@@ -133,8 +133,7 @@ public class BddGestion {
 	 * @throws DatabaseException
 	 *            si une erreur intervient lors d'exécution de la requête
 	 */
-	public int recupererId(String request, String nomColonne)
-			throws EdtempsException {
+	public int recupererId(String request, String nomColonne) throws DatabaseException {
 		
 		int id = -1;
 		
@@ -149,10 +148,8 @@ public class BddGestion {
 			if (resultat.getRow() != 1) {
 				id = -1;
 			}
-		} catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 		
 	
