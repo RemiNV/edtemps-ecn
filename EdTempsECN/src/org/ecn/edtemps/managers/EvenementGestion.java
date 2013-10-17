@@ -1,5 +1,6 @@
 package org.ecn.edtemps.managers;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -166,7 +167,7 @@ public class EvenementGestion {
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, boolean createTransaction) throws DatabaseException {
+	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
 		
 		ArrayList<EvenementIdentifie> res = null;
 	
@@ -176,11 +177,17 @@ public class EvenementGestion {
 			
 			String tblAbonnementsGroupes = GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
 			
-			ResultSet reponse = _bdd.executeRequest("SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+			PreparedStatement req = _bdd.getConnection().prepareStatement("SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 					"FROM edt.evenement " +
 					"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
 					"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
-					"INNER JOIN " + tblAbonnementsGroupes + " abonnements ON abonnements.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id");
+					"INNER JOIN " + tblAbonnementsGroupes + " abonnements ON abonnements.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
+					"WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?");
+			
+			req.setDate(1, new java.sql.Date(dateDebut.getTime()));
+			req.setDate(2, new java.sql.Date(dateFin.getTime()));
+			
+			ResultSet reponse = req.executeQuery();
 			
 			res = new ArrayList<EvenementIdentifie>();
 			while(reponse.next()) {
