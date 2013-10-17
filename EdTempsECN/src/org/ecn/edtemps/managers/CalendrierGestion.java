@@ -101,6 +101,9 @@ public class CalendrierGestion {
 	
 	/**
 	 * Créé un calendrier à partir d'une ligne de base de données
+	 * 
+	 * Colonnes nécessaires : cal_id, cal_nom, matiere_nom (obtenu depuis la table matiere), typecal_libelle (obtenu depuis la table typecalendrier)
+	 * 
 	 * @param row ResultSet placé à la ligne de base de données à lire
 	 * @return CalendrierIdentifie créé
 	 * @throws EdtempsException 
@@ -108,15 +111,15 @@ public class CalendrierGestion {
 	 */
 	private CalendrierIdentifie inflateCalendrierFromRow(ResultSet row) throws DatabaseException, SQLException {
 		
-		int id = row.getInt("calendrier_id");
+		int id = row.getInt("cal_id");
 		 String nom = row.getString("cal_nom");
 		 String matiere = row.getString("matiere_nom");
-		 String type = row.getString("typeCal_libelle");
+		 String type = row.getString("typecal_libelle");
 		
 
 		// Récupération des propriétaires du calendrier
 		ResultSet rs_proprios = _bdd.executeRequest(
-				"SELECT * FROM proprietairecalendrier WHERE cal_id = " + id );
+				"SELECT * FROM edt.proprietairecalendrier WHERE cal_id = " + id );
 		
 		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
 		while(rs_proprios.next()){
@@ -142,7 +145,7 @@ public class CalendrierGestion {
 			
 			// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
 			ResultSet rs_calendrier = _bdd.executeRequest(
-					"SELECT * FROM calendrier "
+					"SELECT * FROM edt.calendrier "
 					+ "INNER JOIN matiere ON calendrier.matiere_id = matiere.matiere_id "
 					+ "INNER JOIN typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
 					+ "WHERE cal_id = " + idCalendrier );
@@ -354,7 +357,9 @@ public class CalendrierGestion {
 				GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, userId);
 			
 			// Récupération des calendriers des collections abonnement
-			ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.matiere_id, calendrier.cal_nom, calendrier.typecal_id FROM edt.calendrier " +
+			ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle FROM edt.calendrier " +
+					"INNER JOIN edt.matiere ON calendrier.matiere_id = matiere.matiere_id " +
+					"INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
 					"INNER JOIN edt.calendrierappartientgroupe appartenance ON appartenance.cal_id=calendrier.cal_id " +
 					"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_ABONNEMENTS + " tmpAbonnements ON tmpAbonnements.groupeparticipant_id=appartenance.groupeparticipant_id");
 			
