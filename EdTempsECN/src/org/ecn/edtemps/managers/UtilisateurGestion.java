@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.crypto.Mac;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.SearchRequest;
@@ -184,7 +186,7 @@ public class UtilisateurGestion {
 			
 			// Succès de la connexion : récupération de l'identifiant entier uid (uidnumber) de l'utilisateur
 			String filtre = "(uid=" + utilisateur + ")";
-			SearchRequest request = new SearchRequest("ou=people, dc=ec-nantes, dc=fr", SearchScope.SUB, filtre, "uidNumber", "sn", "givenName");
+			SearchRequest request = new SearchRequest("ou=people, dc=ec-nantes, dc=fr", SearchScope.SUB, filtre, "uidNumber", "sn", "givenName", "mail");
 			
 			SearchResult searchResult = connection.search(request);
 			List<SearchResultEntry> lstResults = searchResult.getSearchEntries();
@@ -199,6 +201,7 @@ public class UtilisateurGestion {
 			Long uidNumber = lstResults.get(0).getAttributeValueAsLong("uidNumber");
 			String nom = lstResults.get(0).getAttributeValue("sn");
 			String prenom = lstResults.get(0).getAttributeValue("givenName");
+			String mail = lstResults.get(0).getAttributeValue("mail");
 			
 			if(uidNumber == null) {
 				System.out.println("Format d'uidNumer invalide pour l'utilisateur : " + utilisateur);
@@ -216,22 +219,24 @@ public class UtilisateurGestion {
 			if(userId != null) { // Utilisateur déjà présent en base
 				// Token valable 1h, heure du serveur de base de donnée. Le token est constitué de caractères alphanumériques et de "_" : pas d'échappement nécessaire
 				PreparedStatement statement = conn.prepareStatement("UPDATE edt.utilisateur SET utilisateur_token=?, utilisateur_nom=?, utilisateur_prenom=?, " +
-						"utilisateur_token_expire=now() + interval '1 hour' WHERE utilisateur_id=?");
+						"utilisateur_email=?, utilisateur_token_expire=now() + interval '1 hour' WHERE utilisateur_id=?");
 				
 				statement.setString(1, token);
 				statement.setString(2, nom);
 				statement.setString(3, prenom);
-				statement.setInt(4, userId);
+				statement.setString(4,  mail);
+				statement.setInt(5, userId);				
 				
 				statement.execute();
 			}
 			else { // Utilisateur absent de la base : insertion
 				PreparedStatement statement = conn.prepareStatement("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_nom, utilisateur_prenom, " +
-						"utilisateur_token_expire) VALUES(?, ?, ?, ?, now() + interval '1 hour')");
+						"utilisateur_email, utilisateur_token_expire) VALUES(?, ?, ?, ?, ?, now() + interval '1 hour')");
 				statement.setLong(1, uidNumber);
 				statement.setString(2, token);
 				statement.setString(3, nom);
 				statement.setString(4, prenom);
+				statement.setString(5,  mail);
 				
 				statement.execute();
 			}
@@ -252,6 +257,43 @@ public class UtilisateurGestion {
 			System.out.println("Erreur de génération de token : machine Java hôte incompatible");
 			e.printStackTrace();
 			throw new IdentificationException(ResultCode.CRYPTOGRAPHIC_ERROR, "Erreur de génération de token : machine Java hôte incompatible");
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	/**
+	 * Création d'un utilisateur à partir d'une ligne de base de données.
+	 * Colonnes nécessaires dans le ResultSet : 
+	 * utilisateur_id, utilisateur_nom, utilisateur_prenom, utilisateur_email
+	 * @param row Résultat de la requête placé sur la ligne à lire
+	 * @return Utilisateur créé
+	 * @throws SQLException 
+	 */
+	private UtilisateurIdentifie inflateUtilisateurFromRow(ResultSet row) throws SQLException {
+		int id = row.getInt("utilisateur_id");
+		String nom = row.getString("utilisateur_nom");
+		String prenom = row.getString("utilisateur_prenom");
+		String email = row.getString("utilisateur_email");
+		
+		return new UtilisateurIdentifie(id, nom, prenom, email);
+	}
+	
+	public ArrayList<UtilisateurIdentifie> getIntervenantsEvenement(int evenementId) throws DatabaseException {
+		ResultSet reponse = _bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, " +
+				"utilisateur.utilisateur_prenom, utilisateur.utilisateur_email FROM edt.utilisateur INNER JOIN edt.intervenantevenement " +
+				"ON intervenantevenement.utilisateur_id = utilisateur.utilisateur_id AND intervenantevenement.eve_id = " + evenementId);
+		
+		try {
+			ArrayList<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateUtilisateurFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			return res;
+			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

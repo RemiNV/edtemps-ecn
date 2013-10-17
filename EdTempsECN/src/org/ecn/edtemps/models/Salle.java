@@ -27,11 +27,12 @@ public class Salle {
 
 	/** Numéro de la salle */
 	protected int numero;
-
+	
 	/**
-	 * Constructeur vide
+	 * Constructeur avec les paramètres obligatoires
 	 */
-	public Salle() {
+	public Salle(String nom) {
+		this.nom = nom;
 		this.materiels = new HashMap<Integer, Integer>();
 	}
 

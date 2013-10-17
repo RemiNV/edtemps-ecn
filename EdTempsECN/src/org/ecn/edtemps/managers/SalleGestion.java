@@ -2,6 +2,8 @@ package org.ecn.edtemps.managers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -30,6 +32,38 @@ public class SalleGestion {
 	public SalleGestion(BddGestion bdd) {
 		_bdd = bdd;
 	}
+	
+	/**
+	 * Créé une salle à partir d'une ligne de base de données
+	 * @param row Résultat de requête placé à la ligne à lire
+	 * @return Salle créée
+	 * @throws SQLException 
+	 * @throws DatabaseException 
+	 */
+	private SalleIdentifie inflateSalleFromRow(ResultSet row) throws SQLException, DatabaseException {
+		// Informations générales
+		
+		int id = row.getInt("salle_id");
+		String batiment = row.getString("salle_batiment");
+		String nom = row.getString("salle_nom");
+		int niveau = row.getInt("salle_niveau");
+		int numero = row.getInt("salle_numero");
+		int capacite = row.getInt("salle_capacite");
+
+		// Récupérer la liste des matériels de la salle avec la quantité
+		ResultSet requeteMateriel = _bdd.executeRequest("SELECT * FROM edt.contientmateriel WHERE salle_id=" + id);
+		
+		HashMap<Integer, Integer> materiels = new HashMap<Integer, Integer>();
+		while (requeteMateriel.next()) {
+			materiels.put(requeteMateriel.getInt("materiel_id"), requeteMateriel.getInt("contientmateriel_quantite"));
+		}
+		
+		requeteMateriel.close();
+		
+		SalleIdentifie res = new SalleIdentifie(id, batiment, nom, capacite, niveau, numero, materiels);
+		
+		return res;
+	}
 
 	/**
 	 * Récupérer une salle dans la base de données
@@ -57,35 +91,9 @@ public class SalleGestion {
 							+ identifiant + "'");
 
 			// Accède au premier élément du résultat
-			requeteSalle.next();
-
-			if (!requeteSalle.wasNull()) {
-
-				// Informations générales
-				salleRecuperee = new SalleIdentifie();
-				salleRecuperee.setId(requeteSalle.getInt("salle_id"));
-				salleRecuperee.setBatiment(requeteSalle
-						.getString("salle_batiment"));
-				salleRecuperee.setNom(requeteSalle.getString("salle_nom"));
-				salleRecuperee.setNiveau(requeteSalle.getInt("salle_niveau"));
-				salleRecuperee.setNumero(requeteSalle.getInt("salle_numero"));
-				salleRecuperee.setCapacite(requeteSalle
-						.getInt("salle_capacite"));
+			if (requeteSalle.next()) {
+				salleRecuperee = inflateSalleFromRow(requeteSalle);
 				requeteSalle.close();
-
-				// Récupérer la liste des matériels de la salle avec la quantité
-				ResultSet requeteMateriel = _bdd
-						.executeRequest("SELECT * FROM edt.contientmateriel WHERE salle_id="
-								+ identifiant);
-				while (requeteMateriel.next()) {
-					salleRecuperee
-							.getMateriels()
-							.put(requeteMateriel.getInt("materiel_id"),
-									requeteMateriel
-											.getInt("contientmateriel_quantite"));
-				}
-				requeteMateriel.close();
-
 			}
 
 			// Termine la transaction
@@ -295,5 +303,32 @@ public class SalleGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
+	}
+	
+	/**
+	 * Récupération des salles dans lesquelles se déroulent un évènement
+	 * @param evenementId ID de l'évènement concerné
+	 * @return Liste des salles enregistrées
+	 * @throws DatabaseException 
+	 */
+	public ArrayList<SalleIdentifie> getSallesEvenement(int evenementId) throws DatabaseException {
+		
+		ResultSet reponse = _bdd.executeRequest("SELECT salle.salle_id, salle.salle_nom, salle.salle_batiment, salle.salle_niveau," +
+				"salle.salle_numero, salle.salle_capacite " +
+				"FROM edt.salle INNER JOIN edt.alieuensalle ON alieuensalle.salle_id = salle.salle_id " +
+				"AND alieuensalle.eve_id = " + evenementId);
+		
+		ArrayList<SalleIdentifie> res = new ArrayList<SalleIdentifie>();
+		try {
+			while(reponse.next()) {
+				res.add(inflateSalleFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			return res;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 	}
 }

@@ -57,7 +57,7 @@ public class SalleGestionTest {
 		}
 
 		// Cas vide
-		salle = new Salle();
+		salle = new Salle("");
 		try {
 			this.salleGestionnaire.sauverSalle(salle);
 			fail("Une exception doit être levée");

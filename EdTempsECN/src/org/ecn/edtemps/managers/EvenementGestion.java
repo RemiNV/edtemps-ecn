@@ -2,6 +2,7 @@ package org.ecn.edtemps.managers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Evenement;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
+import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 /** 
@@ -45,12 +47,13 @@ public class EvenementGestion {
 		Date dateFin = evenement.getDateFin();
 		List<Integer> idCalendriers = evenement.getIdCalendriers();
 		List<UtilisateurIdentifie> idIntervenants = evenement.getIntervenants();
-		int idSalle = evenement.getSalle().getId();
+		// int idSalle = evenement.getSalle().getId();
 				
 		/*
 		 * IMPORTANT POUR CONTINUER
 		 * Liste de String pour les intervenants oO ? Comment on retrouve l'id ??
 		 * Note (Rémi) suite à réunion du 16/10, modification des String en UtilisateurIdentifie
+		 * Note (Rémi) les évènements peuvent être dans plusieurs salles, j'ai modifié la classe salle -> getSalle() devient getSalles()
 		 */
 			
 		try {
@@ -105,19 +108,100 @@ public class EvenementGestion {
 	}
 	
 	/**
+	 * Créé un évènement à partir de l'entrée de base de données fournie.
+	 * Colonnes nécessaires pour le ResultSet fourni : eve_id, eve_nom, eve_datedebut, eve_datefin
+	 * 
+	 * @param reponse Réponse de la base de données, curseur déjà placé sur la ligne à lire
+	 * @return Evènement créé
+	 * @throws DatabaseException 
+	 */
+	private EvenementIdentifie inflateEvenementFromRow(ResultSet reponse) throws SQLException, DatabaseException {
+
+		int id = reponse.getInt("eve_id");
+		String nom = reponse.getString("eve_nom");
+		Date dateDebut = reponse.getDate("eve_datedebut");
+		Date dateFin = reponse.getDate("eve_datefin");
+		
+		// Récupération des IDs des calendriers
+		ArrayList<Integer> idCalendriers = _bdd.recupererIds("SELECT cal_id FROM edt.evenementappartient WHERE eve_id=" + id, "cal_id");
+		
+		// Récupération des salles
+		SalleGestion salleGestion = new SalleGestion(_bdd);
+		ArrayList<SalleIdentifie> salles = salleGestion.getSallesEvenement(id);
+		
+		// Récupération des intervenants
+		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(_bdd);
+		ArrayList<UtilisateurIdentifie> intervenants = utilisateurGestion.getIntervenantsEvenement(id);
+		
+		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, id);
+	}
+	
+	/**
 	 * Récupération d'un évènement en base
 	 * @param idEvenement ID de l'évènement à récupérer
 	 * @return Evènement récupéré
+	 * @throws DatabaseException 
 	 */
-	public EvenementIdentifie getEvenement(int idEvenement) {
-		// TODO : compléter
-		return null;
+	public EvenementIdentifie getEvenement(int idEvenement) throws DatabaseException {
+		ResultSet reponse = _bdd.executeRequest("SELECT eve_id, eve_nom, eve_datedebut, eve_datefin FROM edt.evenement WHERE eve_id=" + idEvenement);
+		
+		EvenementIdentifie res = null;
+		try {
+			if(reponse.next()) {
+				res = inflateEvenementFromRow(reponse);
+			}
+			reponse.close();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+			
+		return res;
 	}
 	
+	/**
+	 * Liste les évènements auxquels un utilisateur est abonné par l'intermédiaire de ses abonnements aux groupes, et donc aux calendriers
+	 * @param idUtilisateur Utilisateur dont les évènements sont à récupérer
+	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @return Liste d'évènements récupérés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, boolean createTransaction) throws DatabaseException {
+		
+		ArrayList<EvenementIdentifie> res = null;
+	
+		try {
+			if(createTransaction)
+				_bdd.startTransaction();
+			
+			String tblAbonnementsGroupes = GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
+			
+			ResultSet reponse = _bdd.executeRequest("SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+					"FROM edt.evenement " +
+					"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
+					"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
+					"INNER JOIN " + tblAbonnementsGroupes + " abonnements ON abonnements.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id");
+			
+			res = new ArrayList<EvenementIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateEvenementFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			if(createTransaction)
+				_bdd.commit();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return res;
+	}
 	
 	// ajouté à la volée pour éviter erreur dans la méthode supprimerCalendrier, qui utilise cette méthode
 	public void supprimerEvenement(int idEvenement) {
-		
+		// TODO : remplir
 	}
 	
 }

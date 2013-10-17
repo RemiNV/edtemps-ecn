@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
@@ -184,26 +186,41 @@ public class BddGestion {
 	 */
 	public int recupererId(String request, String nomColonne) throws DatabaseException {
 		
-		int id = -1;
+		ArrayList<Integer> ids = recupererIds(request, nomColonne);
+		
+		if(ids.size() != 1) {
+			return -1;
+		}
+		else {
+			return ids.get(0);
+		}
+	}
+	
+	
+	/**
+	 * Récupération des IDs (contenus dans la colonne <nomColonne>) des éléments retournés par une requête
+	 * @param request Requête à effectuer
+	 * @param nomColonne Colonne à examiner pour les IDs
+	 * @return Liste des IDs trouvés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<Integer> recupererIds(String request, String nomColonne) throws DatabaseException {
+		
+		ArrayList<Integer> lstIds = new ArrayList<Integer>();
 		
 		try {
 			// Execution requete de récupération de la ligne cherchée
 			ResultSet resultat = this.executeRequest(request);
 			// Parcourt du resultat
 			while(resultat.next()){
-				 id = resultat.getInt(nomColonne);
+				 lstIds.add(resultat.getInt(nomColonne));
 			}
-			// Si le nombre de lignes du ResultSet n'est pas égal à 1 : erreur ! On renvoie -1
-			if (resultat.getRow() != 1) {
-				id = -1;
-			}
+			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
 		
-	
-		return id;
-
+		return lstIds;
 	}
 
 }

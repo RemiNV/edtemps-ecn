@@ -26,7 +26,7 @@ public class Evenement {
 	protected List<Integer> idCalendriers;
 	
 	/** Salle associée à l'événement */
-	protected SalleIdentifie salle;
+	protected List<SalleIdentifie> salles;
 	
 	/** Liste des noms des intervenants de l'événement */
 	protected List<UtilisateurIdentifie> intervenants;
@@ -42,11 +42,10 @@ public class Evenement {
 	
 	
 	/** Constructeur avec tous les attributs */
-	public Evenement(String nom, Date dateDebut, Date dateFin,
-			List<Integer> idCalendriers, SalleIdentifie salle,
+	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<SalleIdentifie> salles,
 			List<UtilisateurIdentifie> intervenants) {
 		this(nom, dateDebut, dateFin, idCalendriers);
-		this.salle = salle;
+		this.salles = salles;
 		this.intervenants = intervenants;
 	}
 
@@ -83,12 +82,12 @@ public class Evenement {
 		this.idCalendriers = idCalendriers;
 	}
 
-	public SalleIdentifie getSalle() {
-		return salle;
+	public List<SalleIdentifie> getSalles() {
+		return salles;
 	}
 
-	public void setSalle(SalleIdentifie salle) {
-		this.salle = salle;
+	public void setSalles(List<SalleIdentifie> salles) {
+		this.salles = salles;
 	}
 
 	public List<UtilisateurIdentifie> getIntervenants() {

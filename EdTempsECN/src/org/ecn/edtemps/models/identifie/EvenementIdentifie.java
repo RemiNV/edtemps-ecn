@@ -17,9 +17,9 @@ public class EvenementIdentifie extends Evenement {
 	
 	/** Constructeur avec tous les attributs */
 	public EvenementIdentifie(String nom, Date dateDebut, Date dateFin,
-			List<Integer> idCalendriers, SalleIdentifie salle,
+			List<Integer> idCalendriers, List<SalleIdentifie> salles,
 			List<UtilisateurIdentifie> intervenants, int id) {
-		super(nom, dateDebut, dateFin, idCalendriers, salle, intervenants);
+		super(nom, dateDebut, dateFin, idCalendriers, salles, intervenants);
 		this.id=id;
 	}
 	

@@ -126,9 +126,12 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 							$("#msg_erreur").html("Erreur de connexion au serveur LDAP").css("display", "inline");
 							break;
 						
-						default:
 						case RestManager.resultCode_IdentificationError:
 							$("#msg_erreur").html("Identifiants invalides").css("display", "inline");
+							break;
+							
+						default:
+							$("#msg_erreur").html("Erreur du serveur").css("display", "inline");
 							break;
 						}
 					}

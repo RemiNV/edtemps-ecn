@@ -4,7 +4,7 @@ CREATE TABLE edt.Salle (
                 salle_id INTEGER NOT NULL DEFAULT nextval('edt.salle_salle_id_seq'),
                 salle_batiment VARCHAR,
                 salle_niveau INTEGER,
-                salle_nom VARCHAR,
+                salle_nom VARCHAR NOT NULL,
                 salle_numero INTEGER,
                 salle_capacite INTEGER,
                 CONSTRAINT salle_id PRIMARY KEY (salle_id)
