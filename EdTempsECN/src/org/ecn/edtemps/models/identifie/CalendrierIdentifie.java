@@ -2,6 +2,11 @@ package org.ecn.edtemps.models.identifie;
 
 import java.util.List;
 
+import javax.json.Json;
+import javax.json.JsonValue;
+
+import org.ecn.edtemps.json.JSONAble;
+import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.Calendrier;
 
 /**
@@ -9,7 +14,7 @@ import org.ecn.edtemps.models.Calendrier;
  * 
  * @author Maxime TERRADE
  */
-public class CalendrierIdentifie extends Calendrier {
+public class CalendrierIdentifie extends Calendrier implements JSONAble {
 
 	/** Identifiant du calendrier dans la base de données */
 	protected int id;
@@ -36,6 +41,17 @@ public class CalendrierIdentifie extends Calendrier {
 	 */
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	@Override
+	public JsonValue toJson() {
+		return Json.createObjectBuilder()
+				.add("id", id)
+				.add("nom", nom)
+				.add("type", type)
+				.add("matiere", matiere)
+				.add("proprietaires", JSONUtils.getJsonIntArray(idProprietaires))
+				.build();
 	}
 
 }

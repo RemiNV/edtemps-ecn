@@ -21,6 +21,11 @@
       <servlet-class>org.ecn.edtemps.servlets.DisconnectServlet</servlet-class>
   </servlet>
   
+  <servlet>
+      <servlet-name>Abonnements</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.AbonnementsServlet</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -35,4 +40,10 @@
       <servlet-name>CheckConnection</servlet-name>
       <url-pattern>/identification/checkconnection</url-pattern>
   </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>Abonnements</servlet-name>
+      <url-pattern>/abonnements</url-pattern>
+  </servlet-mapping>
+  
 </web-app>

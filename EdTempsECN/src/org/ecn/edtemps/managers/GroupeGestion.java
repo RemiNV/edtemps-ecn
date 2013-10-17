@@ -19,6 +19,8 @@ import org.ecn.edtemps.models.identifie.GroupeIdentifie;
  * @author Joffrey
  */
 public class GroupeGestion {
+	
+	public static final String NOM_TEMPTABLE_ABONNEMENTS = "tmp_requete_abonnements_groupe";
 
 	protected BddGestion _bdd;
 
@@ -347,9 +349,9 @@ public class GroupeGestion {
 	 * @return Nom de la table créée. Inutile de préciser un nom de schéma (type "edt.") pour y accéder 
 	 * @throws DatabaseException
 	 */
-	public static String makeTempTableListeGroupesAbonnement(BddGestion bdd, int idUtilisateur) throws DatabaseException {
+	public static void makeTempTableListeGroupesAbonnement(BddGestion bdd, int idUtilisateur) throws DatabaseException {
 		// Création d'une table temporaire pour les résultats
-		bdd.executeRequest("CREATE TEMP TABLE tmp_requete_abonnements_groupe(groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
+		bdd.executeRequest("CREATE TEMP TABLE " + NOM_TEMPTABLE_ABONNEMENTS + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
 				"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_estcours BOOLEAN, " +
 				"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL) ON COMMIT DROP");
 		
@@ -399,28 +401,31 @@ public class GroupeGestion {
 					"ON deja_inseres.groupeparticipant_id=parent.groupeparticipant_id " +
 					"WHERE deja_inseres.groupeparticipant_id IS NULL");
 		}
-		
-		return "tmp_requete_abonnements_groupe";
 	}
 	
 	/**
 	 * Listing des groupes auxquels est abonné l'utilisateur, soit directement soit indirectement (par parenté d'un groupe à l'autre)
 	 * @param idUtilisateur ID de l'utilisateur en question
 	 * @param createTransaction Créer une transaction pour les requêtes. Si false, doit obligatoirement être appelé à l'intérieur d'une transaction
+	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
+	 * 
+	 * @see GroupeGestion#makeTempTableListeGroupesAbonnement(BddGestion, int)
+	 * 
 	 * @return Liste de groupes trouvés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<GroupeIdentifie> listerGroupesAbonnement(int idUtilisateur, boolean createTransaction) throws DatabaseException {
+	public ArrayList<GroupeIdentifie> listerGroupesAbonnement(int idUtilisateur, boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException {
 		
 		try {
 			if(createTransaction)
 				_bdd.startTransaction(); // Définit la durée de vie de la table temporaire
 			
-			String tableTempAbonnements = makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
+			if(!reuseTempTableAbonnements)
+				makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
 			
 			// Lecture des groupes de la table
 			ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent," +
-					"groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM " + tableTempAbonnements);
+					"groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM " + NOM_TEMPTABLE_ABONNEMENTS);
 			
 			
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();

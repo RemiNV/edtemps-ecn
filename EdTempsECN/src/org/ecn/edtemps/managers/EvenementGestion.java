@@ -164,10 +164,15 @@ public class EvenementGestion {
 	 * Liste les évènements auxquels un utilisateur est abonné par l'intermédiaire de ses abonnements aux groupes, et donc aux calendriers
 	 * @param idUtilisateur Utilisateur dont les évènements sont à récupérer
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
+	 * 
+	 * @see GroupeGestion#makeTempTableListeGroupesAbonnement(BddGestion, int)
+	 * 
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
+	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, Date dateDebut, Date dateFin, 
+			boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException {
 		
 		ArrayList<EvenementIdentifie> res = null;
 	
@@ -175,13 +180,14 @@ public class EvenementGestion {
 			if(createTransaction)
 				_bdd.startTransaction();
 			
-			String tblAbonnementsGroupes = GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
+			if(!reuseTempTableAbonnements)
+				GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
 			
 			PreparedStatement req = _bdd.getConnection().prepareStatement("SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 					"FROM edt.evenement " +
 					"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
 					"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
-					"INNER JOIN " + tblAbonnementsGroupes + " abonnements ON abonnements.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
+					"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_ABONNEMENTS + " abonnements ON abonnements.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
 					"WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?");
 			
 			req.setDate(1, new java.sql.Date(dateDebut.getTime()));

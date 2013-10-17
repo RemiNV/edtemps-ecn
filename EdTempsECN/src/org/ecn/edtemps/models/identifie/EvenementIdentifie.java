@@ -3,6 +3,10 @@ package org.ecn.edtemps.models.identifie;
 import java.util.Date;
 import java.util.List;
 
+import javax.json.Json;
+import javax.json.JsonValue;
+
+import org.ecn.edtemps.json.JSONAble;
 import org.ecn.edtemps.models.Evenement;
 
 /**
@@ -10,7 +14,7 @@ import org.ecn.edtemps.models.Evenement;
  * 
  * @author Maxime TERRADE
  */
-public class EvenementIdentifie extends Evenement {
+public class EvenementIdentifie extends Evenement implements JSONAble {
 
 	/** Identifiant de l'evenement dans la base de données */
 	protected int id;
@@ -40,5 +44,16 @@ public class EvenementIdentifie extends Evenement {
 	 */
 	public void setId(int id) {
 		this.id = id;
+	}
+
+
+	@Override
+	public JsonValue toJson() {
+		return Json.createObjectBuilder()
+				.add("id", id)
+				.add("nom", nom)
+				.add("dateDebut", dateDebut.getTime())
+				.add("dateFin", dateFin.getTime())
+				.build();
 	}
 }

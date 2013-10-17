@@ -1,5 +1,11 @@
 package org.ecn.edtemps.models.identifie;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+
+import org.ecn.edtemps.json.JSONAble;
+import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.Groupe;
 
 /**
@@ -7,7 +13,7 @@ import org.ecn.edtemps.models.Groupe;
  * 
  * @author Joffrey
  */
-public class GroupeIdentifie extends Groupe {
+public class GroupeIdentifie extends Groupe implements JSONAble {
 
 	/** Identifiant de la salle */
 	protected int id;
@@ -39,6 +45,20 @@ public class GroupeIdentifie extends Groupe {
 	 */
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	@Override
+	public JsonValue toJson() {
+		return Json.createObjectBuilder()
+				.add("id", id)
+				.add("nom", nom)
+				.add("parentId", parentId)
+				.add("rattachementAutorise", rattachementAutorise)
+				.add("estCours", estCours)
+				.add("estCalendrierUnique", estCalendrierUnique)
+				.add("calendriers", JSONUtils.getJsonIntArray(idCalendriers))
+				.add("proprietaires", JSONUtils.getJsonIntArray(idProprietaires))
+				.build();
 	}
 
 }

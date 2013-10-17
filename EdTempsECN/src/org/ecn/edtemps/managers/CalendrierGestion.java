@@ -106,7 +106,7 @@ public class CalendrierGestion {
 	 * @throws EdtempsException 
 	 * @throws SQLException 
 	 */
-	private CalendrierIdentifie inflateCalendrierFromRow(ResultSet row) throws EdtempsException, SQLException {
+	private CalendrierIdentifie inflateCalendrierFromRow(ResultSet row) throws DatabaseException, SQLException {
 		
 		int id = row.getInt("calendrier_id");
 		 String nom = row.getString("cal_nom");
@@ -130,7 +130,7 @@ public class CalendrierGestion {
 			return new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
 		}
 		else {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : liste des proprietaires vides");
+			throw new DatabaseException();
 		}
 	}
 	
@@ -338,22 +338,27 @@ public class CalendrierGestion {
 	 * 
 	 * @param userId ID de l'utilisateur dont les calendriers sont à récupérer
 	 * @param createTransaction Transaction à créer à l'intérieur de cette méthode (si pas déjà créée).
+	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
+	 * 
+	 * @see GroupeGestion#makeTempTableListeGroupesAbonnement(BddGestion, int)
+	 * 
 	 * @return
 	 * @throws EdtempsException
 	 */
-	public ArrayList<Calendrier> listerCalendriersUtilisateur(int userId, boolean createTransaction) throws EdtempsException {
+	public ArrayList<CalendrierIdentifie> listerCalendriersUtilisateur(int userId, boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException {
 		try {
 			if(createTransaction)
 				_bdd.startTransaction();
 			
-			String tableTempAbonnementsGroupes = GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, userId);
+			if(!reuseTempTableAbonnements)
+				GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, userId);
 			
 			// Récupération des calendriers des collections abonnement
 			ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.matiere_id, calendrier.cal_nom, calendrier.typecal_id FROM edt.calendrier " +
 					"INNER JOIN edt.calendrierappartientgroupe appartenance ON appartenance.cal_id=calendrier.cal_id " +
-					"INNER JOIN " + tableTempAbonnementsGroupes + " tmpAbonnements ON tmpAbonnements.groupeparticipant_id=appartenance.groupeparticipant_id");
+					"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_ABONNEMENTS + " tmpAbonnements ON tmpAbonnements.groupeparticipant_id=appartenance.groupeparticipant_id");
 			
-			ArrayList<Calendrier> res = new ArrayList<Calendrier>();
+			ArrayList<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
 			
 			while(results.next()) {
 				res.add(this.inflateCalendrierFromRow(results));

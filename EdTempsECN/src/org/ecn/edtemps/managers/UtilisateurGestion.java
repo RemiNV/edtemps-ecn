@@ -29,8 +29,7 @@ import com.unboundid.ldap.sdk.SearchScope;
 
 public class UtilisateurGestion {
 	
-	// TODO : déplacer en base de données (et garder bien secret !)
-	private static final String KEY_TOKENS = "IAmASecretKey";
+	private static final String KEY_TOKENS = "F.Lecuyer,R.NguyenVan,A.Pouchoulin,J.Terrade,M.Terrade,R.Traineau,OnCrypteToutAvecNosNomsYeah";
 	
 	// Configuration pour accéder à LDAP depuis l'extérieur
 	private static final String ADRESSE_LDAP = "ldaps.nomade.ec-nantes.fr";

@@ -42,7 +42,7 @@ public class Salle {
 	 * Constructeur avec tous les paramètres
 	 */
 	public Salle(String batiment, String nom, int capacite, int niveau,
-			int numero, Map<Integer, Integer> materiels) {
+			int numero, HashMap<Integer, Integer> materiels) {
 		this.batiment = batiment;
 		this.capacite = capacite;
 		this.niveau = niveau;
