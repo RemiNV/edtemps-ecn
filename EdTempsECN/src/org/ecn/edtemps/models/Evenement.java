@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
+import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 /**
  * Classe modèle d'un événement
@@ -28,23 +29,23 @@ public class Evenement {
 	protected SalleIdentifie salle;
 	
 	/** Liste des noms des intervenants de l'événement */
-	protected List<String> intervenants;
+	protected List<UtilisateurIdentifie> intervenants;
 
 	
-	/** Constructeur par défaut */
-	public Evenement() {
-		
+	/** Constructeur avec uniquement attributs indispensables */
+	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers) {
+		this.nom = nom;
+		this.dateDebut = dateDebut;
+		this.dateFin = dateFin;
+		this.idCalendriers = idCalendriers;
 	}
 	
 	
 	/** Constructeur avec tous les attributs */
 	public Evenement(String nom, Date dateDebut, Date dateFin,
 			List<Integer> idCalendriers, SalleIdentifie salle,
-			List<String> intervenants) {
-		this.nom = nom;
-		this.dateDebut = dateDebut;
-		this.dateFin = dateFin;
-		this.idCalendriers = idCalendriers;
+			List<UtilisateurIdentifie> intervenants) {
+		this(nom, dateDebut, dateFin, idCalendriers);
 		this.salle = salle;
 		this.intervenants = intervenants;
 	}
@@ -90,11 +91,11 @@ public class Evenement {
 		this.salle = salle;
 	}
 
-	public List<String> getIntervenants() {
+	public List<UtilisateurIdentifie> getIntervenants() {
 		return intervenants;
 	}
 
-	public void setIntervenants(List<String> intervenants) {
+	public void setIntervenants(List<UtilisateurIdentifie> intervenants) {
 		this.intervenants = intervenants;
 	}
 }

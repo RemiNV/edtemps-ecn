@@ -15,11 +15,12 @@ import org.ecn.edtemps.managers.UtilisateurGestion;
 public class DisconnectServlet extends RequiresConnectionServlet {
 
 	@Override
-	protected void doGetAfterLogin(int userId, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			UtilisateurGestion utilisateurGestion = new UtilisateurGestion(new BddGestion());
+			UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
 			utilisateurGestion.seDeconnecter(userId);
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Utilisateur déconnecté", null));
+			bdd.close();
 		} catch (DatabaseException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.DATABASE_ERROR, e.getMessage(), null));
 		}

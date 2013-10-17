@@ -43,10 +43,13 @@ public class ConnectionServlet extends HttpServlet {
 			ResultCode result;
 			
 			try {
-				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(new BddGestion());
+				BddGestion bddGestion = new BddGestion();
+				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bddGestion);
 				
 				String token = utilisateurGestion.seConnecter(username, password);
 				result = ResultCode.SUCCESS;
+				
+				bddGestion.close();
 				
 				JsonObject data = Json.createObjectBuilder()
 						.add("token", token)

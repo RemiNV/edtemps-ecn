@@ -42,24 +42,31 @@ public abstract class RequiresConnectionServlet extends HttpServlet {
 			message = "Token de connexion non fourni";
 		}
 		else {
+			BddGestion bdd = null;
 			try {
-				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(new BddGestion());
+				bdd = new BddGestion();
+				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
 				int userId = utilisateurGestion.verifierConnexion(token);
 				
 				// Succès de la connexion
 				switch(method) {
 				case GET:
-					doGetAfterLogin(userId, req, resp);
+					doGetAfterLogin(userId, bdd, req, resp);
 					break;
 				case POST:
-					doPostAfterLogin(userId, req, resp);
+					doPostAfterLogin(userId, bdd, req, resp);
 					break;
 				}
 				return;
 				
-			} catch (IdentificationException | DatabaseException e) {
+			} catch (IdentificationException e) {
 				result = e.getResultCode();
 				message = e.getMessage();
+			} catch(DatabaseException e) {
+				result = e.getResultCode();
+				message = e.getMessage();
+				if(bdd != null)
+					bdd.close();
 			}
 		}
 		
@@ -82,24 +89,30 @@ public abstract class RequiresConnectionServlet extends HttpServlet {
 	/**
 	 * Gestion des requêtes POST après vérification du login. Surclasser cette méthode à la place de doPost()
 	 * @param userId ID de l'utilisateur qui effectue la requête
+	 * @param bdd Base de données utilisable pour les requêtes. A fermer dans l'implémentation !
 	 * @param req HttpServletRequest fourni par doGet
 	 * @param resp HttpServletResponse fourni par doPost, initialisé avec un ContentType application/json et charset utf-8
 	 * @throws ServletException
 	 * @throws IOException
+	 * @throws DatabaseException 
 	 */
-	protected void doPostAfterLogin(int userId, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		super.doPost(req, resp);
+		bdd.close();
 	}
 	
 	/**
 	 * Gestion des requêtes GET après vérification du login. Surclasser cette méthode à la place de doGet()
 	 * @param userId ID de l'utilisateur qui effectue la requête
+	 * @param bdd Base de données utilisable pour les requêtes. A fermer dans l'implémentation !
 	 * @param req HttpServletRequest fourni par doGet
 	 * @param resp HttpServletResponse fourni par doPost, initialisé avec un ContentType application/json et charset utf-8
 	 * @throws ServletException
 	 * @throws IOException
+	 * @throws DatabaseException 
 	 */
-	protected void doGetAfterLogin(int userId, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		super.doGet(req, resp);
+		bdd.close();
 	}
 }

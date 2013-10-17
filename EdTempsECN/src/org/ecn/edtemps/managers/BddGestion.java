@@ -57,6 +57,18 @@ public class BddGestion {
 		_connection = connect();
 	}
 	
+	/**
+	 * Fermeture de la connexion associée à cet objet
+	 * @throws DatabaseException Erreur de fermeture de la connexion
+	 */
+	public boolean close() {
+		try {
+			_connection.close();
+			return true;
+		} catch (SQLException e) {
+			return false;
+		}
+	}
 	
 	/**
 	 * Démarre une transaction avec la connection associée à cet objet BddGestion 
@@ -82,6 +94,16 @@ public class BddGestion {
 		_connection.rollback();
 	}
 
+	/**
+	 * Récupération de l'objet Connection pour des usages plus avancées
+	 * (requêtes préparées avec paramètres par exemple)
+	 * 
+	 * Ne PAS fermer cette connexion si le manager est encore utilisé ensuite
+	 * @return Objet connection sur lequel est basé ce gestionnaire
+	 */
+	public Connection getConnection() {
+		return _connection;
+	}
 	
 	
 	/**
@@ -106,7 +128,7 @@ public class BddGestion {
 
 				// Préparation de la requête
 				PreparedStatement requetePreparee = _connection.prepareStatement(request);
-
+				
 				// Exécute la requête et récupère le résultat s'il y en a un
 				if (requetePreparee.execute()) {
 					resultat = requetePreparee.getResultSet();

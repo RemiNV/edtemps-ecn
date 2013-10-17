@@ -403,10 +403,18 @@ public class GroupeGestion {
 		return "tmp_requete_abonnements_groupe";
 	}
 	
-	public ArrayList<GroupeIdentifie> listerGroupesAbonnement(int idUtilisateur) throws DatabaseException {
+	/**
+	 * Listing des groupes auxquels est abonné l'utilisateur, soit directement soit indirectement (par parenté d'un groupe à l'autre)
+	 * @param idUtilisateur ID de l'utilisateur en question
+	 * @param createTransaction Créer une transaction pour les requêtes. Si false, doit obligatoirement être appelé à l'intérieur d'une transaction
+	 * @return Liste de groupes trouvés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupesAbonnement(int idUtilisateur, boolean createTransaction) throws DatabaseException {
 		
 		try {
-			_bdd.startTransaction(); // Définit la durée de vie de la table temporaire
+			if(createTransaction)
+				_bdd.startTransaction(); // Définit la durée de vie de la table temporaire
 			
 			String tableTempAbonnements = makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
 			
@@ -422,7 +430,8 @@ public class GroupeGestion {
 			}
 			
 			// Supprime aussi la table temporaire
-			_bdd.commit();
+			if(createTransaction)
+				_bdd.commit();
 			
 			return res;
 		}

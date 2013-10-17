@@ -10,6 +10,8 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Evenement;
+import org.ecn.edtemps.models.identifie.EvenementIdentifie;
+import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 /** 
  * Classe de gestion des evenements
@@ -42,12 +44,13 @@ public class EvenementGestion {
 		Date dateDebut = evenement.getDateDebut();
 		Date dateFin = evenement.getDateFin();
 		List<Integer> idCalendriers = evenement.getIdCalendriers();
-		List<String> idIntervenants = evenement.getIntervenants();
+		List<UtilisateurIdentifie> idIntervenants = evenement.getIntervenants();
 		int idSalle = evenement.getSalle().getId();
 				
 		/*
 		 * IMPORTANT POUR CONTINUER
 		 * Liste de String pour les intervenants oO ? Comment on retrouve l'id ??
+		 * Note (Rémi) suite à réunion du 16/10, modification des String en UtilisateurIdentifie
 		 */
 			
 		try {
@@ -99,6 +102,16 @@ public class EvenementGestion {
 		}
 		
 			
+	}
+	
+	/**
+	 * Récupération d'un évènement en base
+	 * @param idEvenement ID de l'évènement à récupérer
+	 * @return Evènement récupéré
+	 */
+	public EvenementIdentifie getEvenement(int idEvenement) {
+		// TODO : compléter
+		return null;
 	}
 	
 	

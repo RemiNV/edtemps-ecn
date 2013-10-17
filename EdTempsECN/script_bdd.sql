@@ -132,8 +132,9 @@ CREATE TABLE edt.Utilisateur (
                 utilisateur_id_ldap INTEGER UNIQUE,
                 utilisateur_token VARCHAR UNIQUE,
                 utilisateur_token_expire TIMESTAMP,
-				utilisateur_nom TEXT,
-				utilisateur_prenom TEXT,
+				utilisateur_nom TEXT NOT NULL,
+				utilisateur_prenom TEXT NOT NULL,
+				utilisateur_email TEXT,
                 CONSTRAINT utilisateur_id PRIMARY KEY (utilisateur_id)
 );
 

@@ -2,6 +2,8 @@ package org.ecn.edtemps.managers;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -182,7 +184,7 @@ public class UtilisateurGestion {
 			
 			// Succès de la connexion : récupération de l'identifiant entier uid (uidnumber) de l'utilisateur
 			String filtre = "(uid=" + utilisateur + ")";
-			SearchRequest request = new SearchRequest("ou=people, dc=ec-nantes, dc=fr", SearchScope.SUB, filtre, "uidNumber");
+			SearchRequest request = new SearchRequest("ou=people, dc=ec-nantes, dc=fr", SearchScope.SUB, filtre, "uidNumber", "sn", "givenName");
 			
 			SearchResult searchResult = connection.search(request);
 			List<SearchResultEntry> lstResults = searchResult.getSearchEntries();
@@ -195,6 +197,8 @@ public class UtilisateurGestion {
 			
 			// uiNumber LDAP de l'utilisateur récupéré
 			Long uidNumber = lstResults.get(0).getAttributeValueAsLong("uidNumber");
+			String nom = lstResults.get(0).getAttributeValue("sn");
+			String prenom = lstResults.get(0).getAttributeValue("givenName");
 			
 			if(uidNumber == null) {
 				System.out.println("Format d'uidNumer invalide pour l'utilisateur : " + utilisateur);
@@ -208,13 +212,28 @@ public class UtilisateurGestion {
 			
 			Integer userId = getUserIdFromLdapId(uidNumber);
 			
+			Connection conn = _bdd.getConnection();
 			if(userId != null) { // Utilisateur déjà présent en base
 				// Token valable 1h, heure du serveur de base de donnée. Le token est constitué de caractères alphanumériques et de "_" : pas d'échappement nécessaire
-				_bdd.executeRequest("UPDATE edt.utilisateur SET utilisateur_token='" + token + "', utilisateur_token_expire=now() + interval '1 hour'");
+				PreparedStatement statement = conn.prepareStatement("UPDATE edt.utilisateur SET utilisateur_token=?, utilisateur_nom=?, utilisateur_prenom=?, " +
+						"utilisateur_token_expire=now() + interval '1 hour' WHERE utilisateur_id=?");
+				
+				statement.setString(1, token);
+				statement.setString(2, nom);
+				statement.setString(3, prenom);
+				statement.setInt(4, userId);
+				
+				statement.execute();
 			}
 			else { // Utilisateur absent de la base : insertion
-				_bdd.executeRequest("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_token_expire) VALUES(" +
-						uidNumber + ",'" + token + "',now() + interval '1 hour')");
+				PreparedStatement statement = conn.prepareStatement("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_nom, utilisateur_prenom, " +
+						"utilisateur_token_expire) VALUES(?, ?, ?, ?, now() + interval '1 hour')");
+				statement.setLong(1, uidNumber);
+				statement.setString(2, token);
+				statement.setString(3, nom);
+				statement.setString(4, prenom);
+				
+				statement.execute();
 			}
 			
 			_bdd.commit();
