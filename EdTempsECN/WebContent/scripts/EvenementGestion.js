@@ -1,7 +1,7 @@
 define(["RestManager"], function(RestManager) {
 
 	var EvenementGestion = function(restManager) {
-		this.restManager = restManager
+		this.restManager = restManager;
 		
 		this.cachedEvents = Object();
 		this.cachedEvents[EvenementGestion.CACHE_MODE_MES_ABONNEMENTS] = Array();
