@@ -20,11 +20,9 @@ define(["RestManager"], function(RestManager) {
 	 * Arguments : 
 	 * dateDebut/dateFin : intervalle de recherche pour les évènements
 	 * callback : fonction appelée une fois la requête effectuée. Paramètres de callback : 
-	 * - networkSuccess (booléen) : succès de la connexion réseau
 	 * - resultCode (entier) : code de retour de la requête. Vaut RestManager.resultCode_Success en cas de succès.
-	 * 	Non fourni si networkSuccess vaut false.
 	 * - data : objet contenant les évènements, calendriers et groupes demandés.
-	 * 	Non fourni si networkSuccess vaut false, ou que resultCode != RestManager.resultCode_Success
+	 * 	Non fourni si resultCode != RestManager.resultCode_Success
 	 * 
 	 * Exemple de format de l'objet fourni : 
 	 * { evenements:
@@ -60,54 +58,61 @@ define(["RestManager"], function(RestManager) {
 			token: this.restManager.getToken(),
 			debut: dateDebut.getTime(),
 			fin: dateFin.getTime()
-		}, function(networkSuccess, data) {
-			if(networkSuccess) {
-				if(data.resultCode == RestManager.resultCode_Success) {
-					callback(true, data.resultCode, data.data);
-				}
-				else {
-					callback(true, data.resultCode);
-				}
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback(data.resultCode, data.data);
 			}
-			else
-				callback(false);
+			else {
+				callback(data.resultCode);
+			}
 		});
+	};
 	
+	/**
+	 * Fonction identique à queryAbonnements mais ne fournit que les évènements sous forme d'un tableau dans callback.
+	 * Plus efficace une fois les calendriers et groupes déjà chargés */
+	EvenementGestion.prototype.queryEvenementsAbonnements = function(dateDebut, dateFin, callback) {
+		var me = this;
+	
+		this.restManager.effectuerRequete("GET", "abonnements/evenements", {
+			token: this.restManager.getToken(),
+			debut: dateDebut.getTime(),
+			fin: dateFin.getTime()
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback(data.resultCode, data.data);
+			}
+			else {
+				callback(data.resultCode);
+			}
+		});
 	};
 	
 	/**
 	 * Récupération des abonnements de l'utilisateur (evenements + calendriers + groupes)
 	 * Arguments start, end : bornes de recherche pour les évènements
 	 * callback : fonction prenant les arguments : 
-	 * - networkSuccess (booléen) : succès de la connexion réseau
 	 * - resultCode (entier) : code de retour de la requête. Vaut RestManager.resultCode_Success en cas de succès.
-	 * 	Non fourni si networkSuccess vaut false.
 	 * - data : objet contenant les évènements, calendriers et groupes demandés.
 	 * data contient 3 attributs : 
 	 * -- evenements (évènements au format de parseEventsFullcalendar)
 	 * -- calendriers (au format de queryAbonnements)
 	 * -- groupes (groupes au format de queryAbonnements)
-	 * 	Data est non fourni si networkSuccess vaut false, ou que resultCode != RestManager.resultCode_Success */
+	 * 	Data est non fourni si resultCode != RestManager.resultCode_Success */
 	EvenementGestion.prototype.getAbonnements = function(start, end, callback) {
 		var me = this;
 		
-		this.queryAbonnements(start, end, function(networkSuccess, resultCode, data) {
-			if(networkSuccess) {
-				if(resultCode == RestManager.resultCode_Success) {
-					// On fournit les évènements au calendrier
-					var parsedEvents = me.parseEventsFullcalendar(data);
-					
-					// Ajout des évènements au cache
-					me.cacheEvents(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, parsedEvents);
-					
-					callback(true, resultCode, { evenements: parsedEvents, calendriers: data.calendriers, groupes: data.groupes });
-				}
-				else {
-					callback(true, resultCode);
-				}
+		this.queryAbonnements(start, end, function(resultCode, data) {
+			if(resultCode == RestManager.resultCode_Success) {
+				var parsedEvents = me.parseEventsFullcalendar(data.evenements);
+				
+				// Ajout des évènements au cache
+				me.cacheEvents(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, parsedEvents);
+				
+				callback(resultCode, { evenements: parsedEvents, calendriers: data.calendriers, groupes: data.groupes });
 			}
 			else {
-				callback(false);
+				callback(resultCode);
 			}
 		});
 	};
@@ -115,9 +120,8 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Retourne un tableau d'évènements compatibles fullCalendar
 	 * a partir d'un objet d'abonnements */
-	EvenementGestion.prototype.parseEventsFullcalendar = function(abonnements) {
+	EvenementGestion.prototype.parseEventsFullcalendar = function(evenements) {
 		
-		var evenements = abonnements.evenements;
 		var res = Array();
 		for(var i=0, max = evenements.length; i<max; i++) {
 			// Chaîne de salles
@@ -151,7 +155,6 @@ define(["RestManager"], function(RestManager) {
 	 * ignoreCache : true pour forcer la récupération depuis le serveur
 	 * callback : fonction appelée pour fournir les résultats une fois la requête effectuée
 	 * Arguments de callback : 
-	 * - networkSuccess : true en cas de succès de la connexion réseau
 	 * - resultCode : code de retour de la requête (RestManager.resultCode_Success en cas de succès)
 	 * - data : évènements récupérés, au format de parseEventsFullcalendar
 	 * 
@@ -163,29 +166,22 @@ define(["RestManager"], function(RestManager) {
 		var evenements = ignoreCache ? null : this.getEventsFromCache(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end);
 		
 		if(evenements !== null) {
-			callback(true, RestManager.resultCode_Success, evenements);
+			callback(RestManager.resultCode_Success, evenements);
 		}
 		else {
 			// Récupération depuis le serveur
 			
-			// TODO : requête ne récupérant que les évènements
-			this.queryAbonnements(start, end, function(networkSuccess, resultCode, data) {
-				if(networkSuccess) {
-					if(resultCode == RestManager.resultCode_Success) {
-						// On fournit les évènements au calendrier
-						var parsedEvents = me.parseEventsFullcalendar(data);
-						
-						// Ajout des évènements récupérés au cache
-						me.cacheEvents(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, parsedEvents);
-						
-						callback(true, resultCode, parsedEvents);
-					}
-					else {
-						callback(true, resultCode);
-					}
+			this.queryEvenementsAbonnements(start, end, function(resultCode, data) {
+				if(resultCode == RestManager.resultCode_Success) {
+					var parsedEvents = me.parseEventsFullcalendar(data);
+					
+					// Ajout des évènements récupérés au cache
+					me.cacheEvents(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, parsedEvents);
+					
+					callback(resultCode, parsedEvents);
 				}
 				else {
-					callback(false);
+					callback(resultCode);
 				}
 			});
 		}

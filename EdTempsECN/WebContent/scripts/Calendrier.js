@@ -34,9 +34,9 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 				center: 'title',
 				left: 'prev,next today month,agendaWeek,agendaDay'
 			},
-			height: Math.max(window.innerHeight - 150, 500),
+			height: Math.max(window.innerHeight - 110, 500),
 			windowResize: function(view) {
-				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 150, 500));
+				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 110, 500));
 			},
 			events: eventsSource
 		});

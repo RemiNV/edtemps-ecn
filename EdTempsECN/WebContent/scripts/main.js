@@ -53,8 +53,8 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			// Page de connexion
 			this.get("connexion/*target", function(req) {
 				// Déjà connecté ?
-				restManager.checkConnection(function(networkSuccess, validConnection) {
-					if(networkSuccess && validConnection) {
+				restManager.checkConnection(function(resultCode) {
+					if(resultCode == RestManager.resultCode_Success) {
 						req.redirect(req.params["target"]); // Déjà connecté : redirection
 					}
 					else {
@@ -64,21 +64,19 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			});
 			
 			this.get("deconnexion", function(req) {
-				restManager.deconnexion(function(networkSuccess, resultCode) {
-					if(!networkSuccess) {
+				restManager.deconnexion(function(resultCode) {
+					if(resultCode == RestManager.resultCode_NetworkError) {
 						alert("Erreur réseau : vérifiez votre connexion.");
 						req.redirect("agenda");
-						return;
 					}
-					
-					if(resultCode != RestManager.resultCode_Success && resultCode != RestManager.resultCode_IdentificationError) {
+					else if(resultCode != RestManager.resultCode_Success && resultCode != RestManager.resultCode_IdentificationError) {
 						alert("Erreur de la déconnexion. Code retour : " + resultCode);
 						req.redirect("agenda");
-						return;
 					}
-					
-					// Pas d'erreur
-					req.redirect("connexion/agenda");
+					else {
+						// Pas d'erreur
+						req.redirect("connexion/agenda");
+					}
 				});
 			});
 			
@@ -112,31 +110,30 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 				$(this).attr("disabled", "disabled");
 				
 				// Connexion
-				restManager.connexion(username, pass, function(success, resultCode) {
+				restManager.connexion(username, pass, function(resultCode) {
 					$("#msg_connexion").css("display", "none");
 					$("#btn_connexion").removeAttr("disabled");
-					if(success) {
-						switch(resultCode) {
-						case RestManager.resultCode_Success:
-							// Redirection vers la page d'agenda
-							Davis.location.assign("agenda");
-							break;
-							
-						case RestManager.resultCode_LdapError:
-							$("#msg_erreur").html("Erreur de connexion au serveur LDAP").css("display", "inline");
-							break;
+					switch(resultCode) {
+					case RestManager.resultCode_Success:
+						// Redirection vers la page d'agenda
+						Davis.location.assign("agenda");
+						break;
 						
-						case RestManager.resultCode_IdentificationError:
-							$("#msg_erreur").html("Identifiants invalides").css("display", "inline");
-							break;
-							
-						default:
-							$("#msg_erreur").html("Erreur du serveur").css("display", "inline");
-							break;
-						}
-					}
-					else {
-						alert("Erreur de connexion au serveur. Vérifiez votre connexion.");
+					case RestManager.resultCode_NetworkError:
+						$("#msg_erreur").html("Erreur de connexion au serveur. Vérifiez votre connexion.").css("display", "inline");
+						break;
+						
+					case RestManager.resultCode_LdapError:
+						$("#msg_erreur").html("Erreur de connexion au serveur LDAP").css("display", "inline");
+						break;
+					
+					case RestManager.resultCode_IdentificationError:
+						$("#msg_erreur").html("Identifiants invalides").css("display", "inline");
+						break;
+						
+					default:
+						$("#msg_erreur").html("Erreur du serveur").css("display", "inline");
+						break;
 					}
 				});
 			});

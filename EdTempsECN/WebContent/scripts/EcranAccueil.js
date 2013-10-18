@@ -61,17 +61,15 @@ define(["Calendrier", "EvenementGestion", "RestManager", "jquery"], function(Cal
 				this.remplirMesAbonnements(start, end, callback);
 			}
 			else { // Récupération uniquement des évènements (pas besoin des calendriers & groupes). Utilisation du cache.
-				this.evenementGestion.getEvenementsAbonnements(start, end, false, function(networkSuccess, resultCode, data) {
-					if(networkSuccess) {
-						if(resultCode == RestManager.resultCode_Success) {
-							callback(data);
-						}
-						else {
-							$("#zone_info").html("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
-						}
+				this.evenementGestion.getEvenementsAbonnements(start, end, false, function(resultCode, data) {
+					if(resultCode == RestManager.resultCode_Success) {
+						callback(data);
+					}
+					else if(resultCode == RestManager.resultCode_NetworkError) {
+						$("#zone_info").html("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
 					}
 					else {
-						$("#zone_info").html("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
+						$("#zone_info").html("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
 					}
 				});
 			}
@@ -88,22 +86,21 @@ define(["Calendrier", "EvenementGestion", "RestManager", "jquery"], function(Cal
 		// Récupération des abonnements pendant la période affichée
 		var me = this;
 		
-		this.evenementGestion.getAbonnements(dateDebut, dateFin, function(networkSuccess, resultCode, data) {
-			if(networkSuccess) {
-				if(resultCode == RestManager.resultCode_Success) {
-					callbackCalendrier(data.evenements);
-					
-					// On pourra ne récupérer que les évènements à l'avenir
-					me.abonnementsRecuperes = true;
-					
-					// TODO : remplir les autres vues
-				}
-				else {
-					$("#zone_info").html("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
-				}
+		this.evenementGestion.getAbonnements(dateDebut, dateFin, function(resultCode, data) {
+			if(resultCode == RestManager.resultCode_Success) {
+				callbackCalendrier(data.evenements);
+				
+				// On pourra ne récupérer que les évènements à l'avenir
+				me.abonnementsRecuperes = true;
+				
+				// TODO : remplir les autres vues
 			}
-			else {
+			else if(resultCode == RestManager.resultCode_NetworkError) {
 				$("#zone_info").html("Erreur de chargement de vos agendas ; vérifiez votre connexion.");
+			}
+
+			else {
+				$("#zone_info").html("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
 			}
 		});
 	};

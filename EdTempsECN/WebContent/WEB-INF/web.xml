@@ -43,7 +43,7 @@
   
   <servlet-mapping>
       <servlet-name>Abonnements</servlet-name>
-      <url-pattern>/abonnements</url-pattern>
+      <url-pattern>/abonnements/*</url-pattern>
   </servlet-mapping>
   
 </web-app>

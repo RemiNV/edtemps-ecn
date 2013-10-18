@@ -120,8 +120,8 @@ public class EvenementGestion {
 
 		int id = reponse.getInt("eve_id");
 		String nom = reponse.getString("eve_nom");
-		Date dateDebut = reponse.getDate("eve_datedebut");
-		Date dateFin = reponse.getDate("eve_datefin");
+		Date dateDebut = reponse.getTimestamp("eve_datedebut");
+		Date dateFin = reponse.getTimestamp("eve_datefin");
 		
 		// Récupération des IDs des calendriers
 		ArrayList<Integer> idCalendriers = _bdd.recupererIds("SELECT cal_id FROM edt.evenementappartient WHERE eve_id=" + id, "cal_id");
@@ -190,8 +190,8 @@ public class EvenementGestion {
 					"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_ABONNEMENTS + " abonnements ON abonnements.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
 					"WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?");
 			
-			req.setDate(1, new java.sql.Date(dateDebut.getTime()));
-			req.setDate(2, new java.sql.Date(dateFin.getTime()));
+			req.setTimestamp(1, new java.sql.Timestamp(dateDebut.getTime()));
+			req.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
 			
 			ResultSet reponse = req.executeQuery();
 			
