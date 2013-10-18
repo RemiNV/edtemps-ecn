@@ -1,7 +1,6 @@
 package org.ecn.edtemps.models.identifie;
 
 import javax.json.Json;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
