@@ -166,7 +166,7 @@ define(["RestManager"], function(RestManager) {
 		var evenements = ignoreCache ? null : this.getEventsFromCache(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end);
 		
 		if(evenements !== null) {
-			callback(true, RestManager.resultCode_Success, evenements);
+			callback(RestManager.resultCode_Success, evenements);
 		}
 		else {
 			// Récupération depuis le serveur
