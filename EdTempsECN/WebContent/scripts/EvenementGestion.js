@@ -2,7 +2,18 @@ define(["RestManager"], function(RestManager) {
 
 	var EvenementGestion = function(restManager) {
 		this.restManager = restManager
+		
+		this.cachedEvents = Object();
+		this.cachedEvents[EvenementGestion.CACHE_MODE_MES_ABONNEMENTS] = Array();
+		this.cachedEvents[EvenementGestion.CACHE_MODE_GROUPE] = Array();
+		this.cachedEvents[EvenementGestion.CACHE_MODE_SALLE] = Array();
+		this.cachedEvents[EvenementGestion.CACHE_MODE_MES_EVENEMENTS] = Array();
 	};
+	
+	EvenementGestion.CACHE_MODE_GROUPE = 1;
+	EvenementGestion.CACHE_MODE_SALLE = 2;
+	EvenementGestion.CACHE_MODE_MES_EVENEMENTS = 3;
+	EvenementGestion.CACHE_MODE_MES_ABONNEMENTS = 4;
 
 	/**
 	 * Listing des évènements auxquels un utilisateur est abonné. Donne aussi les calendriers et groupes auxquels il est abonné.
@@ -42,7 +53,9 @@ define(["RestManager"], function(RestManager) {
 	 * 	]
 	 * }
 	 */
-	EvenementGestion.prototype.listerEvenementsAbonnement = function(dateDebut, dateFin, callback) {
+	EvenementGestion.prototype.queryAbonnements = function(dateDebut, dateFin, callback) {
+		var me = this;
+	
 		this.restManager.effectuerRequete("GET", "abonnements", {
 			token: this.restManager.getToken(),
 			debut: dateDebut.getTime(),
@@ -60,6 +73,190 @@ define(["RestManager"], function(RestManager) {
 				callback(false);
 		});
 	
+	};
+	
+	/**
+	 * Récupération des abonnements de l'utilisateur (evenements + calendriers + groupes)
+	 * Arguments start, end : bornes de recherche pour les évènements
+	 * callback : fonction prenant les arguments : 
+	 * - networkSuccess (booléen) : succès de la connexion réseau
+	 * - resultCode (entier) : code de retour de la requête. Vaut RestManager.resultCode_Success en cas de succès.
+	 * 	Non fourni si networkSuccess vaut false.
+	 * - data : objet contenant les évènements, calendriers et groupes demandés.
+	 * data contient 3 attributs : 
+	 * -- evenements (évènements au format de parseEventsFullcalendar)
+	 * -- calendriers (au format de queryAbonnements)
+	 * -- groupes (groupes au format de queryAbonnements)
+	 * 	Data est non fourni si networkSuccess vaut false, ou que resultCode != RestManager.resultCode_Success */
+	EvenementGestion.prototype.getAbonnements = function(start, end, callback) {
+		var me = this;
+		
+		this.queryAbonnements(start, end, function(networkSuccess, resultCode, data) {
+			if(networkSuccess) {
+				if(resultCode == RestManager.resultCode_Success) {
+					// On fournit les évènements au calendrier
+					var parsedEvents = me.parseEventsFullcalendar(data);
+					
+					// Ajout des évènements au cache
+					me.cacheEvents(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, parsedEvents);
+					
+					callback(true, resultCode, { evenements: parsedEvents, calendriers: data.calendriers, groupes: data.groupes });
+				}
+				else {
+					callback(true, resultCode);
+				}
+			}
+			else {
+				callback(false);
+			}
+		});
+	};
+	
+	/**
+	 * Retourne un tableau d'évènements compatibles fullCalendar
+	 * a partir d'un objet d'abonnements */
+	EvenementGestion.prototype.parseEventsFullcalendar = function(abonnements) {
+		
+		var evenements = abonnements.evenements;
+		var res = Array();
+		for(var i=0, max = evenements.length; i<max; i++) {
+			// Chaîne de salles
+			var strSalles = "";
+			for(var j=0, maxj = evenements[i].salles.length; j<maxj; j++) {
+				if(j != 0)
+					strSalles += ", ";
+				strSalles += evenements[i].salles[j].nom;
+			}
+		
+			res[i] = {
+				id: evenements[i].id,
+				title: evenements[i].nom,
+				start: new Date(evenements[i].dateDebut),
+				end: new Date(evenements[i].dateFin),
+				salles: evenements[i].salles,
+				strSalle: strSalles,
+				calendriers: evenements[i].calendriers,
+				intervenants: evenements[i].intervenants,
+				allDay: false
+			};
+		}
+	
+		return res;
+	};
+	
+	/**
+	 * Récupération des évènements auxquels l'utilisateur est abonné pour l'intervalle donné.
+	 * Les évènements sont éventuellements récupérés depuis le cache si disponibles.
+	 * Arguments start/end : intervalle de recherche (dates)
+	 * ignoreCache : true pour forcer la récupération depuis le serveur
+	 * callback : fonction appelée pour fournir les résultats une fois la requête effectuée
+	 * Arguments de callback : 
+	 * - networkSuccess : true en cas de succès de la connexion réseau
+	 * - resultCode : code de retour de la requête (RestManager.resultCode_Success en cas de succès)
+	 * - data : évènements récupérés, au format de parseEventsFullcalendar
+	 * 
+	 */
+	EvenementGestion.prototype.getEvenementsAbonnements = function(start, end, ignoreCache, callback) {
+		var me = this;
+		
+		// Récupération depuis le cache si disponible
+		var evenements = ignoreCache ? null : this.getEventsFromCache(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end);
+		
+		if(evenements !== null) {
+			callback(true, RestManager.resultCode_Success, evenements);
+		}
+		else {
+			// Récupération depuis le serveur
+			
+			// TODO : requête ne récupérant que les évènements
+			this.queryAbonnements(start, end, function(networkSuccess, resultCode, data) {
+				if(networkSuccess) {
+					if(resultCode == RestManager.resultCode_Success) {
+						// On fournit les évènements au calendrier
+						var parsedEvents = me.parseEventsFullcalendar(data);
+						
+						// Ajout des évènements récupérés au cache
+						me.cacheEvents(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, parsedEvents);
+						
+						callback(true, resultCode, parsedEvents);
+					}
+					else {
+						callback(true, resultCode);
+					}
+				}
+				else {
+					callback(false);
+				}
+			});
+		}
+	};
+	
+	/**
+	 * Fusionne les évènements de deux tableaux d'évènements au format fullCalendar.
+	 * En cas de doublon (même ID) l'évènement de nouveauxEvenements est utilisé.
+	 * Retour une tableau d'évènements au format fullCalendar. */
+	EvenementGestion.prototype.fusionnerIntervallesCacheEvenements = function(currentEvenements, nouveauxEvenements) {
+		var eventsById = Object();
+		
+		for(var i=0, max = currentEvenements.length; i<max; i++) {
+			eventsById[currentEvenements[i].id] = currentEvenements[i];
+		}
+		
+		// Ajout des évènements de nouveauxEvenements ensuite 
+		// les évènements avec le même ID sont remplacés (mis à jour)
+		for(var i=0, max=nouveauxEvenements.length; i<max; i++) {
+			eventsById[nouveauxEvenements[i].id] = nouveauxEvenements[i];
+		}
+		
+		var res = Array();
+		for(var eventId in eventsById) {
+			res.push(eventsById[eventId]);
+		}
+		
+		return res;
+	}
+	
+	/**
+	 * Enregistrement des évènements récupérés pour un intervalle donné
+	 * pour éviter de refaire une requête au serveur si ils sont re-demandés */
+	EvenementGestion.prototype.cacheEvents = function(modeVue, dateDebut, dateFin, events) {
+		
+		// Si l'intervalle récupéré contient des intervalles en cache, on les fusionne
+		for(var i=this.cachedEvents[modeVue].length-1; i>=0; i--) { // Parcours en sens inverse car on supprime des éléments
+			var current = this.cachedEvents[modeVue][i];
+			
+			// Si les intervalles se recoupent
+			if(current.dateDebut <= dateFin && current.dateFin >= dateDebut) {
+				this.cachedEvents[modeVue].splice(i, 1); // Suppression de l'intervalle existant de la liste
+				
+				// Si l'intervalle existant n'est pas complètement contenu dans le nouveau : fusion
+				if(!(current.dateDebut >= dateDebut && current.dateFin <= dateFin)) {
+					events = this.fusionnerIntervallesCacheEvenements(current.evenements, events);
+					
+					// Modification des dates pour coller avec la fusion des intervalles (min, max)
+					dateDebut = dateDebut < current.dateDebut ? dateDebut : current.dateDebut;
+					dateFin = dateFin > current.dateFin ? dateFin : current.dateFin;
+				}
+			}
+		}
+	
+		this.cachedEvents[modeVue].push({dateDebut: dateDebut, dateFin: dateFin, evenements: events});
+		console.log("cache : ", this.cachedEvents);
+	};
+	
+	/**
+	 * Recherche dans les évènements en cache d'un intervalle d'évènements
+	 * Renvoie : un tableau d'évènements si trouvé, sinon null */
+	EvenementGestion.prototype.getEventsFromCache = function(modeVue, dateDebut, dateFin) {
+		
+		for(var i=0, max=this.cachedEvents[modeVue].length; i<max; i++) {
+			var current = this.cachedEvents[modeVue][i];
+			// L'intervalle demandé est contenu dans l'intervalle en cache
+			if(current.dateDebut <= dateDebut && current.dateFin >= dateFin) {
+				return current.evenements;
+			}
+		}
+		return null;
 	};
 	
 	return EvenementGestion;

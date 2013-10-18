@@ -22,7 +22,7 @@ define(["Calendrier", "EvenementGestion", "RestManager", "jquery"], function(Cal
 		});
 		
 		var me = this;
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.restManager, this.evenementGestion);
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); });
 		this.setVue("mes_abonnements");
 	};
 	
@@ -57,11 +57,23 @@ define(["Calendrier", "EvenementGestion", "RestManager", "jquery"], function(Cal
 	
 		switch(this.mode) {
 		case EcranAccueil.MODE_MES_ABONNEMENTS:
-			if(!this.abonnementsRecuperes) {
+			if(!this.abonnementsRecuperes) { // Récupération des abonnements (premier affichage de la page)
 				this.remplirMesAbonnements(start, end, callback);
 			}
-			else {
-				this.calendrier.getEvenementsAbonnementsIntervalle(start, end, callback);
+			else { // Récupération uniquement des évènements (pas besoin des calendriers & groupes). Utilisation du cache.
+				this.evenementGestion.getEvenementsAbonnements(start, end, false, function(networkSuccess, resultCode, data) {
+					if(networkSuccess) {
+						if(resultCode == RestManager.resultCode_Success) {
+							callback(data);
+						}
+						else {
+							$("#zone_info").html("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
+						}
+					}
+					else {
+						$("#zone_info").html("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
+					}
+				});
 			}
 			break;
 			
@@ -76,20 +88,15 @@ define(["Calendrier", "EvenementGestion", "RestManager", "jquery"], function(Cal
 		// Récupération des abonnements pendant la période affichée
 		var me = this;
 		
-		this.evenementGestion.listerEvenementsAbonnement(dateDebut, dateFin, function(networkSuccess, resultCode, data) {
+		this.evenementGestion.getAbonnements(dateDebut, dateFin, function(networkSuccess, resultCode, data) {
 			if(networkSuccess) {
 				if(resultCode == RestManager.resultCode_Success) {
-					// On fournit les évènements au calendrier
-					var parsedEvents = me.calendrier.parseEvents(data);
-					callbackCalendrier(parsedEvents);
+					callbackCalendrier(data.evenements);
 					
-					// Ajout de ce premier set d'évènements à la liste des évènements récupérés
-					me.calendrier.cacheEvents(EcranAccueil.MODE_MES_ABONNEMENTS, dateDebut, dateFin, parsedEvents);
-					
-					// Par la suite, ne récupérer que les évènements sera possible
+					// On pourra ne récupérer que les évènements à l'avenir
 					me.abonnementsRecuperes = true;
 					
-					// TODO : remplissage du reste des zones
+					// TODO : remplir les autres vues
 				}
 				else {
 					$("#zone_info").html("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");

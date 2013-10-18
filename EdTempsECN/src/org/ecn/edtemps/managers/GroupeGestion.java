@@ -1,5 +1,6 @@
 package org.ecn.edtemps.managers;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -369,9 +370,10 @@ public class GroupeGestion {
 		// Ajout des parents et enfants
 		int nbInsertions = -1;
 		
-		// Parents
-		while(nbInsertions != 0) {
-			nbInsertions = bdd.executeUpdate("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
+		// Parents : utilisation d'une requête préparée pour accélérer les traitements consécutifs
+		PreparedStatement statementParents;
+		try {
+			statementParents = bdd.getConnection().prepareStatement("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 					"SELECT DISTINCT parent.groupeparticipant_id," +
@@ -383,12 +385,14 @@ public class GroupeGestion {
 					"LEFT JOIN tmp_requete_abonnements_groupe deja_inseres " +
 					"ON deja_inseres.groupeparticipant_id=parent.groupeparticipant_id " +
 					"WHERE deja_inseres.groupeparticipant_id IS NULL");
-		}
-		
-		// Enfants
-		nbInsertions = -1;
-		while(nbInsertions != 0) {
-			nbInsertions = bdd.executeUpdate("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
+			
+			while(nbInsertions != 0) {
+				nbInsertions = statementParents.executeUpdate();
+			}
+			
+			// Enfants
+			nbInsertions = -1;
+			PreparedStatement statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 					"SELECT DISTINCT enfant.groupeparticipant_id," +
@@ -400,6 +404,12 @@ public class GroupeGestion {
 					"LEFT JOIN tmp_requete_abonnements_groupe deja_inseres " +
 					"ON deja_inseres.groupeparticipant_id=parent.groupeparticipant_id " +
 					"WHERE deja_inseres.groupeparticipant_id IS NULL");
+			
+			while(nbInsertions != 0) {
+				nbInsertions = statementEnfants.executeUpdate();
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
 		}
 	}
 	
