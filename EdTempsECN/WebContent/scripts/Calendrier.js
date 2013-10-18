@@ -1,6 +1,6 @@
 define(["lib/fullcalendar.translated.min"], function() {
 
-	var Calendrier = function(onViewRender) {
+	var Calendrier = function(eventsSource) {
 		var date = new Date();
 		var d = date.getDate();
 		var m = date.getMonth();
@@ -37,20 +37,8 @@ define(["lib/fullcalendar.translated.min"], function() {
 			windowResize: function(view) {
 				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 150, 500));
 			},
-			viewRender: onViewRender
+			events: eventsSource
 		});
-	};
-	
-	/**
-	 * Remplit le calendrier avec les abonnements fournis.
-	 * Le format de l'objet abonnements est le même que le résultat de EvenementGestion.listerEvenementsAbonnement */
-	Calendrier.prototype.remplirCalendrier = function(abonnements) {
-		var parsedEvents = this.parseEvents(abonnements);
-		this.jqCalendar.fullCalendar("removeEvents");
-		
-		for(var i=0, max = parsedEvents.length; i<max; i++) {
-			this.jqCalendar.fullCalendar("renderEvent", parsedEvents[i]);
-		}
 	};
 	
 	/**
@@ -80,18 +68,6 @@ define(["lib/fullcalendar.translated.min"], function() {
 		}
 	
 		return res;
-	};
-	
-	/**
-	 * Récupération de l'intervalle de jours visibles du calendrier.
-	 * Renvoie un objet contenant les deux attributs "begin" et "end".
-	 * Ces attributs sont les dates de début et de fin.
-	 * "end" est situé juste après le dernier jour visible; */
-	Calendrier.prototype.getDisplayedInterval = function() {
-		// Jour situé dans l'intervalle affiché
-		view = this.jqCalendar.fullCalendar("getView");
-		
-		return { begin: view.visStart, end: view.visEnd };
 	};
 
 
