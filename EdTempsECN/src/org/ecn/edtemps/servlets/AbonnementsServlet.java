@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,34 +29,77 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
-		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
-		EvenementGestion evenementGestion = new EvenementGestion(bdd);
-		
-		boolean paramsOk = true;
-		String message;
-		ResultCode resultCode;
-		JsonValue data;
-		
 		// Récupération des paramètres
 		String strTimestampDebut = req.getParameter("debut");
 		String strTimestampFin = req.getParameter("fin");
 		
 		if(StringUtils.isBlank(strTimestampDebut) || StringUtils.isBlank(strTimestampFin)) {
-			paramsOk = false;
-			message = "Paramètres début et/ou fin absent(s)";
-			resultCode = ResultCode.WRONG_PARAMETERS_FOR_REQUEST;
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètres début et/ou fin absent(s)", null));
+			return;
 		}
+		
+		
+		Date dateDebut;
+		Date dateFin;
+		try {
+			long timestampDebut = Long.parseLong(strTimestampDebut);
+			long timestampFin = Long.parseLong(strTimestampFin);
+			
+			dateDebut = new Date(timestampDebut);
+			dateFin = new Date(timestampFin);
+		}
+		catch(NumberFormatException e) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format des paramètres début et/ou fin incorrect", null));
+			return;
+		}
+		
 
+		String pathInfo = req.getPathInfo();
+		
+		if(pathInfo == null) { // Page /abonnements/
+			doGetResumeAbonnements(userId, bdd, dateDebut, dateFin, req, resp);
+		}
+		else if(pathInfo.equals("/evenements")) { // Récupération uniquement des évènements, page /abonnements/evenements
+			doGetEvenementsAbonnements(userId, bdd, dateDebut, dateFin, req, resp);
+		}
+		else { // Autre page
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+	
+	/**
+	 * Traite une requête d'obtention des évènements d'abonnement (à une période définie)
+	 */
+	private void doGetEvenementsAbonnements(int userId, BddGestion bdd, Date dateDebut, Date dateFin, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		EvenementGestion evenementGestion = new EvenementGestion(bdd);
+		
+		try {
+			ArrayList<EvenementIdentifie> abonnementsEvenements = evenementGestion.listerEvenementsUtilisateur(userId, dateDebut, dateFin, true, false);
+			
+			JsonArray res = JSONUtils.getJsonArray(abonnementsEvenements);
+			
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Abonnements aux évènements récupérés", res));
+		} catch (DatabaseException e) {
+			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+		}
+		
+	}
+	
+	/**
+	 * Traite une requête d'abonnements demandant toutes les informations : 
+	 * non seulement les évènements, mais aussi les calendriers et groupes
+	 */
+	private void doGetResumeAbonnements(int userId, BddGestion bdd, Date dateDebut, Date dateFin, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
+		EvenementGestion evenementGestion = new EvenementGestion(bdd);
+		
+		String message;
+		ResultCode resultCode;
+		JsonValue data;
 
 		try {
 			try {
-				long timestampDebut = Long.parseLong(strTimestampDebut);
-				long timestampFin = Long.parseLong(strTimestampFin);
-				
-				Date dateDebut = new Date(timestampDebut);
-				Date dateFin = new Date(timestampFin);
-				
 				bdd.startTransaction();
 				
 				GroupeGestion.makeTempTableListeGroupesAbonnement(bdd, userId); // Création de la table temporaire d'abonnements pour cette transaction
@@ -83,11 +127,6 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 		} catch (DatabaseException e) {
 			resultCode = e.getResultCode();
 			message = e.getMessage();
-			data = null;
-		} catch(NumberFormatException e) {
-			paramsOk = false;
-			resultCode = ResultCode.WRONG_PARAMETERS_FOR_REQUEST;
-			message = "Format des paramètres début et/ou fin incorrect";
 			data = null;
 		}
 		

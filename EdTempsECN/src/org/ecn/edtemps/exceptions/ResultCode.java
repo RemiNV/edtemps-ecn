@@ -11,6 +11,7 @@ public enum ResultCode {
 	SUCCESS(0),
 	
 	/** Erreur d'identification : identifiants ou token incorrects ou expirés notamment */
+	// Note : la valeur -1 est utilisée côté client pour les erreurs réseau
 	IDENTIFICATION_ERROR(1),
 	LDAP_CONNECTION_ERROR(3),
 	DATABASE_ERROR(4),

@@ -112,31 +112,30 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 				$(this).attr("disabled", "disabled");
 				
 				// Connexion
-				restManager.connexion(username, pass, function(success, resultCode) {
+				restManager.connexion(username, pass, function(resultCode) {
 					$("#msg_connexion").css("display", "none");
 					$("#btn_connexion").removeAttr("disabled");
-					if(success) {
-						switch(resultCode) {
-						case RestManager.resultCode_Success:
-							// Redirection vers la page d'agenda
-							Davis.location.assign("agenda");
-							break;
-							
-						case RestManager.resultCode_LdapError:
-							$("#msg_erreur").html("Erreur de connexion au serveur LDAP").css("display", "inline");
-							break;
+					switch(resultCode) {
+					case RestManager.resultCode_Success:
+						// Redirection vers la page d'agenda
+						Davis.location.assign("agenda");
+						break;
 						
-						case RestManager.resultCode_IdentificationError:
-							$("#msg_erreur").html("Identifiants invalides").css("display", "inline");
-							break;
-							
-						default:
-							$("#msg_erreur").html("Erreur du serveur").css("display", "inline");
-							break;
-						}
-					}
-					else {
-						alert("Erreur de connexion au serveur. Vérifiez votre connexion.");
+					case RestManager.resultCode_NetworkError:
+						$("#msg_erreur").html("Erreur de connexion au serveur. Vérifiez votre connexion.").css("display", "inline");
+						break;
+						
+					case RestManager.resultCode_LdapError:
+						$("#msg_erreur").html("Erreur de connexion au serveur LDAP").css("display", "inline");
+						break;
+					
+					case RestManager.resultCode_IdentificationError:
+						$("#msg_erreur").html("Identifiants invalides").css("display", "inline");
+						break;
+						
+					default:
+						$("#msg_erreur").html("Erreur du serveur").css("display", "inline");
+						break;
 					}
 				});
 			});
