@@ -136,6 +136,16 @@ ul.button_nav li:last-child {
 	height: 300px
 }
 
+#liste_groupes .afficher_cacher_groupe {
+	cursor: pointer;
+	margin-left: 10px;
+}
+
+#liste_groupes .afficher_cacher_groupe:hover {
+	color: blue;
+	text-decoration: underline;
+}
+	
 /* CSS jquery ui */
 
 .ui-tabs-panel {
@@ -146,7 +156,7 @@ ul.button_nav li:last-child {
 
 /* Fin CSS jquery ui */
 
-/* Liste de sélection des abonnements */
+/* Liste de sï¿½lection des abonnements */
 #ms-select-abonnements .ms-list{
 	height: 500px;
 }
@@ -161,7 +171,7 @@ ul.button_nav li:last-child {
 	margin-top: 10px;
 }
 
-/* Inversion de l'ordre des listes de sélection */
+/* Inversion de l'ordre des listes de sï¿½lection */
 .ms-container .ms-selection{
   float: left;
 }
