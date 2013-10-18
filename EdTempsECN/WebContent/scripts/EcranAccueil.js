@@ -1,4 +1,4 @@
-define(["Calendrier", "EvenementGestion", "RestManager", "jquery"], function(Calendrier, EvenementGestion, RestManager) {
+define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManager", "jquery"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, RestManager) {
 	
 	/**
 	 * Cet écran est associé au HTML templates/page_accueil.html.
@@ -7,6 +7,7 @@ define(["Calendrier", "EvenementGestion", "RestManager", "jquery"], function(Cal
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
+		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager);
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
