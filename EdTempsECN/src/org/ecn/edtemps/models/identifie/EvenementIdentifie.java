@@ -7,6 +7,7 @@ import javax.json.Json;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
+import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.Evenement;
 
 /**
@@ -54,6 +55,8 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 				.add("nom", nom)
 				.add("dateDebut", dateDebut.getTime())
 				.add("dateFin", dateFin.getTime())
-				.build();
+				.add("calendriers", JSONUtils.getJsonIntArray(idCalendriers))
+				.add("salles", JSONUtils.getJsonArray(salles))
+				.build(); // TODO : ajouter intervenants
 	}
 }

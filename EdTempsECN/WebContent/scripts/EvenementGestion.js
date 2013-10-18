@@ -1,11 +1,20 @@
-define([], function() {
+define(["RestManager"], function(RestManager) {
 
-	var EvenementGestion = function() {
-	
+	var EvenementGestion = function(restManager) {
+		this.restManager = restManager
 	};
 
 	/**
 	 * Listing des évènements auxquels un utilisateur est abonné. Donne aussi les calendriers et groupes auxquels il est abonné.
+	 * Arguments : 
+	 * dateDebut/dateFin : intervalle de recherche pour les évènements
+	 * callback : fonction appelée une fois la requête effectuée. Paramètres de callback : 
+	 * - networkSuccess (booléen) : succès de la connexion réseau
+	 * - resultCode (entier) : code de retour de la requête. Vaut RestManager.resultCode_Success en cas de succès.
+	 * 	Non fourni si networkSuccess vaut false.
+	 * - data : objet contenant les évènements, calendriers et groupes demandés.
+	 * 	Non fourni si networkSuccess vaut false, ou que resultCode != RestManager.resultCode_Success
+	 * 
 	 * Exemple de format de l'objet fourni : 
 	 * { evenements:
 		[
@@ -34,7 +43,22 @@ define([], function() {
 	 * }
 	 */
 	EvenementGestion.prototype.listerEvenementsAbonnement = function(dateDebut, dateFin, callback) {
-	
+		this.restManager.effectuerRequete("GET", "abonnements", {
+			token: this.restManager.getToken(),
+			debut: dateDebut.getTime(),
+			fin: dateFin.getTime()
+		}, function(networkSuccess, data) {
+			if(networkSuccess) {
+				if(data.resultCode == RestManager.resultCode_Success) {
+					callback(true, data.resultCode, data.data);
+				}
+				else {
+					callback(true, data.resultCode);
+				}
+			}
+			else
+				callback(false);
+		});
 	
 	};
 	

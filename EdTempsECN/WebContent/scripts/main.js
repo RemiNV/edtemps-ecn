@@ -176,7 +176,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			$("body").empty().append($(pageAccueilHtml));
 			
 			// Initialisation
-			currentPage.manager = new EcranAccueil();
+			currentPage.manager = new EcranAccueil(restManager);
 			currentPage.manager.init();
 			currentPage.manager.setVue(vue);
 			currentPage.nom = "agenda";
@@ -188,7 +188,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			$("body").empty().append($(pageAccueilHtml));
 			
 			// Initialisation
-			currentPage.manager = new EcranParametres();
+			currentPage.manager = new EcranParametres(restManager);
 			currentPage.manager.init();
 			currentPage.nom="parametres";
 		});

@@ -345,8 +345,8 @@ public class GroupeGestion {
 	 * Les abonnements listés dans cette table comprennent les abonnements directs, mais aussi les parents et enfants dans l'arbre.
 	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
 	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
+	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_ABONNEMENTS}
 	 * @param idUtilisateur
-	 * @return Nom de la table créée. Inutile de préciser un nom de schéma (type "edt.") pour y accéder 
 	 * @throws DatabaseException
 	 */
 	public static void makeTempTableListeGroupesAbonnement(BddGestion bdd, int idUtilisateur) throws DatabaseException {
