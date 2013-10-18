@@ -9,7 +9,6 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
-import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.Salle;
 
 /**
