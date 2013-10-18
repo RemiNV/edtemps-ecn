@@ -82,10 +82,12 @@ define(["jquery"], function() {
 	 */
 	RestManager.prototype.checkConnection = function(callback) {
 		var me = this;
-		var networkSuccess;
-		var validConnection;
 		if(this._token) {
 			this.effectuerRequete("GET", "identification/checkconnection", { token: this._token }, function(data) {
+				if(data.resultCode == RestManager.resultCode_Success) {
+					me._isConnected = true;
+				}
+			
 				callback(data.resultCode);
 			});
 		}

@@ -53,8 +53,8 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			// Page de connexion
 			this.get("connexion/*target", function(req) {
 				// Déjà connecté ?
-				restManager.checkConnection(function(networkSuccess, validConnection) {
-					if(networkSuccess && validConnection) {
+				restManager.checkConnection(function(resultCode) {
+					if(resultCode == RestManager.resultCode_Success) {
 						req.redirect(req.params["target"]); // Déjà connecté : redirection
 					}
 					else {
@@ -64,21 +64,19 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 			});
 			
 			this.get("deconnexion", function(req) {
-				restManager.deconnexion(function(networkSuccess, resultCode) {
-					if(!networkSuccess) {
+				restManager.deconnexion(function(resultCode) {
+					if(resultCode == RestManager.resultCode_NetworkError) {
 						alert("Erreur réseau : vérifiez votre connexion.");
 						req.redirect("agenda");
-						return;
 					}
-					
-					if(resultCode != RestManager.resultCode_Success && resultCode != RestManager.resultCode_IdentificationError) {
+					else if(resultCode != RestManager.resultCode_Success && resultCode != RestManager.resultCode_IdentificationError) {
 						alert("Erreur de la déconnexion. Code retour : " + resultCode);
 						req.redirect("agenda");
-						return;
 					}
-					
-					// Pas d'erreur
-					req.redirect("connexion/agenda");
+					else {
+						// Pas d'erreur
+						req.redirect("connexion/agenda");
+					}
 				});
 			});
 			
