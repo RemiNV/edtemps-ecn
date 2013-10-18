@@ -14,14 +14,14 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 		this.jqCalendar.fullCalendar({
 			weekNumbers: true,
 			weekNumberTitle: "Sem.",
-			firstDay: 0,
+			firstDay: 1,
 			editable: true,
 			defaultView: "agendaWeek",
 			timeFormat: "HH'h'(:mm)",
 			axisFormat: "HH'h'(:mm)",
 			titleFormat: {
 				month: 'MMMM yyyy',                             // Septembre 2013
-				week: "d [ MMM] [ yyyy] '&#8212;' {d MMM yyyy}", // 7 - 13 Sep 2013
+				week: "d [ MMM] [ yyyy] '&ndash;' {d MMM yyyy}", // 7 - 13 Sep 2013
 				day: 'dddd d MMM yyyy'                  // Mardi 8 Sep 2013
 			},
 			columnFormat: {
@@ -34,6 +34,8 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 				center: 'title',
 				left: 'prev,next today month,agendaWeek,agendaDay'
 			},
+			dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+			dayNamesShort: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
 			height: Math.max(window.innerHeight - 110, 500),
 			windowResize: function(view) {
 				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 110, 500));
