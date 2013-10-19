@@ -210,7 +210,7 @@ define(["RestManager"], function(RestManager) {
 		}
 		
 		return res;
-	}
+	};
 	
 	/**
 	 * Enregistrement des évènements récupérés pour un intervalle donné
