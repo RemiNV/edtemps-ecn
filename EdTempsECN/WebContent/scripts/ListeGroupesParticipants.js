@@ -15,18 +15,23 @@ define(
 
 			};
 
+			/**
+			 * Affiche le bloc "Vos agendas" de l'écran d'accueil avec la liste des groupes de participants
+			 * récupérés en base de donneés
+			 * 
+			 * @param data
+			 */
 			ListeGroupesParticipants.prototype.afficherBlocVosAgendas = function(data) {
 
+				// TODO : voir pour faire un tri par ordre alphabétique
+				
 				var str = "";
 
 				// Génération du code html pour afficher la liste des agendas dans le bloc sur la gauche de l'écran
 				for ( var i = 0; i < data.groupes.length; i++) {
-					var id = data.groupes[i].id;
 					var nom = data.groupes[i].nom;
-					str += "<div id='afficheGroupe"
-							+ id
-							+ "' class='afficher_cacher_groupe' onclick=''><img src='./img/checkbox_on.png' />"
-							+ nom + "</div>";
+					str += "<span class='afficher_cacher_groupe'><img src='./img/checkbox_on.png' />"
+							+ nom + "</span><br/>";
 				}
 
 				// Affiche le code html généré
