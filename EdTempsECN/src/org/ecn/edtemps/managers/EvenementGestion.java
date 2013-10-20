@@ -141,6 +141,29 @@ public class EvenementGestion {
 						+ "(" + evenementIdentifie.getIntervenants().get(i).getId() +", " + evenementIdentifie.getId() + ")");
 			}
 			
+			// Modifier le matériel nécessaire à l'évenement
+			_bdd.executeRequest(
+					"DELETE FROM necessitemateriel "
+					 + "WHERE eve_id = " + evenementIdentifie.getId());
+			for (int i=0; i<evenementIdentifie.getMateriels().size();i++){
+				//TODO: nécessite de savoir utiliser une hashmap ...
+//				_bdd.executeRequest(
+//						"INSERT INTO necessitemateriel"
+//						+ "VALUES (materiel_id, necessitemateriel_quantite, eve_id) = "
+//						+ "(" + evenementIdentifie.getMateriels(). + ", " + evenementIdentifie.getMateriels().get(i).getId() + ", " + evenementIdentifie.getId() + ")");
+			}
+			
+			// Modifier  les responsables de l'évenement
+			_bdd.executeRequest(
+					"DELETE FROM responsableevenement "
+					 + "WHERE eve_id = " + evenementIdentifie.getId());
+			for (int i=0; i<evenementIdentifie.getIntervenants().size();i++){
+				_bdd.executeRequest(
+						"INSERT INTO responsableevenement"
+						+ "VALUES (utilisateur_id, eve_id) = "
+						+ "(" + evenementIdentifie.getResponsables().get(i).getId() +", " + evenementIdentifie.getId() + ")");
+			}
+			
 			// Modifier les calendriers associés à l'évenement
 			_bdd.executeRequest(
 					"DELETE FROM evenementappartient"
@@ -192,6 +215,16 @@ public class EvenementGestion {
 			// Supprimer l'association aux intervenants de l'évenement
 			_bdd.executeRequest(
 					"DELETE FROM intervenantevenement "
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'association au matériel nécessaire pour l'événement
+			_bdd.executeRequest(
+					"DELETE FROM necessitemateriel"
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'association aux intervenants de l'évenement
+			_bdd.executeRequest(
+					"DELETE FROM responsabletevenement "
 					 + "WHERE eve_id = " + idEvenement);
 			
 			// Supprimer l'asosciation aux salles de l'événement

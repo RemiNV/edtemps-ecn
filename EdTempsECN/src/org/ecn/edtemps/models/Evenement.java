@@ -2,6 +2,7 @@ package org.ecn.edtemps.models;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -30,7 +31,12 @@ public class Evenement {
 	
 	/** Liste des noms des intervenants de l'Ã©vÃ©nement */
 	protected List<UtilisateurIdentifie> intervenants;
-
+	
+	/** Liste des noms des responsables de l'événement */
+	protected List<UtilisateurIdentifie> responsables;
+	
+	/** Liste de matériel nécessaire sous forme de map avec l'identifiant du matériel et la quantité*/
+	protected Map<Integer, Integer> materiels;
 	
 	/** Constructeur avec uniquement attributs indispensables */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers) {
@@ -39,14 +45,16 @@ public class Evenement {
 		this.dateFin = dateFin;
 		this.idCalendriers = idCalendriers;
 	}
-	
-	
+
+
 	/** Constructeur avec tous les attributs */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<SalleIdentifie> salles,
-			List<UtilisateurIdentifie> intervenants) {
+			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, Map<Integer, Integer> materiels) {
 		this(nom, dateDebut, dateFin, idCalendriers);
 		this.salles = salles;
 		this.intervenants = intervenants;
+		this.responsables = responsables;
+		this.materiels = materiels;
 	}
 
 	
@@ -96,5 +104,36 @@ public class Evenement {
 
 	public void setIntervenants(List<UtilisateurIdentifie> intervenants) {
 		this.intervenants = intervenants;
+	}
+	
+	/**
+	 * @return the responsables
+	 */
+	public List<UtilisateurIdentifie> getResponsables() {
+		return responsables;
+	}
+
+
+	/**
+	 * @param responsables the responsables to set
+	 */
+	public void setResponsables(List<UtilisateurIdentifie> responsables) {
+		this.responsables = responsables;
+	}
+
+
+	/**
+	 * @return the materiels
+	 */
+	public Map<Integer, Integer> getMateriels() {
+		return materiels;
+	}
+
+
+	/**
+	 * @param materiels the materiels to set
+	 */
+	public void setMateriels(Map<Integer, Integer> materiels) {
+		this.materiels = materiels;
 	}
 }
