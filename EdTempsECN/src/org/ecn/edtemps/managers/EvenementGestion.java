@@ -175,6 +175,53 @@ public class EvenementGestion {
 	}
 	
 	/**
+	 * Suppresion d'un �venement
+	 * 
+	 * Permet de supprimer un �v�nement dans la base de données,
+	 * l'�venement est identifi�e par son entier id
+	 * 
+	 * @param idEvement
+	 * @throws EdtempsException
+	 */
+	// ajouté à la volée pour éviter erreur dans la méthode supprimerCalendrier, qui utilise cette méthode
+	public void supprimerEvenement(int idEvenement) throws EdtempsException {
+		try {
+			// D�but transaction
+			_bdd.startTransaction();
+			
+			// Supprimer l'association aux intervenants de l'�venement
+			_bdd.executeRequest(
+					"DELETE FROM intervenantevenement "
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'asosciation aux salles de l'�v�nement
+			_bdd.executeRequest(
+					"DELETE FROM alieuensalle "
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'association aux calendriers
+			_bdd.executeRequest(
+					"DELETE FROM evenementappartient "
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'�venement
+			_bdd.executeRequest(
+					"DELETE FROM evenement "
+					 + "WHERE eve_id = " + idEvenement);
+
+			
+			// fin transaction
+			_bdd.commit();
+			
+		} catch (DatabaseException e){
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Créé un évènement à partir de l'entrée de base de données fournie.
 	 * Colonnes nécessaires pour le ResultSet fourni : eve_id, eve_nom, eve_datedebut, eve_datefin
 	 * 
@@ -276,11 +323,6 @@ public class EvenementGestion {
 		}
 		
 		return res;
-	}
-	
-	// ajouté à la volée pour éviter erreur dans la méthode supprimerCalendrier, qui utilise cette méthode
-	public void supprimerEvenement(int idEvenement) {
-		// TODO : remplir
 	}
 	
 }
