@@ -8,7 +8,7 @@ define([ "RestManager" ], function(RestManager) {
 
 		// Liste des groupes masqués initialisée avec la mémoire localStorage du navigateur
 		this.groupesMasques = new Object();
-		if (window.localStorage) {
+		if (localStorage && localStorage["GroupesMasques"]) {
 			// Parse du localStorage sur les virgules
 			var idMasques = localStorage["GroupesMasques"].split(",");
 			for (var i = 0, maxI=idMasques.length ; i<maxI ; i++) {
@@ -116,7 +116,7 @@ define([ "RestManager" ], function(RestManager) {
 		$(span).find("img:first-child").attr("src", src);
 		
 		// Met à jour le LocalStorage
-		if (window.localStorage) {
+		if (localStorage) {
 			var localStor = null;
 			for (var idGroupe in this.groupesMasques) {
 				if (this.groupesMasques[idGroupe]) {
