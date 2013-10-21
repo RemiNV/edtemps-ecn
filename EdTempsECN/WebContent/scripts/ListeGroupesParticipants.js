@@ -1,184 +1,184 @@
 define([ "RestManager" ], function(RestManager) {
 
-	/** Tableau à trois colonnes :
-	 * 	     0 - identifiant du groupe
-	 *       1 - nom du groupe
-	 *       2 - liste des id des calendriers associés
-	 *       3 - liste des id des événements associés
-	 *       4 - true si affiché et false sinon
-	 */
-	this.vosAgendas;
-
-	/**
-	 * Mise en cache des événements qui sont cachés
-	 */
-	this.cacheAffichage;
-
 	/**
 	 * Constructeur
 	 */
-	var ListeGroupesParticipants = function(restManager) {
+	var ListeGroupesParticipants = function(restManager, calendrier) {
 		this.restManager = restManager;
-	};
 
-	/**
-	 * Ne retourne que les événements qui sont à afficher
-	 * 
-	 * @param data
-	 * 			tous les événements de tous les agendas
-	 * @returns les événements à afficher
-	 */
-	ListeGroupesParticipants.prototype.getGroupesActifsFetchEvents = function(data, callback) {
-
-		// Affiche tous les événements
-		callback(data);
-		
-		// Cache les événements à cacher, c'est à dire ceux qui sont présent dans le tableau de cache
-		for (var i = 0 ; i < data.length ; i++) {
-			if (this.estEnCache(data[i].id)) {
-				$("#calendar").fullCalendar('removeEvents', data[i].id);
+		// Liste des groupes masqués initialisée avec la mémoire localStorage du navigateur
+		this.groupesMasques = new Object();
+		if (window.localStorage) {
+			// Parse du localStorage sur les virgules
+			var idMasques = localStorage["GroupesMasques"].split(",");
+			for (var i = 0, maxI=idMasques.length ; i<maxI ; i++) {
+				// Si un id de groupe est présent, c'est qu'il doit être masqué
+				this.groupesMasques[idMasques[i]] = true;
 			}
 		}
 		
+		// Liste des groupes non triés des abonnements de l'utilisateur
+		this.listeGroupes = new Array();
+
+		// Liste des groupes repérés par leur identifiant
+		this.groupes = new Object();
+		
+		// Accès à l'objet calendrier pour rafraichir l'affichage
+		this.calendrier = calendrier;
+		
+		
+		// Liste des groupes d'un calendrier (calendriers repérés par ID dans l'objet)
+		// uniquement les calendriers auxquels l'utilisateur est abonné
+		this.groupesCalendriers = new Object();
+		
 	};
-	
+
+
 	/**
-	 * Affiche le bloc "Vos agendas" de l'écran d'accueil avec la liste des groupes de participants
-	 * récupérés en base de donneés
+	 * Initialise gestionnaire d'affichage des agendas
 	 * 
-	 * @param data
+	 * @param groupes
 	 */
-	ListeGroupesParticipants.prototype.afficherBlocVosAgendas = function(data) {
-		var me = this;
+	ListeGroupesParticipants.prototype.initBlocVosAgendas = function(groupes) {
+		
+		// Initialise la liste des groupes avec les groupes passés en paramètres
+		this.listeGroupes=groupes;
+		
+		// Pour chaque groupe, ajout d'un attribut affiche qui indique si ses événements doivent être affichés
+		for (var i = 0, maxI=groupes.length ; i < maxI ; i++) {
+			
+			// Récupère la valeur de l'affichage dans la liste des groupes masqués (provenant de localStorage)
+			this.listeGroupes[i].affiche = (this.groupesMasques[groupes[i].id] !== true);
+			
+			// Alimente la liste des groupes repérés par leur identifiant
+			this.groupes[groupes[i].id] = groupes[i];
+			
+			// Pour chaque calendrier du groupe
+			for(var j=0, maxJ=groupes[i].calendriers.length; j<maxJ; j++) {
+				var idCalendrier = groupes[i].calendriers[j];
 
-		// Récupération des noms des groupes et des identifiants et rangement dans un tableau
-		this.vosAgendas = new Array(data.groupes.length);
-		for (var i = 0 ; i < data.groupes.length ; i++) {
-			this.vosAgendas[i] = new Array(data.groupes[i].id, data.groupes[i].nom, data.groupes[i].calendriers, me.listeIdEvenements(data.evenements, data.groupes[i].calendriers), true);
+				// Initialisation d'une liste de groupes auxquels sont rattachés le calendrier en cours de traitement
+				if(!this.groupesCalendriers[idCalendrier]) {
+					this.groupesCalendriers[idCalendrier] = new Array();
+				}
+
+				// Alimentation de la liste des groupes auxquels sont rattachés le calendrier en cours de traitement
+				this.groupesCalendriers[idCalendrier].push(groupes[i]);
+			}
+			
 		}
+		
+	};
 
-		// Organisation par ordre alphabétique
-		this.vosAgendas.sort(function(a, b) { return (a[1] < b[1] ? -1 : (a[1] > b[1] ? 1 : 0)); });
 
+	/**
+	 * Affiche le bloc Vos agendas sur la page
+	 */
+	ListeGroupesParticipants.prototype.afficherBlocVosAgendas = function() {
+		var me = this;
+		
 		// Génération du code html pour afficher la liste des agendas
 		var html = "";
-		for (var i = 0 ; i < this.vosAgendas.length ; i++) {
+		for (var i = 0, max = this.listeGroupes.length ; i < max ; i++) {
 			// Image du checkbox en fonction de l'état d'affichage du groupe
-			var image = "";
-			if (this.vosAgendas[i][4]) image = "<img src='./img/checkbox_on.png' />";
-			else image = "<img src='./img/checkbox_off.png' />";
+			var image = this.listeGroupes[i].affiche ? "<img src='./img/checkbox_on.png' />" : "<img src='./img/checkbox_off.png' />";
 			
 			// Ajout dans la variable de code html
-			html += "<span data-id-agenda='" + i + "' id='bloc_vos_agendas_" + i + "' class='afficher_cacher_groupe'>" + image + this.vosAgendas[i][1] + "</span><br/>";			
+			html += "<span data-id-groupe='" + this.listeGroupes[i].id + "' class='afficher_cacher_groupe'>" + image + this.listeGroupes[i].nom + "</span><br/>";			
 		}
 		$("#liste_groupes").html(html);
 		
 		// Affectation à chaque checkbox de la liste une action au clic
 		$(".afficher_cacher_groupe").click(function() {
-			me.afficheCacheAgenda($(this).attr("data-id-agenda"));
+			me.afficheCacheAgenda($(this).attr("data-id-groupe"), this);
 		});
-
-		this.cacheAffichage = new Array();
 	};
-	
-	
+
+
 	/**
-	 * Récupère la liste des id des événements associés à une liste de calendriers
+	 * Méthode appellée lors du click sur les checkbox
 	 * 
-	 * @param listeEvenements
-	 * 			liste des événements à trier
-	 * 
-	 * @param listeIdCalendrier
-	 * 			liste des calendriers à teste
-	 * 
-	 * @returns la liste des id des événements correspondants
+	 * @param groupeId
+	 * 			id du groupe à afficher/cacher
+	 * @param span
+	 * 			objet jQuery qui contient l'image à changer
 	 */
-	ListeGroupesParticipants.prototype.listeIdEvenements = function(listeEvenements, listeIdCalendrier) {
-
-		// Initialisation du résultat
-		var listeId = new Array();
-
-		// Parcours des événements de la liste
-		for (var i = 0 ; i < listeEvenements.length ; i++) {
-			// Parcours des calendriers de l'événement
-			for (var j = 0 ; j < listeEvenements[i].calendriers.length ; j++) {
-				// Vérification si le calendrier est dans la liste des calendriers à tester
-				if (jQuery.inArray(listeEvenements[i].calendriers[j], listeIdCalendrier)>-1) {
-					listeId.push(listeEvenements[i].id);
-				}
-			}
-		}
-
-		// Retourne la liste des identifiants d'événements
-		return listeId;
-	};
-	
-	
-	
-	/**
-	 * Vérifie si un événement est dans la cache des événements cachés
-	 */
-	ListeGroupesParticipants.prototype.estEnCache = function(idEvenement) {
-
-		for (var j = 0 ; j < this.cacheAffichage.length ; j++) {
-			if (this.cacheAffichage[j][0].id==idEvenement) {
-				return true;
-			}
-		}
-
-		return false;
-
-	};
+	ListeGroupesParticipants.prototype.afficheCacheAgenda = function(groupeId, span) {
 		
-	/**
-	 * Change l'icone et met à jour le tableau des valeurs affiche/cache pour l'agenda sélectionné
-	 * 
-	 * @param idTabVosAgendas
-	 */
-	ListeGroupesParticipants.prototype.afficheCacheAgenda = function(idTabVosAgendas) {
-
-		if (this.vosAgendas[idTabVosAgendas][4]) {
-			
-			// Change l'image de la checkbox
-			$("#bloc_vos_agendas_" + idTabVosAgendas + " img:first-child").attr("src", "./img/checkbox_off.png");
-
-			// Change la valeur dans le tableau de "Vos agendas"
-			this.vosAgendas[idTabVosAgendas][4] = false;
-
-			// Supprime tous les événements liés à ce groupe dynamiquement dans l'affichage
-			for (var i = 0 ; i<this.vosAgendas[idTabVosAgendas][3].length ; i++) {
-				
-				// Si l'élément n'est pas en cache, mise en cache pour réafficher plus tard
-				if (!this.estEnCache(this.vosAgendas[idTabVosAgendas][3][i])) {
-					this.cacheAffichage.push($("#calendar").fullCalendar('clientEvents', this.vosAgendas[idTabVosAgendas][3][i]));
+		// Changement de la valeur affiche pour ce groupe
+		this.groupes[groupeId].affiche = !this.groupes[groupeId].affiche;
+		
+		// Ajout dans la liste des groupes masqués
+		this.groupesMasques[groupeId] = !this.groupes[groupeId].affiche;
+		
+		// Changement de l'image
+		var src = this.groupes[groupeId].affiche ? "./img/checkbox_on.png" : "./img/checkbox_off.png";
+		$(span).find("img:first-child").attr("src", src);
+		
+		// Met à jour le LocalStorage
+		if (window.localStorage) {
+			var localStor = null;
+			for (var idGroupe in this.groupesMasques) {
+				if (this.groupesMasques[idGroupe]) {
+					if (localStor!=null) localStor += ","+idGroupe; 
+					else localStor = idGroupe;
 				}
-				
-				// Suppression de l'affichage
-				$("#calendar").fullCalendar('removeEvents', this.vosAgendas[idTabVosAgendas][3][i]);
 			}
+			localStorage["GroupesMasques"] = localStor;
+		}
+		
+		// Rafraichit le calendrier
+		this.calendrier.refetchEvents();
+	};
+
+
+	/**
+	 * Filtre les événements à afficher
+	 * 
+	 * @param evenements
+	 *			tous les événements 
+	 *
+	 * @returns les événements filtrés
+	 */
+	ListeGroupesParticipants.prototype.filtrerEvenementsGroupesActifs = function(evenements) {
+		
+		// Initialisation de la liste des événements à afficher
+		var res = new Array();
+		
+		// Pour chaque événement de la liste passée en paramètre
+		for (var i = 0, maxI = evenements.length ; i < maxI ; i++) {
+			// Initialisation d'un flag pour arrêter le traitement d'un événement s'il doit être affiché
+			var eventOk = false;
 			
-		} else {
-
-			// Affiche le groupe dans la vue
-			$("#bloc_vos_agendas_" + idTabVosAgendas + " img:first-child").attr("src", "./img/checkbox_on.png");
-			this.vosAgendas[idTabVosAgendas][4] = true;
-
-			// Affiche tous les événements liés à ce groupe dynamiquement dans l'affichage
-			for (var i = 0 ; i < this.vosAgendas[idTabVosAgendas][3].length ; i++) {
-				for (var j = 0 ; j < this.cacheAffichage.length ; j++) {
-					if (this.cacheAffichage[j][0].id==this.vosAgendas[idTabVosAgendas][3][i]) {
-						// Affichage
-						$("#calendar").fullCalendar('addEventSource', this.cacheAffichage[j]);
-
-						// Suppression de la cache pour garder la cohérence
-						this.cacheAffichage.splice(j);
+			// Pour chaque calendrier lié à cet événement
+			for (var j = 0, maxJ = evenements[i].calendriers.length ; j < maxJ && !eventOk ; j++) {
+				
+				 // Si le calendrier existe pour l'utilisateur (il y est abonné indirectement)
+				if(this.groupesCalendriers[evenements[i].calendriers[j]]) {
+					
+					// Pour chaque groupe lié à ce calendrier
+					for (var k = 0, maxK = this.groupesCalendriers[evenements[i].calendriers[j]].length ; k<maxK && !eventOk ; k++) {
+						
+						// Si l'événement est lié à un groupe qui doit être affiché
+						if(this.groupesCalendriers[evenements[i].calendriers[j]][k].affiche) {
+							// Ajout de l'événement dans la liste des événements à afficher
+							res.push(evenements[i]);
+							
+							// Levé du flag pour arrêter le traitement de cet événement
+							eventOk = true;
+						}
+						
 					}
 				}
+				
 			}
 			
 		}
-
+		
+		// Retourne la liste des événements à afficher
+		return res;
 	};
 
 	return ListeGroupesParticipants;
+
 });

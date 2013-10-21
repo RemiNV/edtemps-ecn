@@ -7,7 +7,6 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManag
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
-		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager);
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
@@ -25,6 +24,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManag
 		var me = this;
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); });
 		this.setVue("mes_abonnements");
+		
+		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier);
 	};
 	
 	EcranAccueil.prototype.setVue = function(vue) {
@@ -66,7 +67,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManag
 			else { // Récupération uniquement des évènements (pas besoin des calendriers & groupes). Utilisation du cache.
 				this.evenementGestion.getEvenementsAbonnements(start, end, false, function(resultCode, data) {
 					if(resultCode == RestManager.resultCode_Success) {
-						me.listeGroupesParticipants.getGroupesActifsFetchEvents(data, callback);
+						callback(me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data));
 					}
 					else if(resultCode == RestManager.resultCode_NetworkError) {
 						$("#zone_info").html("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
@@ -91,11 +92,15 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManag
 		
 		this.evenementGestion.getAbonnements(dateDebut, dateFin, function(resultCode, data) {
 			if(resultCode == RestManager.resultCode_Success) {
-				// Créer liste vos agendas pour affichage dans le bloc "Vos agendas"
-				me.listeGroupesParticipants.afficherBlocVosAgendas(data);
 				
+				// Créer liste vos agendas pour affichage dans le bloc "Vos agendas"
+				me.listeGroupesParticipants.initBlocVosAgendas(data.groupes);
+
+				// Afficher le bloc "Vos agendas"
+				me.listeGroupesParticipants.afficherBlocVosAgendas();
+
 				// Afficher les événements
-				callbackCalendrier(data.evenements);
+				callbackCalendrier(me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data.evenements));
 
 				// On pourra ne récupérer que les évènements à l'avenir
 				me.abonnementsRecuperes = true;
