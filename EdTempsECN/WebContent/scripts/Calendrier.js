@@ -34,8 +34,6 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 				center: 'title',
 				left: 'prev,next today month,agendaWeek,agendaDay'
 			},
-			dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
-			dayNamesShort: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
 			height: Math.max(window.innerHeight - 110, 500),
 			windowResize: function(view) {
 				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 110, 500));
@@ -45,7 +43,14 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 	};
 	
 	
-	
+
+	/**
+	 * Rafraichit le calendrier
+	 */
+	Calendrier.prototype.refetchEvents = function() {
+		this.jqCalendar.fullCalendar("refetchEvents");
+	};
+
 
 
 	return Calendrier;
