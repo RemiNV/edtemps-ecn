@@ -109,6 +109,7 @@ ul.button_nav li:last-child {
 #div_filtres {
 	clear: both;
 	float: right;
+	width: 350px;
 	margin: 20px;
 	position: relative;
 	top: 50px;
@@ -191,4 +192,8 @@ ul.button_nav li:last-child {
 .img_baseline {
 	position: relative;
 	top: 6px;
+}
+
+.fc-header {
+	clear: both;
 }
