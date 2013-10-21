@@ -37,9 +37,10 @@ public class CalendrierGestion {
 	 *
 	 * NB : le rattachement d'un calendrier à un groupeDeParticipants n'est pas réalisé dans cette fonction.
 	 * 
-	 * @param calendrier
+	 * @param calendrier Calendrier à sauvegarder
+	 * @return nouvel ID du calendrier sauvegarder
 	 */
-	public void sauverCalendrier(Calendrier calendrier) throws EdtempsException {
+	public int sauverCalendrier(Calendrier calendrier) throws EdtempsException {
 		
 		// Récupération des attributs du calendrier
 		String matiere = calendrier.getMatiere();
@@ -51,8 +52,9 @@ public class CalendrierGestion {
 		int matiere_id;
 		int type_id;
 		try {
-			matiere_id = _bdd.recupererId("SELECT * FROM matiere WHERE matiere_nom LIKE '" + matiere + "'", "matiere_id");
-			type_id = _bdd.recupererId("SELECT * FROM typecalendrier WHERE typecal_libelle LIKE '" + type + "'", "typecal_id");
+			// TODO : éviter les injections SQL
+			matiere_id = _bdd.recupererId("SELECT * FROM edt.matiere WHERE matiere_nom='" + matiere + "'", "matiere_id");
+			type_id = _bdd.recupererId("SELECT * FROM edt.typecalendrier WHERE typecal_libelle='" + type + "'", "typecal_id");
 		} catch (DatabaseException e){
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
@@ -65,6 +67,7 @@ public class CalendrierGestion {
 				_bdd.startTransaction();
 				
 				// On crée le calendrier dans la base de données
+				// TODO : éviter les injections SQL
 				ResultSet rs_ligneCreee = _bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
 						+ "VALUES ( " + matiere_id + ", '" + nom + "', " + type_id + ") RETURNING cal_id");
 				
@@ -84,6 +87,7 @@ public class CalendrierGestion {
 				
 				// Fin transaction
 				_bdd.commit();
+				return id_calendrier;
 			} 
 			catch (DatabaseException e) {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
@@ -137,17 +141,24 @@ public class CalendrierGestion {
 		}
 	}
 	
-	public Calendrier getCalendrier(int idCalendrier) throws EdtempsException {
+	/**
+	 * Récupère le calendrier repéré par l'ID donné
+	 * @param idCalendrier ID du calendrier à récupérer
+	 * @return Calendrier récupéré
+	 * @throws EdtempsException Si le calendrier n'existe pas
+	 * @throws DatabaseException En cas d'erreur d'accès à la BDD
+	 */
+	public CalendrierIdentifie getCalendrier(int idCalendrier) throws EdtempsException, DatabaseException {
 		
-		Calendrier result;
+		CalendrierIdentifie result;
 		
 		try {
 			
 			// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
 			ResultSet rs_calendrier = _bdd.executeRequest(
 					"SELECT * FROM edt.calendrier "
-					+ "INNER JOIN matiere ON calendrier.matiere_id = matiere.matiere_id "
-					+ "INNER JOIN typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
+					+ "INNER JOIN edt.matiere ON calendrier.matiere_id = matiere.matiere_id "
+					+ "INNER JOIN edt.typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
 					+ "WHERE cal_id = " + idCalendrier );
 
 			if(rs_calendrier.next()){
@@ -157,10 +168,8 @@ public class CalendrierGestion {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : pas de calendrier correspondant à l'idCalendrier en argument");
 			}
 			
-		} catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 		
 		return result;
@@ -189,22 +198,22 @@ public class CalendrierGestion {
 			int matiere_id;
 			int type_id;
 			try {
-				matiere_id = _bdd.recupererId("SELECT * FROM matiere WHERE matiere_nom LIKE '" + calId.getMatiere() + "'", "matiere_id");
-				type_id = _bdd.recupererId("SELECT * FROM typecalendrier WHERE typecal_libelle LIKE '" + calId.getType() + "'", "typecal_id");
+				matiere_id = _bdd.recupererId("SELECT * FROM edt.matiere WHERE matiere_nom LIKE '" + calId.getMatiere() + "'", "matiere_id");
+				type_id = _bdd.recupererId("SELECT * FROM edt.typecalendrier WHERE typecal_libelle LIKE '" + calId.getType() + "'", "typecal_id");
 			} catch (DatabaseException e){
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 			}
 			
 			// Modifier matiere, nom, type du calendrier
 			_bdd.executeRequest(
-					"UPDATE calendrier "
+					"UPDATE edtcalendrier "
 					+ "SET (matiere_id, cal_nom, typeCal_id) = "
 					+ "(" + matiere_id + ", '" + calId.getNom() + "', " + type_id + ") "
 					+ "WHERE cal_id = " + calId.getId() );
 		
 			// Supprimer ancienne liste de propriétaires du calendrier
 			_bdd.executeRequest(
-					"DELETE FROM proprietairecalendrier "
+					"DELETE FROM edt.proprietairecalendrier "
 					 + "WHERE cal_id = " + calId.getId() 
 			);
 			
@@ -213,7 +222,7 @@ public class CalendrierGestion {
 			while (itrProprios.hasNext()){
 				int idProprio = itrProprios.next();
 				_bdd.executeRequest(
-						"INSERT INTO proprietairecalendrier "
+						"INSERT INTO edt.proprietairecalendrier "
 						 + "VALUES (utilisateur_id, cal_id) = "
 						 + "(" + idProprio +", " + calId.getId() + ") " 
 				);
@@ -250,12 +259,12 @@ public class CalendrierGestion {
 			
 			// Supprimer liste de propriétaires du calendrier
 			_bdd.executeRequest(
-					"DELETE FROM proprietairecalendrier "
+					"DELETE FROM edt.proprietairecalendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			// Supprimer dépendance avec les groupes de participants
 			_bdd.executeRequest(
-					"DELETE FROM calendrierAppartientGroupe "
+					"DELETE FROM edt.calendrierAppartientGroupe "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			/* Supprimer les événements associés au calendrier
@@ -264,11 +273,11 @@ public class CalendrierGestion {
 			 * 		3 - Suppression des evenements eux-même
 			 */
 			ResultSet rs_evenementsAssocies = _bdd.executeRequest(
-					"SELECT * FROM  evenementAppartient "
+					"SELECT * FROM  edt.evenementAppartient "
 					+ "WHERE cal_id = " + idCalendrier 
 					);
 			_bdd.executeRequest(
-					"DELETE FROM evenementAppartient "
+					"DELETE FROM edt.evenementAppartient "
 					 + "WHERE cal_id = " + idCalendrier  
 					 );
 			while(rs_evenementsAssocies.next()){
@@ -277,7 +286,7 @@ public class CalendrierGestion {
 			}
 			// Supprimer calendrier
 			_bdd.executeRequest(
-					"DELETE FROM calendrier "
+					"DELETE FROM edt.calendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			// Fin transaction
