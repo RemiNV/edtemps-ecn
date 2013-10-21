@@ -2,6 +2,7 @@ package org.ecn.edtemps.models.identifie;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonValue;
@@ -23,8 +24,8 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 	/** Constructeur avec tous les attributs */
 	public EvenementIdentifie(String nom, Date dateDebut, Date dateFin,
 			List<Integer> idCalendriers, List<SalleIdentifie> salles,
-			List<UtilisateurIdentifie> intervenants, int id) {
-		super(nom, dateDebut, dateFin, idCalendriers, salles, intervenants);
+			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, Map<Integer, Integer> materiels, int id) {
+		super(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiels);
 		this.id=id;
 	}
 	

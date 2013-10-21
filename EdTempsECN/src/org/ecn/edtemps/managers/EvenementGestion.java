@@ -5,8 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
@@ -109,6 +111,152 @@ public class EvenementGestion {
 	}
 	
 	/**
+	 * Modification d'un �v�nement existant (en base de donn�es)
+	 * 
+	 * <p>Permet d'actualiser dans la base de donn�es les anciens attributs d'un �v�nements (date, nom, intervenant, ...)
+	 * avec de nouveaux ayant �t� modifi�s par un utilisateur</p>
+	 * 
+	 * @param 
+	 * @throws EdtempsException
+	 */
+	public void modifierEvenement(EvenementIdentifie evenementIdentifie) throws EdtempsException{
+		try {
+			//d�but d'une transaction
+			_bdd.startTransaction();
+			
+			// Modifier l'�venement (nom, date d�but, date fin)
+			_bdd.executeUpdate(
+					"UPDATE evenement"
+					+ "SET eve_nom = " + evenementIdentifie.getNom()
+					+ "SET eve_datedebut = " + evenementIdentifie.getDateDebut() 
+					+ "SET eve_datefin = " +  evenementIdentifie.getDateFin()
+					+ "WHERE eve_id = " + evenementIdentifie.getId());
+			
+			// Modifier  les intervenants de l'�venement (supprimer les anciens puis ajouter les nouveaux)
+			_bdd.executeRequest(
+					"DELETE FROM intervenantevenement "
+					 + "WHERE eve_id = " + evenementIdentifie.getId());
+			for (int i=0; i<evenementIdentifie.getIntervenants().size();i++){
+				_bdd.executeRequest(
+						"INSERT INTO intervenantevenement"
+						+ "VALUES (utilisateur_id, eve_id) = "
+						+ "(" + evenementIdentifie.getIntervenants().get(i).getId() +", " + evenementIdentifie.getId() + ")");
+			}
+			
+			// Modifier le mat�riel n�cessaire � l'�venement
+			_bdd.executeRequest(
+					"DELETE FROM necessitemateriel "
+					 + "WHERE eve_id = " + evenementIdentifie.getId());
+			for (int i=0; i<evenementIdentifie.getMateriels().size();i++){
+				//TODO: n�cessite de savoir utiliser une hashmap ...
+//				_bdd.executeRequest(
+//						"INSERT INTO necessitemateriel"
+//						+ "VALUES (materiel_id, necessitemateriel_quantite, eve_id) = "
+//						+ "(" + evenementIdentifie.getMateriels(). + ", " + evenementIdentifie.getMateriels().get(i).getId() + ", " + evenementIdentifie.getId() + ")");
+			}
+			
+			// Modifier  les responsables de l'�venement
+			_bdd.executeRequest(
+					"DELETE FROM responsableevenement "
+					 + "WHERE eve_id = " + evenementIdentifie.getId());
+			for (int i=0; i<evenementIdentifie.getIntervenants().size();i++){
+				_bdd.executeRequest(
+						"INSERT INTO responsableevenement"
+						+ "VALUES (utilisateur_id, eve_id) = "
+						+ "(" + evenementIdentifie.getResponsables().get(i).getId() +", " + evenementIdentifie.getId() + ")");
+			}
+			
+			// Modifier les calendriers associ�s � l'�venement
+			_bdd.executeRequest(
+					"DELETE FROM evenementappartient"
+					+ "WHERE eve_id = " + evenementIdentifie.getId());
+			for (int i=0; i<evenementIdentifie.getIdCalendriers().size();i++){
+				_bdd.executeRequest(
+						"INSERT INTO evenementappartient"	
+						+ "VALUES (cal_id, eve_id) = "
+						+ "(" + evenementIdentifie.getIdCalendriers().get(i) + ", " + evenementIdentifie.getId() + ")");
+			}
+			
+			// Modifier les salles de l'�v�nement
+			_bdd.executeRequest(
+					"DELETE FROM alieuensalle"
+					+ "WHERE eve_id = " + evenementIdentifie.getId());
+			for (int i=0; i<evenementIdentifie.getSalles().size();i++){
+				_bdd.executeRequest(
+						"INSERT INTO alieuensalle"	
+						+ "VALUES (salle_id, eve_id) = "
+						+ "(" + evenementIdentifie.getSalles().get(i) + ", " + evenementIdentifie.getId() + ")");
+			}
+			
+			// fin transaction
+			_bdd.commit();
+			
+		} catch (DatabaseException e){
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Suppresion d'un �venement
+	 * 
+	 * Permet de supprimer un �v�nement dans la base de données,
+	 * l'�venement est identifi�e par son entier id
+	 * 
+	 * @param idEvement
+	 * @throws EdtempsException
+	 */
+	// ajouté à la volée pour éviter erreur dans la méthode supprimerCalendrier, qui utilise cette méthode
+	public void supprimerEvenement(int idEvenement) throws EdtempsException {
+		try {
+			// D�but transaction
+			_bdd.startTransaction();
+			
+			// Supprimer l'association aux intervenants de l'�venement
+			_bdd.executeRequest(
+					"DELETE FROM intervenantevenement "
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'association au mat�riel n�cessaire pour l'�v�nement
+			_bdd.executeRequest(
+					"DELETE FROM necessitemateriel"
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'association aux intervenants de l'�venement
+			_bdd.executeRequest(
+					"DELETE FROM responsabletevenement "
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'asosciation aux salles de l'�v�nement
+			_bdd.executeRequest(
+					"DELETE FROM alieuensalle "
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'association aux calendriers
+			_bdd.executeRequest(
+					"DELETE FROM evenementappartient "
+					 + "WHERE eve_id = " + idEvenement);
+			
+			// Supprimer l'�venement
+			_bdd.executeRequest(
+					"DELETE FROM evenement "
+					 + "WHERE eve_id = " + idEvenement);
+
+			
+			// fin transaction
+			_bdd.commit();
+			
+		} catch (DatabaseException e){
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Créé un évènement à partir de l'entrée de base de données fournie.
 	 * Colonnes nécessaires pour le ResultSet fourni : eve_id, eve_nom, eve_datedebut, eve_datefin
 	 * 
@@ -134,7 +282,13 @@ public class EvenementGestion {
 		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(_bdd);
 		ArrayList<UtilisateurIdentifie> intervenants = utilisateurGestion.getIntervenantsEvenement(id);
 		
-		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, id);
+		// Récupération des responsables
+		// TODO : A compléter
+		
+		// Matériel
+		// TODO : A compléter
+		
+		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, new ArrayList<UtilisateurIdentifie>(), new HashMap<Integer, Integer>(), id);
 	}
 	
 	/**
@@ -210,11 +364,6 @@ public class EvenementGestion {
 		}
 		
 		return res;
-	}
-	
-	// ajouté à la volée pour éviter erreur dans la méthode supprimerCalendrier, qui utilise cette méthode
-	public void supprimerEvenement(int idEvenement) {
-		// TODO : remplir
 	}
 	
 }
