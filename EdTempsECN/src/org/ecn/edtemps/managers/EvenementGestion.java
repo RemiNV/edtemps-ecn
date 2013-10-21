@@ -5,8 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
@@ -109,20 +111,20 @@ public class EvenementGestion {
 	}
 	
 	/**
-	 * Modification d'un événement existant (en base de données)
+	 * Modification d'un ï¿½vï¿½nement existant (en base de donnï¿½es)
 	 * 
-	 * <p>Permet d'actualiser dans la base de données les anciens attributs d'un événements (date, nom, intervenant, ...)
-	 * avec de nouveaux ayant été modifiés par un utilisateur</p>
+	 * <p>Permet d'actualiser dans la base de donnï¿½es les anciens attributs d'un ï¿½vï¿½nements (date, nom, intervenant, ...)
+	 * avec de nouveaux ayant ï¿½tï¿½ modifiï¿½s par un utilisateur</p>
 	 * 
 	 * @param 
 	 * @throws EdtempsException
 	 */
 	public void modifierEvenement(EvenementIdentifie evenementIdentifie) throws EdtempsException{
 		try {
-			//début d'une transaction
+			//dï¿½but d'une transaction
 			_bdd.startTransaction();
 			
-			// Modifier l'évenement (nom, date début, date fin)
+			// Modifier l'ï¿½venement (nom, date dï¿½but, date fin)
 			_bdd.executeUpdate(
 					"UPDATE evenement"
 					+ "SET eve_nom = " + evenementIdentifie.getNom()
@@ -130,7 +132,7 @@ public class EvenementGestion {
 					+ "SET eve_datefin = " +  evenementIdentifie.getDateFin()
 					+ "WHERE eve_id = " + evenementIdentifie.getId());
 			
-			// Modifier  les intervenants de l'évenement (supprimer les anciens puis ajouter les nouveaux)
+			// Modifier  les intervenants de l'ï¿½venement (supprimer les anciens puis ajouter les nouveaux)
 			_bdd.executeRequest(
 					"DELETE FROM intervenantevenement "
 					 + "WHERE eve_id = " + evenementIdentifie.getId());
@@ -141,19 +143,19 @@ public class EvenementGestion {
 						+ "(" + evenementIdentifie.getIntervenants().get(i).getId() +", " + evenementIdentifie.getId() + ")");
 			}
 			
-			// Modifier le matériel nécessaire à l'évenement
+			// Modifier le matï¿½riel nï¿½cessaire ï¿½ l'ï¿½venement
 			_bdd.executeRequest(
 					"DELETE FROM necessitemateriel "
 					 + "WHERE eve_id = " + evenementIdentifie.getId());
 			for (int i=0; i<evenementIdentifie.getMateriels().size();i++){
-				//TODO: nécessite de savoir utiliser une hashmap ...
+				//TODO: nï¿½cessite de savoir utiliser une hashmap ...
 //				_bdd.executeRequest(
 //						"INSERT INTO necessitemateriel"
 //						+ "VALUES (materiel_id, necessitemateriel_quantite, eve_id) = "
 //						+ "(" + evenementIdentifie.getMateriels(). + ", " + evenementIdentifie.getMateriels().get(i).getId() + ", " + evenementIdentifie.getId() + ")");
 			}
 			
-			// Modifier  les responsables de l'évenement
+			// Modifier  les responsables de l'ï¿½venement
 			_bdd.executeRequest(
 					"DELETE FROM responsableevenement "
 					 + "WHERE eve_id = " + evenementIdentifie.getId());
@@ -164,7 +166,7 @@ public class EvenementGestion {
 						+ "(" + evenementIdentifie.getResponsables().get(i).getId() +", " + evenementIdentifie.getId() + ")");
 			}
 			
-			// Modifier les calendriers associés à l'évenement
+			// Modifier les calendriers associï¿½s ï¿½ l'ï¿½venement
 			_bdd.executeRequest(
 					"DELETE FROM evenementappartient"
 					+ "WHERE eve_id = " + evenementIdentifie.getId());
@@ -175,7 +177,7 @@ public class EvenementGestion {
 						+ "(" + evenementIdentifie.getIdCalendriers().get(i) + ", " + evenementIdentifie.getId() + ")");
 			}
 			
-			// Modifier les salles de l'événement
+			// Modifier les salles de l'ï¿½vï¿½nement
 			_bdd.executeRequest(
 					"DELETE FROM alieuensalle"
 					+ "WHERE eve_id = " + evenementIdentifie.getId());
@@ -198,10 +200,10 @@ public class EvenementGestion {
 	}
 	
 	/**
-	 * Suppresion d'un évenement
+	 * Suppresion d'un ï¿½venement
 	 * 
-	 * Permet de supprimer un événement dans la base de donnÃ©es,
-	 * l'évenement est identifiée par son entier id
+	 * Permet de supprimer un ï¿½vï¿½nement dans la base de donnÃ©es,
+	 * l'ï¿½venement est identifiï¿½e par son entier id
 	 * 
 	 * @param idEvement
 	 * @throws EdtempsException
@@ -209,25 +211,25 @@ public class EvenementGestion {
 	// ajoutÃ© Ã  la volÃ©e pour Ã©viter erreur dans la mÃ©thode supprimerCalendrier, qui utilise cette mÃ©thode
 	public void supprimerEvenement(int idEvenement) throws EdtempsException {
 		try {
-			// Début transaction
+			// Dï¿½but transaction
 			_bdd.startTransaction();
 			
-			// Supprimer l'association aux intervenants de l'évenement
+			// Supprimer l'association aux intervenants de l'ï¿½venement
 			_bdd.executeRequest(
 					"DELETE FROM intervenantevenement "
 					 + "WHERE eve_id = " + idEvenement);
 			
-			// Supprimer l'association au matériel nécessaire pour l'événement
+			// Supprimer l'association au matï¿½riel nï¿½cessaire pour l'ï¿½vï¿½nement
 			_bdd.executeRequest(
 					"DELETE FROM necessitemateriel"
 					 + "WHERE eve_id = " + idEvenement);
 			
-			// Supprimer l'association aux intervenants de l'évenement
+			// Supprimer l'association aux intervenants de l'ï¿½venement
 			_bdd.executeRequest(
 					"DELETE FROM responsabletevenement "
 					 + "WHERE eve_id = " + idEvenement);
 			
-			// Supprimer l'asosciation aux salles de l'événement
+			// Supprimer l'asosciation aux salles de l'ï¿½vï¿½nement
 			_bdd.executeRequest(
 					"DELETE FROM alieuensalle "
 					 + "WHERE eve_id = " + idEvenement);
@@ -237,7 +239,7 @@ public class EvenementGestion {
 					"DELETE FROM evenementappartient "
 					 + "WHERE eve_id = " + idEvenement);
 			
-			// Supprimer l'évenement
+			// Supprimer l'ï¿½venement
 			_bdd.executeRequest(
 					"DELETE FROM evenement "
 					 + "WHERE eve_id = " + idEvenement);
@@ -280,7 +282,13 @@ public class EvenementGestion {
 		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(_bdd);
 		ArrayList<UtilisateurIdentifie> intervenants = utilisateurGestion.getIntervenantsEvenement(id);
 		
-		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, id);
+		// RÃ©cupÃ©ration des responsables
+		// TODO : A complÃ©ter
+		
+		// MatÃ©riel
+		// TODO : A complÃ©ter
+		
+		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, new ArrayList<UtilisateurIdentifie>(), new HashMap<Integer, Integer>(), id);
 	}
 	
 	/**
