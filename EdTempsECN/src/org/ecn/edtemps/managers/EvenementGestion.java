@@ -200,10 +200,10 @@ public class EvenementGestion {
 	}
 	
 	/**
-	 * Suppresion d'un �venement
+	 * Suppresion d'un évènement
 	 * 
-	 * Permet de supprimer un �v�nement dans la base de données,
-	 * l'�venement est identifi�e par son entier id
+	 * Permet de supprimer un évènement dans la base de données,
+	 * l'évènement est identifié par son ID entier
 	 * 
 	 * @param idEvement
 	 * @throws EdtempsException
@@ -283,12 +283,19 @@ public class EvenementGestion {
 		ArrayList<UtilisateurIdentifie> intervenants = utilisateurGestion.getIntervenantsEvenement(id);
 		
 		// Récupération des responsables
-		// TODO : A compléter
+		ArrayList<UtilisateurIdentifie> responsables = utilisateurGestion.getResponsablesEvenement(id);
 		
 		// Matériel
-		// TODO : A compléter
+		ResultSet reponseMateriel = _bdd.executeRequest("SELECT materiel.materiel_nom AS nom, necessitemateriel.necessitemateriel_quantite AS quantite " +
+				"FROM edt.materiel INNER JOIN edt.necessitemateriel ON necessitemateriel.materiel_id = materiel.materiel_id AND necessitemateriel.eve_id=" + id);
 		
-		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, new ArrayList<UtilisateurIdentifie>(), new HashMap<Integer, Integer>(), id);
+		HashMap<String, Integer> materiel = new HashMap<String, Integer>();
+		while(reponseMateriel.next()) {
+			materiel.put(reponseMateriel.getString("nom"), reponseMateriel.getInt("quantite"));
+		}
+		reponseMateriel.close();
+		
+		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiel, id);
 	}
 	
 	/**

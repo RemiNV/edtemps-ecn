@@ -297,4 +297,24 @@ public class UtilisateurGestion {
 			throw new DatabaseException(e);
 		}
 	}
+	
+	public ArrayList<UtilisateurIdentifie> getResponsablesEvenement(int evenementId) throws DatabaseException {
+		ResultSet reponse = _bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, " +
+				"utilisateur.utilisateur_prenom, utilisateur.utilisateur_email FROM edt.utilisateur INNER JOIN edt.responsableevenement " +
+				"ON responsableevenement.utilisateur_id = utilisateur.utilisateur_id AND responsableevenement.eve_id = " + evenementId);
+		
+		try {
+			ArrayList<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateUtilisateurFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			return res;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
 }

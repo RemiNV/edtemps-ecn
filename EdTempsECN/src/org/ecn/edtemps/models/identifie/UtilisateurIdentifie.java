@@ -1,6 +1,7 @@
 package org.ecn.edtemps.models.identifie;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
@@ -25,11 +26,18 @@ public class UtilisateurIdentifie extends Utilisateur implements JSONAble {
 
 	@Override
 	public JsonValue toJson() {
-		return Json.createObjectBuilder()
+		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("id", id)
 				.add("nom", nom)
-				.add("prenom", prenom)
-				.add("email", email)
-				.build();
+				.add("prenom", prenom);
+		
+		if(email != null) {
+			builder.add("email", email);
+		}
+		else {
+			builder.addNull("email");
+		}
+				
+		return builder.build();
 	}
 }
