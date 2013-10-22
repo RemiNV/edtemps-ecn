@@ -252,7 +252,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	 * @param evenements
 	 *			tous les événements 
 	 *
-	 * @returns les événements filtrés
+	 * @return les événements filtrés
 	 */
 	ListeGroupesParticipants.prototype.filtrerEvenementsGroupesActifs = function(evenements) {
 		
