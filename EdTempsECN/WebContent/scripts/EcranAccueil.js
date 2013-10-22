@@ -67,7 +67,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManag
 			else { // Récupération uniquement des évènements (pas besoin des calendriers & groupes). Utilisation du cache.
 				this.evenementGestion.getEvenementsAbonnements(start, end, false, function(resultCode, data) {
 					if(resultCode == RestManager.resultCode_Success) {
-						callback(me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data));
+						
+						// Filtrage et passage à fullcalendar
+						var evenementsGroupesActifs = me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data);
+						callback(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
 					}
 					else if(resultCode == RestManager.resultCode_NetworkError) {
 						$("#zone_info").html("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
@@ -99,8 +102,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManag
 				// Afficher le bloc "Vos agendas"
 				me.listeGroupesParticipants.afficherBlocVosAgendas();
 
-				// Afficher les événements
-				callbackCalendrier(me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data.evenements));
+				// Afficher les événements après filtres
+				var evenementsGroupesActifs = me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data.evenements);
+				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
 
 				// On pourra ne récupérer que les évènements à l'avenir
 				me.abonnementsRecuperes = true;

@@ -59,6 +59,7 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 				.add("calendriers", JSONUtils.getJsonIntArray(idCalendriers))
 				.add("salles", JSONUtils.getJsonArray(salles))
 				.add("intervenants", JSONUtils.getJsonArray(intervenants))
+				.add("responsables", JSONUtils.getJsonArray(responsables))
 				.build();
 	}
 }
