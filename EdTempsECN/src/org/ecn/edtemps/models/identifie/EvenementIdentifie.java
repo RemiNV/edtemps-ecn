@@ -24,7 +24,7 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 	/** Constructeur avec tous les attributs */
 	public EvenementIdentifie(String nom, Date dateDebut, Date dateFin,
 			List<Integer> idCalendriers, List<SalleIdentifie> salles,
-			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, Map<Integer, Integer> materiels, int id) {
+			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, Map<String, Integer> materiels, int id) {
 		super(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiels);
 		this.id=id;
 	}
@@ -59,6 +59,7 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 				.add("calendriers", JSONUtils.getJsonIntArray(idCalendriers))
 				.add("salles", JSONUtils.getJsonArray(salles))
 				.add("intervenants", JSONUtils.getJsonArray(intervenants))
+				.add("responsables", JSONUtils.getJsonArray(responsables))
 				.build();
 	}
 }

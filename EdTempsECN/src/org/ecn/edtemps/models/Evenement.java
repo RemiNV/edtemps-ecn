@@ -32,11 +32,11 @@ public class Evenement {
 	/** Liste des noms des intervenants de l'Ã©vÃ©nement */
 	protected List<UtilisateurIdentifie> intervenants;
 	
-	/** Liste des noms des responsables de l'événement */
+	/** Liste des noms des responsables de l'ï¿½vï¿½nement */
 	protected List<UtilisateurIdentifie> responsables;
 	
-	/** Liste de matériel nécessaire sous forme de map avec l'identifiant du matériel et la quantité*/
-	protected Map<Integer, Integer> materiels;
+	/** Liste de matÃ©riel nÃ©cessaire sous forme de map avec le nom du matÃ©riel et la quantitÃ© */
+	protected Map<String, Integer> materiels;
 	
 	/** Constructeur avec uniquement attributs indispensables */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers) {
@@ -49,7 +49,7 @@ public class Evenement {
 
 	/** Constructeur avec tous les attributs */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<SalleIdentifie> salles,
-			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, Map<Integer, Integer> materiels) {
+			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, Map<String, Integer> materiels) {
 		this(nom, dateDebut, dateFin, idCalendriers);
 		this.salles = salles;
 		this.intervenants = intervenants;
@@ -125,7 +125,7 @@ public class Evenement {
 	/**
 	 * @return the materiels
 	 */
-	public Map<Integer, Integer> getMateriels() {
+	public Map<String, Integer> getMateriels() {
 		return materiels;
 	}
 
@@ -133,7 +133,7 @@ public class Evenement {
 	/**
 	 * @param materiels the materiels to set
 	 */
-	public void setMateriels(Map<Integer, Integer> materiels) {
+	public void setMateriels(Map<String, Integer> materiels) {
 		this.materiels = materiels;
 	}
 }
