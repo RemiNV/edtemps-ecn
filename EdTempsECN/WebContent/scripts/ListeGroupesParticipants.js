@@ -17,6 +17,17 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			}
 		}
 
+		// Liste des groupes ouverts dans l'arborescence avec la mémoire localStorage (les autres seront fermés par défaut)
+		this.arbreGroupesOuverts = new Object();
+		if (localStorage && localStorage["ArborescenceOuverte"]) {
+			// Parse du localStorage sur les virgules
+			var idsGroupes = localStorage["ArborescenceOuverte"].split(",");
+			for (var i = 0, maxI=idsGroupes.length ; i<maxI ; i++) {
+				// Si un id de groupe est présent, c'est qu'il doit être ouvert
+				this.arbreGroupesOuverts[idsGroupes[i]] = true;
+			}
+		}
+		
 		// Liste des groupes non triés des abonnements de l'utilisateur
 		this.listeGroupes = new Array();
 
@@ -93,7 +104,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			
 			// S'il y a des fils, affichage d'une icone pour dérouler
 			if ( nbFils > 0 ){
-				str += "<img class='liste_groupes_triangle' src='./img/triangle.png' title='Cliquer pour afficher/cacher l&apos;arborescence' data-groupe-id='"+noeud.id+"' />";
+				str += "<img class='liste_groupes_triangle' src='./img/triangle.png' title='Cliquer pour afficher/cacher l&apos;arborescence' id='liste_groupes_triangle_"+noeud.id+"' data-groupe-id='"+noeud.id+"' />";
 			}
 
 			// Affiche les checkbox en fonction de l'état d'affichage du groupe
@@ -105,7 +116,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 			if ( nbFils > 0 ) {
 				// Début du sous-groupe pour ouvrir/fermer
-				str += "<div class='liste_groupes_sous_groupe' id='liste_groupes_sous_groupe_"+noeud.id+"'>";
+				str += "<div class='liste_groupes_sous_groupe' id='liste_groupes_sous_groupe_"+noeud.id+"' data-groupe-id='"+noeud.id+"'>";
 
 				// Pour chaque fils, appel de la méthode
 				for (var i = 0 ; i<nbFils ; i++) {
@@ -135,38 +146,83 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		// Affiche l'arbre dans la zone "Vos agendas"
 		$("#liste_groupes").html(this.afficherNoeud(this.arbre, ""));
 
-		// Listener pour les checkbox
-		$(".liste_groupes_checkbox").click(function() {
-			me.afficheCacheAgenda(this);
-		});
-		
-		// Listener pour les triangles
-		$(".liste_groupes_triangle").click(function() {
-			var sousGroupe = $("#liste_groupes_sous_groupe_" + $(this).attr("data-groupe-id"));
-			
-			if (sousGroupe.is(":visible")) {
-				sousGroupe.slideUp(200);
-				$(this).rotate(0);
-			} else  {
-				sousGroupe.slideDown(300);
-				$(this).rotate(-30);
+		// Initialise l'ouverture de l'arborescence avec le localStorage
+		$(".liste_groupes_sous_groupe").each(function(i) {
+			var idGroupe = $(this).attr("data-groupe-id");
+			// Si le groupe doit être fermé
+			if (!me.arbreGroupesOuverts[idGroupe]) {
+				$("#liste_groupes_sous_groupe_" + $(this).attr("data-groupe-id")).hide();
+				$("#liste_groupes_triangle_" + $(this).attr("data-groupe-id")).rotate(-90);
 			}
 		});
 		
+		// Listener pour les checkbox
+		$(".liste_groupes_checkbox").click(function() {
+			me.afficheCacheAgenda($(this).attr("data-groupe-id"));
+		});
+
+		// Listener pour les triangles
+		$(".liste_groupes_triangle").click(function() {
+			me.afficheCacheArborescence($(this).attr("data-groupe-id"));
+		});
+
+	};
+
+	/**
+	 * Méthode appellée lors du click sur un triangle
+	 * 
+	 * @param groupeId
+	 * 			identifiant du groupe
+	 */
+	ListeGroupesParticipants.prototype.afficheCacheArborescence = function(groupeId) {
+		var sousGroupe = $("#liste_groupes_sous_groupe_" + groupeId);
+
+		if (sousGroupe.is(":visible")) {
+			
+			// Cache le bloc
+			sousGroupe.slideUp(200);
+			
+			// Tourne le triangle en position horizontale
+			$("#liste_groupes_triangle_" + groupeId).rotate(-90);
+			
+			// Met à jour le tableau des groupes qui doivent être ouverts 
+			this.arbreGroupesOuverts[groupeId]=false;
+			
+		} else  {
+			
+			// Affiche le bloc
+			sousGroupe.slideDown(300);
+
+			// Tourne le triangle en position verticale
+			$("#liste_groupes_triangle_" + groupeId).rotate(0);
+
+			// Met à jour le tableau des groupes qui doivent être ouverts 
+			this.arbreGroupesOuverts[groupeId]=true;
+			
+		}
+
+		// Met à jour le LocalStorage
+		if (localStorage) {
+			var localStor = "";
+			for (var id in this.arbreGroupesOuverts) {
+				if (this.arbreGroupesOuverts[id]) {
+					if (localStor!="") localStor += ","+id; 
+					else localStor = id;
+				}
+			}
+			localStorage["ArborescenceOuverte"] = localStor;
+		}
 	};
 
 
 	/**
 	 * Méthode appellée lors du click sur les checkbox
 	 * 
-	 * @param img
-	 * 			objet image sur lequel il vient d'y avoir un clic
+	 * @param groupeId
+	 * 			identifiant du groupe
 	 */
-	ListeGroupesParticipants.prototype.afficheCacheAgenda = function(img) {
+	ListeGroupesParticipants.prototype.afficheCacheAgenda = function(groupeId) {
 
-		// Récupération de l'identifiant du groupe
-		var groupeId = $(img).attr("data-groupe-id"); 
-		
 		// Changement de la valeur affiche pour ce groupe
 		this.groupes[groupeId].affiche = !this.groupes[groupeId].affiche;
 		
@@ -175,10 +231,10 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 		// Met à jour le LocalStorage
 		if (localStorage) {
-			var localStor = null;
+			var localStor = "";
 			for (var idGroupe in this.groupesMasques) {
 				if (this.groupesMasques[idGroupe]) {
-					if (localStor!=null) localStor += ","+idGroupe; 
+					if (localStor!="") localStor += ","+idGroupe; 
 					else localStor = idGroupe;
 				}
 			}
