@@ -1,4 +1,4 @@
-define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManager", "jquery"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, RestManager) {
+define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "RestManager", "jquery"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, RechercheSalle, RestManager) {
 	
 	/**
 	 * Cet écran est associé au HTML templates/page_accueil.html.
@@ -7,6 +7,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManag
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
+		this.rechercherSalle = new RechercheSalle(this.restManager);
+
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
@@ -15,13 +17,17 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RestManag
 	EcranAccueil.MODE_MES_ABONNEMENTS = 4;
 	
 	EcranAccueil.prototype.init = function() {
-	
+		var me = this;
+
 		// Initialisation des listeners
 		$("#btn_gerer_agendas").click(function(e) {
 			Davis.location.assign("parametres");
 		});
 		
-		var me = this;
+		$("#btn_chercher_salle").click(function(e) {
+			me.rechercherSalle.afficherFormulaire();
+		});
+
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); });
 		this.setVue("mes_abonnements");
 		
