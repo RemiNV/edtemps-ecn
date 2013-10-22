@@ -1,10 +1,11 @@
-define(["jqueryquicksearch", "jqueryui", "jquerymultiselect"], function() {
+define(["jqueryquicksearch", "jqueryui", "jquerymultiselect", "RestManager", "GroupeGestion", "jquery"], function(RestManager, GroupeGestion) {
 	
 	/**
 	 * Cet écran est associé au HTML templates/page_parametres.html.
 	 * Il affiche la page de paramètres, avec ses différents onglets (abonnements, mes agendas, mes groupes...) */
 	var EcranParametres = function(restManager) {
 		this.restManager = restManager;
+		this.gpeGestion = new GroupeGestion(this.restManager);
 	};
 	
 	EcranParametres.prototype.init = function() {
@@ -21,6 +22,40 @@ define(["jqueryquicksearch", "jqueryui", "jquerymultiselect"], function() {
 	};
 
 	EcranParametres.prototype.initMesAbonnements = function() {
+		var html = "";/*
+		// Remplir les "abonnements" et "non abonnments" dans le MultiSelect
+		this.groupeGestion.queryAbonnementsEtNonAbonnements(function(resultCode, data) {
+			if(resultCode == RestManager.resultCode_Success) {
+				// Variable recevant progressivement le code HTML à ajouter à l'élément MultiSelect
+				var html = "";
+				// Variable temporaire contenant le groupe en cours de lecture
+				var gpe; 
+				// Parcourt des groupes auxquels l'utilisateur est abonné 
+				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
+					var gpe = data.groupesAbonnements[i];
+					html += '<option value="' + gpe.id + '">' + gpe.nom + '</option>';
+				}
+				// Parcourt des groupes auxquels l'utilisateur n'est pas abonné
+				for (var i = 0, maxI=data.groupesNonAbonnements.length ; i < maxI ; i++) {
+					var gpe = data.groupesNonAbonnements[i];
+					html += '<option value="' + gpe.id + '" selected="selected">' + gpe.nom + '</option>';
+				}*/
+				// Affichage 
+				html += '<option value="test4">Test 4</option>';
+				html += '<option value="test5" selected="selected">Test 5</option>';
+				$("#select-abonnements").html(html);
+			/*}
+			
+			else if(resultCode == RestManager.resultCode_NetworkError) {
+				$("#zone_info").html("Erreur de chargement des groupes (auxquels vous êtes abonnés ou non) ; vérifiez votre connexion.");
+			}
+
+			else {
+				$("#zone_info").html("Erreur de chargement des groupes (auxquels vous êtes abonnés ou non) ; votre session a peut-être expiré ?");
+			}
+		});*/
+
+		// Paramètres de l'objet multiSelect
 		$("#select-abonnements").multiSelect({
 			selectableHeader: "<h3>Mes abonnements : </h3><input type='text' class='select-abonnements-filtre' autocomplete='off' placeholder='Filtrer...'>",
 			selectionHeader: "<h3>Agendas disponibles : </h3><input type='text' class='select-abonnements-filtre' autocomplete='off' placeholder='Filtrer...'>",
