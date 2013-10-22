@@ -134,18 +134,26 @@ ul.button_nav li:last-child {
 #liste_groupes {
 	margin: 20px 10px 0px 0px;
 	border: 1px solid #bfc2bf;
-	height: 300px
+	height: 300px;
+	width: 250px;
+	overflow: auto;
+	padding: 5px 5px 5px 20px;
 }
 
-#liste_groupes .afficher_cacher_groupe {
+#liste_groupes .liste_groupes_sous_groupe {
+	margin-left: 20px;
+}
+
+#liste_groupes .liste_groupes_triangle {
+	margin-left: -10px;
+	width: 10px;
 	cursor: pointer;
-	margin-left: 10px;
 }
 
-#liste_groupes .afficher_cacher_groupe:hover {
-	color: blue;
-	text-decoration: underline;
+#liste_groupes .liste_groupes_checkbox {
+	width: 20px;
 }
+
 	
 /* CSS jquery ui */
 
@@ -157,7 +165,7 @@ ul.button_nav li:last-child {
 
 /* Fin CSS jquery ui */
 
-/* Liste de s�lection des abonnements */
+/* Liste de sélection des abonnements */
 #ms-select-abonnements .ms-list{
 	height: 500px;
 }
@@ -172,7 +180,7 @@ ul.button_nav li:last-child {
 	margin-top: 10px;
 }
 
-/* Inversion de l'ordre des listes de s�lection */
+/* Inversion de l'ordre des listes de sélection */
 .ms-container .ms-selection{
   float: left;
 }
