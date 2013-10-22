@@ -26,6 +26,11 @@
       <servlet-class>org.ecn.edtemps.servlets.AbonnementsServlet</servlet-class>
   </servlet>
   
+  <servlet>
+      <servlet-name>GroupesAbonnementsEtNonAbonnements</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.GroupesAbonnementsEtNonAbonnementsServlet</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -44,6 +49,11 @@
   <servlet-mapping>
       <servlet-name>Abonnements</servlet-name>
       <url-pattern>/abonnements/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>GroupesAbonnementsEtNonAbonnements</servlet-name>
+      <url-pattern>/abonnementsetnonabonnements</url-pattern>
   </servlet-mapping>
   
 </web-app>
