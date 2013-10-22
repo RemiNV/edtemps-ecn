@@ -1,4 +1,4 @@
-define([ "RestManager" ], function(RestManager) {
+define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 	/**
 	 * Constructeur
@@ -144,9 +144,13 @@ define([ "RestManager" ], function(RestManager) {
 		$(".liste_groupes_triangle").click(function() {
 			var sousGroupe = $("#liste_groupes_sous_groupe_" + $(this).attr("data-groupe-id"));
 			
-			if (sousGroupe.is(":visible")) sousGroupe.slideUp(200);
-			else sousGroupe.slideDown(300);
-			
+			if (sousGroupe.is(":visible")) {
+				sousGroupe.slideUp(200);
+				$(this).rotate(0);
+			} else  {
+				sousGroupe.slideDown(300);
+				$(this).rotate(-30);
+			}
 		});
 		
 	};
