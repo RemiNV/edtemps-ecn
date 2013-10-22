@@ -35,9 +35,9 @@ public class GroupesAbonnementsEtNonAbonnementsServlet extends RequiresConnectio
 		
 		try {
 			// Récupération des groupes 
-			ArrayList<GroupeIdentifie> abonnementsGroupes = groupeGestion.listerGroupesAbonnement(userId, false, true);
+			ArrayList<GroupeIdentifie> abonnementsGroupes = groupeGestion.listerGroupesAbonnement(userId, true, false);
 			ArrayList<GroupeIdentifie> nonAbonnementsGroupes = new ArrayList<GroupeIdentifie>();
-			nonAbonnementsGroupes.add(new GroupeIdentifie(userId, "A MODIFIER QUAND FONCTION NON ABONNEMENT FAITE", false, false, false));
+			
 			// Création de la réponse
 			data = Json.createObjectBuilder()
 					.add("groupesAbonnements", JSONUtils.getJsonArray(abonnementsGroupes))
