@@ -15,6 +15,19 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 	
 	var restManager = new RestManager();
 	
+	/**
+	 * Affichage de messages de notification dans l'application
+	 * Paramètre text : texte à afficher
+	 */
+	window.showToast = function(text) {
+		$("#toast").queue(function(next) {
+			$(this).html(text);
+			next();
+		}).animate({ top: 10 }, 500)
+		.delay(3000)
+		.animate({ top: -40 }, 500);
+	};
+	
 	var init = function() {
 		
 		/**

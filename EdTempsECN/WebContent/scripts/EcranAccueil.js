@@ -83,10 +83,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 						callback(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
 					}
 					else if(resultCode == RestManager.resultCode_NetworkError) {
-						$("#zone_info").html("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
+						window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
 					}
 					else {
-						$("#zone_info").html("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
+						window.showToast("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
 					}
 				});
 			}
@@ -121,11 +121,11 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				me.abonnementsRecuperes = true;
 			}
 			else if(resultCode == RestManager.resultCode_NetworkError) {
-				$("#zone_info").html("Erreur de chargement de vos agendas ; vérifiez votre connexion.");
+				window.showToast("Erreur de chargement de vos agendas ; vérifiez votre connexion.");
 			}
 
 			else {
-				$("#zone_info").html("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
+				window.showToast("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
 			}
 		});
 	};

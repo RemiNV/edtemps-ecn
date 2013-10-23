@@ -218,3 +218,20 @@ ul.button_nav li:last-child {
 .fc-header {
 	clear: both;
 }
+
+/* Toast */
+
+#toast {
+	position: absolute;
+	width: 900px;
+	height: 20px;
+	left: 50%;
+	top: -40px;
+	margin-left: -450px;
+	background-color: #079eb5;
+	border-radius: 5px;
+	padding: 5px;
+	text-align: center;
+	color: white;
+	box-shadow: 3px 5px 7px #888888;
+}

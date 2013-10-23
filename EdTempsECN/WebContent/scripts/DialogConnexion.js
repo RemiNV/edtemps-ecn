@@ -24,7 +24,7 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 				duration: 200
 			},
 			beforeClose: function(event, ui) {
-				return me.allowClose;
+				return me.allowClose || me.connectionSuccess;
 			},
 			close: function(event, ui) {
 				if(!me.connectionSuccess && me.connectionCallback) {
@@ -58,7 +58,6 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 				switch(resultCode) {
 				case RestManager.resultCode_Success:
 					// Redirection vers la page d'agenda
-					me.allowClose = true;
 					me.connectionSuccess = true;
 					jqDialog.dialog("close");
 					if(!me.connectionCallback) {
