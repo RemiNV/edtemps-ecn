@@ -10,10 +10,17 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		
 		// Interface sous forme de dialog
 		jqDialog.dialog({
-			width: 900,
-			height: 340,
+			width: 700,
 			modal: true,
-			autoOpen: false
+			autoOpen: false,
+			show: {
+				effect: "fade",
+				duration: 200
+			},
+			hide: {
+				effect: "explode",
+				duration: 200
+			}
 		});
 		
 		var me = this;
