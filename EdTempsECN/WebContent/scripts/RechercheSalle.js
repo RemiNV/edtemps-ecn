@@ -24,23 +24,32 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		this.listeMaterielDisponible.push(video);
 	};
 
+	/**
+	 * Initialise et affiche la boîte de dialogue de recherche d'une salle libre
+	 */
 	RechercheSalle.prototype.init = function() {
 		var me = this;
-		
-		// Affiche la boîte dialogue de recherche d'une salle libre
-		$("#form_chercher_salle").dialog({ width: 440, modal: true });
 
 		// Ajout des masques aux différents champs
 		$("#form_recherche_salle_debut").mask("00:00");
 		$("#form_recherche_salle_fin").mask("00:00");
 		$("#form_recherche_salle_capacite").mask("0000");
 
-		// Affectation d'une méthode au clique sur le bouton de recherche
+		// Affectation d'une méthode au clic sur le bouton "Rechercher"
 		$("#form_chercher_salle_valid").click(function() {
-			me.validationFormulaire();
-		});
+			// Si le formulaire est valide, la requête est effectuée
+			if (me.validationFormulaire()) {
+				this.effectuerRequete();
+			}
 
-		// Affectation d'une méthode au clique sur le bouton de recherche
+		});
+		
+		// Affectation d'une méthode au clic sur le bouton "Annuler"
+		$("#form_chercher_salle_annuler").click(function() {
+			$("#form_chercher_salle").dialog("close");
+		});
+		
+		// Affectation d'une méthode au clic sur le bouton "Ajouter un matériel"
 		$("#form_chercher_salle_ajout").click(function() {
 			me.ajouterMateriel();
 		});
@@ -50,8 +59,27 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			$(this).css({border: "1px solid gray"});
 		});
 		
+		// Affiche la boîte dialogue de recherche d'une salle libre
+		$("#form_chercher_salle").dialog({
+			width: 440,
+			modal: true,
+			show: {
+				effect: "fade",
+				duration: 500
+			},
+			hide: {
+				effect: "explode",
+				duration: 300
+			}
+		});
+
 	};
 
+	/**
+	 * Méthode qui vérifie que le formulaire est correct
+	 * 
+	 * @return VRAI si le formulaire est valide et FAUX sinon
+	 */
 	RechercheSalle.prototype.validationFormulaire = function() {
 		var valid = true;
 
@@ -62,7 +90,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			$("label[for='form_recherche_salle_date']").css({color: "red"});
 			valid = false;
 		}
-		
+
 		// Validation de l'heure de début
 		var heureDebut = jQuery.trim($("#form_recherche_salle_debut").val());
 		var decoupageHeureMinute = heureDebut.split(":");
@@ -71,7 +99,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			$("label[for='form_recherche_salle_debut']").css({color: "red"});
 			valid = false;
 		}
-		
+
 		// Validation de l'heure de fin
 		var heureFin = jQuery.trim($("#form_recherche_salle_fin").val());
 		decoupageHeureMinute = heureFin.split(":");
@@ -80,14 +108,14 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			$("label[for='form_recherche_salle_fin']").css({color: "red"});
 			valid = false;
 		}
+		
+		return valid;
 
-		// Si le formulaire est valide, la requête est effectuée
-		if (valid) {
-			this.effectuerRequete();
-		}
 	};
 	
-	
+	/**
+	 * Méthode permettant d'ajouter une ligne dans le tableau des matériels
+	 */
 	RechercheSalle.prototype.ajouterMateriel = function() {
 
 		var materiel = new Object();
@@ -111,16 +139,18 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	
 	};
 	
-	
+	/**
+	 * Méthode qui effectue la requête
+	 */
 	RechercheSalle.prototype.effectuerRequete = function() {
-		alert('654');
+		alert('Requete au serveur pour récupérer la liste des salles correspondantes');
 	};
 	
-	
+	/**
+	 * Méthode qui affiche le résultat
+	 */
 	RechercheSalle.prototype.afficherResultat = function() {
-		
-		$("#form_chercher_salle").fadeOut();
-
+		alert('Affiche le résultat');
 	};
 
 	return RechercheSalle;
