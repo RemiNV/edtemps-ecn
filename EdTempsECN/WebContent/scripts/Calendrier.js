@@ -40,6 +40,12 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 			},
 			events: eventsSource
 		});
+		
+		// Ajout des listeners d'évènements aux dropdown de filtres
+		var updateFiltres = function() { me.refetchEvents(); };
+		$("#dropdown_filtre_matiere").change(updateFiltres);
+		$("#dropdown_filtre_type").change(updateFiltres);
+		$("#dropdown_filtre_responsable").change(updateFiltres);
 	};
 	
 	
@@ -55,9 +61,24 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 	 * Remplit une liste déroulante avec les clés/valeurs de l'objet fourni
 	 */
 	var remplirDropdown = function(jqDropdown, objValues) {
+		var currentValue = jqDropdown.val();
+		
 		jqDropdown.find("option").remove();
+		// Ajout d'un élément sans filtre
+		jqDropdown.append("<option value=''>---</option>");
+		var found = false;
 		for(var key in objValues) {
-			jqDropdown.append("<option value='" + key + "'>" + objValues[key] + "</option>");
+			if(key == currentValue) {
+				found = true;
+				jqDropdown.append("<option selected='selected' value='" + key + "'>" + objValues[key] + "</option>");
+			}
+			else {
+				jqDropdown.append("<option value='" + key + "'>" + objValues[key] + "</option>");
+			}
+		}
+		
+		if(!found) {
+			jqDropdown.val('');
 		}
 	};
 
