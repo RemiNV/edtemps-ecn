@@ -114,6 +114,10 @@ ul.button_nav li:last-child {
 	display: none;
 }
 
+.form_chercher_salle_boutons {
+	float: right;
+}
+
 #div_filtres {
 	clear: both;
 	float: right;

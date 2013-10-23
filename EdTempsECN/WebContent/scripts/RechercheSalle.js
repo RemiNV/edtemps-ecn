@@ -6,13 +6,22 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	var RechercheSalle = function(restManager) {
 		this.restManager = restManager;
 
-		this.date;
-		this.heureDebut;
-		this.heureFin;
-		this.capacite;
-		this.materielSelectionne = new Array();
-		
+		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
+		this.date = $("#form_recherche_salle_date");
+		this.heureDebut = $("#form_recherche_salle_debut");
+		this.heureFin = $("#form_recherche_salle_fin");
+		this.capacite = $("#form_recherche_salle_capacite");
+
+		// Liste des matériels disponibles, récupération des valeurs en base de données
 		this.listeMaterielDisponible = new Array();
+		
+		// Liste des matériels sélectionnées par l'utilisateur
+		// Quand un matériel est mis dans cette liste, il est enlevé de la liste des matériels disponibles
+		this.materielSelectionne = new Array();
+
+
+
+
 		// TODO : à récupérer en base de données
 		var ordinateur = new Object();
 		ordinateur.id = 1;
@@ -31,9 +40,9 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		var me = this;
 
 		// Ajout des masques aux différents champs
-		$("#form_recherche_salle_debut").mask("00:00");
-		$("#form_recherche_salle_fin").mask("00:00");
-		$("#form_recherche_salle_capacite").mask("0000");
+		this.heureDebut.mask("00:00");
+		this.heureFin.mask("00:00");
+		this.capacite.mask("0000");
 
 		// Affectation d'une méthode au clic sur le bouton "Rechercher"
 		$("#form_chercher_salle_valid").click(function() {
@@ -56,7 +65,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 
 		// Affectation d'une méthode au clique sur les différents champs
 		$("#form_recherche_salle_date, #form_recherche_salle_debut, #form_recherche_salle_fin, #form_recherche_salle_capacite").click(function() {
-			$(this).css({border: "1px solid gray"});
+			$(this).css({border: "1px solid #dddddd"});
 		});
 		
 		// Affiche la boîte dialogue de recherche d'une salle libre
@@ -84,29 +93,29 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		var valid = true;
 
 		// Validation de la date
-		this.date = $("#form_recherche_salle_date").val();
-		if (date=="") {
-			$("#form_recherche_salle_date").css({border: "2px solid red"});
-			$("label[for='form_recherche_salle_date']").css({color: "red"});
+		if (this.date.val()=="") {
+			this.date.css({border: "1px solid red"});
 			valid = false;
+		} else {
+			this.date.css({border: "1px solid #dddddd"});
 		}
 
 		// Validation de l'heure de début
-		var heureDebut = jQuery.trim($("#form_recherche_salle_debut").val());
-		var decoupageHeureMinute = heureDebut.split(":");
-		if (heureDebut.length==0 || decoupageHeureMinute[0]>23 || decoupageHeureMinute[1]>59) {
-			$("#form_recherche_salle_debut").css({border: "2px solid red"});
-			$("label[for='form_recherche_salle_debut']").css({color: "red"});
+		var decoupageHeureMinute = this.heureDebut.val().split(":");
+		if (this.heureDebut.val().length==0 || decoupageHeureMinute[0]>23 || decoupageHeureMinute[1]>59) {
+			this.heureDebut.css({border: "1px solid red"});
 			valid = false;
+		} else {
+			this.heureDebut.css({border: "1px solid #dddddd"});
 		}
 
 		// Validation de l'heure de fin
-		var heureFin = jQuery.trim($("#form_recherche_salle_fin").val());
-		decoupageHeureMinute = heureFin.split(":");
-		if (heureFin.length==0 || decoupageHeureMinute[0]>23 || decoupageHeureMinute[1]>59) {
-			$("#form_recherche_salle_fin").css({border: "2px solid red"});
-			$("label[for='form_recherche_salle_fin']").css({color: "red"});
+		decoupageHeureMinute = this.heureFin.val().split(":");
+		if (this.heureFin.val().length==0 || decoupageHeureMinute[0]>23 || decoupageHeureMinute[1]>59) {
+			this.heureFin.css({border: "1px solid red"});
 			valid = false;
+		} else {
+			this.heureFin.css({border: "1px solid #dddddd"});
 		}
 		
 		return valid;
@@ -120,9 +129,9 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 
 		var materiel = new Object();
 		this.materielSelectionne.push(materiel);
-		
+
 		// Ajout d'une ligne dans la boîte de dialogue
-		$("#form_chercher_salle_table").append(		
+		$("#form_chercher_salle_liste_materiel").append(
 			"<tr>" +
 				"<td><label for='form_recherche_salle_mat_1'>Materiel 1</label></td>" +
 				"<td>" +

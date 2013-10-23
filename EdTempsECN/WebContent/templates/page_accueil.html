@@ -45,12 +45,15 @@
 						<td><label for="form_recherche_salle_capacite">Capacité</label></td>
 						<td><input type="number" name="form_recherche_salle_capacite" id="form_recherche_salle_capacite" class="ui-widget-content ui-corner-all" value="20" /></td>
 					</tr>
-					<tr>
-						<td colspan="2"><hr/><br/><input type="button" id="form_chercher_salle_ajout" value="+ Ajouter un matériel" /></td>
-					</tr>
 				</table>
-				<input type="button" id="form_chercher_salle_annuler" value="Annuler" />
-				<input type="button" id="form_chercher_salle_valid" value="Rechercher" />
+				<hr/>
+				<table id="form_chercher_salle_liste_materiel">
+				</table>
+				<input type="button" id="form_chercher_salle_ajout" value="Ajouter un matériel" /><br/>
+				<div class="form_chercher_salle_boutons">
+					<input type="button" id="form_chercher_salle_annuler" value="Annuler" />
+					<input type="button" id="form_chercher_salle_valid" value="Rechercher" />
+				</div>
 			</form>
 		</div>
 	</div>
