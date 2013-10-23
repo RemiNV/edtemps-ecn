@@ -39,6 +39,12 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		jqDialog.find("#btn_connexion").click(function(event) {
 			event.preventDefault();
 			var username = jqDialog.find("#txt_identifiant").val();
+			
+			// Enregistrement du username pour les reconnexions
+			if(window.localStorage) {
+				localStorage["username"] = username;
+			}
+			
 			var pass = jqDialog.find("#txt_password").val();
 			jqDialog.find("#msg_erreur").css("display", "none");
 			jqDialog.find("#msg_connexion").css("display", "block");
@@ -87,12 +93,25 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 	/**
 	 * Affichage de la dialog de connexion
 	 * @param title Titre à assigner à la dialog
-	 * @param connectionCallback Callback de connexion. Si non défini, la dialog n'est pas fermable et l'utilisateur sera redirigé vers la page principale en cas de succès.
+	 * @param connectionCallback Callback de connexion. Si défini, effectue une reconnexion plutôt qu'une connexion.
 	 */
 	DialogConnection.prototype.show = function(title, connectionCallback) {
-		if(!connectionCallback) {
-			this.allowClose = false;
+		this.allowClose = connectionCallback == true;
+		if(connectionCallback) {
+			if(window.localStorage) {
+				// Pré-remplissage du nom d'utilisateur (reconnexion)
+				this.jqDialog.find("#txt_identifiant").val(window.localStorage["username"]).prop("disabled", true);
+			}
+			else {
+				// Reconnexion compatible uniquement avec les navigateurs supportant localStorage
+				connectionCallback(false);
+				return;
+			}
 		}
+		else {
+			this.jqDialog.find("#txt_identifiant").prop("disabled", false);
+		}
+		
 		this.connectionSuccess = false;
 		this.connectionCallback = connectionCallback;
 		this.jqDialog.dialog("option", "title", title);
