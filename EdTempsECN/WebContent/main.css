@@ -135,6 +135,10 @@ ul.button_nav li:last-child {
 	padding-left: 5px;
 }
 
+#formulaire_filtres select {
+	width: 150px;
+}
+
 #btn_ajout_evenement, #bloc_vos_agendas {
 	margin-top: 40px;
 }

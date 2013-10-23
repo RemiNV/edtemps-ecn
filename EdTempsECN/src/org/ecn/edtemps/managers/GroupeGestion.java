@@ -455,5 +455,31 @@ public class GroupeGestion {
 		}
 	}
 
+	/**
+	 * Listing des groupes auxquels l'utilisateur est abonné directement (sans remonter ni descendre les parents/enfants)
+	 * @param idUtilisateur Utilisateur dont les abonnements sont à lister
+	 * @return Liste des groupes trouvés
+	 * @throws DatabaseException Erreur d'accès à la base de données
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupesAssocies(int idUtilisateur) throws DatabaseException {
+		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
+				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
+					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant " +
+					"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id " +
+					"AND abonnegroupeparticipant.utilisateur_id = " + idUtilisateur);
+		
+		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+
+		try {
+			while(resGroupes.next()) {
+				res.add(inflateGroupeFromRow(resGroupes));
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return res;
+	}
 	
 }

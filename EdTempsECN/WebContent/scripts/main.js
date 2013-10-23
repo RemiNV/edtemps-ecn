@@ -2,21 +2,37 @@
 /* Fonction d'entrée du programme. 
  * Le plugin davis est appelé par le mot-clé "davis" (configuré dans index.html)
  * Placer jquery en dernier dans la liste (ne se charge pas dans les arguments de la fonction) */
-require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], function(Davis, RestManager) {
+require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion.html", "DialogConnexion", 
+         "lib/davis.hashrouting", "jquery"], function(Davis, RestManager, htmlFormulaireConnexion, DialogConnexion) {
 	/* Davis est chargé de manière locale avec le mot-clé "Davis" dans cette fonction (passé en argument) : 
 	 * le plugin est configuré pour être chargé de cette manière dans le index.html
 	 * 
 	 * jquery est accessible de manière globale par $ (mais il faut tout de même préciser la dépendance
 	 * dans les arguments de require() !), pour ne pas avoir de problème de dépendances (avec jQuery UI notamment) */
 	
-	var restManager = new RestManager();
-	
+
 	var currentPage = { nom: null, manager: null };
 	
+	var restManager = new RestManager();
+	
 	var init = function() {
+		
+		/**
+		 * Reconnexion dynamique après erreur de requête à cause d'un problème d'identification
+		 */
+		var reconnectionFallback = function(callback) {
+			dialogConnexion.show("Session expirée : reconnexion", callback);
+		};
+		
+		restManager.setIdentificationErrorFallback(reconnectionFallback);
 	
 		// Plugin hashrouting : routage par hash (le serveur ne contient qu'une page, pas d'accès possible sans JS)
 		Davis.extend(Davis.hashRouting({ forceHashRouting: true })); 
+		
+		// Initialisation de la dialog de connexion
+		var jqDialog = $("#connection_dialog");
+		$(htmlFormulaireConnexion).appendTo(jqDialog.empty());
+		var dialogConnexion = new DialogConnexion(restManager, jqDialog);
 		
 		/*** Routes de l'application ***/
 		this.app = Davis(function() {
@@ -58,7 +74,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 						req.redirect(req.params["target"]); // Déjà connecté : redirection
 					}
 					else {
-						chargerInterfaceConnection();
+						chargerInterfaceConnection(dialogConnexion);
 					}
 				});
 			});
@@ -92,54 +108,6 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 		Davis.location.assign(Davis.location.current());
 	};
 	
-	var chargerInterfaceConnection = function() {
-		// Récupération de l'interface depuis les templates
-		require(["text!../templates/formulaire_connexion.html"], function(htmlFormulaireConnexion) {
-			// Ajout au DOM
-			$(htmlFormulaireConnexion).appendTo($("body").empty());
-			currentPage.manager = null;
-			currentPage.nom = "connexion";
-			
-			// Callback de connexion
-			$("#btn_connexion").click(function(event) {
-				event.preventDefault();
-				var username = $("#txt_identifiant").val();
-				var pass = $("#txt_password").val();
-				$("#msg_erreur").css("display", "none");
-				$("#msg_connexion").css("display", "block");
-				$(this).attr("disabled", "disabled");
-				
-				// Connexion
-				restManager.connexion(username, pass, function(resultCode) {
-					$("#msg_connexion").css("display", "none");
-					$("#btn_connexion").removeAttr("disabled");
-					switch(resultCode) {
-					case RestManager.resultCode_Success:
-						// Redirection vers la page d'agenda
-						Davis.location.assign("agenda");
-						break;
-						
-					case RestManager.resultCode_NetworkError:
-						$("#msg_erreur").html("Erreur de connexion au serveur. Vérifiez votre connexion.").css("display", "inline");
-						break;
-						
-					case RestManager.resultCode_LdapError:
-						$("#msg_erreur").html("Erreur de connexion au serveur LDAP").css("display", "inline");
-						break;
-					
-					case RestManager.resultCode_IdentificationError:
-						$("#msg_erreur").html("Identifiants invalides").css("display", "inline");
-						break;
-						
-					default:
-						$("#msg_erreur").html("Erreur du serveur").css("display", "inline");
-						break;
-					}
-				});
-			});
-		});
-	};
-	
 	/**
 	 * Effectue une transition d'interface par fadeOut - fadeIn : 
 	 * 1) fadeOut, et chargement des dépendances en parallèle
@@ -149,28 +117,39 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 	 * - dependencies : tableau de chaînes indiquant les dépendances à charger par requirejs
 	 * - callback : fonction appelée à l'étape 2), avec les dépendances demandées chargées en argument */
 	var transitionInterface = function(dependencies, callback) {
-		var jqBody = $("body");
-		jqBody.fadeOut(200);
+		var jqInterface = $("#main_interface_hook");
+		
+		// Pas d'utilisation de .fadeOut() pour éviter le display: none (incompatible avec chargement fullcalendar)
+		jqInterface.animate({ opacity: 0 }, 200); 
 
 		require(dependencies, function() {
 		
 			var obtainedDependencies = arguments;
 		
 			// A n'exécuter que si l'animation terminée
-			jqBody.queue(function(next) {
-				callback.apply(jqBody.get(0), obtainedDependencies);
+			jqInterface.queue(function(next) {
+				callback.apply(jqInterface.get(0), obtainedDependencies);
 				
 				next();
 			});
 			
-			jqBody.fadeIn(200); // Ajouté à la suite de la queue (après la fonction précédente)
+			jqInterface.animate({ opacity: 1 }, 200); // Ajouté à la suite de la queue (après la fonction précédente)
 		});
+	};
+	
+	var chargerInterfaceConnection = function(dialogConnexion) {
+		// Suppression de l'interface actuelle
+		$("#main_interface_hook").empty();
+		dialogConnexion.show("Connexion");
+		
+		currentPage.manager = dialogConnexion;
+		currentPage.nom = "connexion";
 	};
 	
 	var chargerInterfacePrincipale = function(vue) {
 	
 		transitionInterface(["EcranAccueil", "text!../templates/page_accueil.html"], function(EcranAccueil, pageAccueilHtml) {
-			$("body").empty().append($(pageAccueilHtml));
+			$("#main_interface_hook").empty().append(pageAccueilHtml);
 			
 			// Initialisation
 			currentPage.manager = new EcranAccueil(restManager);
@@ -182,7 +161,7 @@ require(["lib/davis.min", "RestManager", "lib/davis.hashrouting", "jquery"], fun
 	
 	var chargerInterfaceParametres = function() {
 		transitionInterface(["EcranParametres", "text!../templates/page_parametres.html"], function(EcranParametres, pageAccueilHtml) {
-			$("body").empty().append($(pageAccueilHtml));
+			$("#main_interface_hook").empty().append($(pageAccueilHtml));
 			
 			// Initialisation
 			currentPage.manager = new EcranParametres(restManager);

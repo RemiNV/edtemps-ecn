@@ -28,8 +28,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			me.rechercherSalle.afficherFormulaire();
 		});
 
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); });
 		this.setVue("mes_abonnements");
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); });
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier);
 	};
@@ -58,6 +58,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			$("#nav_vue_agenda #tab_mes_abonnements").addClass("selected");
 			this.mode = EcranAccueil.MODE_MES_ABONNEMENTS;
 			break;
+		}
+		
+		if(this.calendrier) {
+			this.calendrier.refetchEvents();
 		}
 	};
 	
@@ -90,6 +94,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			
 		default: 
 			// TODO : gérer
+			callback(new Array());
 		
 		}
 	
@@ -114,8 +119,6 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 
 				// On pourra ne récupérer que les évènements à l'avenir
 				me.abonnementsRecuperes = true;
-				
-				// TODO : remplir les autres vues
 			}
 			else if(resultCode == RestManager.resultCode_NetworkError) {
 				$("#zone_info").html("Erreur de chargement de vos agendas ; vérifiez votre connexion.");

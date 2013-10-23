@@ -15,6 +15,8 @@ define(["jquery"], function() {
 			this._token = null; // Navigateurs ne supportant pas localStorage
 			
 		this._connected = false; // Appeler connexion() ou checkConnexion() pour mettre à jour ce statut
+		
+		this._identificationErrorFallback = null; // Fonction appelée en cas d'erreur d'identification
 	};
 	
 	// Correspondent aux codes définis dans le Java
@@ -50,7 +52,7 @@ define(["jquery"], function() {
 				}
 				
 				callback(response.resultCode);
-			}
+			}, true // On ignore le fallback en cas d'échec de connexion ici
 		);
 	};
 	
@@ -89,7 +91,7 @@ define(["jquery"], function() {
 				}
 			
 				callback(data.resultCode);
-			});
+			}, true);
 		}
 		else {
 			callback(RestManager.resultCode_IdentificationError); // Aucune requête serveur nécessaire
@@ -103,24 +105,57 @@ define(["jquery"], function() {
 		return this._isConnected;
 	};
 	
-	/* Effectue une requête AJAX avec la méthode donnée ('GET', 'POST', 'PUT' ou 'DELETE'),
+	/**
+	 * Définition d'une fonction à appeler en cas d'erreur d'identification,
+	 * avant de faire échouer la requête. Permet de reconnecter l'utilisateur sans faire
+	 * échouer la requête.
+	 * 
+	 * Argument fallback : fonction à appeler en cas d'erreur de connexion lors d'une requête.
+	 * Arguments de fallback :  
+	 * - callback : fonction à appeler une fois la reconnexion effectuée.
+	 *   La fonction callback doit être appelée avec un argument booléen indiquant si la reconnexion a réussi.
+	 */
+	RestManager.prototype.setIdentificationErrorFallback = function(fallback) {
+		this._identificationErrorFallback = fallback;
+	};
+	
+	/**
+	 *  Effectue une requête AJAX avec la méthode donnée ('GET', 'POST', 'PUT' ou 'DELETE'),
 	 * pour l'URL donnée, avec les données fournies.
 	 * La fonction de callback prend en argument : 
 	 * - data (object) : résultat de la requête.
 	 * En cas d'échec de la connexion, il ne contient qu'un attribut resultCode correspondant à
 	 * RestManager.resultCode_NetworkError.
+	 * 
+	 * Lorsque le token de connexion de l'utilisateur n'est pas valide, cette méthode peut utiliser un fallback
+	 * défini précédemment pour rétablir la connexion avant de renvoyer un résultat.
+	 * Le paramètre ignoreFallback (booléen) permet de ne pas utiliser ce fallback et renvoyer un code IdentificationError
 	 */
-	RestManager.prototype.effectuerRequete = function(method, url, data, callback) {
+	RestManager.prototype.effectuerRequete = function(method, url, data, callback, ignoreFallback) {
 		
+		var me = this;
 		$.ajax(url, {
 			data: data,
 			type: method,
 			timeout: 15000 // 15 sec.
-		})
-		.done(function(data) {
-			callback(data);
-		})
-		.fail(function(data) {
+		}).done(function(ajaxData) {
+			
+			
+			if(!ignoreFallback && me._identificationErrorFallback != null && ajaxData.resultCode == RestManager.resultCode_IdentificationError) {
+				me._identificationErrorFallback(function(reconnectionSuccess) {
+					if(reconnectionSuccess) { // Réessai
+						var newData = $.extend({}, data, { token: me.getToken() });
+						me.effectuerRequete(method, url, newData, callback);
+					}
+					else {
+						callback(ajaxData);
+					}
+				});
+			}
+			else {
+				callback(ajaxData);
+			}
+		}).fail(function() {
 			callback({ resultCode: RestManager.resultCode_NetworkError });
 		});
 	};

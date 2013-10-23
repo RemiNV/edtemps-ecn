@@ -1,12 +1,6 @@
 define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager) {
 
 	var Calendrier = function(eventsSource) {
-	
-		var date = new Date();
-		var d = date.getDate();
-		var m = date.getMonth();
-		var y = date.getFullYear();
-		
 		var me = this;
 
 		this.jqCalendar = $("#calendar");
