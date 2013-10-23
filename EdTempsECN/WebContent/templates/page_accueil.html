@@ -25,40 +25,35 @@
 	
 	<span id="btn_chercher_salle" class="button">Chercher une salle libre</span>
 	<div id="recherche_salle_libre">
+		<div id="form_chercher_salle_resultat" title="Résultat de la recherche"></div>
 		<div id="form_chercher_salle" title="Formulaire de recherche d'une salle libre">
 			<form>
-				<table>
+				<table id="form_chercher_salle_table">
 					<tr>
-						<td><label for="dateRechercheSalle">Date de réservation</label></td>
-						<td><input type="date" name="dateRechercheSalle" id="dateRechercheSalle" class="date ui-widget-content ui-corner-all" /></td>
+						<td><label for="form_recherche_salle_date">Date de réservation</label></td>
+						<td><input type="text" name="form_recherche_salle_date" id="form_recherche_salle_date" /></td>
 					</tr>
 					<tr>
-						<td><label for="timepickerDebut">Heure de début</label></td>
-						<td><input type="text" name="timepickerDebut" id="timepickerDebut" class="ui-widget-content ui-corner-all" /></td>
+						<td><label for="form_recherche_salle_debut">Heure de début</label></td>
+						<td><input type="text" name="form_recherche_salle_debut" id="form_recherche_salle_debut" /></td>
 					</tr>
 					<tr>
-						<td><label for="timepickerFin">Heure de fin</label></td>
-						<td><input type="text" name="timepickerFin" id="timepickerFin" class="ui-widget-content ui-corner-all" /></td>
+						<td><label for="form_recherche_salle_fin">Heure de fin</label></td>
+						<td><input type="text" name="form_recherche_salle_fin" id="form_recherche_salle_fin" /></td>
 					</tr>
 					<tr>
-						<td><label for="capacite">Capacité</label></td>
-						<td><input type="number" name="capacite" id="capacite" style="width: 80px;" class="ui-widget-content ui-corner-all" value="20" /></td>
-					</tr>
-					<tr>
-						<td colspan="2"><hr/><br/><button>+ Ajouter un matériel</button></td>
-					</tr>
-					<tr>
-						<td><label for="materiel1">Materiel 1</label></td>
-						<td>
-							<input type="number" name="nbMateriel1" id="nbMateriel1" style="width: 50px;" class="ui-widget-content ui-corner-all" value="1" />
-							<select id="materiel1">
-								<option value="">Ordinateur</option>
-								<option value="">Vidéo-projecteur</option>
-							</select>
-						</td>
+						<td><label for="form_recherche_salle_capacite">Capacité</label></td>
+						<td><input type="text" name="form_recherche_salle_capacite" id="form_recherche_salle_capacite" value="20" /></td>
 					</tr>
 				</table>
-				<input type="button" id="form_chercher_salle_valid" style="float: right; margin-top: 30px;" value="Rechercher" />
+				<hr/>
+				<table id="form_chercher_salle_liste_materiel">
+				</table>
+				<input type="button" id="form_chercher_salle_ajout" value="Ajouter un matériel" /><br/>
+				<div class="form_chercher_salle_boutons">
+					<input type="button" id="form_chercher_salle_annuler" value="Annuler" />
+					<input type="button" id="form_chercher_salle_valid" value="Rechercher" />
+				</div>
 			</form>
 		</div>
 	</div>
