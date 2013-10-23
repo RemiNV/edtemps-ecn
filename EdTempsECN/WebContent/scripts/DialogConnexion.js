@@ -96,8 +96,9 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 	 * @param connectionCallback Callback de connexion. Si défini, effectue une reconnexion plutôt qu'une connexion.
 	 */
 	DialogConnection.prototype.show = function(title, connectionCallback) {
-		this.allowClose = connectionCallback == true;
+		
 		if(connectionCallback) {
+			this.allowClose = true;
 			if(window.localStorage) {
 				// Pré-remplissage du nom d'utilisateur (reconnexion)
 				this.jqDialog.find("#txt_identifiant").val(window.localStorage["username"]).prop("disabled", true);
@@ -109,6 +110,7 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 			}
 		}
 		else {
+			this.allowClose = false;
 			this.jqDialog.find("#txt_identifiant").prop("disabled", false);
 		}
 		
