@@ -43,7 +43,9 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 				case RestManager.resultCode_Success:
 					// Redirection vers la page d'agenda
 					jqDialog.dialog("close");
-					Davis.location.assign("agenda");
+					if(!me.connectionCallback) {
+						Davis.location.assign("agenda");
+					}
 					break;
 					
 				case RestManager.resultCode_NetworkError:
@@ -70,6 +72,11 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		});
 	};
 	
+	/**
+	 * Affichage de la dialog de connexion
+	 * @param title Titre à assigner à la dialog
+	 * @param connectionCallback Callback de connexion. Si non défini, l'utilisateur sera redirigé vers la page principale en cas de succès.
+	 */
 	DialogConnection.prototype.show = function(title, connectionCallback) {
 		this.connectionCallback = connectionCallback;
 		this.jqDialog.dialog("option", "title", title);
