@@ -7,7 +7,9 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 	var DialogConnection = function(restManager, jqDialog, connectionCallback) {
 		this.restManager = restManager;
 		this.jqDialog = jqDialog;
+		this.connectionSuccess = false;
 		
+		var me = this;
 		// Interface sous forme de dialog
 		jqDialog.dialog({
 			width: 700,
@@ -20,6 +22,14 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 			hide: {
 				effect: "explode",
 				duration: 200
+			},
+			beforeClose: function(event, ui) {
+				return me.allowClose;
+			},
+			close: function(event, ui) {
+				if(!me.connectionSuccess && me.connectionCallback) {
+					me.connectionCallback(false);
+				}
 			}
 		});
 		
@@ -42,6 +52,8 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 				switch(resultCode) {
 				case RestManager.resultCode_Success:
 					// Redirection vers la page d'agenda
+					me.allowClose = true;
+					me.connectionSuccess = true;
 					jqDialog.dialog("close");
 					if(!me.connectionCallback) {
 						Davis.location.assign("agenda");
@@ -75,9 +87,13 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 	/**
 	 * Affichage de la dialog de connexion
 	 * @param title Titre à assigner à la dialog
-	 * @param connectionCallback Callback de connexion. Si non défini, l'utilisateur sera redirigé vers la page principale en cas de succès.
+	 * @param connectionCallback Callback de connexion. Si non défini, la dialog n'est pas fermable et l'utilisateur sera redirigé vers la page principale en cas de succès.
 	 */
 	DialogConnection.prototype.show = function(title, connectionCallback) {
+		if(!connectionCallback) {
+			this.allowClose = false;
+		}
+		this.connectionSuccess = false;
 		this.connectionCallback = connectionCallback;
 		this.jqDialog.dialog("option", "title", title);
 		this.jqDialog.dialog("open");
