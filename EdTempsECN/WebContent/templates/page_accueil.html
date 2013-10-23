@@ -24,7 +24,50 @@
 	</ul>
 	
 	<span id="btn_chercher_salle" class="button">Chercher une salle libre</span>
-	<div id="form_chercher_salle"></div>
+	<div id="recherche_salle_libre">
+		<div id="form_chercher_salle" title="Formulaire de recherche d'une salle libre">
+			<form>
+				<table>
+					<tr>
+						<td><label for="date">Date de réservation</label></td>
+						<td><input type="date" name="date" id="date" class="date ui-widget-content ui-corner-all" /></td>
+					</tr>
+					<tr>
+						<td><label for="timepickerDebut">Heure de début</label></td>
+						<td>
+							<input type="text" name="timepickerDebut" id="timepickerDebut" class="ui-widget-content ui-corner-all" />
+						</td>
+					</tr>
+					<tr>
+						<td><label for="timepickerFin">Heure de fin</label></td>
+						<td>
+							<input type="text" name="timepickerFin" id="timepickerFin" class="ui-widget-content ui-corner-all" />
+						</td>
+					</tr>
+					<tr>
+						<td><label for="capacite">Capacité</label></td>
+						<td>
+							<input type="number" name="capacite" id="capacite" style="width: 80px;" class="ui-widget-content ui-corner-all" value="20" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2"><hr/><br/><button>+ Ajouter un matériel</button></td>
+					</tr>
+					<tr>
+						<td><label for="materiel1">Materiel 1</label></td>
+						<td>
+							<input type="number" name="nbMateriel1" id="nbMateriel1" style="width: 50px;" class="ui-widget-content ui-corner-all" value="1" />
+							<select id="materiel1">
+								<option value="">Ordinateur</option>
+								<option value="">Vidéo-projecteur</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+				<input type="button" id="form_chercher_salle_valid" style="float: right; margin-top: 30px;" value="Rechercher" />
+			</form>
+		</div>
+	</div>
 	
 	<span id="zone_info">Info</span>
 	

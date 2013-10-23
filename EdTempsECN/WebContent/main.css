@@ -110,6 +110,10 @@ ul.button_nav li:last-child {
 	margin-left: 20px;
 }
 
+#form_chercher_salle {
+	display: none;
+}
+
 #div_filtres {
 	clear: both;
 	float: right;
