@@ -377,13 +377,13 @@
 		SELECT utilisateur.utilisateur_id, evenement.eve_id
 		FROM edt.utilisateur CROSS JOIN edt.evenement
 		WHERE utilisateur.utilisateur_token='1'
-		AND evenement.eve_nom='OBJET' OR evenement.eve_nom='GELOL';
+		AND (evenement.eve_nom='OBJET' OR evenement.eve_nom='GELOL');
 
 	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
 		SELECT utilisateur.utilisateur_id, evenement.eve_id
 		FROM edt.utilisateur CROSS JOIN edt.evenement
 		WHERE utilisateur.utilisateur_token='4'
-		AND evenement.eve_nom='Sport' OR evenement.eve_nom='dSIBAD' OR evenement.eve_nom='THERE';
+		AND (evenement.eve_nom='Sport' OR evenement.eve_nom='dSIBAD' OR evenement.eve_nom='THERE');
 
 	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
 		SELECT utilisateur.utilisateur_id, evenement.eve_id
@@ -455,7 +455,7 @@
 	INSERT INTO edt.alieuensalle(eve_id, salle_id)
 		SELECT evenement.eve_id, salle.salle_id
 		FROM edt.evenement CROSS JOIN edt.salle
-		WHERE evenement.eve_nom='OBJET' AND evenement.eve_datedebut='2013-10-23 14:00:00' AND salle.salle_nom='Salle info B12' OR salle.salle_nom='Salle info B13' LIMIT 2;
+		WHERE evenement.eve_nom='OBJET' AND evenement.eve_datedebut='2013-10-23 14:00:00' AND (salle.salle_nom='Salle info B12' OR salle.salle_nom='Salle info B13') LIMIT 2;
 
 	INSERT INTO edt.alieuensalle(eve_id, salle_id)
 		SELECT evenement.eve_id, salle.salle_id
