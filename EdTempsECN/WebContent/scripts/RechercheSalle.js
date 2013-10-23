@@ -43,6 +43,9 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		this.heureDebut.mask("00:00");
 		this.heureFin.mask("00:00");
 		this.capacite.mask("0000");
+		
+		// Ajout du calendrier associé au champ date
+		this.heureDebut.mask("00:00");
 
 		// Affectation d'une méthode au clic sur le bouton "Rechercher"
 		$("#form_chercher_salle_valid").click(function() {
@@ -50,7 +53,6 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			if (me.validationFormulaire()) {
 				this.effectuerRequete();
 			}
-
 		});
 		
 		// Affectation d'une méthode au clic sur le bouton "Annuler"
@@ -65,7 +67,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 
 		// Affectation d'une méthode au clique sur les différents champs
 		$("#form_recherche_salle_date, #form_recherche_salle_debut, #form_recherche_salle_fin, #form_recherche_salle_capacite").click(function() {
-			$(this).css({border: "1px solid #dddddd"});
+			$(this).css({border: "1px solid black"});
 		});
 		
 		// Affiche la boîte dialogue de recherche d'une salle libre
@@ -77,8 +79,8 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 				duration: 500
 			},
 			hide: {
-				effect: "explode",
-				duration: 300
+				effect: "fade",
+				duration: 500
 			}
 		});
 

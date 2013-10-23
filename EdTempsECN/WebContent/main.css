@@ -115,7 +115,7 @@ ul.button_nav li:last-child {
 }
 
 .form_chercher_salle_boutons {
-	float: right;
+	text-align: right;
 }
 
 #div_filtres {
