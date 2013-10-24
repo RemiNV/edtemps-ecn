@@ -28,8 +28,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			me.rechercheSalle.init();
 		});
 
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); });
 		this.setVue("mes_abonnements");
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); });
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier);
 	};
@@ -59,6 +59,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			this.mode = EcranAccueil.MODE_MES_ABONNEMENTS;
 			break;
 		}
+		
+		if(this.calendrier) {
+			this.calendrier.refetchEvents();
+		}
 	};
 	
 	EcranAccueil.prototype.onCalendarFetchEvents = function(start, end, callback) {
@@ -79,10 +83,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 						callback(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
 					}
 					else if(resultCode == RestManager.resultCode_NetworkError) {
-						$("#zone_info").html("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
+						window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
 					}
 					else {
-						$("#zone_info").html("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
+						window.showToast("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
 					}
 				});
 			}
@@ -90,6 +94,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			
 		default: 
 			// TODO : gérer
+			callback(new Array());
 		
 		}
 	
@@ -114,15 +119,13 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 
 				// On pourra ne récupérer que les évènements à l'avenir
 				me.abonnementsRecuperes = true;
-				
-				// TODO : remplir les autres vues
 			}
 			else if(resultCode == RestManager.resultCode_NetworkError) {
-				$("#zone_info").html("Erreur de chargement de vos agendas ; vérifiez votre connexion.");
+				window.showToast("Erreur de chargement de vos agendas ; vérifiez votre connexion.");
 			}
 
 			else {
-				$("#zone_info").html("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
+				window.showToast("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
 			}
 		});
 	};

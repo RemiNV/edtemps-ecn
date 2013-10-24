@@ -23,9 +23,6 @@ h1, h2, h3, h4, h5, h6 {
 	padding: 20px;
 	overflow: hidden;
 	width: 500px;
-	position: absolute;
-	left: 50%;
-	margin-left: -250px;
 }
 
 #table_connexion {
@@ -139,6 +136,10 @@ ul.button_nav li:last-child {
 	padding-left: 5px;
 }
 
+#formulaire_filtres select {
+	width: 140px;
+}
+
 #btn_ajout_evenement, #bloc_vos_agendas {
 	margin-top: 40px;
 }
@@ -216,4 +217,21 @@ ul.button_nav li:last-child {
 
 .fc-header {
 	clear: both;
+}
+
+/* Toast */
+
+#toast {
+	position: absolute;
+	width: 900px;
+	height: 20px;
+	left: 50%;
+	top: -40px;
+	margin-left: -450px;
+	background-color: #079eb5;
+	border-radius: 5px;
+	padding: 5px;
+	text-align: center;
+	color: white;
+	box-shadow: 3px 5px 7px #888888;
 }
