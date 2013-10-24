@@ -17,6 +17,7 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -79,7 +80,7 @@ public class UtilisateurGestion {
 	 * Génération d'un token de connexion pour l'utilisateur. Les tokens générés sont aléatoires.
 	 * Algorithme : 
 	 * - Générer une chaîne de 10 caractères alphanumériques aléatoires (exemple 1b483A5e35) qu’on appelle s
-	 * - Définir t = s + id LDAP d’utilisateur
+	 * - Définir t = s + id d’utilisateur. ID LDAP pour un token de connexion, ID local pour un token iCal.
 	 * - Calculer le hmac_sha256 de t, au format base64. On le note h. La clé du hmac_sha256 est un mot de passe stocké sur le serveur.
 	 * - Renvoyer t + h
 	 * 
@@ -89,15 +90,15 @@ public class UtilisateurGestion {
 	 * 
 	 * En pratique on effectue la vérification en comparant avec le token stocké en base.
 	 * 
-	 * @param idUtilisateur ID de l'utilisateur pour lequel générer un token
+	 * @param idUtilisateur ID de l'utilisateur pour lequel générer un token, peut être son ID LDAP (token de connexion) ou local (token iCal)
 	 * @return token généré (non inséré en BDD), qui est une chaîne alphanumérique
 	 * @throws InvalidKeyException Clé serveur invalide (ne devrait jamais se produire)
 	 * @throws NoSuchAlgorithmException La machine Java hôte est incapable de produire un HMAC_SHA256 (ne devrait jamais se produire)
 	 */
-	public static String genererToken(long idLdapUtilisateur) throws InvalidKeyException, NoSuchAlgorithmException {
+	public static String genererToken(long idUtilisateur) throws InvalidKeyException, NoSuchAlgorithmException {
 		// Génération de 10 caractères aléatoires
 		String randomSeed = RandomStringUtils.randomAlphanumeric(10);
-		String tokenHeader = randomSeed + idLdapUtilisateur;
+		String tokenHeader = randomSeed + idUtilisateur;
 		
 		String res = hmac_sha256(KEY_TOKENS, tokenHeader);
 		
@@ -127,6 +128,47 @@ public class UtilisateurGestion {
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
+		}
+	}
+	
+	/**
+	 * Vérifie la validité d'un token iCal fourni par un utilisateur
+	 * @param token Token à vérifier
+	 * @return ID de l'utilisateur déduit du token
+	 * @throws IdentificationException Le token est invalide
+	 * @throws DatabaseException Erreur de connexion à la base de données
+	 */
+	public int verifierTokenIcal(String token) throws IdentificationException, DatabaseException {
+		if(!StringUtils.isAlphanumeric(token))
+			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Format de token invalide");
+		
+		ResultSet res = _bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_url_ical='" + token + "'");
+		
+		try {
+			if(res.next()) {
+				return res.getInt(1);
+			}
+			else {
+				throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Token invalide.");
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	public String creerTokenIcal(int idUtilisateur) throws EdtempsException {
+		try {
+			String tokenIcal = genererToken(idUtilisateur);
+			
+			// Le token généré est alphanumérique (pas de problèmes de SQL)
+			_bdd.executeRequest("UPDATE edt.utilisateur SET utilisateur_url_ical='" + tokenIcal + "' WHERE utilisateur_id=" + idUtilisateur);
+			
+			return tokenIcal;
+			
+		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			System.out.println("Erreur de génération d'un token ICal : problème de cryptographie.");
+			throw new EdtempsException(ResultCode.CRYPTOGRAPHIC_ERROR, "Erreur de génération d'un token ICal : problème de cryptographie.");
 		}
 	}
 	
