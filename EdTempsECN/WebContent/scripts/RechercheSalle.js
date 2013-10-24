@@ -99,7 +99,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			this.date.css({border: "1px solid red"});
 			valid = false;
 		} else {
-			this.date.css({border: "1px solid #dddddd"});
+			this.date.css({border: "1px solid black"});
 		}
 
 		// Validation de l'heure de début
@@ -108,7 +108,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			this.heureDebut.css({border: "1px solid red"});
 			valid = false;
 		} else {
-			this.heureDebut.css({border: "1px solid #dddddd"});
+			this.heureDebut.css({border: "1px solid black"});
 		}
 
 		// Validation de l'heure de fin
@@ -117,7 +117,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			this.heureFin.css({border: "1px solid red"});
 			valid = false;
 		} else {
-			this.heureFin.css({border: "1px solid #dddddd"});
+			this.heureFin.css({border: "1px solid black"});
 		}
 		
 		return valid;
