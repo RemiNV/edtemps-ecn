@@ -31,6 +31,16 @@
       <servlet-class>org.ecn.edtemps.servlets.GroupesAbonnementsEtNonAbonnementsServlet</servlet-class>
   </servlet>
   
+  <servlet>
+      <servlet-name>CreateICal</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.CreateICalServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+      <servlet-name>GetICal</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.ICalServlet</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -55,5 +65,16 @@
       <servlet-name>GroupesAbonnementsEtNonAbonnements</servlet-name>
       <url-pattern>/abonnementsetnonabonnements</url-pattern>
   </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>CreateICal</servlet-name>
+      <url-pattern>/ical/create</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>GetICal</servlet-name>
+      <url-pattern>/ical/get</url-pattern>
+  </servlet-mapping>
+  
   
 </web-app>

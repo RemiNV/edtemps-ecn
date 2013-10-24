@@ -147,4 +147,9 @@ public class Salle {
 		this.numero = numero;
 	}
 
+	
+	@Override
+	public String toString() {
+		return this.getNom();
+	}
 }

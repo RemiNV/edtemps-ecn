@@ -54,7 +54,7 @@ public class ICalGestion {
 		calendar.getProperties().add(CalScale.GREGORIAN);
 		
 		for(EvenementIdentifie even : evenements) {
-			VEvent calEvent = new VEvent(new net.fortuna.ical4j.model.Date(even.getDateDebut()), new net.fortuna.ical4j.model.Date(even.getDateFin()), even.getNom());
+			VEvent calEvent = new VEvent(new net.fortuna.ical4j.model.DateTime(even.getDateDebut()), new net.fortuna.ical4j.model.DateTime(even.getDateFin()), even.getNom());
 			
 			String strSalles = StringUtils.join(even.getSalles(), ", ");
 			
