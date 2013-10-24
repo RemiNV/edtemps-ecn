@@ -2,22 +2,20 @@ package org.ecn.edtemps.servlets;
 
 import java.io.IOException;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
-import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.IdentificationException;
-import org.ecn.edtemps.exceptions.ResultCode;
-import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
+import org.ecn.edtemps.managers.ICalGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 
 public class ICalServlet extends TokenServlet {
 
+	/**
+	 * L'utilisateur est identifié par son token iCal ici, pas par son token de connexion classique
+	 */
 	@Override
 	protected int verifierToken(BddGestion bdd, String token) throws IdentificationException, DatabaseException {
 		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
@@ -28,30 +26,21 @@ public class ICalServlet extends TokenServlet {
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
-		resp.getWriter().write("mwahaha");
+		resp.setContentType("text/calendar");
 		
+		ICalGestion icalGestion = new ICalGestion(bdd);
 		
-		
-		bdd.close();
-	}
-	
-	
-	@Override
-	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		
-		// Génération d'un nouveau token iCal pour l'utilisateur
-		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
 		
 		try {
-			String newToken = utilisateurGestion.creerTokenIcal(userId);
+			resp.getWriter().write(icalGestion.genererICalAbonnements(userId));
+		} catch (DatabaseException e) {
+			resp.getWriter().write("Erreur de génération du calendrier ICal. Code : " + e.getResultCode() + " message : " + e.getMessage());
 			
-			JsonObject res = Json.createObjectBuilder().add("token", newToken).build();
-			
-			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Token iCal généré", res));
-		} catch (EdtempsException e) {
-			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			System.out.println("Erreur de génération de calendrier ICal");
+			e.printStackTrace();
 		}
 		
 		bdd.close();
 	}
+	
 }
