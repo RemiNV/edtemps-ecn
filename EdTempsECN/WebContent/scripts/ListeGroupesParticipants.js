@@ -29,10 +29,10 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		}
 		
 		// Liste des groupes non triés des abonnements de l'utilisateur
-		this.listeGroupes = new Array();
+		this.listeGroupes = null;
 
 		// Liste des groupes repérés par leur identifiant
-		this.groupes = new Object();
+		this.groupes = null;
 
 		// Accès à l'objet calendrier pour rafraichir l'affichage
 		this.calendrier = calendrier;
@@ -42,7 +42,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		this.groupesCalendriers = null;
 		
 		// Tableau qui contient un arbre des groupes pour facilite l'affichage de l'arborescence
-		this.arbre = new Object();
+		this.arbre = null;
 		
 	};
 
@@ -58,6 +58,8 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		this.listeGroupes=groupes;
 		
 		this.groupesCalendriers = new Object();
+		this.groupes = new Object();
+		this.arbre = new Object();
 		
 		// Pour chaque groupe, ajout d'un attribut affiche qui indique si ses événements doivent être affichés
 		for (var i = 0, maxI=groupes.length ; i < maxI ; i++) {
