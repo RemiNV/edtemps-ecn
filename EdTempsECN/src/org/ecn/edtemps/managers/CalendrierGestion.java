@@ -282,7 +282,7 @@ public class CalendrierGestion {
 					 );
 			while(rs_evenementsAssocies.next()){
 				EvenementGestion eveGestionnaire = new EvenementGestion(this._bdd);
-				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"));
+				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"), false);
 			}
 			// Supprimer calendrier
 			_bdd.executeRequest(

@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Evenement;
+import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -110,20 +110,20 @@ public class EvenementGestion {
 	}
 	
 	/**
-	 * Modification d'un �v�nement existant (en base de donn�es)
+	 * Modification d'un événement existant (en base de données)
 	 * 
-	 * <p>Permet d'actualiser dans la base de donn�es les anciens attributs d'un �v�nements (date, nom, intervenant, ...)
-	 * avec de nouveaux ayant �t� modifi�s par un utilisateur</p>
+	 * <p>Permet d'actualiser dans la base de données les anciens attributs d'un événements (date, nom, intervenant, ...)
+	 * avec de nouveaux ayant été modifiés par un utilisateur</p>
 	 * 
 	 * @param 
 	 * @throws EdtempsException
 	 */
 	public void modifierEvenement(EvenementIdentifie evenementIdentifie) throws EdtempsException{
 		try {
-			//d�but d'une transaction
+			//début d'une transaction
 			_bdd.startTransaction();
 			
-			// Modifier l'�venement (nom, date d�but, date fin)
+			// Modifier l'évenement (nom, date début, date fin)
 			_bdd.executeUpdate(
 					"UPDATE evenement"
 					+ "SET eve_nom = " + evenementIdentifie.getNom()
@@ -131,7 +131,7 @@ public class EvenementGestion {
 					+ "SET eve_datefin = " +  evenementIdentifie.getDateFin()
 					+ "WHERE eve_id = " + evenementIdentifie.getId());
 			
-			// Modifier  les intervenants de l'�venement (supprimer les anciens puis ajouter les nouveaux)
+			// Modifier  les intervenants de l'évenement (supprimer les anciens puis ajouter les nouveaux)
 			_bdd.executeRequest(
 					"DELETE FROM intervenantevenement "
 					 + "WHERE eve_id = " + evenementIdentifie.getId());
@@ -142,19 +142,18 @@ public class EvenementGestion {
 						+ "(" + evenementIdentifie.getIntervenants().get(i).getId() +", " + evenementIdentifie.getId() + ")");
 			}
 			
-			// Modifier le mat�riel n�cessaire � l'�venement
+			// Modifier le matériel nécessaire à l'évenement
 			_bdd.executeRequest(
 					"DELETE FROM necessitemateriel "
 					 + "WHERE eve_id = " + evenementIdentifie.getId());
 			for (int i=0; i<evenementIdentifie.getMateriels().size();i++){
-				//TODO: n�cessite de savoir utiliser une hashmap ...
-//				_bdd.executeRequest(
-//						"INSERT INTO necessitemateriel"
-//						+ "VALUES (materiel_id, necessitemateriel_quantite, eve_id) = "
-//						+ "(" + evenementIdentifie.getMateriels(). + ", " + evenementIdentifie.getMateriels().get(i).getId() + ", " + evenementIdentifie.getId() + ")");
+				_bdd.executeRequest(
+						"INSERT INTO necessitemateriel"
+						+ "VALUES (materiel_id, necessitemateriel_quantite, eve_id) = "
+						+ "(" + evenementIdentifie.getMateriels().get(i).getId() + ", " + evenementIdentifie.getMateriels().get(i).getQuantite() + ", " + evenementIdentifie.getId() + ")");
 			}
 			
-			// Modifier  les responsables de l'�venement
+			// Modifier  les responsables de l'événement
 			_bdd.executeRequest(
 					"DELETE FROM responsableevenement "
 					 + "WHERE eve_id = " + evenementIdentifie.getId());
@@ -165,7 +164,7 @@ public class EvenementGestion {
 						+ "(" + evenementIdentifie.getResponsables().get(i).getId() +", " + evenementIdentifie.getId() + ")");
 			}
 			
-			// Modifier les calendriers associ�s � l'�venement
+			// Modifier les calendriers associés à l'événement
 			_bdd.executeRequest(
 					"DELETE FROM evenementappartient"
 					+ "WHERE eve_id = " + evenementIdentifie.getId());
@@ -204,14 +203,17 @@ public class EvenementGestion {
 	 * Permet de supprimer un évènement dans la base de données,
 	 * l'évènement est identifié par son ID entier
 	 * 
-	 * @param idEvement
+	 * @param idEvement idetifiant de l'événement
+	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @throws EdtempsException
 	 */
 	// ajouté à la volée pour éviter erreur dans la méthode supprimerCalendrier, qui utilise cette méthode
-	public void supprimerEvenement(int idEvenement) throws EdtempsException {
+	public void supprimerEvenement(int idEvenement, boolean createTransaction) throws EdtempsException {
 		try {
-			// D�but transaction
-			_bdd.startTransaction();
+			// Début transaction si nécessaire
+			if (createTransaction) {
+				_bdd.startTransaction();
+			}
 			
 			// Supprimer l'association aux intervenants de l'�venement
 			_bdd.executeRequest(
@@ -244,8 +246,10 @@ public class EvenementGestion {
 					 + "WHERE eve_id = " + idEvenement);
 
 			
-			// fin transaction
-			_bdd.commit();
+			// fin transaction si nécessaire
+			if (createTransaction){
+				_bdd.commit();
+			}
 			
 		} catch (DatabaseException e){
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
@@ -271,7 +275,10 @@ public class EvenementGestion {
 		Date dateFin = reponse.getTimestamp("eve_datefin");
 		
 		// Récupération des IDs des calendriers
-		ArrayList<Integer> idCalendriers = _bdd.recupererIds("SELECT cal_id FROM edt.evenementappartient WHERE eve_id=" + id, "cal_id");
+		ArrayList<Integer> idCalendriers = _bdd.recupererIds(
+				"SELECT cal_id "
+				+ "FROM edt.evenementappartient "
+				+ "WHERE eve_id=" + id, "cal_id");
 		
 		// Récupération des salles
 		SalleGestion salleGestion = new SalleGestion(_bdd);
@@ -285,16 +292,18 @@ public class EvenementGestion {
 		ArrayList<UtilisateurIdentifie> responsables = utilisateurGestion.getResponsablesEvenement(id);
 		
 		// Matériel
-		ResultSet reponseMateriel = _bdd.executeRequest("SELECT materiel.materiel_nom AS nom, necessitemateriel.necessitemateriel_quantite AS quantite " +
-				"FROM edt.materiel INNER JOIN edt.necessitemateriel ON necessitemateriel.materiel_id = materiel.materiel_id AND necessitemateriel.eve_id=" + id);
+		ResultSet reponseMateriel = _bdd.executeRequest(
+				"SELECT materiel.materiel_id AS id, materiel.materiel_nom AS nom, necessitemateriel.necessitemateriel_quantite AS quantite " +
+				"FROM edt.materiel INNER JOIN edt.necessitemateriel ON necessitemateriel.materiel_id = materiel.materiel_id "
+				+ "AND necessitemateriel.eve_id=" + id);
 		
-		HashMap<String, Integer> materiel = new HashMap<String, Integer>();
+		ArrayList<Materiel> materiels = new ArrayList<Materiel>();
 		while(reponseMateriel.next()) {
-			materiel.put(reponseMateriel.getString("nom"), reponseMateriel.getInt("quantite"));
+			materiels.add(new Materiel(reponseMateriel.getInt("id"), reponseMateriel.getString("nom"), reponseMateriel.getInt("quantite")));
 		}
 		reponseMateriel.close();
 		
-		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiel, id);
+		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiels, id);
 	}
 	
 	/**
@@ -304,7 +313,10 @@ public class EvenementGestion {
 	 * @throws DatabaseException 
 	 */
 	public EvenementIdentifie getEvenement(int idEvenement) throws DatabaseException {
-		ResultSet reponse = _bdd.executeRequest("SELECT eve_id, eve_nom, eve_datedebut, eve_datefin FROM edt.evenement WHERE eve_id=" + idEvenement);
+		ResultSet reponse = _bdd.executeRequest(
+				"SELECT eve_id, eve_nom, eve_datedebut, eve_datefin "
+				+ "FROM edt.evenement "
+				+ "WHERE eve_id=" + idEvenement);
 		
 		EvenementIdentifie res = null;
 		try {
@@ -317,6 +329,56 @@ public class EvenementGestion {
 			throw new DatabaseException(e);
 		}
 			
+		return res;
+	}
+	
+	/**
+	 * Liste les évènements liés à un groupe d'utilisateurs
+	 * @param idGroupe groupe dont les évènements sont à récupérer
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * 
+	 * @return Liste d'évènements récupérés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementsGroupe(int idGroupe, Date dateDebut, Date dateFin, 
+			boolean createTransaction) throws DatabaseException {
+		
+		ArrayList<EvenementIdentifie> res = null;
+	
+		try {
+			if(createTransaction){
+				_bdd.startTransaction();
+			}
+						
+			PreparedStatement req = _bdd.getConnection().prepareStatement(
+					"SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+					"FROM edt.evenement " +
+					"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
+					"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
+					"WHERE calendrierappartientgroupe.cal_id = " + idGroupe
+					+ "AND evenement.eve_datefin >= ? "
+					+ "AND evenement.eve_datedebut <= ?");
+			
+			req.setTimestamp(1, new java.sql.Timestamp(dateDebut.getTime()));
+			req.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
+			
+			ResultSet reponse = req.executeQuery();
+			
+			res = new ArrayList<EvenementIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateEvenementFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			if(createTransaction){
+				_bdd.commit();
+			}	
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
 		return res;
 	}
 	
@@ -364,6 +426,153 @@ public class EvenementGestion {
 			
 			if(createTransaction)
 				_bdd.commit();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return res;
+	}
+	
+	/**
+	 * Liste les évènements liés à une salle
+	 * @param idSalle identifiant de la salle dont les évènements sont à récupérer
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * 
+	 * @return Liste d'évènements récupérés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementsSalle(int idSalle, Date dateDebut, Date dateFin, 
+			boolean createTransaction) throws DatabaseException {
+		
+		ArrayList<EvenementIdentifie> res = null;
+	
+		try {
+			if(createTransaction){
+				_bdd.startTransaction();
+			}
+						
+			PreparedStatement req = _bdd.getConnection().prepareStatement(
+					"SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+					"FROM edt.evenement " +
+					"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
+					"WHERE alieuensalle.salle_id = " + idSalle
+					+ "AND evenement.eve_datefin >= ? "
+					+ "AND evenement.eve_datedebut <= ?");
+			
+			req.setTimestamp(1, new java.sql.Timestamp(dateDebut.getTime()));
+			req.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
+			
+			ResultSet reponse = req.executeQuery();
+			
+			res = new ArrayList<EvenementIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateEvenementFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			if(createTransaction){
+				_bdd.commit();
+			}	
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return res;
+	}
+	
+	/**
+	 * Liste les évènements liés à un responsable
+	 * @param idResponsable identifiant de l'utilisateur responsable des évènements à récupérer
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * 
+	 * @return Liste d'évènements récupérés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementsResponsable(int idResponsable, Date dateDebut, Date dateFin, 
+			boolean createTransaction) throws DatabaseException {
+		
+		ArrayList<EvenementIdentifie> res = null;
+	
+		try {
+			if(createTransaction){
+				_bdd.startTransaction();
+			}
+						
+			PreparedStatement req = _bdd.getConnection().prepareStatement(
+					"SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+					"FROM edt.evenement " +
+					"INNER JOIN edt.responsablevenement ON evenement.eve_id = responsableevenement.eve_id " +
+					"WHERE responsableevenement.utilisateur_id = " + idResponsable
+					+ "AND evenement.eve_datefin >= ? "
+					+ "AND evenement.eve_datedebut <= ?");
+			
+			req.setTimestamp(1, new java.sql.Timestamp(dateDebut.getTime()));
+			req.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
+			
+			ResultSet reponse = req.executeQuery();
+			
+			res = new ArrayList<EvenementIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateEvenementFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			if(createTransaction){
+				_bdd.commit();
+			}	
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return res;
+	}
+	
+	/**
+	 * Liste les évènements liés à un calendrier
+	 * @param idCalendrier identifiant du calendrier dont les évènements sont à récupérer
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * 
+	 * @return Liste d'évènements récupérés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementsCalendrier(int idCalendrier, Date dateDebut, Date dateFin, 
+			boolean createTransaction) throws DatabaseException {
+		
+		ArrayList<EvenementIdentifie> res = null;
+	
+		try {
+			if(createTransaction){
+				_bdd.startTransaction();
+			}
+						
+			PreparedStatement req = _bdd.getConnection().prepareStatement(
+					"SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+					"FROM edt.evenement " +
+					"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
+					"WHERE evenementappartient.cal_id = " + idCalendrier
+					+ "AND evenement.eve_datefin >= ? "
+					+ "AND evenement.eve_datedebut <= ?");
+			
+			req.setTimestamp(1, new java.sql.Timestamp(dateDebut.getTime()));
+			req.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
+			
+			ResultSet reponse = req.executeQuery();
+			
+			res = new ArrayList<EvenementIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateEvenementFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			if(createTransaction){
+				_bdd.commit();
+			}	
 			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
