@@ -39,7 +39,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 		// Liste des groupes d'un calendrier (calendriers repérés par ID dans l'objet)
 		// uniquement les calendriers auxquels l'utilisateur est abonné
-		this.groupesCalendriers = new Object();
+		this.groupesCalendriers = null;
 		
 		// Tableau qui contient un arbre des groupes pour facilite l'affichage de l'arborescence
 		this.arbre = new Object();
@@ -56,6 +56,8 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 		// Initialise la liste des groupes avec les groupes passés en paramètres
 		this.listeGroupes=groupes;
+		
+		this.groupesCalendriers = new Object();
 		
 		// Pour chaque groupe, ajout d'un attribut affiche qui indique si ses événements doivent être affichés
 		for (var i = 0, maxI=groupes.length ; i < maxI ; i++) {
