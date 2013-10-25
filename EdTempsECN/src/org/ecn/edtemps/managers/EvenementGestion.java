@@ -13,6 +13,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Evenement;
+import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -110,20 +111,20 @@ public class EvenementGestion {
 	}
 	
 	/**
-	 * Modification d'un �v�nement existant (en base de donn�es)
+	 * Modification d'un événement existant (en base de donn�es)
 	 * 
-	 * <p>Permet d'actualiser dans la base de donn�es les anciens attributs d'un �v�nements (date, nom, intervenant, ...)
-	 * avec de nouveaux ayant �t� modifi�s par un utilisateur</p>
+	 * <p>Permet d'actualiser dans la base de données les anciens attributs d'un événements (date, nom, intervenant, ...)
+	 * avec de nouveaux ayant été modifiés par un utilisateur</p>
 	 * 
 	 * @param 
 	 * @throws EdtempsException
 	 */
 	public void modifierEvenement(EvenementIdentifie evenementIdentifie) throws EdtempsException{
 		try {
-			//d�but d'une transaction
+			//début d'une transaction
 			_bdd.startTransaction();
 			
-			// Modifier l'�venement (nom, date d�but, date fin)
+			// Modifier l'évenement (nom, date début, date fin)
 			_bdd.executeUpdate(
 					"UPDATE evenement"
 					+ "SET eve_nom = " + evenementIdentifie.getNom()
@@ -131,7 +132,7 @@ public class EvenementGestion {
 					+ "SET eve_datefin = " +  evenementIdentifie.getDateFin()
 					+ "WHERE eve_id = " + evenementIdentifie.getId());
 			
-			// Modifier  les intervenants de l'�venement (supprimer les anciens puis ajouter les nouveaux)
+			// Modifier  les intervenants de l'évenement (supprimer les anciens puis ajouter les nouveaux)
 			_bdd.executeRequest(
 					"DELETE FROM intervenantevenement "
 					 + "WHERE eve_id = " + evenementIdentifie.getId());
@@ -142,7 +143,7 @@ public class EvenementGestion {
 						+ "(" + evenementIdentifie.getIntervenants().get(i).getId() +", " + evenementIdentifie.getId() + ")");
 			}
 			
-			// Modifier le mat�riel n�cessaire � l'�venement
+			// Modifier le matériel nécessaire à l'évenement
 			_bdd.executeRequest(
 					"DELETE FROM necessitemateriel "
 					 + "WHERE eve_id = " + evenementIdentifie.getId());
@@ -285,16 +286,18 @@ public class EvenementGestion {
 		ArrayList<UtilisateurIdentifie> responsables = utilisateurGestion.getResponsablesEvenement(id);
 		
 		// Matériel
-		ResultSet reponseMateriel = _bdd.executeRequest("SELECT materiel.materiel_nom AS nom, necessitemateriel.necessitemateriel_quantite AS quantite " +
-				"FROM edt.materiel INNER JOIN edt.necessitemateriel ON necessitemateriel.materiel_id = materiel.materiel_id AND necessitemateriel.eve_id=" + id);
+		ResultSet reponseMateriel = _bdd.executeRequest(
+				"SELECT materiel.materiel_id AS id, materiel.materiel_nom AS nom, necessitemateriel.necessitemateriel_quantite AS quantite " +
+				"FROM edt.materiel INNER JOIN edt.necessitemateriel ON necessitemateriel.materiel_id = materiel.materiel_id "
+				+ "AND necessitemateriel.eve_id=" + id);
 		
-		HashMap<String, Integer> materiel = new HashMap<String, Integer>();
+		ArrayList<Materiel> materiels = new ArrayList<Materiel>();
 		while(reponseMateriel.next()) {
-			materiel.put(reponseMateriel.getString("nom"), reponseMateriel.getInt("quantite"));
+			materiels.add(new Materiel(reponseMateriel.getInt("id"), reponseMateriel.getString("nom"), reponseMateriel.getInt("quantite")));
 		}
 		reponseMateriel.close();
 		
-		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiel, id);
+		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiels, id);
 	}
 	
 	/**

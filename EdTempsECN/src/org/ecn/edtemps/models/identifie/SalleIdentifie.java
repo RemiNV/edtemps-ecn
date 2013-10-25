@@ -1,5 +1,6 @@
 package org.ecn.edtemps.models.identifie;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
+import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.Salle;
 
 /**
@@ -24,7 +26,7 @@ public class SalleIdentifie extends Salle implements JSONAble {
 		this.id = id;
 	}
 	
-	public SalleIdentifie(int id, String batiment, String nom, int capacite, int niveau, int numero, HashMap<Integer, Integer> materiels) {
+	public SalleIdentifie(int id, String batiment, String nom, int capacite, int niveau, int numero, ArrayList<Materiel> materiels) {
 		super(batiment, nom, capacite, niveau, numero, materiels);
 		
 		this.id = id;
@@ -61,11 +63,12 @@ public class SalleIdentifie extends Salle implements JSONAble {
 		
 		// Ajout des matériels
 		JsonArrayBuilder materielsArrayBuilder = Json.createArrayBuilder();
-		for(Map.Entry<Integer, Integer> materiel : materiels.entrySet()) {
+		//TODO: faire la même chose mais avec la liste de matériels au lieu d'être avec une HashMap
+		/*for(Map.Entry<Integer, Integer> materiel : materiels.entrySet()) {
 			materielsArrayBuilder.add(Json.createObjectBuilder().add("id", materiel.getKey()).add("quantite", materiel.getValue()).build());
 		}
 		
-		builder.add("materiels", materielsArrayBuilder.build());
+		builder.add("materiels", materielsArrayBuilder.build());*/
 		
 		return builder.build();
 	}

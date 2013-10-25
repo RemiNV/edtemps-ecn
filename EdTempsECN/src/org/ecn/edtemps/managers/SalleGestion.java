@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.Salle;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 
@@ -51,11 +52,15 @@ public class SalleGestion {
 		int capacite = row.getInt("salle_capacite");
 
 		// Récupérer la liste des matériels de la salle avec la quantité
-		ResultSet requeteMateriel = _bdd.executeRequest("SELECT * FROM edt.contientmateriel WHERE salle_id=" + id);
+		ResultSet requeteMateriel = _bdd.executeRequest(
+				"SELECT * "
+				+ "FROM contientmateriel"
+				+ "INNER JOIN materiel ON materiel.materiel_id = contientmateriel.materiel_id "
+				+ "WHERE salle_id =" + id);
 		
-		HashMap<Integer, Integer> materiels = new HashMap<Integer, Integer>();
+		ArrayList<Materiel> materiels = new ArrayList<Materiel>();
 		while (requeteMateriel.next()) {
-			materiels.put(requeteMateriel.getInt("materiel_id"), requeteMateriel.getInt("contientmateriel_quantite"));
+			materiels.add(new Materiel(requeteMateriel.getInt("materiel_id"), requeteMateriel.getString("materiel_nom"), requeteMateriel.getInt("contientmateriel_quantite")));
 		}
 		
 		requeteMateriel.close();
@@ -133,7 +138,7 @@ public class SalleGestion {
 				Integer niveau = salle.getNiveau();
 				Integer numero = salle.getNumero();
 				Integer capacite = salle.getCapacite();
-				Map<Integer, Integer> materiels = salle.getMateriels();
+				ArrayList<Materiel> materiels = salle.getMateriels();
 
 				// Vérification de la cohérence des valeurs
 				if (StringUtils.isNotBlank(nom)) {
@@ -154,14 +159,16 @@ public class SalleGestion {
 							+ id + "'");
 
 					// Ajout des nouveaux liens avec les matériels
-					for (Entry<Integer, Integer> materiel : materiels
-							.entrySet()) {
-						_bdd.executeRequest("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) VALUES ('"
+					for (int i = 0; i<materiels.size(); i++) {
+						_bdd.executeRequest(
+								"INSERT INTO edt.contientmateriel "
+								+ "(salle_id, materiel_id, contientmateriel_quantite) "
+								+ "VALUES ('"
 								+ id
 								+ "', '"
-								+ materiel.getKey()
+								+ materiels.get(i).getId()
 								+ "', '"
-								+ materiel.getValue() + "')");
+								+ materiels.get(i).getQuantite() + "')");
 					}
 
 					// Termine la transaction
@@ -212,7 +219,7 @@ public class SalleGestion {
 				Integer niveau = salle.getNiveau();
 				Integer numero = salle.getNumero();
 				Integer capacite = salle.getCapacite();
-				Map<Integer, Integer> materiels = salle.getMateriels();
+				ArrayList<Materiel> materiels = salle.getMateriels();
 
 				// Vérification de la cohérence des valeurs
 				if (StringUtils.isNotBlank(nom)) {
@@ -236,13 +243,15 @@ public class SalleGestion {
 					resultat.close();
 
 					// Ajout du lien avec les matériels
-					for (Entry<Integer, Integer> materiel : materiels
-							.entrySet()) {
-						_bdd.executeRequest("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) VALUES ('"
+					for (int i = 0; i<materiels.size(); i++){
+						_bdd.executeRequest(
+								"INSERT INTO edt.contientmateriel "
+								+ "(salle_id, materiel_id, contientmateriel_quantite) "
+								+ "VALUES ('"
 								+ lastInsert
 								+ "', '"
-								+ materiel.getKey()
-								+ "', '" + materiel.getValue() + "')");
+								+ materiels.get(i).getId()
+								+ "', '" + materiels.get(i).getQuantite() + "')");
 					}
 
 				} else {
