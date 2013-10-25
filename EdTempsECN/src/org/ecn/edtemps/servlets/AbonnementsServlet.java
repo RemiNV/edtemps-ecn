@@ -65,6 +65,8 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 		else { // Autre page
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
+		
+		bdd.close();
 	}
 	
 	/**

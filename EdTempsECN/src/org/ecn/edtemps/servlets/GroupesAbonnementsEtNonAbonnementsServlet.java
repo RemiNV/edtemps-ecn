@@ -49,6 +49,7 @@ public class GroupesAbonnementsEtNonAbonnementsServlet extends RequiresConnectio
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 		}
 
+		bdd.close();
 	}
 
 }
