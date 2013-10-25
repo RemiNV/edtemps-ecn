@@ -32,8 +32,8 @@
   </servlet>
   
   <servlet>
-      <servlet-name>CreateICal</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.CreateICalServlet</servlet-class>
+      <servlet-name>ICalToken</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.ICalTokenServlet</servlet-class>
   </servlet>
   
   <servlet>
@@ -67,8 +67,8 @@
   </servlet-mapping>
   
   <servlet-mapping>
-      <servlet-name>CreateICal</servlet-name>
-      <url-pattern>/ical/create</url-pattern>
+      <servlet-name>ICalToken</servlet-name>
+      <url-pattern>/ical/token</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

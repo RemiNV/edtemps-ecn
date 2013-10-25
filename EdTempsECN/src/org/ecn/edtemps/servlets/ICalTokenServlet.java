@@ -13,20 +13,25 @@ import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 
-public class CreateICalServlet extends RequiresConnectionServlet {
+/**
+ * Servlet de récupération de l'URL ICal de l'utilisateur
+ * @author Remi
+ *
+ */
+public class ICalTokenServlet extends RequiresConnectionServlet {
 
 	@Override
-	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
-		// Génération d'un nouveau token iCal pour l'utilisateur
-		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
 		
 		try {
-			String newToken = utilisateurGestion.creerTokenIcal(userId);
+			UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
 			
-			JsonObject res = Json.createObjectBuilder().add("token", newToken).build();
+			String token = utilisateurGestion.getTokenICal(userId);
 			
-			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Token iCal généré", res));
+			JsonObject res = Json.createObjectBuilder().add("token", token).build();
+			
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "URL ICal récupérée", res));
 		} catch (EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 		}
