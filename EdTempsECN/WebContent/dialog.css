@@ -51,7 +51,7 @@
 	filter: Alpha(Opacity=80);	
 }
 
-.ui-dialog-content input[type=text] {
+.ui-dialog-content input[type=text], input[type=password], input[type=date] {
 	border: 1px solid black;
 }
 
