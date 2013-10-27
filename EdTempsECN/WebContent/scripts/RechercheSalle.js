@@ -40,12 +40,27 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		var me = this;
 
 		// Ajout des masques aux différents champs
+		this.date.mask("00/00/0000");
 		this.heureDebut.mask("00:00");
 		this.heureFin.mask("00:00");
 		this.capacite.mask("0000");
-		
-		// Ajout du calendrier associé au champ date
-		this.heureDebut.mask("00:00");
+
+		// Ajout du datepicker sur le champ date
+		this.date.datepicker({ 
+			showAnim : 'slideDown',
+			showOn: 'button',
+			buttonText: "Calendrier",
+			buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
+			buttonImageOnly: true, // affiche l'image sans bouton
+			monthNamesShort: [ "Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jui", "Aou", "Sep", "Oct", "Nov", "Dec" ],
+			monthNames: [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ],
+			dayNamesMin: [ "Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa" ],
+			dayNames: [ "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" ],
+			gotoCurrent: true,
+			prevText: "Précédent",
+			nextText: "Suivant",
+			firstDay: 1
+		});
 
 		// Affectation d'une méthode au clic sur le bouton "Rechercher"
 		$("#form_chercher_salle_valid").click(function() {
@@ -54,7 +69,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 				this.effectuerRequete();
 			}
 		});
-		
+
 		// Affectation d'une méthode au clic sur le bouton "Annuler"
 		$("#form_chercher_salle_annuler").click(function() {
 			$("#form_chercher_salle").dialog("close");
@@ -76,11 +91,11 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			modal: true,
 			show: {
 				effect: "fade",
-				duration: 500
+				duration: 200
 			},
 			hide: {
-				effect: "fade",
-				duration: 500
+				effect: "explode",
+				duration: 200
 			}
 		});
 
@@ -99,7 +114,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			this.date.css({border: "1px solid red"});
 			valid = false;
 		} else {
-			this.date.css({border: "1px solid #dddddd"});
+			this.date.css({border: "1px solid black"});
 		}
 
 		// Validation de l'heure de début
@@ -108,7 +123,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			this.heureDebut.css({border: "1px solid red"});
 			valid = false;
 		} else {
-			this.heureDebut.css({border: "1px solid #dddddd"});
+			this.heureDebut.css({border: "1px solid black"});
 		}
 
 		// Validation de l'heure de fin
@@ -117,7 +132,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			this.heureFin.css({border: "1px solid red"});
 			valid = false;
 		} else {
-			this.heureFin.css({border: "1px solid #dddddd"});
+			this.heureFin.css({border: "1px solid black"});
 		}
 		
 		return valid;
