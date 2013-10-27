@@ -7,6 +7,8 @@ import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
@@ -20,6 +22,8 @@ import org.ecn.edtemps.managers.UtilisateurGestion;
  */
 public class ICalTokenServlet extends RequiresConnectionServlet {
 
+	private static Logger logger = LogManager.getLogger(ICalTokenServlet.class.getName());
+	
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
@@ -34,6 +38,7 @@ public class ICalTokenServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "URL ICal récupérée", res));
 		} catch (EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			logger.error("Erreur lors de la récupération de l'URL ICal de l'utilisateur", e);
 		}
 		
 		bdd.close();

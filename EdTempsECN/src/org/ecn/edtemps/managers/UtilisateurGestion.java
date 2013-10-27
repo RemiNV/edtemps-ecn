@@ -16,8 +16,10 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
-import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.IdentificationErrorException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -38,6 +40,8 @@ public class UtilisateurGestion {
 	private static final boolean USE_SSL_LDAP = true;
 	
 	protected BddGestion bdd;
+	
+	private static Logger logger = LogManager.getLogger(UtilisateurGestion.class.getName());
 	
 	/**
 	 * Initialise un gestionnaire d'utilisateurs
@@ -231,7 +235,7 @@ public class UtilisateurGestion {
 			
 			// Entrée correspondant à l'utilisateur dans la recherche
 			if(lstResults.isEmpty()) {
-				System.out.println("Erreur de récupération de l'ID LDAP de l'utilisateur : " + utilisateur);
+				logger.error("Erreur de récupération de l'ID LDAP de l'utilisateur : " + utilisateur);
 				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Impossible de récupérer l'ID LDAP de l'utilisateur.");
 			}
 			
@@ -242,7 +246,7 @@ public class UtilisateurGestion {
 			String mail = lstResults.get(0).getAttributeValue("mail");
 			
 			if(uidNumber == null) {
-				System.out.println("Format d'uidNumer invalide pour l'utilisateur : " + utilisateur);
+				logger.error("Format d'uidNumer invalide pour l'utilisateur : " + utilisateur);
 				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Format d'uidNumber invalide sur le serveur LDAP");
 			}
 			
@@ -294,11 +298,10 @@ public class UtilisateurGestion {
 				throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Identifiants LDAP invalides.");
 			}
 			else {
-				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Erreur de connexion à LDAP : " + e.getResultCode().getName());
+				throw new IdentificationErrorException(ResultCode.LDAP_CONNECTION_ERROR, "Erreur de connexion à LDAP : " + e.getResultCode().getName(), e);
 			}
 		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
-			System.out.println("Erreur de génération de token : machine Java hôte incompatible");
-			e.printStackTrace();
+			logger.fatal("Erreur de génération de token : machine Java hôte incompatible", e);
 			throw new IdentificationException(ResultCode.CRYPTOGRAPHIC_ERROR, "Erreur de génération de token : machine Java hôte incompatible");
 		} catch (SQLException e) {
 			throw new DatabaseException(e);

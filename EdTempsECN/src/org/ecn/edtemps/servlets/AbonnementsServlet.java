@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
@@ -26,6 +28,8 @@ import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
 public class AbonnementsServlet extends RequiresConnectionServlet {
 
+	private static Logger logger = LogManager.getLogger(AbonnementsServlet.class.getName());
+	
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
@@ -35,6 +39,7 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 		
 		if(StringUtils.isBlank(strTimestampDebut) || StringUtils.isBlank(strTimestampFin)) {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètres début et/ou fin absent(s)", null));
+			logger.info("Requête effectuée avec des paramètres début et/ou fin absent(s)");
 			return;
 		}
 		
@@ -50,6 +55,7 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 		}
 		catch(NumberFormatException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format des paramètres début et/ou fin incorrect", null));
+			logger.info("Requête effectuée avec des paramètres début et/ou fin non numériques.");
 			return;
 		}
 		
@@ -65,6 +71,8 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 		else { // Autre page
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
+		
+		bdd.close();
 	}
 	
 	/**
@@ -81,6 +89,7 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Abonnements aux évènements récupérés", res));
 		} catch (DatabaseException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			logger.info("Erreur de base de données lors du listing des évènements des abonnements", e);
 		}
 		
 	}
@@ -128,6 +137,7 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 			resultCode = e.getResultCode();
 			message = e.getMessage();
 			data = null;
+			logger.error("Erreur d'accès à la base de données lors du listing du résumé des abonnements", e);
 		}
 		
 		

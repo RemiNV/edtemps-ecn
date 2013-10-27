@@ -8,7 +8,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.IdentificationErrorException;
+import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
@@ -16,6 +20,7 @@ import org.ecn.edtemps.managers.UtilisateurGestion;
 
 public class ConnectionServlet extends HttpServlet {
 
+	private static Logger logger = LogManager.getLogger(ConnectionServlet.class.getName());
 	
 	/**
 	 * Connection d'un utilisateur
@@ -56,8 +61,15 @@ public class ConnectionServlet extends HttpServlet {
 						.build();
 				
 				reponse = ResponseManager.generateResponse(result, "", data);
+			} catch(IdentificationErrorException e) {
+				reponse = ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null);
+				logger.error("Erreur lors de l'identification d'un utilisateur", e);
+			} catch(IdentificationException e) {
+				reponse = ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null);
+				logger.debug("Token d'identification invalide ou expiré pour un utilisateur, code : " + e.getMessage(), e);
 			} catch (EdtempsException e) {
 				reponse = ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null);
+				logger.error("Erreur lors de la vérification de la connexion d'un utilisateur", e);
 			}
 		}
 		

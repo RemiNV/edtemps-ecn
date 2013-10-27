@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
@@ -22,6 +24,8 @@ import org.ecn.edtemps.managers.UtilisateurGestion;
  */
 public abstract class TokenServlet extends HttpServlet {
 
+	Logger logger = LogManager.getLogger(TokenServlet.class.getName());
+	
 	public static enum SupportedMethods {
 		GET,
 		POST;
@@ -61,9 +65,13 @@ public abstract class TokenServlet extends HttpServlet {
 			} catch (IdentificationException e) {
 				result = e.getResultCode();
 				message = e.getMessage();
+				logger.info("Erreur d'identification d'un utilisateur", e);
 			} catch(DatabaseException e) {
 				result = e.getResultCode();
 				message = e.getMessage();
+				
+				logger.error("Erreur d'accès à la base de données lors de l'identification d'un utilisateur", e);
+				
 				if(bdd != null)
 					bdd.close();
 			}

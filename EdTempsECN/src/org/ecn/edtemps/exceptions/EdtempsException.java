@@ -24,6 +24,11 @@ public class EdtempsException extends Exception {
 		this.resultCode = resultCode;
 	}
 	
+	public EdtempsException(ResultCode resultCode, String message, Throwable e) {
+		super(message, e);
+		this.resultCode = resultCode;
+	}
+	
 	public ResultCode getResultCode() {
 		return resultCode;
 	}
