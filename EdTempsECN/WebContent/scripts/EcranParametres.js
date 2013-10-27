@@ -13,6 +13,13 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 		// Initialisaion de la navigation par tabs
 		$("#tabs").tabs();
 		
+		// Initialisation des dialog
+		$("#dialog_export").dialog({
+			autoOpen: false,
+			modal: true,
+			width: 600
+		});
+		
 		// Listeners
 		$("#btn_parametres_retour").click(function() {
 			Davis.location.assign("agenda");
@@ -74,12 +81,40 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 			}
 			
 			else if(resultCode == RestManager.resultCode_NetworkError) {
-				alert("Erreur de chargement des groupes (auxquels vous êtes abonnés ou non) ; vérifiez votre connexion.");
+				window.showToast("Erreur de chargement des groupes (auxquels vous êtes abonnés ou non) ; vérifiez votre connexion.");
 			}
 
 			else {
-				alert(resultCode + " Erreur de chargement des groupes (auxquels vous êtes abonnés ou non) ; votre session a peut-être expiré ?");
+				window.showToast(resultCode + " Erreur de chargement des groupes (auxquels vous êtes abonnés ou non) ; votre session a peut-être expiré ?");
 			}
+		});
+		
+		// Ajout des listeners
+		var me = this;
+		$("#btn_export").click(function(event) {
+			me.restManager.effectuerRequete("GET", "ical/token", { token: me.restManager.getToken() }, function(response) {
+				
+				if(response.resultCode == RestManager.resultCode_Success) {
+					// Remplissage de la dialog d'export
+					var urlIcal = document.location.origin + document.location.pathname + "ical/get?token=" + response.data.token;
+					$("#dialog_export #txt_url_agenda_ical").html(urlIcal);
+					$("#dialog_export #lien_export_gmail").attr("href", "http://www.google.com/calendar/render?cid=" + encodeURIComponent(urlIcal));
+					
+					var urlSansProtocole = urlIcal.substring(location.protocol.length);
+					
+					$("#dialog_export #lien_export_ical").attr("href", "webcal:" + urlSansProtocole);
+					
+					// Affichage de la dialog initialisée
+					$("#dialog_export").dialog("open");
+				}
+				else if(resultCode == RestManager.resultCode_NetworkError) {
+					window.showToast("Erreur de récupération de votre URL ICal : vérifiez votre connexion");
+				}
+				else {
+					window.showToast("Erreur de récupération de votre URL ICal");
+				}
+				
+			});
 		});
 
 	};

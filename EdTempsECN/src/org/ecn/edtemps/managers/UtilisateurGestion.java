@@ -17,6 +17,7 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -36,14 +37,14 @@ public class UtilisateurGestion {
 	private static final int PORT_LDAP = 636;
 	private static final boolean USE_SSL_LDAP = true;
 	
-	protected BddGestion _bdd;
+	protected BddGestion bdd;
 	
 	/**
 	 * Initialise un gestionnaire d'utilisateurs
 	 * @param bdd Base de données à utiliser
 	 */
 	public UtilisateurGestion(BddGestion bdd) {
-		_bdd = bdd;
+		this.bdd = bdd;
 	}
 	
 	
@@ -79,7 +80,7 @@ public class UtilisateurGestion {
 	 * Génération d'un token de connexion pour l'utilisateur. Les tokens générés sont aléatoires.
 	 * Algorithme : 
 	 * - Générer une chaîne de 10 caractères alphanumériques aléatoires (exemple 1b483A5e35) qu’on appelle s
-	 * - Définir t = s + id LDAP d’utilisateur
+	 * - Définir t = s + id LDAP d’utilisateur.
 	 * - Calculer le hmac_sha256 de t, au format base64. On le note h. La clé du hmac_sha256 est un mot de passe stocké sur le serveur.
 	 * - Renvoyer t + h
 	 * 
@@ -89,15 +90,15 @@ public class UtilisateurGestion {
 	 * 
 	 * En pratique on effectue la vérification en comparant avec le token stocké en base.
 	 * 
-	 * @param idUtilisateur ID de l'utilisateur pour lequel générer un token
+	 * @param idUtilisateur ID LDAP de l'utilisateur pour lequel générer un token
 	 * @return token généré (non inséré en BDD), qui est une chaîne alphanumérique
 	 * @throws InvalidKeyException Clé serveur invalide (ne devrait jamais se produire)
 	 * @throws NoSuchAlgorithmException La machine Java hôte est incapable de produire un HMAC_SHA256 (ne devrait jamais se produire)
 	 */
-	public static String genererToken(long idLdapUtilisateur) throws InvalidKeyException, NoSuchAlgorithmException {
+	public static String genererToken(long idUtilisateur) throws InvalidKeyException, NoSuchAlgorithmException {
 		// Génération de 10 caractères aléatoires
 		String randomSeed = RandomStringUtils.randomAlphanumeric(10);
-		String tokenHeader = randomSeed + idLdapUtilisateur;
+		String tokenHeader = randomSeed + idUtilisateur;
 		
 		String res = hmac_sha256(KEY_TOKENS, tokenHeader);
 		
@@ -116,7 +117,7 @@ public class UtilisateurGestion {
 		if(!StringUtils.isAlphanumeric(token))
 			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Format de token invalide");
 		
-		ResultSet res = _bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='" + token + "' AND utilisateur_token_expire > now()");
+		ResultSet res = bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='" + token + "' AND utilisateur_token_expire > now()");
 		
 		try {
 			if(res.next()) {
@@ -131,6 +132,44 @@ public class UtilisateurGestion {
 	}
 	
 	/**
+	 * Vérifie la validité d'un token iCal fourni par un utilisateur
+	 * @param token Token à vérifier
+	 * @return ID de l'utilisateur déduit du token
+	 * @throws IdentificationException Le token est invalide
+	 * @throws DatabaseException Erreur de connexion à la base de données
+	 */
+	public int verifierTokenIcal(String token) throws IdentificationException, DatabaseException {
+		if(!StringUtils.isAlphanumeric(token))
+			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Format de token invalide");
+		
+		ResultSet res = bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_url_ical='" + token + "'");
+		
+		try {
+			if(res.next()) {
+				return res.getInt(1);
+			}
+			else {
+				throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Token invalide.");
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	public String getTokenICal(int idUtilisateur) throws DatabaseException {
+		ResultSet res = bdd.executeRequest("SELECT utilisateur_url_ical FROM edt.utilisateur WHERE utilisateur_id=" + idUtilisateur);
+		
+		try {
+			if(res.next())
+				return res.getString(1);
+			else
+				return null;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	/**
 	 * Récupération de l'ID d'un utilisateur connu dans la base de données depuis son ID LDAP.
 	 * L'utilisateur doit déjà avoir été enregistré sur le système emploi du temps
 	 * @param ldapId ID LDAP de l'utilisateur
@@ -138,7 +177,7 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
 	private Integer getUserIdFromLdapId(long ldapId) throws DatabaseException {
-		ResultSet results = _bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + ldapId);
+		ResultSet results = bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + ldapId);
 		
 		Integer id = null;
 		
@@ -161,7 +200,7 @@ public class UtilisateurGestion {
 	 */
 	public void seDeconnecter(int idUtilisateur) throws DatabaseException {
 		// Invalidation du token
-		_bdd.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=NULL,utilisateur_token_expire=NULL WHERE utilisateur_id=" + idUtilisateur);
+		bdd.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=NULL,utilisateur_token_expire=NULL WHERE utilisateur_id=" + idUtilisateur);
 	}
 	
 	/**
@@ -210,11 +249,11 @@ public class UtilisateurGestion {
 			// Insertion du token en base
 			String token = genererToken(uidNumber);
 			
-			_bdd.startTransaction();
+			bdd.startTransaction();
 			
 			Integer userId = getUserIdFromLdapId(uidNumber);
 			
-			Connection conn = _bdd.getConnection();
+			Connection conn = bdd.getConnection();
 			if(userId != null) { // Utilisateur déjà présent en base
 				// Token valable 1h, heure du serveur de base de donnée. Le token est constitué de caractères alphanumériques et de "_" : pas d'échappement nécessaire
 				PreparedStatement statement = conn.prepareStatement("UPDATE edt.utilisateur SET utilisateur_token=?, utilisateur_nom=?, utilisateur_prenom=?, " +
@@ -229,18 +268,23 @@ public class UtilisateurGestion {
 				statement.execute();
 			}
 			else { // Utilisateur absent de la base : insertion
+				
+				// Création d'un token ICal pour l'utilisateur
+				String tokenIcal = genererToken(uidNumber);
+				
 				PreparedStatement statement = conn.prepareStatement("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_nom, utilisateur_prenom, " +
-						"utilisateur_email, utilisateur_token_expire) VALUES(?, ?, ?, ?, ?, now() + interval '1 hour')");
+						"utilisateur_email, utilisateur_token_expire, utilisateur_url_ical) VALUES(?, ?, ?, ?, ?, now() + interval '1 hour', ?)");
 				statement.setLong(1, uidNumber);
 				statement.setString(2, token);
 				statement.setString(3, nom);
 				statement.setString(4, prenom);
 				statement.setString(5,  mail);
+				statement.setString(6, tokenIcal);
 				
 				statement.execute();
 			}
 			
-			_bdd.commit();
+			bdd.commit();
 			
 			return token;
 			
@@ -279,7 +323,7 @@ public class UtilisateurGestion {
 	}
 	
 	public ArrayList<UtilisateurIdentifie> getIntervenantsEvenement(int evenementId) throws DatabaseException {
-		ResultSet reponse = _bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, " +
+		ResultSet reponse = bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, " +
 				"utilisateur.utilisateur_prenom, utilisateur.utilisateur_email FROM edt.utilisateur INNER JOIN edt.intervenantevenement " +
 				"ON intervenantevenement.utilisateur_id = utilisateur.utilisateur_id AND intervenantevenement.eve_id = " + evenementId);
 		
@@ -299,7 +343,7 @@ public class UtilisateurGestion {
 	}
 	
 	public ArrayList<UtilisateurIdentifie> getResponsablesEvenement(int evenementId) throws DatabaseException {
-		ResultSet reponse = _bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, " +
+		ResultSet reponse = bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, " +
 				"utilisateur.utilisateur_prenom, utilisateur.utilisateur_email FROM edt.utilisateur INNER JOIN edt.responsableevenement " +
 				"ON responsableevenement.utilisateur_id = utilisateur.utilisateur_id AND responsableevenement.eve_id = " + evenementId);
 		

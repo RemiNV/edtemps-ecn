@@ -1,5 +1,6 @@
 package org.ecn.edtemps.models;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +33,11 @@ public class Evenement {
 	/** Liste des noms des intervenants de l'événement */
 	protected List<UtilisateurIdentifie> intervenants;
 	
-	/** Liste des noms des responsables de l'�v�nement */
+	/** Liste des noms des responsables de l'événement */
 	protected List<UtilisateurIdentifie> responsables;
 	
-	/** Liste de matériel nécessaire sous forme de map avec le nom du matériel et la quantité */
-	protected Map<String, Integer> materiels;
+	/** Liste de matériel nécessaire */
+	protected ArrayList<Materiel> materiels;
 	
 	/** Constructeur avec uniquement attributs indispensables */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers) {
@@ -49,7 +50,7 @@ public class Evenement {
 
 	/** Constructeur avec tous les attributs */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<SalleIdentifie> salles,
-			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, Map<String, Integer> materiels) {
+			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, ArrayList<Materiel> materiels) {
 		this(nom, dateDebut, dateFin, idCalendriers);
 		this.salles = salles;
 		this.intervenants = intervenants;
@@ -125,7 +126,7 @@ public class Evenement {
 	/**
 	 * @return the materiels
 	 */
-	public Map<String, Integer> getMateriels() {
+	public ArrayList<Materiel> getMateriels() {
 		return materiels;
 	}
 
@@ -133,7 +134,7 @@ public class Evenement {
 	/**
 	 * @param materiels the materiels to set
 	 */
-	public void setMateriels(Map<String, Integer> materiels) {
+	public void setMateriels(ArrayList<Materiel> materiels) {
 		this.materiels = materiels;
 	}
 }

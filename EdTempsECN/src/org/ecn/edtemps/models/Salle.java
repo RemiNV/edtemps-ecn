@@ -1,5 +1,6 @@
 package org.ecn.edtemps.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,8 +19,8 @@ public class Salle {
 
 	// TODO : cet attribut ne sert pas dans la plupart des cas d'utilisation, mais demande une requête BDD en plus.
 	// TODO : définir un objet Salle "light" pour la plupart des requêtes ?
-	/** Map du matériel qui équipe la salle avec la quantité */
-	protected Map<Integer, Integer> materiels;
+	/** Matériel (id, nom, quantité) qui équipe la salle */
+	protected ArrayList<Materiel> materiels;
 
 	/** Niveau de la salle */
 	protected int niveau;
@@ -35,14 +36,14 @@ public class Salle {
 	 */
 	public Salle(String nom) {
 		this.nom = nom;
-		this.materiels = new HashMap<Integer, Integer>();
+		this.materiels = new ArrayList<Materiel>();
 	}
 
 	/**
 	 * Constructeur avec tous les paramètres
 	 */
 	public Salle(String batiment, String nom, int capacite, int niveau,
-			int numero, HashMap<Integer, Integer> materiels) {
+			int numero, ArrayList<Materiel> materiels) {
 		this.batiment = batiment;
 		this.capacite = capacite;
 		this.niveau = niveau;
@@ -68,7 +69,7 @@ public class Salle {
 	/**
 	 * @return materiels
 	 */
-	public Map<Integer, Integer> getMateriels() {
+	public ArrayList<Materiel> getMateriels() {
 		return materiels;
 	}
 
@@ -116,7 +117,7 @@ public class Salle {
 	 * 
 	 * @param materiels
 	 */
-	public void setMateriels(Map<Integer, Integer> materiels) {
+	public void setMateriels(ArrayList<Materiel> materiels) {
 		this.materiels = materiels;
 	}
 
@@ -147,4 +148,9 @@ public class Salle {
 		this.numero = numero;
 	}
 
+	
+	@Override
+	public String toString() {
+		return this.getNom();
+	}
 }

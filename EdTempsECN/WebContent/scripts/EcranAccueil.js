@@ -60,7 +60,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			break;
 		}
 		
-		if(this.calendrier) {
+		if(this.abonnementsRecuperes) {
 			this.calendrier.refetchEvents();
 		}
 	};

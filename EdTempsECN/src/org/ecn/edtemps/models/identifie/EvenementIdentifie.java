@@ -1,5 +1,6 @@
 package org.ecn.edtemps.models.identifie;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import javax.json.JsonValue;
 import org.ecn.edtemps.json.JSONAble;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.Evenement;
+import org.ecn.edtemps.models.Materiel;
 
 /**
  * Classe modèle d'un événement identifié = défini dans la base de données
@@ -24,7 +26,7 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 	/** Constructeur avec tous les attributs */
 	public EvenementIdentifie(String nom, Date dateDebut, Date dateFin,
 			List<Integer> idCalendriers, List<SalleIdentifie> salles,
-			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, Map<String, Integer> materiels, int id) {
+			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, ArrayList<Materiel> materiels, int id) {
 		super(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiels);
 		this.id=id;
 	}

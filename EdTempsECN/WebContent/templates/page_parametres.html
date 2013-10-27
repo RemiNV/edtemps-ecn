@@ -22,6 +22,19 @@
 			</select>
 			
 			<div class="button" id="btn_enregistrer_abonnements">Enregistrer</div>
+			<div class="button" id="btn_export">Export</div>
+			
+			
+			<div id="dialog_export" title="Export">
+				URL de l'agenda ICal : <textarea id="txt_url_agenda_ical"></textarea><br/>
+				
+				<!-- Href à remplir en JS -->
+				<a class="button" id="lien_export_ical" href="#" target="_blank">Ouvrir avec ICal (Apple)</a>
+				<a class="button" id="lien_export_gmail" href="#" target="_blank">Ouvrir avec GMail</a>
+				
+			</div>
+			
+			
 		</div>
 		<div id="tab-mes-agendas">
 			<div class="button" id="btn_creer_agenda">Créer un agenda</div>
