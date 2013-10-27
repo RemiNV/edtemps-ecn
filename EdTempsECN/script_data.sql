@@ -314,7 +314,8 @@
 /* materiel */
 
 	INSERT INTO edt.materiel (materiel_nom) VALUES ('Ordinateur');
-	INSERT INTO edt.materiel (materiel_nom) VALUES ('Vidéoprojecteur');
+	INSERT INTO edt.materiel (materiel_nom) VALUES ('Vidéo-projecteur');
+	INSERT INTO edt.materiel (materiel_nom) VALUES ('Ordinateur portable');
 
 /* salle */
 
