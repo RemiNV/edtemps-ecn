@@ -1,8 +1,8 @@
 package org.ecn.edtemps.managers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +12,6 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.models.Calendrier;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class CalendrierGestionTest {
