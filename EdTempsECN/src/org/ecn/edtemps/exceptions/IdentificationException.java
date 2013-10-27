@@ -10,4 +10,8 @@ public class IdentificationException extends EdtempsException {
 	public IdentificationException(ResultCode resultCode, String message) {
 		super(resultCode, message);
 	}
+	
+	public IdentificationException(ResultCode resultCode, String message, Throwable e) {
+		super(resultCode, message, e);
+	}
 }

@@ -107,7 +107,7 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 					// Affichage de la dialog initialisée
 					$("#dialog_export").dialog("open");
 				}
-				else if(resultCode == RestManager.resultCode_NetworkError) {
+				else if(response.resultCode == RestManager.resultCode_NetworkError) {
 					window.showToast("Erreur de récupération de votre URL ICal : vérifiez votre connexion");
 				}
 				else {

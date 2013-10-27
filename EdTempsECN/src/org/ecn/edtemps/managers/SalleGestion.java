@@ -54,8 +54,8 @@ public class SalleGestion {
 		// Récupérer la liste des matériels de la salle avec la quantité
 		ResultSet requeteMateriel = _bdd.executeRequest(
 				"SELECT * "
-				+ "FROM contientmateriel"
-				+ "INNER JOIN materiel ON materiel.materiel_id = contientmateriel.materiel_id "
+				+ "FROM edt.contientmateriel "
+				+ "INNER JOIN edt.materiel ON materiel.materiel_id = contientmateriel.materiel_id "
 				+ "WHERE salle_id =" + id);
 		
 		ArrayList<Materiel> materiels = new ArrayList<Materiel>();

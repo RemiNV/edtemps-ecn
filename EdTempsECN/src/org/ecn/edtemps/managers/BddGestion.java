@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 
 /**
@@ -19,6 +21,8 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 public class BddGestion {
 	
 	private Connection _connection;
+	
+	private static Logger logger = LogManager.getLogger(BddGestion.class.getName());
 
 	/**
 	 * Méthode de connexion à la base de données
@@ -34,14 +38,14 @@ public class BddGestion {
 		try {
 
 			Class.forName("org.postgresql.Driver");
-			System.out.println("Driver chargé");
+			logger.debug("Driver postgres chargé");
 
 			String url = "jdbc:postgresql://localhost:5432/edtemps-ecn";
 			String user = "edtemps-ecn";
 			String passwd = "passwordEdtemps";
 
 			connection = DriverManager.getConnection(url, user, passwd);
-			System.out.println("Connexion OK");
+			logger.debug("Connexion à la base de données réalisée");
 
 		} catch (Exception e) {
 			throw new DatabaseException(e);

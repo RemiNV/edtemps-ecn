@@ -9,6 +9,8 @@ import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
@@ -26,6 +28,8 @@ import org.ecn.edtemps.models.identifie.GroupeIdentifie;
  *
  */
 public class GroupesAbonnementsEtNonAbonnementsServlet extends RequiresConnectionServlet {
+	
+	private static Logger logger = LogManager.getLogger(GroupesAbonnementsEtNonAbonnementsServlet.class.getName());
 	
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -47,6 +51,7 @@ public class GroupesAbonnementsEtNonAbonnementsServlet extends RequiresConnectio
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Abonnements aux évènements récupérés", data));
 		} catch (DatabaseException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			logger.error("Erreur d'accès à la base de données lors de la récupération des groupes", e);
 		}
 
 		bdd.close();
