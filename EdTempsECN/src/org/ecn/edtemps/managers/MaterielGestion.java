@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
@@ -18,6 +20,8 @@ import org.ecn.edtemps.models.Materiel;
 public class MaterielGestion {
 
 	protected BddGestion _bdd;
+
+	private static Logger logger = LogManager.getLogger(MaterielGestion.class.getName());
 
 	/**
 	 * Initialise un gestionnaire de matériel
@@ -47,6 +51,7 @@ public class MaterielGestion {
 
 			// Récupère les matériels en base
 			ResultSet requeteMateriel= _bdd.executeRequest("SELECT * FROM edt.materiel");
+			logger.debug("Récupération de la liste des matériels dans la base de données");
 
 			// Parcours le résultat de la requête
 			while (requeteMateriel.next()) {

@@ -5,11 +5,17 @@
  */
 package org.ecn.edtemps.models;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+
+import org.ecn.edtemps.json.JSONAble;
+
 /**
  * @author Audrey
  *
  */
-public class Materiel {
+public class Materiel implements JSONAble {
 
 	/** identifiant du matériel*/
 	protected int id;
@@ -60,6 +66,18 @@ public class Materiel {
 	 */
 	public int getQuantite() {
 		return quantite;
+	}
+
+	@Override
+	public JsonValue toJson() {
+		
+		JsonObjectBuilder builder =  Json.createObjectBuilder()
+				.add("id", this.id)
+				.add("nom", this.nom)
+				.add("quantite", this.quantite);
+		
+		return builder.build();
+
 	}
 	
 }

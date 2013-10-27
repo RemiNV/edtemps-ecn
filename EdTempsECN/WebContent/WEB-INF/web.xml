@@ -35,10 +35,15 @@
       <servlet-name>ICalToken</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.ICalTokenServlet</servlet-class>
   </servlet>
-  
+
   <servlet>
       <servlet-name>GetICal</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.ICalServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+      <servlet-name>GetListeMateriels</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.MaterielServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>
@@ -76,5 +81,9 @@
       <url-pattern>/ical/get</url-pattern>
   </servlet-mapping>
   
+  <servlet-mapping>
+      <servlet-name>GetListeMateriels</servlet-name>
+      <url-pattern>/listemateriels</url-pattern>
+  </servlet-mapping>
   
 </web-app>

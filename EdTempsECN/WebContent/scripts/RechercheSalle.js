@@ -12,32 +12,8 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		this.heureFin = $("#form_recherche_salle_fin");
 		this.capacite = $("#form_recherche_salle_capacite");
 
-		// Liste des materiels rangés dans un objet référencé par id
-		this.listeMateriel = new Array();
-
-
-		// TODO : à récupérer en base de données
-		var ordinateur = new Object();
-		ordinateur.id = 0;
-		ordinateur.nom = "Ordinateur";
-		ordinateur.quantite = 0;
-		this.listeMateriel.push(ordinateur);
-		
-		var video = new Object();
-		video.id = 1;
-		video.nom = "Vidéo-projecteur";
-		video.quantite = 0;
-		this.listeMateriel.push(video);
-		
-		var cafe = new Object();
-		cafe.id = 2;
-		cafe.nom = "Cafetière";
-		cafe.quantite = 0;
-		this.listeMateriel.push(cafe);
-
-		// Ecrit de la liste des matériels disponibles
+		// Ecrit la liste des matériels disponibles
 		this.ecritListeMateriel();
-
 	};
 
 	/**
@@ -85,7 +61,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		$("#form_recherche_salle_date, #form_recherche_salle_debut, #form_recherche_salle_fin, #form_recherche_salle_capacite").click(function() {
 			$(this).css({border: "1px solid black"});
 		});
-		
+
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		$("#form_chercher_salle").dialog({
 			width: 440,
@@ -157,33 +133,53 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		return valid;
 
 	};
-	
-	
+
+
 	/**
 	 * Ecrit la liste des matériels
 	 */
 	RechercheSalle.prototype.ecritListeMateriel = function() {
 
-		// Préparation du code html
-		var str = "";
-		for (var i=0, maxI=this.listeMateriel.length ; i<maxI ; i++) {
-			str += "<tr>";
-			str += "<td class='libelle'>" + this.listeMateriel[i].nom + "</td>";
-			str += "<td class='quantite'><input type='number' id='' name='' value='" + this.listeMateriel[i].quantite + "' /></td>";
-			str += "</tr>";
-		}
-		
-		// Ajout du texte dans la liste de matériel
-		$("#form_chercher_salle_liste_materiel table").append(str);
+		// Récupération de la liste des matériels en base de données
+		this.restManager.effectuerRequete("GET", "listemateriels", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				
+				var maxI = data.data.listeMateriels.length;
+				
+				if (maxI!=0) {
 
-		// Ajout des masques sur les quantités de matériel
-		$(".quantite input[type=number]").each(function() {
-			$(this).mask("0000");
-			$(this).click(function() {
-				$(this).css({border: "1px solid white"});
-			});
+					// Préparation du code html
+					var str = "";
+					for (var i = 0 ; i < maxI ; i++) {
+						str += "<tr>";
+						str += "<td class='libelle'>" + data.data.listeMateriels[i].nom + "</td>";
+						str += "<td class='quantite'><input type='number' id='materiel_recherche_salle_" + data.data.listeMateriels[i].id + "' value='0' /></td>";
+						str += "</tr>";
+					}
+					
+					// Ajout du texte dans la liste de matériel
+					$("#form_chercher_salle_liste_materiel table").append(str);
+			
+					// Ajout des masques sur les quantités de matériel
+					$(".quantite input[type=number]").each(function() {
+						$(this).mask("0000");
+						$(this).click(function() {
+							$(this).css({border: "1px solid white"});
+						});
+					});
+
+				} else {
+					$("#form_chercher_salle_liste_materiel").hide();
+				}
+
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération des matériels disponibles ; vérifiez votre connexion.");
+			} else {
+				window.showToast(data.resultCode + " Erreur de récupération des matériels disponibles ; votre session a peut-être expiré ?");
+			}
 		});
-
 
 	};
 	
