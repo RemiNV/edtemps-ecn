@@ -5,32 +5,39 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	 */
 	var RechercheSalle = function(restManager) {
 		this.restManager = restManager;
-
+		
 		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
 		this.date = $("#form_recherche_salle_date");
 		this.heureDebut = $("#form_recherche_salle_debut");
 		this.heureFin = $("#form_recherche_salle_fin");
 		this.capacite = $("#form_recherche_salle_capacite");
 
-		// Liste des matériels disponibles, récupération des valeurs en base de données
-		this.listeMaterielDisponible = new Array();
-		
-		// Liste des matériels sélectionnées par l'utilisateur
-		// Quand un matériel est mis dans cette liste, il est enlevé de la liste des matériels disponibles
-		this.materielSelectionne = new Array();
-
-
+		// Liste des materiels rangés dans un objet référencé par id
+		this.listeMateriel = new Array();
 
 
 		// TODO : à récupérer en base de données
 		var ordinateur = new Object();
-		ordinateur.id = 1;
+		ordinateur.id = 0;
 		ordinateur.nom = "Ordinateur";
-		this.listeMaterielDisponible.push(ordinateur);
+		ordinateur.quantite = 0;
+		this.listeMateriel.push(ordinateur);
+		
 		var video = new Object();
-		video.id = 2;
+		video.id = 1;
 		video.nom = "Vidéo-projecteur";
-		this.listeMaterielDisponible.push(video);
+		video.quantite = 0;
+		this.listeMateriel.push(video);
+		
+		var cafe = new Object();
+		cafe.id = 2;
+		cafe.nom = "Cafetière";
+		cafe.quantite = 0;
+		this.listeMateriel.push(cafe);
+
+		// Ecrit de la liste des matériels disponibles
+		this.ecritListeMateriel();
+
 	};
 
 	/**
@@ -40,13 +47,12 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		var me = this;
 
 		// Ajout des masques aux différents champs
-		this.date.mask("00/00/0000");
 		this.heureDebut.mask("00:00");
 		this.heureFin.mask("00:00");
 		this.capacite.mask("0000");
 
 		// Ajout du datepicker sur le champ date
-		this.date.datepicker({ 
+		this.date.datepicker({
 			showAnim : 'slideDown',
 			showOn: 'button',
 			buttonText: "Calendrier",
@@ -73,11 +79,6 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		// Affectation d'une méthode au clic sur le bouton "Annuler"
 		$("#form_chercher_salle_annuler").click(function() {
 			$("#form_chercher_salle").dialog("close");
-		});
-		
-		// Affectation d'une méthode au clic sur le bouton "Ajouter un matériel"
-		$("#form_chercher_salle_ajout").click(function() {
-			me.ajouterMateriel();
 		});
 
 		// Affectation d'une méthode au clique sur les différents champs
@@ -119,7 +120,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 
 		// Validation de l'heure de début
 		var decoupageHeureMinute = this.heureDebut.val().split(":");
-		if (this.heureDebut.val().length==0 || decoupageHeureMinute[0]>23 || decoupageHeureMinute[1]>59) {
+		if (this.heureDebut.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1])) {
 			this.heureDebut.css({border: "1px solid red"});
 			valid = false;
 		} else {
@@ -128,41 +129,62 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 
 		// Validation de l'heure de fin
 		decoupageHeureMinute = this.heureFin.val().split(":");
-		if (this.heureFin.val().length==0 || decoupageHeureMinute[0]>23 || decoupageHeureMinute[1]>59) {
+		if (this.heureFin.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1])) {
 			this.heureFin.css({border: "1px solid red"});
 			valid = false;
 		} else {
 			this.heureFin.css({border: "1px solid black"});
 		}
 		
+		// Validation de la capacité
+		if (isNaN(this.capacite.val())) {
+			this.capacite.css({border: "1px solid red"});
+			valid = false;
+		} else {
+			this.capacite.css({border: "1px solid black"});
+		}
+		
+		// Validation des quantités de matériel
+		$(".quantite input[type=number]").each(function() {
+			if (isNaN($(this).val()) || $(this).val()<0 || $(this).val()=="") {
+				$(this).css({border: "1px solid red"});
+				valid = false;
+			} else {
+				$(this).css({border: "1px solid white"});
+			}
+		});
+
 		return valid;
 
 	};
 	
-	/**
-	 * Méthode permettant d'ajouter une ligne dans le tableau des matériels
-	 */
-	RechercheSalle.prototype.ajouterMateriel = function() {
-
-		var materiel = new Object();
-		this.materielSelectionne.push(materiel);
-
-		// Ajout d'une ligne dans la boîte de dialogue
-		$("#form_chercher_salle_liste_materiel").append(
-			"<tr>" +
-				"<td><label for='form_recherche_salle_mat_1'>Materiel 1</label></td>" +
-				"<td>" +
-					"<input type='number' name='form_recherche_salle_mat_1' id='form_recherche_salle_mat_1' style='width: 50px;' class='ui-widget-content ui-corner-all' value='1' />" +
-					"<select id='form_recherche_salle_mat_1_liste'>" +
-						"<option value='undefined'>---</option>" +
-						"<option value=''>Ordinateur</option>" +
-						"<option value=''>Vidéo-projecteur</option>" +
-					"</select>" +
-					"<img src='img/supprimer.png' title='Supprimer' />" +
-				"</td>" +
-			"</tr>"
-		);
 	
+	/**
+	 * Ecrit la liste des matériels
+	 */
+	RechercheSalle.prototype.ecritListeMateriel = function() {
+
+		// Préparation du code html
+		var str = "";
+		for (var i=0, maxI=this.listeMateriel.length ; i<maxI ; i++) {
+			str += "<tr>";
+			str += "<td class='libelle'>" + this.listeMateriel[i].nom + "</td>";
+			str += "<td class='quantite'><input type='number' id='' name='' value='" + this.listeMateriel[i].quantite + "' /></td>";
+			str += "</tr>";
+		}
+		
+		// Ajout du texte dans la liste de matériel
+		$("#form_chercher_salle_liste_materiel table").append(str);
+
+		// Ajout des masques sur les quantités de matériel
+		$(".quantite input[type=number]").each(function() {
+			$(this).mask("0000");
+			$(this).click(function() {
+				$(this).css({border: "1px solid white"});
+			});
+		});
+
+
 	};
 	
 	/**
