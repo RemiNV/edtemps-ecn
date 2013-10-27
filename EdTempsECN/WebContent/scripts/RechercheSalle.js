@@ -50,7 +50,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			showAnim : 'slideDown',
 			showOn: 'button',
 			buttonText: "Calendrier",
-			buttonImage: "img/datepicker.gif", // image pour le bouton d'affichage du calendrier
+			buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
 			buttonImageOnly: true, // affiche l'image sans bouton
 			monthNamesShort: [ "Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jui", "Aou", "Sep", "Oct", "Nov", "Dec" ],
 			monthNames: [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ],

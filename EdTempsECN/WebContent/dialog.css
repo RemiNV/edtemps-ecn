@@ -55,35 +55,106 @@
 	border: 1px solid black;
 }
 
+.ui-dialog .ui-datepicker-trigger {
+	cursor: pointer;
+	margin-left: 5px;
+}
+
 
 /**
  * DatePicker de jQuery
  */
- 
+
  .ui-datepicker {
  	background-color: white;
- 	border: solid 1px black;
+ 	border: solid 1px gray;
+ 	border-radius: 5px;
+ 	padding: 2px;
  }
- 
+
 .ui-datepicker .ui-datepicker-prev {
-	left: 2px;
-	position: absolute;
+	display : inline-block;
+	width : 25px;
+	height : 25px;
+	overflow : hidden;
+	text-align : left;
+	text-indent : -9999px;
+	white-space : nowrap;
+	border: none;
+	float: left;
+	cursor: pointer;
+	background : url('img/gauche.png') no-repeat center center;
 }
 
 .ui-datepicker .ui-datepicker-next {
-	right: 2px;
-	position: absolute;
+	display : inline-block;
+	width : 25px;
+	height : 25px;
+	overflow : hidden;
+	text-align : left;
+	text-indent : -9999px;
+	white-space : nowrap;
+	border: none;
+	float: right;
+	cursor: pointer;
+	background : url('img/droite.png') no-repeat center center;
 }
 
 .ui-datepicker .ui-datepicker-header {
 	text-align: center;
+	background-color: #FFA500;
+	border: solid 1px gray;
+	border-radius: 5px;
+	height: 25px;
+}
+
+.ui-datepicker .ui-datepicker-title {
+	font-size: 0.8em;
+	font-weight: bold;
+	margin-top: 5px;
+}
+
+.ui-datepicker .ui-datepicker-calendar .ui-datepicker-today {
+	background-color: #FBF9EF;
+	border: 1px solid #FCEFA1;
+}
+
+.ui-datepicker a {
+	text-decoration: none;
+	color: black
 }
 
 .ui-datepicker .ui-datepicker-calendar th {
+	font-size: 0.7em;
+	height: 20px;
 }
 
-.ui-datepicker .ui-datepicker-calendar tr {
-	background-color: orange;
+.ui-datepicker .ui-datepicker-calendar .ui-datepicker-current-day {
+	background-color: white;
+}
+
+.ui-datepicker .ui-datepicker-calendar td {
+	background-color: #E5E5E5;
+	color: gray;
+	border: solid 1px #D3D3D3;
+	text-align: right;
+	font-size: 0.7em;
+	width: 20px;
+	cursor: pointer;
+	padding-right: 2px;
+}
+
+.ui-datepicker .ui-datepicker-calendar .ui-datepicker-unselectable {
+	background-color: white;
+	border: solid 1px white;
+	cursor: default;
+}
+
+.ui-datepicker .ui-datepicker-calendar .ui-datepicker-unselectable:hover {
+	border: solid 1px white;
+}
+
+.ui-datepicker .ui-datepicker-calendar td:hover {
 	color: black;
-	text-align: center;
+	border: solid 1px gray;
 }
