@@ -27,16 +27,11 @@ define(["RestManager"], function(RestManager) {
 	 * @param callback
 	 */
 	GroupeGestion.prototype.seDesabonner = function(idgroupe, callback) {
-		this.restManager.effectuerRequete("POST", "sedesabonner", {
-			token: this.restManager.getToken(),
-			idGroupe: idgroupe
+		this.restManager.effectuerRequete("GET", "sedesabonner", {
+			token : this.restManager.getToken(),
+			idGroupe : idgroupe
 		}, function(data) {
-			if(data.resultCode == RestManager.resultCode_Success) {
-				callback(data.resultCode, data.data);
-			}
-			else {
-				callback(data.resultCode);
-			}
+			callback(data.resultCode);
 		});
 	};
 	
@@ -46,16 +41,11 @@ define(["RestManager"], function(RestManager) {
 	 * @param callback
 	 */
 	GroupeGestion.prototype.sAbonner = function(idgroupe, callback) {
-		this.restManager.effectuerRequete("POST", "sabonner", {
+		this.restManager.effectuerRequete("GET", "sabonner", {
 			token: this.restManager.getToken(),
 			idGroupe: idgroupe
 		}, function(data) {
-			if(data.resultCode == RestManager.resultCode_Success) {
-				callback(data.resultCode, data.data);
-			}
-			else {
-				callback(data.resultCode);
-			}
+			callback(data.resultCode);
 		});
 	};
 	

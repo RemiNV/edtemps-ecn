@@ -40,7 +40,11 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 				// Parcourt des groupes auxquels l'utilisateur est abonné 
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
 					gpe = data.groupesAbonnements[i];
-					html += '<option value="' + gpe.id + '">' + gpe.nom + '</option>';
+					html += '<option value="' + gpe.id + '"';
+					if (gpe.estCours) {
+						html += ' disabled="disabled"';
+					}
+					html += '>' + gpe.nom + '</option>';
 				}
 				// Parcourt des groupes auxquels l'utilisateur n'est pas abonné
 				for (var i = 0, maxI=data.groupesNonAbonnements.length ; i < maxI ; i++) {
@@ -49,9 +53,25 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 				}
 
 				// Affichage 
-				html += '<option value="test4">Test 4</option>';
-				html += '<option value="test5" selected="selected">Test 5</option>';
-
+		/*Test
+		html = "" +
+		"<select id='optgroup' multiple='multiple'>" +
+		  "<optgroup label='Friends'>" +
+			  "<optgroup label='Enes'>" +
+			    "<option value='5'>Palpatine</option>" +
+			    "<option value='6' disabled>Darth Vader</option>" +
+			  "</optgroup>" +
+			  "<optgroup label='mies'>" +
+			    "<option value='4'>Palpatine</option>" +
+			    "<option value='8' disabled>Darth Vader</option>" +
+			  "</optgroup>" +
+		  "</optgroup>" +
+		  "<optgroup label='Enemies'>" +
+		    "<option value='3'>Palpatine</option>" +
+		    "<option value='4' disabled>Darth Vader</option>" +
+		  "</optgroup>" +
+		"</select>" ;
+		 */
 				$("#select-abonnements").html(html);
 				
 				// Paramètres de l'objet multiSelect
@@ -67,14 +87,24 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 
 						me.qs1 = $selectableSearch.quicksearch(selectableSearchString);
 						me.qs2 = $selectionSearch.quicksearch(selectionSearchString);
-				  },
-					afterSelect: function(){
-						this.qs1.cache();
-						this.qs2.cache();
+				    },
+					afterSelect: function(idgroupe){
+						me.groupeGestion.seDesabonner(idgroupe, function(resultCode) {
+							if(resultCode == RestManager.resultCode_Success) {
+								// Utilité des 2 lignes ?
+								//me.qs1.cache();
+								//me.qs2.cache();
+							}
+						});
 					},
-					afterDeselect: function(){
-						this.qs1.cache();
-						this.qs2.cache();
+					afterDeselect: function(idgroupe){
+						 me.groupeGestion.sAbonner(idgroupe, function(resultCode) {
+							if(resultCode == RestManager.resultCode_Success) {
+								// Utilité des 2 lignes ?
+								//me.qs1.cache();
+								//me.qs2.cache();
+							}
+						});
 					}
 				});
 				
