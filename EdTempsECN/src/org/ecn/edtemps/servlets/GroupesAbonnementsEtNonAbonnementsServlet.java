@@ -16,9 +16,7 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
-import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
 /**
@@ -48,7 +46,7 @@ public class GroupesAbonnementsEtNonAbonnementsServlet extends RequiresConnectio
 					.add("groupesNonAbonnements", JSONUtils.getJsonArray(nonAbonnementsGroupes))
 					.build();
 			// Génération réponse
-			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Abonnements aux évènements récupérés", data));
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Abonnements aux groupes récupérés", data));
 		} catch (DatabaseException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 			logger.error("Erreur d'accès à la base de données lors de la récupération des groupes", e);
