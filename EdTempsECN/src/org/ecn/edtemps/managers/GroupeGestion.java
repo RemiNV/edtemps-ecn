@@ -13,6 +13,8 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Groupe;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
+import com.sun.istack.internal.logging.Logger;
+
 /**
  * Classe de gestion des groupes de gestion
  * 
@@ -454,6 +456,50 @@ public class GroupeGestion {
 		}
 	}
 
+	
+	/**
+	 * Listing des groupes auxquels n'est pas abonné l'utilisateur (directement et indirectement)
+	 * @param idUtilisateur ID de l'utilisateur en question
+	 * @param createTransaction Créer une transaction pour les requêtes. Si false, doit obligatoirement être appelé à l'intérieur d'une transaction
+	 * 
+	 * @return Liste de groupes trouvés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupesNonAbonnement(int idUtilisateur, boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException {
+		
+		try {
+			if(createTransaction)
+				_bdd.startTransaction(); // Définit la durée de vie de la table temporaire
+			
+			if(!reuseTempTableAbonnements)
+				makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
+			
+			// Requete des groupes auxquels l'utilisateur n'est pas abonné
+			ResultSet resGroupes = _bdd.executeRequest(
+					"SELECT * FROM edt.groupeparticipant" + 
+					" EXCEPT" +
+					" SELECT * FROM " + NOM_TEMPTABLE_ABONNEMENTS 
+			);
+			
+			
+			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+			
+			while(resGroupes.next()) {
+				res.add(inflateGroupeFromRow(resGroupes));
+			}
+			
+			// Supprime aussi la table temporaire
+			if(createTransaction)
+				_bdd.commit();
+			
+			return res;
+		}
+		catch(SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	
 	/**
 	 * Listing des groupes auxquels l'utilisateur est abonné directement (sans remonter ni descendre les parents/enfants)
 	 * @param idUtilisateur Utilisateur dont les abonnements sont à lister

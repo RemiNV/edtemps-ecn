@@ -38,7 +38,7 @@ public class GroupesAbonnementsEtNonAbonnementsServlet extends RequiresConnectio
 		try {
 			// Récupération des groupes 
 			ArrayList<GroupeIdentifie> abonnementsGroupes = groupeGestion.listerGroupesAbonnement(userId, true, false);
-			ArrayList<GroupeIdentifie> nonAbonnementsGroupes = new ArrayList<GroupeIdentifie>();
+			ArrayList<GroupeIdentifie> nonAbonnementsGroupes = groupeGestion.listerGroupesNonAbonnement(userId, true, false);
 			
 			// Création de la réponse
 			data = Json.createObjectBuilder()
