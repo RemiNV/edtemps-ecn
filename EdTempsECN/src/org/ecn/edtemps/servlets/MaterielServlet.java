@@ -26,10 +26,8 @@ import org.ecn.edtemps.models.Materiel;
  */
 public class MaterielServlet extends RequiresConnectionServlet {
 
-	/** Numéro de série */
 	private static final long serialVersionUID = 7246893098272381772L;
 
-	/** Logger */
 	private static Logger logger = LogManager.getLogger(MaterielServlet.class
 			.getName());
 
