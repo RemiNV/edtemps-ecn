@@ -88,7 +88,7 @@
   
   <servlet-mapping>
       <servlet-name>SeDesabonner</servlet-name>
-      <url-pattern>/sedeabonner</url-pattern>
+      <url-pattern>/sedesabonner</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
