@@ -32,12 +32,12 @@ public class SAbonnerServlet extends RequiresConnectionServlet {
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
-		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		int idGroupe = Integer.parseInt(req.getParameter("idGroupe"));
 		
 		try {
 			// Abonnement du l'utilisateur au groupe (= modification de la BDD)
-			utilisateurGestion.sAbonner(userId, idGroupe, false);
+			groupeGestion.sAbonner(userId, idGroupe, false);
 			
 			// Génération réponse
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement à un groupe réussi", null));

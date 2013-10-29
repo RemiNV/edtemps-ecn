@@ -366,36 +366,4 @@ public class UtilisateurGestion {
 		}
 	}
 	
-	/**
-	 * Fonction permettant à un utilisateur de s'abonner à un groupe de participants
-	 * @param idUtilisateur
-	 * @param idGroupe
-	 * @param obligatoire : booléen indiquant si le rattachement est obligatoire
-	 * @throws DatabaseException
-	 */
-	public void sAbonner(int idUtilisateur, int idGroupe, boolean obligatoire) throws DatabaseException {
-		bdd.executeRequest(
-			"INSERT INTO edt.abonnegroupeparticipant "
-			+ "(utilisateur_id, groupeparticipant_id, abonnementgroupeparticipant_obligatoire) "
-			+ "VALUES (" + idUtilisateur + ", " + idGroupe + ", " + obligatoire + ")"
-		);
-	}
-	
-	/**
-	 * Fonction permettant à un utilisateur de se désabonner d'un groupe de participants
-	 * @param idUtilisateur
-	 * @param idGroupe
-	 * @param uniquementSiCoursNonObligatoire : booléen indiquant si on supprime le rattachement dans le cas où il est obligatoire
-	 * @throws DatabaseException
-	 */
-	public void seDesabonner(int idUtilisateur, int idGroupe, boolean uniquementSiCoursNonObligatoire) throws DatabaseException {
-		String s = "DELETE FROM edt.abonnegroupeparticipant " +
-				   "WHERE utilisateur_id = " + idUtilisateur +
-				   " AND groupeparticipant_id = " + idGroupe ;
-		if (uniquementSiCoursNonObligatoire) {
-			  s += " AND abonnementgroupeparticipant_obligatoire = FALSE" ;
-		}
-		bdd.executeRequest(s);
-	}
-	
 }

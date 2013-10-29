@@ -32,12 +32,12 @@ public class SeDesabonnerServlet extends RequiresConnectionServlet {
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
-		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		int idGroupe = Integer.parseInt(req.getParameter("idGroupe"));
 		
 		try {
 			// Désabonnement du l'utilisateur au groupe (= modification de la BDD)
-			utilisateurGestion.seDesabonner(userId, idGroupe, true);
+			groupeGestion.seDesabonner(userId, idGroupe, true);
 			
 			// Génération réponse
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Désabonnement à un groupe réussi", null));
