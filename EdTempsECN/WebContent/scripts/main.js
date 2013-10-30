@@ -34,7 +34,7 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 		 * Reconnexion dynamique après erreur de requête à cause d'un problème d'identification
 		 */
 		var reconnectionFallback = function(callback) {
-			dialogConnexion.show("Session expirée : reconnexion", callback);
+			dialogConnexion.show("Session expirée : reconnexion", callback, true);
 		};
 		
 		restManager.setIdentificationErrorFallback(reconnectionFallback);
@@ -153,7 +153,11 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 	var chargerInterfaceConnection = function(dialogConnexion) {
 		// Suppression de l'interface actuelle
 		$("#main_interface_hook").empty();
-		dialogConnexion.show("Connexion");
+		dialogConnexion.show("Connexion", function(success) {
+			if(success) {
+				Davis.location.assign("agenda");
+			}
+		});
 		
 		currentPage.manager = dialogConnexion;
 		currentPage.nom = "connexion";

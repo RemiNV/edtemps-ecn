@@ -1,4 +1,4 @@
-require(["RestManager", "test/qunit-1.12.0"], function(RestManager) {
+require(["RestManager", "qunit"], function(RestManager) {
 
 	// TODO : compléter les tests
 	test("Validité", function() {

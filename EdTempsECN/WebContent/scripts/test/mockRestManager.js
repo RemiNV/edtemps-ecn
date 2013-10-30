@@ -11,6 +11,7 @@ define(["mockjax"], function() {
 				url: "identification/connection",
 				responseTime: 500,
 				contentType: "application/json",
+				type: "POST",
 				response: function(settings) {
 					
 					// Seule connexion possible : userID et pass "unitTest"
