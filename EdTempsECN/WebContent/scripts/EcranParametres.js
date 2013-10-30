@@ -90,19 +90,25 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 				    },
 					afterSelect: function(idgroupe){
 						me.groupeGestion.seDesabonner(idgroupe, function(resultCode) {
-							if(resultCode == RestManager.resultCode_Success) {
-								// Utilité des 2 lignes ?
-								//me.qs1.cache();
-								//me.qs2.cache();
+							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les abonnements de l'utilisateur
+							if(resultCode != RestManager.resultCode_Success) {
+								window.showToast("Le désabonnement a échoué ...");
+								var idElementSelectable = "#" + idgroupe + "-selectable";
+								var idElementSelection = "#" + idgroupe + "-selection";
+								$(idElementSelection).css('display','none');
+								$(idElementSelectable).css('display','list-item');
 							}
 						});
 					},
 					afterDeselect: function(idgroupe){
 						 me.groupeGestion.sAbonner(idgroupe, function(resultCode) {
-							if(resultCode == RestManager.resultCode_Success) {
-								// Utilité des 2 lignes ?
-								//me.qs1.cache();
-								//me.qs2.cache();
+							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les "Agendas disponibles"
+							if(resultCode != RestManager.resultCode_Success) {
+								window.showToast("L'abonnement a échoué ...");
+								var idElementSelectable = "#" + idgroupe + "-selectable";
+								var idElementSelection = "#" + idgroupe + "-selection";
+								$(idElementSelectable).css('display','none');
+								$(idElementSelection).css('display','list-item');
 							}
 						});
 					}
