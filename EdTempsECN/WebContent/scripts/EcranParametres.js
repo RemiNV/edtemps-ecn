@@ -52,26 +52,7 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 					html += '<option value="' + gpe.id + '" selected="selected">' + gpe.nom + '</option>';
 				}
 
-				// Affichage 
-		/*Test
-		html = "" +
-		"<select id='optgroup' multiple='multiple'>" +
-		  "<optgroup label='Friends'>" +
-			  "<optgroup label='Enes'>" +
-			    "<option value='5'>Palpatine</option>" +
-			    "<option value='6' disabled>Darth Vader</option>" +
-			  "</optgroup>" +
-			  "<optgroup label='mies'>" +
-			    "<option value='4'>Palpatine</option>" +
-			    "<option value='8' disabled>Darth Vader</option>" +
-			  "</optgroup>" +
-		  "</optgroup>" +
-		  "<optgroup label='Enemies'>" +
-		    "<option value='3'>Palpatine</option>" +
-		    "<option value='4' disabled>Darth Vader</option>" +
-		  "</optgroup>" +
-		"</select>" ;
-		 */
+				// Affichage		 
 				$("#select-abonnements").html(html);
 				
 				// Paramètres de l'objet multiSelect
