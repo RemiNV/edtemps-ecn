@@ -1,17 +1,18 @@
 require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexion.html", "qunit", "jquery", "jqueryui"], function(DialogConnexion, RestManager, htmlFormulaireConnexion) {
 	
+	var jqDialog = null;
+	
 	module("Dialog de connexion", {
 		setup: function() {
-			$("<div id='dialogConnexionUnitTest'></div>").append(htmlFormulaireConnexion).appendTo($("#qunit-fixture"));
+			jqDialog = $("<div id='dialogConnexionUnitTest'></div>").append(htmlFormulaireConnexion).appendTo($("#qunit-fixture"));
 		},
 		teardown: function() {
 			// qUnit vide #qunit-fixture tout seul mais ne supprime pas le html ajouté par la dialog
-			$("#dialogConnexionUnitTest").dialog("destroy").remove();
+			jqDialog.dialog("destroy").remove();
 		}
 	});
 	
 	asyncTest("Connexion valide", function() {
-		
 		// 2 assertions
 		expect(2);
 		
@@ -19,7 +20,6 @@ require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexi
 		
 		var connexionCallback = function(success) {
 			ok(success, "Réussite de la connexion");
-			console.log("Callback réussite");
 			start();
 		};
 		
@@ -27,16 +27,14 @@ require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexi
 		
 		notEqual(dialogConnexion, null, "Dialog de connexion construite");
 		
-		console.log("début show réussite");
 		dialogConnexion.show("Test de connexion", connexionCallback, false);
-		console.log("fin show réussite");
 		
 		// Remplissage des identifiants
-		$("#txt_identifiant").val("unitTest");
-		$("#txt_password").val("unitTest");
+		jqDialog.find("#txt_identifiant").val("unitTest");
+		jqDialog.find("#txt_password").val("unitTest");
 		
 		// Connexion
-		$("#btn_connexion").trigger("click");
+		jqDialog.find("#btn_connexion").trigger("click");
 	});
 	
 	asyncTest("Connexion invalide", function() {
@@ -47,7 +45,6 @@ require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexi
 		
 		var connexionCallback = function(success) {
 			ok(!success, "Echec de la connexion");
-			console.log("Callback échec");
 			start();
 		};
 		
@@ -55,18 +52,15 @@ require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexi
 		
 		notEqual(dialogConnexion, null, "Dialog de connexion construite");
 		
-		console.log("Début show échec");
 		dialogConnexion.show("Test de connexion", connexionCallback, false);
-		console.log("Fin show échec");
 		
 		// Remplissage des identifiants
-		$("#txt_identifiant").val("unitTest");
-		$("#txt_password").val("passwordinvalide");
 		
-		console.log("Demande clic échec");
+		jqDialog.find("#txt_identifiant").val("unitTest");
+		jqDialog.find("#txt_password").val("passwordinvalide");
 		
 		// Connexion
-		$("#btn_connexion").trigger("click");
+		jqDialog.find("#btn_connexion").trigger("click");
 	});
 	
 });

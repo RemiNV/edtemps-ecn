@@ -9,8 +9,6 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		this.jqDialog = jqDialog;
 		this.connectionSuccess = false;
 		
-		console.log("Début constructeur");
-		
 		var me = this;
 		// Interface sous forme de dialog
 		jqDialog.dialog({
@@ -37,12 +35,8 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		
 		var me = this;
 		
-		console.log("bouton connexion : ", jqDialog.find("#btn_connexion")),
-		
 		// Callback de connexion
 		jqDialog.find("#btn_connexion").click(function(event) {
-			
-			console.log("clic bouton dialog");
 			
 			event.preventDefault();
 			var username = jqDialog.find("#txt_identifiant").val();
@@ -86,7 +80,6 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 					break;
 				}
 				
-				console.log("Appel callback : ", me.connectionCallback);
 				
 				me.connectionCallback(resultCode == RestManager.resultCode_Success);
 			});
