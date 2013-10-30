@@ -4,6 +4,10 @@ define(["RestManager"], function(RestManager) {
 		this.restManager = restManager;
 	};
 	
+	/**
+	 * Récupérer les groupes auxquels est abonné / n'est pas abonné l'utilisateur
+	 * @param callback
+	 */
 	GroupeGestion.prototype.queryAbonnementsEtNonAbonnements = function(callback) {
 		this.restManager.effectuerRequete("GET", "abonnementsetnonabonnements", {
 			token: this.restManager.getToken()
@@ -14,6 +18,34 @@ define(["RestManager"], function(RestManager) {
 			else {
 				callback(data.resultCode);
 			}
+		});
+	};
+	
+	/**
+	 * Désabonner l'utilisateur du groupe dont l'id est en paramètre
+	 * @param idgroupe
+	 * @param callback
+	 */
+	GroupeGestion.prototype.seDesabonner = function(idgroupe, callback) {
+		this.restManager.effectuerRequete("GET", "sedesabonner", {
+			token : this.restManager.getToken(),
+			idGroupe : idgroupe
+		}, function(data) {
+			callback(data.resultCode);
+		});
+	};
+	
+	/**
+	 * Abonner l'utilisateur au groupe dont l'id est en paramètre
+	 * @param idgroupe
+	 * @param callback
+	 */
+	GroupeGestion.prototype.sAbonner = function(idgroupe, callback) {
+		this.restManager.effectuerRequete("GET", "sabonner", {
+			token: this.restManager.getToken(),
+			idGroupe: idgroupe
+		}, function(data) {
+			callback(data.resultCode);
 		});
 	};
 	

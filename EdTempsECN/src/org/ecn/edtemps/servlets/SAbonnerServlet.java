@@ -17,42 +17,37 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
 /**
- * Servlet renvoyant les groupes de participants auxquels l'utilisateur est abonné 
- * et auxquels il n'est pas abonné (dans deux tableaux différents)
+ * Servlet permettant l'abonnement d'un utilisateur à un groupeDeParcipants
  * @author Maxime Terrade
  *
  */
-public class GroupesAbonnementsEtNonAbonnementsServlet extends RequiresConnectionServlet {
+public class SAbonnerServlet extends RequiresConnectionServlet {
 	
-	private static Logger logger = LogManager.getLogger(GroupesAbonnementsEtNonAbonnementsServlet.class.getName());
+	private static Logger logger = LogManager.getLogger(SAbonnerServlet.class.getName());
 	
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-			
+		
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		JsonValue data;
+		int idGroupe = Integer.parseInt(req.getParameter("idGroupe"));
 		
 		try {
-			// Récupération des groupes 
-			ArrayList<GroupeIdentifie> abonnementsGroupes = groupeGestion.listerGroupesAbonnement(userId, true, false);
-			ArrayList<GroupeIdentifie> nonAbonnementsGroupes = groupeGestion.listerGroupesNonAbonnement(userId, true, false);
+			// Abonnement du l'utilisateur au groupe (= modification de la BDD)
+			groupeGestion.sAbonner(userId, idGroupe, false);
 			
-			// Création de la réponse
-			data = Json.createObjectBuilder()
-					.add("groupesAbonnements", JSONUtils.getJsonArray(abonnementsGroupes))
-					.add("groupesNonAbonnements", JSONUtils.getJsonArray(nonAbonnementsGroupes))
-					.build();
 			// Génération réponse
-			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Abonnements aux groupes récupérés", data));
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement à un groupe réussi", null));
 		} catch (DatabaseException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
-			logger.error("Erreur d'accès à la base de données lors de la récupération des groupes", e);
+			logger.error("Erreur d'accès à la base de données lors du rattachement", e);
 		}
 
 		bdd.close();
 	}
 
 }
+
