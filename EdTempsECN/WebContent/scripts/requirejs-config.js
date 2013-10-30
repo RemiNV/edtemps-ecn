@@ -29,7 +29,7 @@ requirejs.config({
 			exports: "DavisHashrouting" // Utilisation du nom "Davis" en argument de la fonction le récupérant
 		},
 		
-		"lib/jquery-ui-1.10.3.notheme.min": {
+		"jqueryui": {
 			deps: ["jquery"]
 		},
 		
@@ -37,11 +37,11 @@ requirejs.config({
 			deps: ["jqueryui"]
 		},
 		
-		"lib/jquery.quicksearch": {
+		"jqueryquicksearch": {
 			deps: ["jquery"]
 		},
 		
-		"lib/jquery.multi-select": {
+		"jquerymultiselect": {
 			deps: ["jquery"]
 		}
 	}
