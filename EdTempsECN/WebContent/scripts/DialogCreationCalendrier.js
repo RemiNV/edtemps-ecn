@@ -66,28 +66,28 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	DialogCreationCalendrier.prototype.remplirComboboxes = function() {
 
 		// Récupération des données 
-		this.restManager.effectuerRequete("GET", "", {
+		this.restManager.effectuerRequete("GET", "matieresettypes", {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
 			
 				// Remplir combobox contenant les matieres
-				var matieres = "";
+				var matieres = '<option value=""> Aucune </option>' ;
 				var maxI = data.matieres.length;
 				for (var i = 0 ; i < maxI ; i++) {
-					matieres += '<option value="' + data.matieres[i].id + '">' ;
-					matieres += data.matieres[i].nom ;
-					matieres += "</option>" ;
+					matieres += '<option value="' + data.matieres[i].nom + '">' 
+							  + data.matieres[i].nom 
+					          + "</option>" ;
 				}
 				$("#form_creer_calendrier_matiere").html(matieres);
 				
 				// Remplir combobox contenant les types
-				var types = "";
+				var types = '<option value=""> Aucun </option>' ;
 				maxI = data.types.length;
 				for (var i = 0 ; i < maxI ; i++) {
-					types += '<option value="' + data.types[i].id + '">' ;
-					types += data.types[i].nom ;
-					types += "</option>" ;
+					types += '<option value="' + data.types[i].nom + '">' ;
+						   + data.types[i].nom ;
+						   + "</option>" ;
 				}
 				$("#form_creer_calendrier_type").html(types);
 	
