@@ -10,17 +10,18 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 			jqDialog = pageAccueil.find("#form_chercher_salle");
 			
 			var restManager = new RestManager();
-			
 			rechercheSalle = new RechercheSalle(restManager, jqDialog);
 		},
 		teardown: function() {
 			// qUnit vide #qunit-fixture tout seul mais ne supprime pas le html ajouté par la dialog
 			jqDialog.dialog("destroy").remove();
+			$("#qunit-fixture").children().remove();
 		}
 	});
 	
 	test("Initialisation", function() {
 		expect(0);
+		
 		rechercheSalle.init();
 	});
 	

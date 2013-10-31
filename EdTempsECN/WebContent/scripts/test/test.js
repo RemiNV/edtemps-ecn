@@ -25,10 +25,6 @@ require(["qunit"], function(q) {
 	
 
 	QUnit.config.autostart = false;
-	/* QUnit utilise normalement l'évènement onLoad, mais est ici chargé de façon asynchrone par requireJS,
-	 * il faut appeler manuellement la méthode load()
-	 */
-	QUnit.load();
 	
 	// Simulation de window.showToast
 	window.showToast = function(text) {
@@ -40,11 +36,17 @@ require(["qunit"], function(q) {
 	          // Chargement des tests
 	         "test/testRestManager",
 	         "test/testDialogConnexion",
-	         "test/testRechercheSalle"
+	         "test/testRechercheSalle",
+	         "test/testGroupeGestion"
 	         ],
 			function(mockRestManager) {
 		
 		mockRestManager.mock(); // Simulation des requêtes AJAX
+		
+		/* QUnit utilise normalement l'évènement onLoad, mais est ici chargé de façon asynchrone par requireJS,
+		 * il faut appeler manuellement la méthode load()
+		 */
+		QUnit.load();
 		
 		QUnit.start(); // Lancement des tests
 	});
