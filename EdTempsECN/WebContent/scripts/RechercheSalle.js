@@ -154,7 +154,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 			
 					// Ajout des masques sur les quantités de matériel
 					me.jqFormChercherSalle.find(".quantite input[type=number]").each(function() {
-						$(this).mask("9?999");
+						$(this).mask("?9999", { placeholder: "" });
 						$(this).click(function() {
 							$(this).css({border: "1px solid white"});
 						});
