@@ -213,7 +213,6 @@ public class EvenementGestion {
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @throws EdtempsException
 	 */
-	// ajouté à la volée pour éviter erreur dans la méthode supprimerCalendrier, qui utilise cette méthode
 	public void supprimerEvenement(int idEvenement, boolean createTransaction) throws EdtempsException {
 		try {
 			// Début transaction si nécessaire

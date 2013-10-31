@@ -22,7 +22,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationErrorException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
-import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -324,6 +324,27 @@ public class UtilisateurGestion {
 		String email = row.getString("utilisateur_email");
 		
 		return new UtilisateurIdentifie(id, nom, prenom, email);
+	}
+	
+	public boolean aDroit(String actionNom, int idUtilisateur) throws DatabaseException{
+		boolean isAble = false;
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT droits_libelle "
+					+ "FROM edt.droits "
+					+ "INNER JOIN edt.aledroitde ON droits.droits_id = aledroitde.droits_id "
+					+ "INNER JOIN edt.typeutilisateur ON typeutilisateur.type_id = aledroitde.type_id "
+					+ "INNER JOIN estdetype ON estdetype.type_id = typeutilisateur.typeid "
+					+ "WHERE utilisateur_id = " + idUtilisateur + " "
+					+ "AND droits_libelle = " + actionNom);
+			if(reponse.next()) {
+				isAble = true;
+			}
+			reponse.close();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		return isAble;
 	}
 	
 	public ArrayList<UtilisateurIdentifie> getIntervenantsEvenement(int evenementId) throws DatabaseException {
