@@ -22,7 +22,6 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationErrorException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
-import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -326,6 +325,13 @@ public class UtilisateurGestion {
 		return new UtilisateurIdentifie(id, nom, prenom, email);
 	}
 	
+	/**
+	 * Savoir si l'utilisateur a le droit ou non de réaliser une action
+	 * @param actionNom libellé de l'action sur laquelle on recherche les droits de l'utilisateur
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return true si l'action est autorisée pour l'utilisaetur, false si l'action est interdite à l'utilisateur
+	 * @throws DatabaseException
+	 */
 	public boolean aDroit(String actionNom, int idUtilisateur) throws DatabaseException{
 		boolean isAble = false;
 		try {
@@ -345,6 +351,30 @@ public class UtilisateurGestion {
 			throw new DatabaseException(e);
 		}
 		return isAble;
+	}
+	
+	/**
+	 * Récupération d'un utilisateur en base
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return Utilisateur identifié correspondant à l'identifiant donné
+	 * @throws DatabaseException
+	 */
+	public UtilisateurIdentifie getUtilisateur(int idUtilisateur) throws DatabaseException{
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT utilisateur_nom, utilisateur.prenom, utilisateur_email, utilisateur_id "
+					+ "FROM edt.utilisateur "
+					+ "WHERE utilisateur_id = " + idUtilisateur);
+			UtilisateurIdentifie res = null;
+			if(reponse.next()) {
+				res = inflateUtilisateurFromRow(reponse);
+			}
+			reponse.close();
+			return res;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	
 	}
 	
 	public ArrayList<UtilisateurIdentifie> getIntervenantsEvenement(int evenementId) throws DatabaseException {
