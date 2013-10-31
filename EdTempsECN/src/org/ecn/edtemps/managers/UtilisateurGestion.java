@@ -325,6 +325,25 @@ public class UtilisateurGestion {
 		return new UtilisateurIdentifie(id, nom, prenom, email);
 	}
 	
+	public ArrayList<UtilisateurIdentifie> rechercherUtilisateur(String debutNomPrenomMail) throws DatabaseException{
+		try {
+			ArrayList<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT utilisateur_nom, utilisateur.prenom, utilisateur_email, utilisateur_id "
+					+ "FROM edt.utilisateur "
+					+ "WHERE utilisateur_nom LIKE '" + debutNomPrenomMail +"%' "
+					+ "OR utilisateur_prenom LIKE '" + debutNomPrenomMail +"%' "
+					+ "OR utilisateur_email LIKE '" + debutNomPrenomMail +"%' ");
+			while(reponse.next()) {
+				res.add(inflateUtilisateurFromRow(reponse));
+			}
+			reponse.close();
+			return res;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
 	/**
 	 * Savoir si l'utilisateur a le droit ou non de réaliser une action
 	 * @param actionNom libellé de l'action sur laquelle on recherche les droits de l'utilisateur
@@ -374,7 +393,6 @@ public class UtilisateurGestion {
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
-	
 	}
 	
 	public ArrayList<UtilisateurIdentifie> getIntervenantsEvenement(int evenementId) throws DatabaseException {
