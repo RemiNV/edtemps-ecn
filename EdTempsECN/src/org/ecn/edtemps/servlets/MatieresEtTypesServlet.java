@@ -49,7 +49,6 @@ public class MatieresEtTypesServlet extends RequiresConnectionServlet {
 			while(resTypes.next()) {
 				jsonTypes.add(resTypes.getString("typecal_libelle"));
 			}
-			jsonTypes.build();
 			
 			// Création de la réponse
 			data = Json.createObjectBuilder()

@@ -89,8 +89,8 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 				maxI = data.data.types.length;
 				for (var i = 0 ; i < maxI ; i++) {
 					var nomType = data.data.types[i];
-					types += '<option value="' + nomType + '">' ;
-						   + nomType ;
+					types += '<option value="' + nomType + '">' 
+						   + nomType 
 						   + "</option>" ;
 				}
 				$("#form_creer_calendrier_type").html(types);
