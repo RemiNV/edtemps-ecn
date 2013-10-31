@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
@@ -36,18 +37,19 @@ public class MatieresEtTypesServlet extends RequiresConnectionServlet {
 			BddGestion bddGestion = new BddGestion();
 			
 			// Récupération des matieres
-			ResultSet resMatieres = bddGestion.executeRequest("SELECT matiere_nom FROM matiere");
-			JsonObjectBuilder jsonMatieres = Json.createObjectBuilder();	
+			ResultSet resMatieres = bddGestion.executeRequest("SELECT matiere_nom FROM edt.matiere");
+			JsonArrayBuilder jsonMatieres = Json.createArrayBuilder();	
 			while(resMatieres.next()) {
-				jsonMatieres.add("nom", resMatieres.getString("matiere_nom"));
+				jsonMatieres.add(resMatieres.getString("matiere_nom"));
 			}
 			
 			// Récupération des types
-			ResultSet resTypes = bddGestion.executeRequest("SELECT typecal_libelle FROM typecalendrier");
-			JsonObjectBuilder jsonTypes = Json.createObjectBuilder();
+			ResultSet resTypes = bddGestion.executeRequest("SELECT typecal_libelle FROM edt.typecalendrier");
+			JsonArrayBuilder jsonTypes = Json.createArrayBuilder();
 			while(resTypes.next()) {
-				jsonTypes.add("nom", resMatieres.getString("typecal_libelle"));
+				jsonTypes.add(resTypes.getString("typecal_libelle"));
 			}
+			jsonTypes.build();
 			
 			// Création de la réponse
 			data = Json.createObjectBuilder()

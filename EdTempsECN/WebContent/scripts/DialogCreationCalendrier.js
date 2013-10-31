@@ -18,6 +18,8 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	DialogCreationCalendrier.prototype.init = function() {
 		var me = this;
 	
+		me.remplirComboboxes();
+		
 		// Listener bouton "Rechercher"
 		$("#form_creer_calendrier_valider").click(function() {
 			// Si le formulaire est valide, la requête est effectuée
@@ -70,23 +72,25 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
-			
+				
 				// Remplir combobox contenant les matieres
 				var matieres = '<option value=""> Aucune </option>' ;
-				var maxI = data.matieres.length;
+				var maxI = data.data.matieres.length; 
 				for (var i = 0 ; i < maxI ; i++) {
-					matieres += '<option value="' + data.matieres[i].nom + '">' 
-							  + data.matieres[i].nom 
+					var nomMatiere = data.data.matieres[i];
+					matieres += '<option value="' + nomMatiere + '">' 
+							  + nomMatiere
 					          + "</option>" ;
 				}
 				$("#form_creer_calendrier_matiere").html(matieres);
 				
 				// Remplir combobox contenant les types
 				var types = '<option value=""> Aucun </option>' ;
-				maxI = data.types.length;
+				maxI = data.data.types.length;
 				for (var i = 0 ; i < maxI ; i++) {
-					types += '<option value="' + data.types[i].nom + '">' ;
-						   + data.types[i].nom ;
+					var nomType = data.data.types[i];
+					types += '<option value="' + nomType + '">' ;
+						   + nomType ;
 						   + "</option>" ;
 				}
 				$("#form_creer_calendrier_type").html(types);
