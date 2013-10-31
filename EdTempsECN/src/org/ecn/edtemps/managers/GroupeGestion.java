@@ -3,7 +3,6 @@ package org.ecn.edtemps.managers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -13,6 +12,8 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Groupe;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+
+import com.sun.istack.internal.logging.Logger;
 
 /**
  * Classe de gestion des groupes de gestion
@@ -455,6 +456,50 @@ public class GroupeGestion {
 		}
 	}
 
+	
+	/**
+	 * Listing des groupes auxquels n'est pas abonné l'utilisateur (directement et indirectement)
+	 * @param idUtilisateur ID de l'utilisateur en question
+	 * @param createTransaction Créer une transaction pour les requêtes. Si false, doit obligatoirement être appelé à l'intérieur d'une transaction
+	 * 
+	 * @return Liste de groupes trouvés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupesNonAbonnement(int idUtilisateur, boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException {
+		
+		try {
+			if(createTransaction)
+				_bdd.startTransaction(); // Définit la durée de vie de la table temporaire
+			
+			if(!reuseTempTableAbonnements)
+				makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
+			
+			// Requete des groupes auxquels l'utilisateur n'est pas abonné
+			ResultSet resGroupes = _bdd.executeRequest(
+					"SELECT * FROM edt.groupeparticipant" + 
+					" EXCEPT" +
+					" SELECT * FROM " + NOM_TEMPTABLE_ABONNEMENTS 
+			);
+			
+			
+			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+			
+			while(resGroupes.next()) {
+				res.add(inflateGroupeFromRow(resGroupes));
+			}
+			
+			// Supprime aussi la table temporaire
+			if(createTransaction)
+				_bdd.commit();
+			
+			return res;
+		}
+		catch(SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	
 	/**
 	 * Listing des groupes auxquels l'utilisateur est abonné directement (sans remonter ni descendre les parents/enfants)
 	 * @param idUtilisateur Utilisateur dont les abonnements sont à lister
@@ -480,6 +525,38 @@ public class GroupeGestion {
 		}
 		
 		return res;
+	}
+	
+	/**
+	 * Fonction permettant à un utilisateur de s'abonner à un groupe de participants
+	 * @param idUtilisateur
+	 * @param idGroupe
+	 * @param obligatoire : booléen indiquant si le rattachement est obligatoire
+	 * @throws DatabaseException
+	 */
+	public void sAbonner(int idUtilisateur, int idGroupe, boolean obligatoire) throws DatabaseException {
+		_bdd.executeRequest(
+			"INSERT INTO edt.abonnegroupeparticipant "
+			+ "(utilisateur_id, groupeparticipant_id, abonnementgroupeparticipant_obligatoire) "
+			+ "VALUES (" + idUtilisateur + ", " + idGroupe + ", " + obligatoire + ")"
+		);
+	}
+	
+	/**
+	 * Fonction permettant à un utilisateur de se désabonner d'un groupe de participants
+	 * @param idUtilisateur
+	 * @param idGroupe
+	 * @param uniquementSiCoursNonObligatoire : booléen indiquant si on supprime le rattachement dans le cas où il est obligatoire
+	 * @throws DatabaseException
+	 */
+	public void seDesabonner(int idUtilisateur, int idGroupe, boolean uniquementSiCoursNonObligatoire) throws DatabaseException {
+		String s = "DELETE FROM edt.abonnegroupeparticipant " +
+				   "WHERE utilisateur_id = " + idUtilisateur +
+				   " AND groupeparticipant_id = " + idGroupe ;
+		if (uniquementSiCoursNonObligatoire) {
+			  s += " AND abonnementgroupeparticipant_obligatoire = FALSE" ;
+		}
+		_bdd.executeRequest(s);
 	}
 	
 }

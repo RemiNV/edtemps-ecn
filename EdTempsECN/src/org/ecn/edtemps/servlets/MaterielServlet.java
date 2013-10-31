@@ -22,45 +22,37 @@ import org.ecn.edtemps.models.Materiel;
  * Servlet pour récupérer la liste de tous les matériels
  * 
  * @author Joffrey Terrade
- * 
+ *
  */
 public class MaterielServlet extends RequiresConnectionServlet {
 
+	/** Numéro de série */
 	private static final long serialVersionUID = 7246893098272381772L;
-
-	private static Logger logger = LogManager.getLogger(MaterielServlet.class
-			.getName());
-
+	
+	/** Logger */
+	private static Logger logger = LogManager.getLogger(MaterielServlet.class.getName());
+	
 	@Override
-	protected void doGetAfterLogin(int userId, BddGestion bdd,
-			HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-
+	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+			
 		MaterielGestion materielGestion = new MaterielGestion(bdd);
 		JsonValue data;
-
+		
 		try {
 			// Récupération de la liste de tous les matériels
 			List<Materiel> listeMateriels = materielGestion.getListeMateriel();
 
 			// Création de la réponse
-			data = Json
-					.createObjectBuilder()
-					.add("listeMateriels",
-							JSONUtils.getJsonArray(listeMateriels)).build();
-
+			data = Json.createObjectBuilder()
+					.add("listeMateriels", JSONUtils.getJsonArray(listeMateriels))
+					.build();
+			
 			// Génération de la réponse
-			resp.getWriter().write(
-					ResponseManager.generateResponse(ResultCode.SUCCESS, "",
-							data));
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "", data));
 
 		} catch (EdtempsException e) {
-			resp.getWriter().write(
-					ResponseManager.generateResponse(e.getResultCode(),
-							e.getMessage(), null));
-			logger.error(
-					"Erreur d'accès à la base de données lors de la récupération de la liste des matériels",
-					e);
+			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			logger.error("Erreur d'accès à la base de données lors de la récupération de la liste des matériels", e);
 		}
 
 		bdd.close();

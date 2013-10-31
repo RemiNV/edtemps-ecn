@@ -32,6 +32,16 @@
   </servlet>
   
   <servlet>
+      <servlet-name>SAbonner</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.SAbonnerServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+      <servlet-name>SeDesabonner</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.SeDesabonnerServlet</servlet-class>
+  </servlet>  
+  
+  <servlet>
       <servlet-name>ICalToken</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.ICalTokenServlet</servlet-class>
   </servlet>
@@ -74,6 +84,16 @@
   <servlet-mapping>
       <servlet-name>GroupesAbonnementsEtNonAbonnements</servlet-name>
       <url-pattern>/abonnementsetnonabonnements</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>SAbonner</servlet-name>
+      <url-pattern>/sabonner</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>SeDesabonner</servlet-name>
+      <url-pattern>/sedesabonner</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

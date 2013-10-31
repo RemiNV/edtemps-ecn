@@ -2,41 +2,30 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>Emploi du temps ECN</title>
+		<title>Emploi du temps ECN (tests unitaires)</title>
 		
 		<link rel="stylesheet" type="text/css" href="fullcalendar.css" />
 		<link rel="stylesheet" type="text/css" href="multi-select.css" />
 		<link rel="stylesheet" type="text/css" href="main.css" />
 		<link rel="stylesheet" type="text/css" href="dialog.css" />
+		
+		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/qunit/qunit-1.12.0.css" />
 
 		<!-- 
 			Chargement de requirejs et de son plugin text, définition de scripts/main.js comme script d'entrée.
 			require.js peut utiliser le plugin text.js pour charger des fichiers texte 	(pour les pages HTML ou templates),
 			et pas seulement des fichiers JavaScript.
 		-->
-		<script data-main="scripts/main" src="scripts/lib/require.js"></script>
+		<script data-main="scripts/test" src="scripts/lib/require.js"></script>
 		
 		<!-- Configuration de require.js -->
 		<script type="text/javascript" src="scripts/requirejs-config.js"></script>
 	</head>
 	<body>
-	
-		<!-- 
-		*** Pour compatibilité avec tests unitaires, ne pas référencer les éléments de cette page en-dehors du main.js ***
-			Ils ne sont pas identiques dans l'environnement de test
-		 -->
-		<div id="toast">
+		
+		<div id="qunit">
 		</div>
 	
-		<div id="connection_dialog">
-			<div style="width: 400px; height: 100px; margin: auto;" >
-				<!-- Contenu remplacé en JavaScript -->
-				<h3><img style="position: relative; top: 30px;" src="img/spinner_chargement.gif" alt="Chargement" />Chargement de l'application...</h3>
-			</div>
-		</div>
-	
-		<div id="main_interface_hook">
-			
-		</div>
+		<div id="qunit-fixture"></div>
 	</body>
 </html>

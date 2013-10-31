@@ -4,7 +4,7 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 	 * Initialisation de l'interface de connexion.
 	 * jqParent : bloc parent contenant le HTML nécessaire (chargé depuis les templates)
 	 */
-	var DialogConnection = function(restManager, jqDialog, connectionCallback) {
+	var DialogConnection = function(restManager, jqDialog) {
 		this.restManager = restManager;
 		this.jqDialog = jqDialog;
 		this.connectionSuccess = false;
@@ -27,7 +27,7 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 				return me.allowClose || me.connectionSuccess;
 			},
 			close: function(event, ui) {
-				if(!me.connectionSuccess && me.connectionCallback) {
+				if(!me.connectionSuccess) {
 					me.connectionCallback(false);
 				}
 			}
@@ -37,6 +37,7 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		
 		// Callback de connexion
 		jqDialog.find("#btn_connexion").click(function(event) {
+			
 			event.preventDefault();
 			var username = jqDialog.find("#txt_identifiant").val();
 			
@@ -60,9 +61,6 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 					// Redirection vers la page d'agenda
 					me.connectionSuccess = true;
 					jqDialog.dialog("close");
-					if(!me.connectionCallback) {
-						Davis.location.assign("agenda");
-					}
 					break;
 					
 				case RestManager.resultCode_NetworkError:
@@ -82,9 +80,8 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 					break;
 				}
 				
-				if(me.connectionCallback) {
-					me.connectionCallback(resultCode == RestManager.resultCode_Success);
-				}
+				
+				me.connectionCallback(resultCode == RestManager.resultCode_Success);
 			});
 		});
 	};
@@ -92,11 +89,11 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 	/**
 	 * Affichage de la dialog de connexion
 	 * @param title Titre à assigner à la dialog
-	 * @param connectionCallback Callback de connexion. Si défini, effectue une reconnexion plutôt qu'une connexion.
+	 * @param connectionCallback Callback de connexion (obligatoire)
 	 */
-	DialogConnection.prototype.show = function(title, connectionCallback) {
+	DialogConnection.prototype.show = function(title, connectionCallback, isReconnection) {
 		
-		if(connectionCallback) {
+		if(isReconnection) {
 			this.allowClose = true;
 			if(window.localStorage) {
 				// Pré-remplissage du nom d'utilisateur (reconnexion)
