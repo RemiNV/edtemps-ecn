@@ -112,7 +112,7 @@ ul.button_nav li:last-child {
 	margin-left: 20px;
 }
 
-#recherche_salle_libre, #form_creer_calendrier {
+#form_chercher_salle, #resultat_chercher_salle, #form_creer_calendrier {
 	display: none;
 }
 
@@ -123,7 +123,7 @@ ul.button_nav li:last-child {
 	margin-top: 20px;
 }
 
-#form_chercher_salle_boutons, #resultat_chercher_salle_resultat_boutons {
+#form_chercher_salle_boutons, #resultat_chercher_salle_boutons {
 	text-align: right;	
 }
 
@@ -158,20 +158,20 @@ ul.button_nav li:last-child {
 	padding: 2px 5px 2px 5px;
 }
 
-#resultat_chercher_salle_resultat table {
+#resultat_chercher_salle table {
 	width: 100%;
 	border-collapse: collapse;
 	font-size: 0.9em;
 	margin-bottom: 10px;
 }
 
-#resultat_chercher_salle_resultat table td {
+#resultat_chercher_salle table td {
 	background-color: white;
 	border: solid 1px gray;
 	padding: 0px 0px 0px 5px;
 }
 
-#resultat_chercher_salle_resultat table th {
+#resultat_chercher_salle table th {
 	border: solid 1px gray;
 	padding: 2px 5px 2px 5px;
 }
