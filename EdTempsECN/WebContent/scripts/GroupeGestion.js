@@ -27,7 +27,7 @@ define(["RestManager"], function(RestManager) {
 	 * @param callback
 	 */
 	GroupeGestion.prototype.seDesabonner = function(idgroupe, callback) {
-		this.restManager.effectuerRequete("GET", "sedesabonner", {
+		this.restManager.effectuerRequete("POST", "sedesabonner", {
 			token : this.restManager.getToken(),
 			idGroupe : idgroupe
 		}, function(data) {
@@ -41,7 +41,7 @@ define(["RestManager"], function(RestManager) {
 	 * @param callback
 	 */
 	GroupeGestion.prototype.sAbonner = function(idgroupe, callback) {
-		this.restManager.effectuerRequete("GET", "sabonner", {
+		this.restManager.effectuerRequete("POST", "sabonner", {
 			token: this.restManager.getToken(),
 			idGroupe: idgroupe
 		}, function(data) {
