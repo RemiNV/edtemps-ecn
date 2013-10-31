@@ -48,7 +48,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		$("#form_chercher_salle_valid").click(function() {
 			// Si le formulaire est valide, la requête est effectuée
 			if (me.validationFormulaire()) {
-				this.effectuerRequete();
+				me.effectuerRequete();
 			}
 		});
 
@@ -187,7 +187,20 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	 * Méthode qui effectue la requête
 	 */
 	RechercheSalle.prototype.effectuerRequete = function() {
-		alert('Requete au serveur pour récupérer la liste des salles correspondantes');
+		
+		this.restManager.effectuerRequete("POST", "recherchesallelibre", {
+			token: this.restManager.getToken(), id: "123",
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				
+
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur lors de la recheche d'une salle libre ; vérifiez votre connexion.");
+			} else {
+				window.showToast(data.resultCode + " Erreur lors de la recheche d'une salle libre ; votre session a peut-être expiré ?");
+			}
+		});
+		
 	};
 	
 	/**
