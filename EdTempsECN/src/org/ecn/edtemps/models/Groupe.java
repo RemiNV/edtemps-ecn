@@ -19,7 +19,7 @@ public class Groupe {
 	protected String nom;
 
 	/** Identifiant du groupe parent. 0 si aucun parent */
-	protected Integer parentId;
+	protected int parentId;
 
 	/** Est-ce que le groupe peut avoir un rattachement */
 	protected boolean rattachementAutorise;
@@ -37,8 +37,9 @@ public class Groupe {
 	 * @param estCours
 	 * @param estCalendrierUnique
 	 */
-	public Groupe(String nom, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique) {
+	public Groupe(String nom, List<Integer> idProprietaires, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique) {
 		this.nom = nom;
+		this.idProprietaires = idProprietaires;
 		this.rattachementAutorise = rattachementAutorise;
 		this.estCours = estCours;
 		this.estCalendrierUnique = estCalendrierUnique;
@@ -69,7 +70,7 @@ public class Groupe {
 	 * Récupération du parent du groupe
 	 * @return parentId ID du parent, 0 si aucun parent
 	 */
-	public Integer getParentId() {
+	public int getParentId() {
 		return parentId;
 	}
 

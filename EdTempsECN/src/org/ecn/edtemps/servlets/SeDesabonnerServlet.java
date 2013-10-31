@@ -23,7 +23,7 @@ public class SeDesabonnerServlet extends RequiresConnectionServlet {
 	private static Logger logger = LogManager.getLogger(SeDesabonnerServlet.class.getName());
 	
 	@Override
-	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
 		logger.debug("Pret à faire le désabonnement");
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);

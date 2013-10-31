@@ -44,7 +44,11 @@ var require = {
 		
 		"jquerymultiselect": {
 			deps: ["jquery"]
-		}
+		},
+		
+		"jquerymaskedinput": {
+			deps: ["jquery"]
+		} 
 	}
 
 };

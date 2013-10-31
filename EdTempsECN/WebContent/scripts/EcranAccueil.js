@@ -1,4 +1,6 @@
-define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "RestManager", "jquery"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, RechercheSalle, RestManager) {
+define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", 
+        "AjoutEvenement", "RestManager", "jquery", "jqueryui"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
+        		RechercheSalle, AjoutEvenement, RestManager) {
 	
 	/**
 	 * Cet écran est associé au HTML templates/page_accueil.html.
@@ -7,7 +9,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
-		this.rechercheSalle = new RechercheSalle(this.restManager);
+		this.rechercheSalle = new RechercheSalle(this.restManager, $("#form_chercher_salle"));
+		this.ajoutEvenement = new AjoutEvenement($("#dialog_ajout_evenement"));
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
@@ -17,7 +20,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	
 	EcranAccueil.prototype.init = function() {
 		var me = this;
-
+		
 		// Initialisation des listeners
 		$("#btn_gerer_agendas").click(function(e) {
 			Davis.location.assign("parametres");

@@ -1,16 +1,17 @@
-define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
+define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager) {
 
 	/**
 	 * Constructeur
 	 */
-	var RechercheSalle = function(restManager) {
+	var RechercheSalle = function(restManager, jqFormChercherSalle) {
 		this.restManager = restManager;
+		this.jqFormChercherSalle = jqFormChercherSalle;
 		
 		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
-		this.date = $("#form_recherche_salle_date");
-		this.heureDebut = $("#form_recherche_salle_debut");
-		this.heureFin = $("#form_recherche_salle_fin");
-		this.capacite = $("#form_recherche_salle_capacite");
+		this.date = jqFormChercherSalle.find("#form_recherche_salle_date");
+		this.heureDebut = jqFormChercherSalle.find("#form_recherche_salle_debut");
+		this.heureFin = jqFormChercherSalle.find("#form_recherche_salle_fin");
+		this.capacite = jqFormChercherSalle.find("#form_recherche_salle_capacite");
 
 		// Ecrit la liste des matériels disponibles
 		this.ecritListeMateriel();
@@ -28,7 +29,7 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 		this.capacite.mask("9?999");
 
 		// Affectation d'une méthode au clic sur le bouton "Rechercher"
-		$("#form_chercher_salle_valid").click(function() {
+		this.jqFormChercherSalle.find("#form_chercher_salle_valid").click(function() {
 			// Si le formulaire est valide, la requête est effectuée
 			if (me.validationFormulaire()) {
 				me.effectuerRecherche();
@@ -36,17 +37,17 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 		});
 
 		// Affectation d'une méthode au clic sur le bouton "Fermer"
-		$("#form_chercher_salle_fermer").click(function() {
-			$("#form_chercher_salle").dialog("close");
+		this.jqFormChercherSalle.find("#form_chercher_salle_fermer").click(function() {
+			this.jqFormChercherSalle.find("#form_chercher_salle").dialog("close");
 		});
 
 		// Affectation d'une méthode au clique sur les différents champs
-		$("#form_recherche_salle_date, #form_recherche_salle_debut, #form_recherche_salle_fin, #form_recherche_salle_capacite").click(function() {
+		this.jqFormChercherSalle.find("#form_recherche_salle_date, #form_recherche_salle_debut, #form_recherche_salle_fin, #form_recherche_salle_capacite").click(function() {
 			me.bordureSurChamp($(this), null);
 		});
 
 		// Affiche la boîte dialogue de recherche d'une salle libre
-		$("#form_chercher_salle").dialog({
+		this.jqFormChercherSalle.dialog({
 			width: 440,
 			modal: true,
 			show: {
@@ -107,7 +108,7 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 		
 		// Validation des quantités de matériel
 		var me = this;
-		$(".quantite input[type=number]").each(function() {
+		this.jqFormChercherSalle.find(".quantite input[type=number]").each(function() {
 			if (isNaN($(this).val()) || $(this).val()<0 || $(this).val()>9999 || $(this).val()=="" ) {
 				me.bordureSurChamp($(this), "#FF0000");
 				valid = false;
@@ -138,6 +139,12 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 	RechercheSalle.prototype.ecritListeMateriel = function() {
 		var me = this;
 		
+		var me = this;
+		
+		// Blocage du bouton de validation avant le chargement
+		this.jqFormChercherSalle.find("#form_chercher_salle_valid").attr("disabled", "disabled");
+		this.jqFormChercherSalle.find("#form_chercher_salle_materiel_chargement").css("display", "block");
+		
 		// Récupération de la liste des matériels en base de données
 		this.restManager.effectuerRequete("GET", "listemateriels", {
 			token: this.restManager.getToken()
@@ -158,10 +165,12 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 					}
 					
 					// Ajout du code html dans la liste de matériels
-					$("#form_chercher_salle_liste_materiel table").append(str);
+					me.jqFormChercherSalle.find("#form_chercher_salle_liste_materiel table").append(str);
 			
 					// Ajout des masques sur les quantités de matériel
 					$(".quantite input[type=number]").each(function() {
+					me.jqFormChercherSalle.find(".quantite input[type=number]").each(function() {
+						$(this).mask("?9999", { placeholder: "" });
 						$(this).click(function() {
 							me.bordureSurChamp($(this), "#FFFFFF");
 						});
@@ -169,8 +178,12 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 
 				} else {
 					// S'il n'y a pas de produits en base de données, on cache le tableau dans le formulaire
-					$("#form_chercher_salle_liste_materiel").hide();
+					me.jqFormChercherSalle.find("#form_chercher_salle_liste_materiel").hide();
 				}
+				
+				// Reactivation du bouton de recherche
+				me.jqFormChercherSalle.find("#form_chercher_salle_valid").removeAttr("disabled");
+				me.jqFormChercherSalle.find("#form_chercher_salle_materiel_chargement").css("display", "none");
 
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération des matériels disponibles ; vérifiez votre connexion.");
@@ -198,7 +211,7 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 		//    - pour chaque matériel, il y a son identifiant suivi de la quantité, séparés par ":"
 		//    - les matériels sont séparés les uns des autres par ","
 		var listeMaterielQuantite = "";
-		$(".quantite input[type=number]").each(function() {
+		this.jqFormChercherSalle.find(".quantite input[type=number]").each(function() {
 			if (listeMaterielQuantite!="") {
 				listeMaterielQuantite += ",";
 			}
