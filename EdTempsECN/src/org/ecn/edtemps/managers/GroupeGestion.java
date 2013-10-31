@@ -58,7 +58,18 @@ public class GroupeGestion {
 		
 		boolean estCalendrierUnique = row.getBoolean("groupeparticipant_estcalendrierunique");
 		
-		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, rattachementAutorise, estCours, estCalendrierUnique);
+		// Récupérer la liste des identifiants des propriétaires */
+		ResultSet requeteProprietaires = _bdd
+				.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="
+						+ id);
+		
+		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
+		while (requeteProprietaires.next()) {
+			idProprietaires.add(requeteProprietaires.getInt("utilisateur_id"));
+		}
+		requeteProprietaires.close();
+		
+		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
 		groupeRecupere.setParentId(parentId); // Eventuellement 0
 
 		// Récupérer la liste des identifiants des calendriers */
@@ -72,18 +83,6 @@ public class GroupeGestion {
 		}
 		requeteCalendriers.close();
 		groupeRecupere.setIdCalendriers(idCalendriers);
-
-		// Récupérer la liste des identifiants des propriétaires */
-		ResultSet requeteProprietaires = _bdd
-				.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="
-						+ id);
-		
-		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
-		while (requeteProprietaires.next()) {
-			idProprietaires.add(requeteProprietaires.getInt("utilisateur_id"));
-		}
-		requeteProprietaires.close();
-		groupeRecupere.setIdProprietaires(idProprietaires);
 		
 		return groupeRecupere;
 	}
