@@ -112,12 +112,8 @@ ul.button_nav li:last-child {
 	margin-left: 20px;
 }
 
-#recherche_salle_libre, #form_creer_calendrier {
+#form_chercher_salle, #resultat_chercher_salle, #form_creer_calendrier {
 	display: none;
-}
-
-.form_chercher_salle_boutons {
-	text-align: right;
 }
 
 #form_chercher_salle_liste_materiel {
@@ -125,6 +121,10 @@ ul.button_nav li:last-child {
 	overflow: auto;	
 	margin-bottom: 20px;
 	margin-top: 20px;
+}
+
+#form_chercher_salle_boutons, #resultat_chercher_salle_boutons {
+	text-align: right;	
 }
 
 #form_chercher_salle_liste_materiel table {
@@ -154,6 +154,24 @@ ul.button_nav li:last-child {
 
 #form_chercher_salle_liste_materiel table th {
 	text-align: left;
+	border: solid 1px gray;
+	padding: 2px 5px 2px 5px;
+}
+
+#resultat_chercher_salle table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9em;
+	margin-bottom: 10px;
+}
+
+#resultat_chercher_salle table td {
+	background-color: white;
+	border: solid 1px gray;
+	padding: 0px 0px 0px 5px;
+}
+
+#resultat_chercher_salle table th {
 	border: solid 1px gray;
 	padding: 2px 5px 2px 5px;
 }

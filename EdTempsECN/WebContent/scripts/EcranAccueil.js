@@ -9,7 +9,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
-		this.rechercheSalle = new RechercheSalle(this.restManager, $("#form_chercher_salle"));
+		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
 		this.ajoutEvenement = new AjoutEvenement($("#dialog_ajout_evenement"));
 	};
 	
