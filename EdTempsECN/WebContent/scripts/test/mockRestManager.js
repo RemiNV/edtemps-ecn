@@ -132,8 +132,25 @@ define(["mockjax"], function() {
 			console.log("*** Utilisation de mockjax. Les requêtes AJAX jQuery sont interceptées par le mockRestManager pour les tests unitaires ***");
 		},
 		
-		getMockedCalls: function() {
-			return $.mockjax.mockedAjaxCalls();
+		/**
+		 * Récupération des appels Ajax interceptés jusqu'à maintenant
+		 * @param filtreUrl Filtre optionnel sur l'URL de requête pour les appels à renvoyer
+		 * @param filtreTypeRequete Filtre optionnel sur le type de requête pour les appels à renvoyer
+		 * @returns
+		 */
+		getMockedCalls: function(filtreUrl, filtreTypeRequete) {
+			var res = new Array();
+			
+			var calls = $.mockjax.mockedAjaxCalls();
+			
+			for(var i=0, maxI=calls.length; i<maxI; i++) {
+				if((!filtreUrl || filtreUrl == calls[i].url)
+					&& (!filtreTypeRequete || filtreTypeRequete == calls[i].type)) {
+					res.push(calls[i]);
+				}
+			}
+			
+			return res;
 		}
 	};
 	

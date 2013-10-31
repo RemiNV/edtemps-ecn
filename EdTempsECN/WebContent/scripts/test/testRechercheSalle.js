@@ -82,8 +82,8 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 				// Validation de la demande
 				$("#form_chercher_salle_valid").trigger("click");
 				
-				// TODO : vérifier la requête effectuée
-				console.log("Requetes : ", mockRestManager.getMockedCalls());
+				// TODO : vérifier que la requête est effectuée avec les bons paramètres
+				// mockRestManager.getMockedCalls("recherchesallelibre", "GET")
 				
 				start();
 			}
