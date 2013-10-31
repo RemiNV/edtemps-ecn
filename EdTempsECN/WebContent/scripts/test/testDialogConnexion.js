@@ -20,7 +20,7 @@ require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexi
 		
 		var connexionCallback = function(success) {
 			ok(success, "Réussite de la connexion");
-			start();
+			start(); // Toutes les assertions ont été appelées (même dans les callback) : bilan du test
 		};
 		
 		var dialogConnexion = new DialogConnexion(restManager, $("#dialogConnexionUnitTest"));
@@ -45,7 +45,7 @@ require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexi
 		
 		var connexionCallback = function(success) {
 			ok(!success, "Echec de la connexion");
-			start();
+			start(); // Toutes les assertions ont été appelées (même dans les callback) : bilan du test
 		};
 		
 		var dialogConnexion = new DialogConnexion(restManager, $("#dialogConnexionUnitTest"));

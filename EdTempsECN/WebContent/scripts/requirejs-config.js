@@ -1,4 +1,5 @@
-requirejs.config({
+// Utilisation d'une syntaxe permettant le chargement de la config avant requirejs
+var require = {
 
 	baseUrl: "scripts/",
 	
@@ -46,4 +47,4 @@ requirejs.config({
 		}
 	}
 
-});
+};
