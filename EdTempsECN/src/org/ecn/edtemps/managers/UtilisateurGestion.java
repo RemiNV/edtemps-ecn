@@ -43,6 +43,31 @@ public class UtilisateurGestion {
 	
 	private static Logger logger = LogManager.getLogger(UtilisateurGestion.class.getName());
 	
+	
+	/**
+	 * Définit les actions qui peuvent être faites, pour vérification des autorisations.
+	 * L'ID du droit doit correspondre avec l'ID en base de donnée.
+	 * @author Remi
+	 *
+	 */
+	public static enum ActionsEdtemps {
+		
+		// Actions possibles à compléter
+		CREER_GROUPE(1),
+		RATTACHER_CALENDRIER_GROUPE(2),
+		CREER_GROUPE_COURS(3);
+		
+		private int id;
+		
+		ActionsEdtemps(int id) {
+			this.id = id;
+		}
+		
+		public int getId() {
+			return id;
+		}
+	}
+	
 	/**
 	 * Initialise un gestionnaire d'utilisateurs
 	 * @param bdd Base de données à utiliser
