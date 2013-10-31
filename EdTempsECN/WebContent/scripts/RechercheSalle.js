@@ -27,28 +27,11 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 		this.heureFin.mask("99:99");
 		this.capacite.mask("9?999");
 
-		// Ajout du datepicker sur le champ date
-		this.date.datepicker({
-			showAnim : 'slideDown',
-			showOn: 'button',
-			buttonText: "Calendrier",
-			buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
-			buttonImageOnly: true, // affiche l'image sans bouton
-			monthNamesShort: [ "Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jui", "Aou", "Sep", "Oct", "Nov", "Dec" ],
-			monthNames: [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ],
-			dayNamesMin: [ "Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa" ],
-			dayNames: [ "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" ],
-			gotoCurrent: true,
-			prevText: "Précédent",
-			nextText: "Suivant",
-			firstDay: 1
-		});
-
 		// Affectation d'une méthode au clic sur le bouton "Rechercher"
 		$("#form_chercher_salle_valid").click(function() {
 			// Si le formulaire est valide, la requête est effectuée
 			if (me.validationFormulaire()) {
-				me.effectuerRequete();
+				me.effectuerRecherche();
 			}
 		});
 
@@ -155,11 +138,11 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 					for (var i = 0 ; i < maxI ; i++) {
 						str += "<tr>";
 						str += "<td class='libelle'>" + data.data.listeMateriels[i].nom + "</td>";
-						str += "<td class='quantite'><input type='number' id='materiel_recherche_salle_" + data.data.listeMateriels[i].id + "' value='0' /></td>";
+						str += "<td class='quantite'><input type='number' materiel-id='" + data.data.listeMateriels[i].id + "' value='0' /></td>";
 						str += "</tr>";
 					}
 					
-					// Ajout du texte dans la liste de matériel
+					// Ajout du code html dans la liste de matériels
 					$("#form_chercher_salle_liste_materiel table").append(str);
 			
 					// Ajout des masques sur les quantités de matériel
@@ -171,6 +154,7 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 					});
 
 				} else {
+					// S'il n'y a pas de produits en base de données, on cache le tableau dans le formulaire
 					$("#form_chercher_salle_liste_materiel").hide();
 				}
 
@@ -186,27 +170,47 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 	/**
 	 * Méthode qui effectue la requête
 	 */
-	RechercheSalle.prototype.effectuerRequete = function() {
+	RechercheSalle.prototype.effectuerRecherche = function() {
+		var me = this;
 		
-		this.restManager.effectuerRequete("POST", "recherchesallelibre", {
-			token: this.restManager.getToken(), id: "123",
-		}, function(data) {
-			if (data.resultCode == RestManager.resultCode_Success) {
-				
-
-			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+		// Récupération des valeurs du formulaire
+		var param_date = this.date.val();
+		var param_heureDebut = this.heureDebut.val();
+		var param_heureFin = this.heureFin.val();
+		var param_capacite = this.capacite.val();
+		
+		// Récupération des quantités pour chaque item de matériel
+		// La syntaxe choisie est :
+		//    - pour chaque matériel, il y a son identifiant suivi de la quantité, séparés par ":"
+		//    - les matériels sont séparés les uns des autres par ","
+		var listeMaterielQuantite = "";
+		$(".quantite input[type=number]").each(function() {
+			if (listeMaterielQuantite!="") {
+				listeMaterielQuantite += ",";
+			}
+			listeMaterielQuantite += $(this).attr("materiel-id") + ":" + $(this).val();
+		});
+		
+		// Récupération de la liste des matériels en base de données
+		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
+			date: param_date, heureDebut: param_heureDebut, heureFin: param_heureFin, capacite: param_capacite, materiel: listeMaterielQuantite, token: this.restManager.getToken()
+		}, function(response) {
+			if (response.resultCode == RestManager.resultCode_Success) {
+				me.afficherResultatalert(response.data);
+			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la recheche d'une salle libre ; vérifiez votre connexion.");
 			} else {
-				window.showToast(data.resultCode + " Erreur lors de la recheche d'une salle libre ; votre session a peut-être expiré ?");
+				window.showToast(response.resultCode + " Erreur lors de la recheche d'une salle libre ; votre session a peut-être expiré ?");
 			}
 		});
+		
 		
 	};
 	
 	/**
 	 * Méthode qui affiche le résultat
 	 */
-	RechercheSalle.prototype.afficherResultat = function() {
+	RechercheSalle.prototype.afficherResultat = function(data) {
 		alert('Affiche le résultat');
 	};
 

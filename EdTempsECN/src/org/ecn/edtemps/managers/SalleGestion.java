@@ -342,7 +342,7 @@ public class SalleGestion {
 						+ "INNER JOIN edt.contientmateriel ON contientmateriel.salle_id = salle.salle_id " 
 						+ "WHERE materiel_id = " + materiels.get(0).getId() + " "
 						+ "AND contientmateriel_quantite >= " + materiels.get(0).getQuantite() + " "
-						+ "AND salle_id IN (" + getValuesSallesRetenues(idsSallesAvecCapacite) +")", "salle_id"));
+						+ "AND salle.salle_id IN (" + getValuesSallesRetenues(idsSallesAvecCapacite) +")", "salle_id"));
 				// suppression des salles ne possédant pas les autres matériels requis
 				for (int i = 1; i < materiels.size(); i++){
 					idsSallesAvecMaterielEtCapacite.remove(_bdd.recupererId(
@@ -351,7 +351,7 @@ public class SalleGestion {
 							+ "INNER JOIN edt.contientmateriel ON contientmateriel.salle_id = salle.salle_id " 
 							+ "WHERE materiel_id = " + materiels.get(i).getId() + " "
 							+ "AND contientmateriel_quantite < " + materiels.get(i).getQuantite() + " "
-							+ "AND salle_id IN (" + getValuesSallesRetenues(idsSallesAvecMaterielEtCapacite) +")", "salle_id"));
+							+ "AND salle.salle_id IN (" + getValuesSallesRetenues(idsSallesAvecMaterielEtCapacite) +")", "salle_id"));
 				}
 			}
 			
@@ -418,6 +418,59 @@ public class SalleGestion {
 		}
 		return valuesIdsSallesRetenues;
 	}
+	
+	
+	/**
+	 * Listing des salles disponibles pour la création d'un nouvel événement
+	 *@param dateDebut date de début de l'événement (paramètre obligatoire)
+	 *@param dateFin date de fin de l'événement (paramètre obligatoire)
+	 *@param matériels liste de matériel nécessaire dans la salle recherchée (paramètre facultatif, pouvant être null)
+	 *@param capacité nombre de personne que la salle doit pouvoir accueillir (paramètre obligatoire)
+	 *
+	 *@return Liste des salles disponibles
+	 *@throws DatabaseException
+	 */
+	public ArrayList<SalleIdentifie> rechercherSalle2(Date dateDebut, Date dateFin, ArrayList<Materiel> materiels, int capacite) throws DatabaseException {
+
+		// Recherche les salles qui ont la capacité suffisante et qui sont disponibles 
+		ResultSet requete = _bdd.executeRequest(
+		"SELECT * FROM edt.salle S WHERE (" +
+			"S.salle_capacite >= " + capacite + " AND S.salle_id NOT IN (" +
+				"SELECT A.salle_id FROM edt.alieuensalle A WHERE A.eve_id IN (" +
+					"SELECT E.eve_id FROM edt.evenement E WHERE (" +
+						"(E.eve_datedebut <= '" + dateDebut + "' AND '" + dateDebut + "' <= E.eve_datefin) OR (E.eve_datedebut <= '" + dateFin + "' AND '" + dateFin + "' <= E.eve_datefin)" +
+		")   )   )   )");
+
+		ArrayList<SalleIdentifie> resultatRecherche = new ArrayList<SalleIdentifie>();
+		try {
+
+			// Balayage pour chaque élément retour de la requête
+			while(requete.next()) {
+
+				// Transformation de la ligne de la bdd en objet java
+				SalleIdentifie salle = inflateSalleFromRow(requete);
+
+				// Pour chaque salle, vérifie si le matériel requis est présent
+				boolean salleValide = true;
+				for (Materiel mat : materiels) {
+					salleValide &= salle.containMateriel(mat.getId(), mat.getQuantite());
+				}
+				if (salleValide) {
+					resultatRecherche.add(salle);
+				}
+			}
+
+			// Ferme la requête
+			requete.close();
+
+			// Retourne le résultat de la recherche
+			return resultatRecherche;
+
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
 	
 	/**
 	 * Récupération des salles dans lesquelles se déroulent un évènement
