@@ -1,11 +1,12 @@
-define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion) {
+define(["RestManager", "GroupeGestion", "CreationCalendrier", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, CreationCalendrier) {
 	
 	/**
 	 * Cet écran est associé au HTML templates/page_parametres.html.
 	 * Il affiche la page de paramètres, avec ses différents onglets (abonnements, mes agendas, mes groupes...) */
 	var EcranParametres = function(restManager) {
 		this.restManager = restManager;
-		this.groupeGestion = new GroupeGestion(this.restManager);
+ 		this.groupeGestion = new GroupeGestion(this.restManager);
+ 		this.creationCalendrier = new CreationCalendrier(this.restManager);
 	};
 	
 	EcranParametres.prototype.init = function() {
@@ -26,6 +27,11 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 		});
 		
 		this.initMesAbonnements();
+		
+		// Avoir si on fait tout au démarrage de la page "Paramètres" ou lorsqu'on clique sur un onglet
+		// -> tout au démarrage => 1 seul requete si on veut
+		this.initMesCalendriers();
+		
 	};
 
 	EcranParametres.prototype.initMesAbonnements = function() {
@@ -134,6 +140,18 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 			});
 		});
 
+	};
+	
+	EcranParametres.prototype.initMesCalendriers = function() {
+		
+		// Affichage des calendriers (utiliser template ?)
+		
+		// Listeners
+		var me2 = this;
+		$("#btn_creer_calendrier").click(function() {
+			me2.creationCalendrier.init();
+		});
+		
 	};
 	
 	return EcranParametres;
