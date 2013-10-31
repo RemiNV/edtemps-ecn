@@ -136,6 +136,7 @@ define(["jquery"], function() {
 		var me = this;
 		$.ajax(url, {
 			data: data,
+			dataType: "json",
 			type: method,
 			traditional: true, //pour éviter les problèmes de retranscription des données -> ajout %5B%5D dans l'URL en méthode GET
 			timeout: 15000 // 15 sec.

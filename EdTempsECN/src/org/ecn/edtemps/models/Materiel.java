@@ -24,7 +24,7 @@ public class Materiel implements JSONAble {
 	/** Libellé du matériel*/
 	protected String nom;
 	
-	/** Quantité de matériel disponible dans une salle, si matériel requis, quantité fixé à -1*/
+	/** Quantité de matériel disponible dans une salle*/
 	protected int quantite;
 	
 	/** 
@@ -34,7 +34,7 @@ public class Materiel implements JSONAble {
 	public Materiel (int id, String nom){
 		this.id = id;
 		this.nom = nom;
-		quantite = -1;
+		quantite = 0;
 	}
 	
 	/** 

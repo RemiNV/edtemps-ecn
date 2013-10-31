@@ -27,8 +27,8 @@ define(["RestManager", "GroupeGestion", "CreationCalendrier", "jqueryquicksearch
 		});
 		
 		this.initMesAbonnements();
-		
-		// Avoir si on fait tout au démarrage de la page "Paramètres" ou lorsqu'on clique sur un onglet
+
+		// A voir : est qu'on fait tout au démarrage de la page "Paramètres" ou lorsqu'on clique sur un onglet
 		// -> tout au démarrage => 1 seul requete si on veut
 		this.initMesCalendriers();
 		

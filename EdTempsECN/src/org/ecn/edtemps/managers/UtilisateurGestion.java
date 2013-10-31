@@ -22,7 +22,6 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationErrorException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
-import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -324,6 +323,76 @@ public class UtilisateurGestion {
 		String email = row.getString("utilisateur_email");
 		
 		return new UtilisateurIdentifie(id, nom, prenom, email);
+	}
+	
+	public ArrayList<UtilisateurIdentifie> rechercherUtilisateur(String debutNomPrenomMail) throws DatabaseException{
+		try {
+			ArrayList<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT utilisateur_nom, utilisateur.prenom, utilisateur_email, utilisateur_id "
+					+ "FROM edt.utilisateur "
+					+ "WHERE utilisateur_nom LIKE '" + debutNomPrenomMail +"%' "
+					+ "OR utilisateur_prenom LIKE '" + debutNomPrenomMail +"%' "
+					+ "OR utilisateur_email LIKE '" + debutNomPrenomMail +"%' ");
+			while(reponse.next()) {
+				res.add(inflateUtilisateurFromRow(reponse));
+			}
+			reponse.close();
+			return res;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	/**
+	 * Savoir si l'utilisateur a le droit ou non de réaliser une action
+	 * @param actionNom libellé de l'action sur laquelle on recherche les droits de l'utilisateur
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return true si l'action est autorisée pour l'utilisaetur, false si l'action est interdite à l'utilisateur
+	 * @throws DatabaseException
+	 */
+	public boolean aDroit(String actionNom, int idUtilisateur) throws DatabaseException{
+		boolean isAble = false;
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT droits_libelle "
+					+ "FROM edt.droits "
+					+ "INNER JOIN edt.aledroitde ON droits.droits_id = aledroitde.droits_id "
+					+ "INNER JOIN edt.typeutilisateur ON typeutilisateur.type_id = aledroitde.type_id "
+					+ "INNER JOIN estdetype ON estdetype.type_id = typeutilisateur.typeid "
+					+ "WHERE utilisateur_id = " + idUtilisateur + " "
+					+ "AND droits_libelle = " + actionNom);
+			if(reponse.next()) {
+				isAble = true;
+			}
+			reponse.close();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		return isAble;
+	}
+	
+	/**
+	 * Récupération d'un utilisateur en base
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return Utilisateur identifié correspondant à l'identifiant donné
+	 * @throws DatabaseException
+	 */
+	public UtilisateurIdentifie getUtilisateur(int idUtilisateur) throws DatabaseException{
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT utilisateur_nom, utilisateur.prenom, utilisateur_email, utilisateur_id "
+					+ "FROM edt.utilisateur "
+					+ "WHERE utilisateur_id = " + idUtilisateur);
+			UtilisateurIdentifie res = null;
+			if(reponse.next()) {
+				res = inflateUtilisateurFromRow(reponse);
+			}
+			reponse.close();
+			return res;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 	}
 	
 	public ArrayList<UtilisateurIdentifie> getIntervenantsEvenement(int evenementId) throws DatabaseException {

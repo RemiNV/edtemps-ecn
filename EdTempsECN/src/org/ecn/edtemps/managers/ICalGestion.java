@@ -1,21 +1,18 @@
 package org.ecn.edtemps.managers;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.GregorianCalendar;
+
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Location;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Version;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
-
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.Location;
-import net.fortuna.ical4j.model.property.Organizer;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Version;
 
 public class ICalGestion {
 

@@ -55,6 +55,11 @@
       <servlet-name>GetListeMateriels</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.MaterielServlet</servlet-class>
   </servlet>
+
+  <servlet>
+      <servlet-name>RechercheSalleLibre</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.RechercheSalleLibreServlet</servlet-class>
+  </servlet>
   
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
@@ -105,5 +110,11 @@
       <servlet-name>GetListeMateriels</servlet-name>
       <url-pattern>/listemateriels</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>RechercheSalleLibre</servlet-name>
+      <url-pattern>/recherchesallelibre</url-pattern>
+  </servlet-mapping>
   
 </web-app>
+
