@@ -126,6 +126,10 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 
 		var me = this;
 		
+		// Blocage du bouton de validation avant le chargement
+		this.jqFormChercherSalle.find("#form_chercher_salle_valid").attr("disabled", "disabled");
+		this.jqFormChercherSalle.find("#form_chercher_salle_materiel_chargement").css("display", "block");
+		
 		// Récupération de la liste des matériels en base de données
 		this.restManager.effectuerRequete("GET", "listemateriels", {
 			token: this.restManager.getToken()
@@ -160,6 +164,10 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 					// S'il n'y a pas de produits en base de données, on cache le tableau dans le formulaire
 					me.jqFormChercherSalle.find("#form_chercher_salle_liste_materiel").hide();
 				}
+				
+				// Reactivation du bouton de recherche
+				me.jqFormChercherSalle.find("#form_chercher_salle_valid").removeAttr("disabled");
+				me.jqFormChercherSalle.find("#form_chercher_salle_materiel_chargement").css("display", "none");
 
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération des matériels disponibles ; vérifiez votre connexion.");
