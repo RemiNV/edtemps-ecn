@@ -377,7 +377,7 @@ public class UtilisateurGestion {
 	 * @return true si l'action est autorisée pour l'utilisaetur, false si l'action est interdite à l'utilisateur
 	 * @throws DatabaseException
 	 */
-	public boolean aDroit(String actionNom, int idUtilisateur) throws DatabaseException{
+	public boolean aDroit(ActionsEdtemps action, int idUtilisateur) throws DatabaseException{
 		boolean isAble = false;
 		try {
 			ResultSet reponse = bdd.executeRequest(
@@ -387,7 +387,7 @@ public class UtilisateurGestion {
 					+ "INNER JOIN edt.typeutilisateur ON typeutilisateur.type_id = aledroitde.type_id "
 					+ "INNER JOIN estdetype ON estdetype.type_id = typeutilisateur.typeid "
 					+ "WHERE utilisateur_id = " + idUtilisateur + " "
-					+ "AND droits_libelle = " + actionNom);
+					+ "AND droits_id = " + action.getId());
 			if(reponse.next()) {
 				isAble = true;
 			}
