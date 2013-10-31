@@ -9,7 +9,6 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		this.nom = $("#form_creer_calendrier_nom");
 		this.type = $("#form_creer_calendrier_type");
 		this.matiere = $("#form_creer_calendrier_matiere");
-		this.proprietaires = $("#form_creer_calendrier_proprietaires");
 	};
 
 	/**
@@ -17,10 +16,11 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	 */
 	DialogCreationCalendrier.prototype.init = function() {
 		var me = this;
-	
+
+		// Remplir les combobox matieres et types
 		me.remplirComboboxes();
 		
-		// Listener bouton "Rechercher"
+		// Listener bouton "Valider"
 		$("#form_creer_calendrier_valider").click(function() {
 			// Si le formulaire est valide, la requête est effectuée
 			if (me.validationFormulaire()) {
@@ -53,8 +53,12 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			},
 			close: function(event, ui) {
 				me.reinitialiserProprietaires();
-				// on supprime le listener ajouter_proprietaire, pour ne pas l'avoir en double si on ferme/réouvre le "dialog"
+				// on supprime les listeners pour ne pas les avoir en double si on ferme/réouvre le "dialog"
 				$("#form_creer_calendrier_ajouter_proprietaire").unbind("click");
+				$("#form_creer_calendrier_annuler").unbind("click");
+				$("#form_creer_calendrier_valider").unbind("click");
+				// on vide la case "nom"
+				me.nom.val('');
 			}
 		});
 
@@ -151,7 +155,19 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	 * Méthode qui effectue la requête de création du calendrier
 	 */
 	DialogCreationCalendrier.prototype.effectuerRequete = function() {
+		/*
+		this.nom
+		this.matiere
+		this.type
+		*/
+		// Parcourir les proprio
+		$("#form_creer_calendrier_proprietaires input").each(function() {
+			alert($(this).val());
+		});
 		alert('REQUETE A FAIRE => appel à une méthode sauverCalendrier dans CalendrierGestion?');
+		window.showToast("L'agenda a bien été créé");
+		// Pensez à recharger la page, sur laquelle un nouveau calendrier est apparu
+		// Peut etre fermer la dialog aussi 
 	};
 
 	return DialogCreationCalendrier;
