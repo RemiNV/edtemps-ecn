@@ -42,6 +42,11 @@
   </servlet>  
   
   <servlet>
+      <servlet-name>RecupererMatieresEtTypes</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.MatieresEtTypesServlet</servlet-class>
+  </servlet>  
+  
+  <servlet>
       <servlet-name>ICalToken</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.ICalTokenServlet</servlet-class>
   </servlet>
@@ -97,6 +102,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+      <servlet-name>RecupererMatieresEtTypes</servlet-name>
+      <url-pattern>/matieresettypes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
       <servlet-name>ICalToken</servlet-name>
       <url-pattern>/ical/token</url-pattern>
   </servlet-mapping>
@@ -117,3 +127,4 @@
   </servlet-mapping>
   
 </web-app>
+

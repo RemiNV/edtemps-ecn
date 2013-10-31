@@ -96,5 +96,5 @@ public class RechercheSalleLibreServlet extends RequiresConnectionServlet {
 
 		bdd.close();
 	}
-
+	
 }

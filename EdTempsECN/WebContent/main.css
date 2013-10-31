@@ -112,7 +112,7 @@ ul.button_nav li:last-child {
 	margin-left: 20px;
 }
 
-#recherche_salle_libre {
+#recherche_salle_libre, #form_creer_calendrier {
 	display: none;
 }
 
@@ -210,6 +210,46 @@ ul.button_nav li:last-child {
 	width: 20px;
 }
 
+
+/* Formulaire CreationCalendrier */
+
+#form_creer_calendrier {
+	display: none;
+}
+
+#form_creer_calendrier label{
+	margin-left: 20px;
+	margin-right: 20px; 	
+}
+
+#form_creer_calendrier_boutons {
+	text-align: right;
+	margin-top: 20px;
+}
+
+#form_creer_calendrier_nom, #form_creer_calendrier_matiere, #form_creer_calendrier_type {
+	width: 250px;
+	margin-bottom: 5px;
+}
+
+.form_creer_calendrier_proprietaire {
+	width: 250px;
+	margin-bottom: 2px;
+}
+
+#form_creer_calendrier_ajouter_proprietaire {
+	width: 250px;
+	text-align: right;
+	font-style: italic;
+	font-size: 0.8em;
+	margin-top: -4px;
+	text-decoration: underline;
+}
+
+#form_creer_calendrier_ajouter_proprietaire:hover {
+	color:white;
+	cursor: pointer;
+}
 	
 /* CSS jquery ui */
 

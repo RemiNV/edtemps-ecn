@@ -1,11 +1,12 @@
-define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion) {
+define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier) {
 	
 	/**
 	 * Cet écran est associé au HTML templates/page_parametres.html.
 	 * Il affiche la page de paramètres, avec ses différents onglets (abonnements, mes agendas, mes groupes...) */
 	var EcranParametres = function(restManager) {
 		this.restManager = restManager;
-		this.groupeGestion = new GroupeGestion(this.restManager);
+ 		this.groupeGestion = new GroupeGestion(this.restManager);
+ 		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
 	};
 	
 	EcranParametres.prototype.init = function() {
@@ -26,6 +27,11 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 		});
 		
 		this.initMesAbonnements();
+
+		// A voir : est qu'on fait tout au démarrage de la page "Paramètres" ou lorsqu'on clique sur un onglet
+		// -> tout au démarrage => 1 seul requete si on veut
+		this.initMesCalendriers();
+		
 	};
 
 	EcranParametres.prototype.initMesAbonnements = function() {
@@ -52,26 +58,7 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 					html += '<option value="' + gpe.id + '" selected="selected">' + gpe.nom + '</option>';
 				}
 
-				// Affichage 
-		/*Test
-		html = "" +
-		"<select id='optgroup' multiple='multiple'>" +
-		  "<optgroup label='Friends'>" +
-			  "<optgroup label='Enes'>" +
-			    "<option value='5'>Palpatine</option>" +
-			    "<option value='6' disabled>Darth Vader</option>" +
-			  "</optgroup>" +
-			  "<optgroup label='mies'>" +
-			    "<option value='4'>Palpatine</option>" +
-			    "<option value='8' disabled>Darth Vader</option>" +
-			  "</optgroup>" +
-		  "</optgroup>" +
-		  "<optgroup label='Enemies'>" +
-		    "<option value='3'>Palpatine</option>" +
-		    "<option value='4' disabled>Darth Vader</option>" +
-		  "</optgroup>" +
-		"</select>" ;
-		 */
+				// Affichage		 
 				$("#select-abonnements").html(html);
 				
 				// Paramètres de l'objet multiSelect
@@ -90,19 +77,25 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 				    },
 					afterSelect: function(idgroupe){
 						me.groupeGestion.seDesabonner(idgroupe, function(resultCode) {
-							if(resultCode == RestManager.resultCode_Success) {
-								// Utilité des 2 lignes ?
-								//me.qs1.cache();
-								//me.qs2.cache();
+							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les abonnements de l'utilisateur
+							if(resultCode != RestManager.resultCode_Success) {
+								window.showToast("Le désabonnement a échoué ...");
+								var idElementSelectable = "#" + idgroupe + "-selectable";
+								var idElementSelection = "#" + idgroupe + "-selection";
+								$(idElementSelection).css('display','none');
+								$(idElementSelectable).css('display','list-item');
 							}
 						});
 					},
 					afterDeselect: function(idgroupe){
 						 me.groupeGestion.sAbonner(idgroupe, function(resultCode) {
-							if(resultCode == RestManager.resultCode_Success) {
-								// Utilité des 2 lignes ?
-								//me.qs1.cache();
-								//me.qs2.cache();
+							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les "Agendas disponibles"
+							if(resultCode != RestManager.resultCode_Success) {
+								window.showToast("L'abonnement a échoué ...");
+								var idElementSelectable = "#" + idgroupe + "-selectable";
+								var idElementSelection = "#" + idgroupe + "-selection";
+								$(idElementSelectable).css('display','none');
+								$(idElementSelection).css('display','list-item');
 							}
 						});
 					}
@@ -147,6 +140,18 @@ define(["RestManager", "GroupeGestion", "jqueryquicksearch", "jqueryui", "jquery
 			});
 		});
 
+	};
+	
+	EcranParametres.prototype.initMesCalendriers = function() {
+		
+		// Affichage des calendriers (utiliser template ?)
+		
+		// Listeners
+		var me2 = this;
+		$("#btn_creer_calendrier").click(function() {
+			me2.dialogCreationCalendrier.init();
+		});
+		
 	};
 	
 	return EcranParametres;

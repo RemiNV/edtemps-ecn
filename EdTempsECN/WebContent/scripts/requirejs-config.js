@@ -9,7 +9,7 @@ var require = {
 		jqueryui: "lib/jquery-ui-1.10.3.notheme.min",
 		jqueryrotate: "lib/jquery-rotate.2.3.min",
 		jquerymultiselect: "lib/jquery.multi-select",
-		jquerymask: "lib/jquery-mask.1.3.1.min",
+		jquerymaskedinput: "lib/jquery.maskedinput.min",
 		text: "lib/text",
 		jqueryquicksearch: "lib/jquery.quicksearch"
 	},
