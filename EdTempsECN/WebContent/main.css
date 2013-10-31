@@ -243,8 +243,13 @@ ul.button_nav li:last-child {
 	font-style: italic;
 	font-size: 0.8em;
 	margin-top: -4px;
+	text-decoration: underline;
 }
 
+#form_creer_calendrier_ajouter_proprietaire:hover {
+	color:white;
+	cursor: pointer;
+}
 	
 /* CSS jquery ui */
 
