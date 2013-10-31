@@ -6,18 +6,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
-import org.ecn.edtemps.models.Evenement;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.Salle;
-import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 
 /**
@@ -348,14 +343,14 @@ public class SalleGestion {
 						+ "WHERE materiel_id = " + materiels.get(0).getId() + " "
 						+ "AND contientmateriel_quantite >= " + materiels.get(0).getQuantite() + " "
 						+ "AND salle_id IN (" + getValuesSallesRetenues(idsSallesAvecCapacite) +")", "salle_id"));
-				
+				// suppression des salles ne possédant pas les autres matériels requis
 				for (int i = 1; i < materiels.size(); i++){
-					idsSallesAvecMaterielEtCapacite.add(_bdd.recupererId(
+					idsSallesAvecMaterielEtCapacite.remove(_bdd.recupererId(
 							"SELECT DISTINCT * " 
 							+ "FROM edt.salle "
 							+ "INNER JOIN edt.contientmateriel ON contientmateriel.salle_id = salle.salle_id " 
 							+ "WHERE materiel_id = " + materiels.get(i).getId() + " "
-							+ "AND contientmateriel_quantite >= " + materiels.get(i).getQuantite() + " "
+							+ "AND contientmateriel_quantite < " + materiels.get(i).getQuantite() + " "
 							+ "AND salle_id IN (" + getValuesSallesRetenues(idsSallesAvecMaterielEtCapacite) +")", "salle_id"));
 				}
 			}
