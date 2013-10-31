@@ -87,7 +87,7 @@
 	<div id="calendar"></div>
 </div>
 
-<div id="dialog_ajout_evenement" style="display: none">
+<div id="dialog_ajout_evenement">
 	<table>
 		<tr>
 			<td><label for="txt_nom_evenement">Nom de l'évènement : </label></td>
@@ -98,8 +98,28 @@
 			<td>Propriétaires</td>
 			<td>(Fonctionnalité uniquement administrateur)</td>
 		</tr>
-		
-		
+		<tr>
+			<td>Rattachement au calendrier : </td>
+			<td><select id="select_ajout_evenement_calendriers"></select></td>
+		</tr>
+		<tr>
+			<td><label for="date_evenement">Date : </label></td>
+			<td><input type="date" id="date_evenement" /></td>
+		</tr>
+		<tr>
+			<td><label for="heure_debut_evenement">Heure de début : </label></td>
+			<td><input type="text" id="heure_debut" /></td>
+		</tr>
+		<tr>
+			<td><label for="heure_fin_evenement">Heure de fin : </label></td>
+			<td><input type="text" id="heure_fin" /></td>
+		</tr>
+		<tr>
+			<td>Salles : </td>
+			<td><span id="salles_evenement">(Aucune)</span><span id="btn_rechercher_salle_evenement" class="button">Rechercher une salle</span></td>
+		</tr>
 	</table>
+
+	<div id="btn_valider_ajout_evenement" class="button">Valider</div>
 
 </div>

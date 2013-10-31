@@ -114,7 +114,7 @@ public class AbonnementsServlet extends RequiresConnectionServlet {
 				GroupeGestion.makeTempTableListeGroupesAbonnement(bdd, userId); // Création de la table temporaire d'abonnements pour cette transaction
 				
 				ArrayList<GroupeIdentifie> abonnementsGroupes = groupeGestion.listerGroupesAbonnement(userId, false, true);
-				ArrayList<CalendrierIdentifie> abonnementsCalendriers = calendrierGestion.listerCalendriersUtilisateur(userId, false, true);
+				ArrayList<CalendrierIdentifie> abonnementsCalendriers = calendrierGestion.listerCalendriersAbonnementsUtilisateur(userId, false, true);
 				ArrayList<EvenementIdentifie> abonnementsEvenements = evenementGestion.listerEvenementsUtilisateur(userId, dateDebut, dateFin, false, true);
 				
 				bdd.commit(); // Suppression de la table temporaire
