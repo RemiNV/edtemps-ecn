@@ -3,7 +3,6 @@ package org.ecn.edtemps.models;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -37,7 +36,7 @@ public class Evenement {
 	protected List<UtilisateurIdentifie> responsables;
 	
 	/** Liste de matériel nécessaire */
-	protected ArrayList<Materiel> materiels;
+	protected List<Materiel> materiels;
 	
 	/** Constructeur avec uniquement attributs indispensables */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers) {
@@ -126,7 +125,7 @@ public class Evenement {
 	/**
 	 * @return the materiels
 	 */
-	public ArrayList<Materiel> getMateriels() {
+	public List<Materiel> getMateriels() {
 		return materiels;
 	}
 
@@ -134,7 +133,7 @@ public class Evenement {
 	/**
 	 * @param materiels the materiels to set
 	 */
-	public void setMateriels(ArrayList<Materiel> materiels) {
+	public void setMateriels(List<Materiel> materiels) {
 		this.materiels = materiels;
 	}
 }

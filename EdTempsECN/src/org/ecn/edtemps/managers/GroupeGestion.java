@@ -13,8 +13,6 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Groupe;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
-import com.sun.istack.internal.logging.Logger;
-
 /**
  * Classe de gestion des groupes de gestion
  * 

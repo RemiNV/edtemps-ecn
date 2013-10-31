@@ -3,6 +3,7 @@ package org.ecn.edtemps.managers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -48,55 +49,82 @@ public class EvenementGestion {
 		Date dateDebut = evenement.getDateDebut();
 		Date dateFin = evenement.getDateFin();
 		List<Integer> idCalendriers = evenement.getIdCalendriers();
-		List<UtilisateurIdentifie> idIntervenants = evenement.getIntervenants();
-		// int idSalle = evenement.getSalle().getId();
-				
-		/*
-		 * IMPORTANT POUR CONTINUER
-		 * Liste de String pour les intervenants oO ? Comment on retrouve l'id ??
-		 * Note (Rémi) suite à réunion du 16/10, modification des String en UtilisateurIdentifie
-		 * Note (Rémi) les évènements peuvent être dans plusieurs salles, j'ai modifié la classe salle -> getSalle() devient getSalles()
-		 */
+		List<SalleIdentifie> salles = evenement.getSalles();
+		List<UtilisateurIdentifie> intervenants = evenement.getIntervenants();
+		List<UtilisateurIdentifie> responsables = evenement.getResponsables();
+		List<Materiel> materiels = evenement.getMateriels();
 			
-		try {
-			
-			// On met les dates au format DATETIME
-			String dateDebutFormatee = "";
-			String dateFinFormatee = "";
-			
+		try {		
 			// Début transaction
 			_bdd.startTransaction();			
 			
 			// On crée l'événement dans la base de données
-	
-			ResultSet rs_ligneCreee = _bdd.executeRequest(
-					"INSERT INTO edt.evenement "
+			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
 					+ "(eve_nom, eve_dateDebut, eve_dateFin) "
-					+ "VALUES ( '" + nom + "', '" + dateDebutFormatee + "', '" + dateFinFormatee + "') "
+					+ "VALUES ('" + nom + "', '?', '?') "
 				    + "RETURNING eve_id");
+			req.setTimestamp(1, new Timestamp(dateDebut.getTime()));
+			req.setTimestamp(2, new Timestamp(dateFin.getTime()));
 			
+			ResultSet rsLigneCreee = req.executeQuery();
+			 
 			// On récupère l'id de l'evenement créé
-			rs_ligneCreee.next();
-			int id_evenement = rs_ligneCreee.getInt(1);
+			rsLigneCreee.next();
+			int idEvenement = rsLigneCreee.getInt("eve_id");
+			rsLigneCreee.close();
 			
 			// On rattache l'evenement aux calendriers 
-			Iterator<Integer> itr = idCalendriers.iterator();
-			while (itr.hasNext()){
-				int id_calendrier = itr.next();
+			Iterator<Integer> itrCal = idCalendriers.iterator();
+			while (itrCal.hasNext()){
+				int idCalendrier = itrCal.next();
 				_bdd.executeRequest(
 						"INSERT INTO edt.evenementappartient "
 						+ "(eve_id, cal_id) "
-						+ "VALUES (" + id_evenement + ", " + id_calendrier + ")"
+						+ "VALUES (" + idEvenement + ", " + idCalendrier + ")"
 						);
 			}
 			
-			// On rattache la salle à l'evenement
-			
-			// On rattache le matériel nécessité à l'évenement
+			// On rattache l'evenement aux salles
+			Iterator<SalleIdentifie> itrSalle = salles.iterator();
+			while (itrSalle.hasNext()){
+				int idSalle = itrSalle.next().getId();
+				_bdd.executeRequest(
+						"INSERT INTO edt.alieuensalle "
+						+ "(eve_id, salle_id) "
+						+ "VALUES ("+ idEvenement + ", " + idSalle + ")");
+			}
 			
 			// On indique le(s) responsable(s) dans la base
+			Iterator<UtilisateurIdentifie> itrResponsable = responsables.iterator();
+			while (itrResponsable.hasNext()){
+				int idResponsable = itrResponsable.next().getId();
+				_bdd.executeRequest(
+						"INSERT INTO edt.responsableevenement "
+						+ "(eve_id, utilisateur_id) "
+						+ "VALUES ("+ idEvenement + ", " + idResponsable + ")");
+			}
 			
 			// On indique le(s) intervenant(s) dans la base
+			Iterator<UtilisateurIdentifie> itrIntervenant = intervenants.iterator();
+			while (itrIntervenant.hasNext()){
+				int idIntervenant = itrIntervenant.next().getId();
+				_bdd.executeRequest(
+						"INSERT INTO edt.intervenantevenement "
+						+ "(eve_id, utilisateur_id) "
+						+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
+			}
+			
+			// On rattache le matériel nécessité à l'évenement
+			Iterator<Materiel> itrMateriel = materiels.iterator();
+			while (itrMateriel.hasNext()){
+				Materiel materiel = itrMateriel.next();
+				int idMateriel = materiel.getId();
+				int quantiteMateriel = materiel.getQuantite();
+				_bdd.executeRequest(
+						"INSERT INTO edt.necessitemateriel "
+						+ "(eve_id, materiel_id, necessitemateriel_quantite) "
+						+ "VALUES ("+ idEvenement + ", " + idMateriel + ", " + quantiteMateriel +")");
+			}
 			
 			// Fin transaction
 			_bdd.commit();
