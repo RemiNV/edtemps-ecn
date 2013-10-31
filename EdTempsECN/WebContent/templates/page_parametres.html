@@ -15,10 +15,6 @@
 		
 		<div id="tab-mes-abonnements">
 			<select multiple="multiple" id="select-abonnements" style="display: block; height: 900px">
-				<option value="test1">Test 1</option>
-				<option value="test2">Test 2</option>
-				<option value="test3" selected="selected">Test 3</option>
-				<option value="cours" disabled="disabled">Cours obligatoire</option>
 			</select>
 			
 			<div class="button" id="btn_enregistrer_abonnements">Enregistrer</div>
@@ -36,14 +32,85 @@
 			
 			
 		</div>
+		
 		<div id="tab-mes-agendas">
-			<div class="button" id="btn_creer_agenda">Créer un agenda</div>
-			
+			<div class="button" id="btn_creer_calendrier">Créer un agenda</div>
+			<div id="form_creer_calendrier"
+				title="Formulaire de création d'un calendrier">
+				<form>
+					<table id="form_creer_calendrier_table">
+						<tr>
+							<td>
+								<label for="form_creer_calendrier_nom">
+									Nom 	
+								</label>
+							</td>
+							<td>
+								<input type="text" name="form_creer_calendrier_nom"
+								id="form_creer_calendrier_nom" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="form_creer_calendrier_matiere">
+									Matière
+								</label>
+							</td>
+							<td>
+								<select id="form_creer_calendrier_matiere">
+									<option>matiere 1</option>
+									<option>matiere 2</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="form_creer_calendrier_type">
+									Type
+								</label>
+							</td>
+							<td>
+								<select id="form_creer_calendrier_type">
+									<option>type 1</option>
+									<option>type 2</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>
+									Propriétaires
+								</label>
+							</td>
+							<td id="form_creer_calendrier_proprietaires">
+								<input class="form_creer_calendrier_proprietaire"
+								type="text" value="Vous-même" disabled="disabled" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+							</td>
+							<td id="form_creer_calendrier_ajouter_proprietaire">
+								<span>Ajouter un propriétaire</span>
+							</td>
+						</tr>
+					</table>
+
+					<div id="form_creer_calendrier_boutons">
+						<input type="button" id="form_creer_calendrier_annuler"
+							value="Annuler" /> 
+						<input type="button" id="form_creer_calendrier_valider" 
+							value="Valider" />
+					</div>
+				</form>
+			</div>
+
 			<table id="tbl_mes_agendas">
 				<!-- TODO : Utiliser un template pour remplir la liste -->
 			
 			</table>
 		</div>
+		
 		<div id="tab-mes-groupes">
 			<div class="button" id="btn_creer_groupe">Ajouter un groupe de participants</div>
 			

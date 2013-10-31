@@ -1,8 +1,6 @@
 package org.ecn.edtemps.models.identifie;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
