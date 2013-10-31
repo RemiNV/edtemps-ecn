@@ -55,7 +55,7 @@ public class UtilisateurGestion {
 		// Actions possibles à compléter
 		CREER_GROUPE(1),
 		RATTACHER_CALENDRIER_GROUPE(2),
-		CREER_CALENDRIER_COURS(3);
+		CREER_GROUPE_COURS(3);
 		
 		private int id;
 		
