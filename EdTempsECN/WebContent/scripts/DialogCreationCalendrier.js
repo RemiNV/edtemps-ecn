@@ -1,4 +1,4 @@
-define([ "RestManager", "jquerymask" ], function(RestManager) {
+define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 
 	/**
 	 * Constructeur

@@ -1,4 +1,4 @@
-define([ "RestManager", "jquerymask" ], function(RestManager) {
+define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 
 	/**
 	 * Constructeur
@@ -23,9 +23,9 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 		var me = this;
 
 		// Ajout des masques aux différents champs
-		this.heureDebut.mask("00:00");
-		this.heureFin.mask("00:00");
-		this.capacite.mask("0000");
+		this.heureDebut.mask("99:99");
+		this.heureFin.mask("99:99");
+		this.capacite.mask("9?999");
 
 		// Ajout du datepicker sur le champ date
 		this.date.datepicker({
@@ -164,7 +164,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 			
 					// Ajout des masques sur les quantités de matériel
 					$(".quantite input[type=number]").each(function() {
-						$(this).mask("0000");
+						$(this).mask("9?999");
 						$(this).click(function() {
 							$(this).css({border: "1px solid white"});
 						});
