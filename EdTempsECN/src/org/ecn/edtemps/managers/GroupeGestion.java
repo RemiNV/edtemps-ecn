@@ -415,10 +415,10 @@ public class GroupeGestion {
 	}
 	
 	/**
-	 * Listing de l'ensemble des groupes existants en base
+	 * Listing de l'ensemble des groupes de participants existants en base
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon (false), elle DOIT être appelée à l'intérieur d'une transaction.
 	 * 
-	 * @return Liste de groupes trouvés
+	 * @return Liste de groupes de participants trouvés
 	 * @throws DatabaseException
 	 */
 	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction) throws DatabaseException {

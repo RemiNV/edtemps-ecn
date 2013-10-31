@@ -1,8 +1,11 @@
 package org.ecn.edtemps.managers;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,8 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.models.Evenement;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.Salle;
+import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 
 /**
@@ -312,6 +317,111 @@ public class SalleGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
+	}
+	
+	/**
+	 * Listing des salles disponibles pour la création d'un nouvel événement
+	 *@param dateDebut date de début de l'événement (paramètre obligatoire)
+	 *@param dateFin date de fin de l'événement (paramètre obligatoire)
+	 *@param matériels liste de matériel nécessaire dans la salle recherchée (paramètre facultatif, pouvant être null)
+	 *@param capacité nombre de personne que la salle doit pouvoir accueillir (paramètre obligatoire)
+	 *
+	 *@return Liste des salles disponibles
+	 *@throws DatabaseException
+	 */
+	public ArrayList<SalleIdentifie> rechercherSalle(Date dateDebut, Date dateFin, ArrayList<Materiel> materiels, int capacite) throws DatabaseException {
+		try{		
+			// sélection des ids des salles avec la capacité requise
+			ArrayList<Integer> idsSallesAvecCapacite = new ArrayList<Integer>();
+			idsSallesAvecCapacite.add(_bdd.recupererId(
+					"SELECT DISTINCT * " 
+					+ "FROM edt.salle "
+					+ "WHERE salle_capacite >=" + capacite, "salle_id"));
+			
+			// sélection des ids des salles avec le matériel nécessaire en plus de la capacité requise
+			ArrayList<Integer> idsSallesAvecMaterielEtCapacite = new ArrayList<Integer>();
+			if (!materiels.isEmpty() && !idsSallesAvecCapacite.isEmpty()){			
+				idsSallesAvecMaterielEtCapacite.add(_bdd.recupererId(
+						"SELECT DISTINCT * " 
+						+ "FROM edt.salle "
+						+ "INNER JOIN edt.contientmateriel ON contientmateriel.salle_id = salle.salle_id " 
+						+ "WHERE materiel_id = " + materiels.get(0).getId() + " "
+						+ "AND contientmateriel_quantite >= " + materiels.get(0).getQuantite() + " "
+						+ "AND salle_id IN (" + getValuesSallesRetenues(idsSallesAvecCapacite) +")", "salle_id"));
+				
+				for (int i = 1; i < materiels.size(); i++){
+					idsSallesAvecMaterielEtCapacite.add(_bdd.recupererId(
+							"SELECT DISTINCT * " 
+							+ "FROM edt.salle "
+							+ "INNER JOIN edt.contientmateriel ON contientmateriel.salle_id = salle.salle_id " 
+							+ "WHERE materiel_id = " + materiels.get(i).getId() + " "
+							+ "AND contientmateriel_quantite >= " + materiels.get(i).getQuantite() + " "
+							+ "AND salle_id IN (" + getValuesSallesRetenues(idsSallesAvecMaterielEtCapacite) +")", "salle_id"));
+				}
+			}
+			
+			// sélection des ids des salles occupées
+			ArrayList<Integer> idsSallesOccupees = new ArrayList<Integer>();
+			PreparedStatement req = _bdd.getConnection().prepareStatement(
+					"SELECT DISTINCT salle_id"
+					+ "FROM edt.salle "
+					+ "INNER JOIN edt.alieuensalle ON alienensalle.salle_id = salle.salle_id "
+					+ "INNER JOIN edt.evenement ON evenement.eve_id = alieuensalle.eve_id "
+					// événement dont le début est entre le début et la fin de l'événement pour lequel on cherche une salle
+					+ "WHERE (evenement.eve_datedebut >= ? "
+					+ "AND evenement.eve_datedebut <= ? )"
+					// événement dont la fin est entre le début et la fin de l'événement pour lequel on cherche une salle
+					+ "OR (evenement.eve_datefin >= ? "
+					+ "AND evenement.eve_datefin <= ?) "
+					// événements qui englobent l'événement pour lequel on cherche une salle
+					+ "OR (evenement.eve_datedebut <= ? "
+					+ "AND evenement.ev_datefin >= ?)");
+			
+			req.setTimestamp(1, new Timestamp(dateDebut.getTime()));
+			req.setTimestamp(2, new Timestamp(dateFin.getTime()));
+			req.setTimestamp(3, new Timestamp(dateDebut.getTime()));
+			req.setTimestamp(4, new Timestamp(dateFin.getTime()));
+			req.setTimestamp(5, new Timestamp(dateDebut.getTime()));
+			req.setTimestamp(6, new Timestamp(dateFin.getTime()));
+			
+			ResultSet reponse = req.executeQuery();
+			while(reponse.next()) {
+				idsSallesOccupees.add(reponse.getInt("salle_id"));
+			}
+			reponse.close();
+			
+			// sélection des ids des salles disponibles, avec le matériel et la capacité requise
+			ArrayList<Integer> idsSallesPossibles= idsSallesAvecMaterielEtCapacite;
+			idsSallesPossibles.removeAll(idsSallesOccupees);
+			
+			// sélection des salles disponibles avec le matériel et la capacité requise
+			ResultSet reponse2 = _bdd.executeRequest(
+					"SELECT salle.salle_id, salle.salle_nom, salle.salle_batiment, salle.salle_niveau, " +
+					"salle.salle_numero, salle.salle_capacite " +
+					"FROM edt.salle " +
+					"WHERE salle_id IN (" + getValuesSallesRetenues(idsSallesPossibles) +")");
+			ArrayList<SalleIdentifie> res = new ArrayList<SalleIdentifie>();
+			while(reponse2.next()) {
+				res.add(inflateSalleFromRow(reponse2));
+			}
+			reponse2.close();
+			return res;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}		
+	}
+	
+	/**
+	 * Récupération d'une string d'entiers à partir d'une liste d''entiers
+	 * @param idsSallesRetenues liste d'entiers
+	 * @return valuesIdsSallesRetenues string pouvant être utilisé dans une requête SQl de choix de valeurs
+	 */
+	private String getValuesSallesRetenues(ArrayList<Integer> idsSallesRetenues){
+		String valuesIdsSallesRetenues = idsSallesRetenues.get(0).toString();
+		for (int i = 1; i < idsSallesRetenues.size(); i++){
+			valuesIdsSallesRetenues = valuesIdsSallesRetenues +", "	+ idsSallesRetenues.get(i);
+		}
+		return valuesIdsSallesRetenues;
 	}
 	
 	/**
