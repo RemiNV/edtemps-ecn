@@ -3,7 +3,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	/**
 	 * Constructeur
 	 */
-	var CreationCalendrier = function(restManager) {
+	var DialogCreationCalendrier = function(restManager) {
 		this.restManager = restManager;
 		// Accès direct aux champs du formulaire
 		this.nom = $("#form_creer_calendrier_nom");
@@ -15,7 +15,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	/**
 	 * Initialise et affiche la boîte de dialogue de création d'un calendrier
 	 */
-	CreationCalendrier.prototype.init = function() {
+	DialogCreationCalendrier.prototype.init = function() {
 		var me = this;
 	
 		// Listener bouton "Rechercher"
@@ -63,7 +63,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	/**
 	 * Méthode qui remplit les comboboxes contenant matieres et types
 	 */
-	CreationCalendrier.prototype.remplirComboboxes = function() {
+	DialogCreationCalendrier.prototype.remplirComboboxes = function() {
 
 		// Récupération des données 
 		this.restManager.effectuerRequete("GET", "", {
@@ -104,7 +104,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	/**
 	 * Méthode qui permet l'ajout d'un proprietaire
 	 */
-	CreationCalendrier.prototype.ajouterProprietaire = function() {
+	DialogCreationCalendrier.prototype.ajouterProprietaire = function() {
 		var html = '<input type="text" class="form_creer_calendrier_proprietaire" />';
 		$("#form_creer_calendrier_proprietaires").append(html);
 		// Requeter les personnes en base et mettre un filtre dans la zone de texte
@@ -115,7 +115,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	/**
 	 * Méthode qui reinitialise la cellule "proprietaires" (auquel on a pu ajouter des champs de texte)
 	 */
-	CreationCalendrier.prototype.reinitialiserProprietaires = function() {
+	DialogCreationCalendrier.prototype.reinitialiserProprietaires = function() {
 		var html = '<input class="form_creer_calendrier_proprietaire"' 
 			     + 'type="text" value="Vous-même" disabled="disabled" />';
 		$("#form_creer_calendrier_proprietaires").html(html);
@@ -127,7 +127,7 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	 * 
 	 * @return VRAI si le formulaire est valide et FAUX sinon
 	 */
-	CreationCalendrier.prototype.validationFormulaire = function() {
+	DialogCreationCalendrier.prototype.validationFormulaire = function() {
 		var valid = true;
 
 		// Nom du calendrier non nul ?
@@ -146,10 +146,10 @@ define([ "RestManager", "jquerymask" ], function(RestManager) {
 	/**
 	 * Méthode qui effectue la requête de création du calendrier
 	 */
-	CreationCalendrier.prototype.effectuerRequete = function() {
+	DialogCreationCalendrier.prototype.effectuerRequete = function() {
 		alert('REQUETE A FAIRE => appel à une méthode sauverCalendrier dans CalendrierGestion?');
 	};
 
-	return CreationCalendrier;
+	return DialogCreationCalendrier;
 
 });
