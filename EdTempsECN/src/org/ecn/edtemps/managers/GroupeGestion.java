@@ -415,6 +415,44 @@ public class GroupeGestion {
 	}
 	
 	/**
+	 * Listing de l'ensemble des groupes existants en base
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon (false), elle DOIT être appelée à l'intérieur d'une transaction.
+	 * 
+	 * @return Liste de groupes trouvés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction) throws DatabaseException {
+		
+		try {
+			if(createTransaction){
+				_bdd.startTransaction();
+			}
+			
+			// Lecture des groupes de la table
+			ResultSet resGroupes = _bdd.executeRequest(
+					"SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, "
+					+ "groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique "
+					+ "FROM edt.groupeparticipant");
+			
+			// Création d'objets "groupes identifiés" pour les groupes rencontrés dans la table
+			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+			while(resGroupes.next()) {
+				res.add(inflateGroupeFromRow(resGroupes));
+			}
+
+			if(createTransaction){
+				_bdd.commit();
+			}
+			
+			return res;
+		}
+		catch(SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+
+	
+	/**
 	 * Listing des groupes auxquels est abonné l'utilisateur, soit directement soit indirectement (par parenté d'un groupe à l'autre)
 	 * @param idUtilisateur ID de l'utilisateur en question
 	 * @param createTransaction Créer une transaction pour les requêtes. Si false, doit obligatoirement être appelé à l'intérieur d'une transaction
