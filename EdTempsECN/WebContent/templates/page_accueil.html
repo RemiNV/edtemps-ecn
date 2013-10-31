@@ -25,7 +25,6 @@
 	
 	<span id="btn_chercher_salle" class="button">Chercher une salle libre</span>
 	<div id="recherche_salle_libre">
-		<div id="form_chercher_salle_resultat" title="Résultat de la recherche"></div>
 		<div id="form_chercher_salle" title="Formulaire de recherche d'une salle libre">
 			<form>
 				<table id="form_chercher_salle_table">
@@ -34,11 +33,11 @@
 						<td><input type="date" name="form_recherche_salle_date" id="form_recherche_salle_date" /></td>
 					</tr>
 					<tr>
-						<td><label for="form_recherche_salle_debut">Heure de début</label></td>
+						<td><label for="form_recherche_salle_debut">Heure de début (ex: 14:00)</label></td>
 						<td><input type="text" name="form_recherche_salle_debut" id="form_recherche_salle_debut" /></td>
 					</tr>
 					<tr>
-						<td><label for="form_recherche_salle_fin">Heure de fin</label></td>
+						<td><label for="form_recherche_salle_fin">Heure de fin (ex: 17:00)</label></td>
 						<td><input type="text" name="form_recherche_salle_fin" id="form_recherche_salle_fin" /></td>
 					</tr>
 					<tr>
@@ -56,11 +55,15 @@
 					</table>
 				</div>
 
-				<div class="form_chercher_salle_boutons">
-					<input type="button" id="form_chercher_salle_annuler" value="Annuler" />
+				<div id="form_chercher_salle_boutons">
+					<input type="button" id="form_chercher_salle_fermer" value="Fermer" />
 					<input type="button" id="form_chercher_salle_valid" value="Rechercher" />
 				</div>
 			</form>
+		</div>
+		<div id="resultat_chercher_salle_resultat" title="Résultat de la recherche">
+			<table></table>
+			<div id="resultat_chercher_salle_resultat_boutons"><input type="button" id="resultat_chercher_salle_resultat_fermer" value="Fermer" /></div>
 		</div>
 	</div>
 	

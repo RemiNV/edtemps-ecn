@@ -35,14 +35,14 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 			}
 		});
 
-		// Affectation d'une méthode au clic sur le bouton "Annuler"
-		$("#form_chercher_salle_annuler").click(function() {
+		// Affectation d'une méthode au clic sur le bouton "Fermer"
+		$("#form_chercher_salle_fermer").click(function() {
 			$("#form_chercher_salle").dialog("close");
 		});
 
 		// Affectation d'une méthode au clique sur les différents champs
 		$("#form_recherche_salle_date, #form_recherche_salle_debut, #form_recherche_salle_fin, #form_recherche_salle_capacite").click(function() {
-			$(this).css({border: "1px solid black"});
+			me.bordureSurChamp($(this), null);
 		});
 
 		// Affiche la boîte dialogue de recherche d'une salle libre
@@ -71,48 +71,62 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 
 		// Validation de la date
 		if (this.date.val()=="") {
-			this.date.css({border: "1px solid red"});
+			this.bordureSurChamp(this.date, "#FF0000");
 			valid = false;
 		} else {
-			this.date.css({border: "1px solid black"});
+			this.bordureSurChamp(this.date, "#60C003");
 		}
 
 		// Validation de l'heure de début
 		var decoupageHeureMinute = this.heureDebut.val().split(":");
+		var calculMinutesDebut = 60*decoupageHeureMinute[0] + decoupageHeureMinute[1];
 		if (this.heureDebut.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1])) {
-			this.heureDebut.css({border: "1px solid red"});
+			this.bordureSurChamp(this.heureDebut, "#FF0000");
 			valid = false;
 		} else {
-			this.heureDebut.css({border: "1px solid black"});
-		}
-
-		// Validation de l'heure de fin
-		decoupageHeureMinute = this.heureFin.val().split(":");
-		if (this.heureFin.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1])) {
-			this.heureFin.css({border: "1px solid red"});
-			valid = false;
-		} else {
-			this.heureFin.css({border: "1px solid black"});
+			this.bordureSurChamp(this.heureDebut, "#60C003");
 		}
 		
-		// Validation de la capacité
-		if (isNaN(this.capacite.val())) {
-			this.capacite.css({border: "1px solid red"});
+		// Validation de l'heure de fin
+		decoupageHeureMinute = this.heureFin.val().split(":");
+		var calculMinutesFin = 60*decoupageHeureMinute[0] + decoupageHeureMinute[1];
+		if (this.heureFin.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1]) || calculMinutesFin-calculMinutesDebut<=0) {
+			this.bordureSurChamp(this.heureFin, "#FF0000");
 			valid = false;
 		} else {
-			this.capacite.css({border: "1px solid black"});
+			this.bordureSurChamp(this.heureFin, "#60C003");
+		}
+
+		// Validation de la capacité
+		if (isNaN(this.capacite.val()) || this.capacite.val()>9999 || this.capacite.val()<0) {
+			this.bordureSurChamp(this.capacite, "#FF0000");
+			valid = false;
+		} else {
+			this.bordureSurChamp(this.capacite, "#60C003");
 		}
 		
 		// Validation des quantités de matériel
+		var me = this;
 		$(".quantite input[type=number]").each(function() {
-			if (isNaN($(this).val()) || $(this).val()<0 || $(this).val()=="") {
-				$(this).css({border: "1px solid red"});
+			if (isNaN($(this).val()) || $(this).val()<0 || $(this).val()>9999 || $(this).val()=="" ) {
+				me.bordureSurChamp($(this), "#FF0000");
 				valid = false;
 			} else {
-				$(this).css({border: "1px solid white"});
+				me.bordureSurChamp($(this), "#60C003");
 			}
 		});
 
+		// Message d'erreur pour un problème d'ordre des heures
+		if (calculMinutesFin-calculMinutesDebut<=0) {
+			window.showToast("L'heure de fin doit être supérieure à l'heure de début");
+		}
+		
+		if (!valid) {
+			window.showToast("Veuillez vérifier et corriger les champs entourés en rouge");
+		}
+
+
+		
 		return valid;
 
 	};
@@ -122,7 +136,8 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 	 * Ecrit la liste des matériels
 	 */
 	RechercheSalle.prototype.ecritListeMateriel = function() {
-
+		var me = this;
+		
 		// Récupération de la liste des matériels en base de données
 		this.restManager.effectuerRequete("GET", "listemateriels", {
 			token: this.restManager.getToken()
@@ -147,9 +162,8 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 			
 					// Ajout des masques sur les quantités de matériel
 					$(".quantite input[type=number]").each(function() {
-						$(this).mask("9?999");
 						$(this).click(function() {
-							$(this).css({border: "1px solid white"});
+							me.bordureSurChamp($(this), "#FFFFFF");
 						});
 					});
 
@@ -210,18 +224,62 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 
 	/**
 	 * Méthode qui affiche le résultat
+	 * 
+	 * @param data
+	 * 			résultat de la requête auprès du serveur
 	 */
 	RechercheSalle.prototype.afficherResultat = function(data) {
-		var str = "";
-		for (var i=0, maxI=data.sallesDisponibles.length ; i<maxI ; i++) {
-			if (str != "") {
-				str += ", ";
+
+		var maxI = data.sallesDisponibles.length;
+		
+		if (maxI>0) {
+			// Affiche le résultat
+			var html = "<tr><th>Nom de la salle</th></tr>";
+			for (var i=0 ; i<maxI ; i++) {
+				html += "<tr><td>"+data.sallesDisponibles[i].nom+"</td></tr>";
 			}
-			str += data.sallesDisponibles[i].nom;
+			$("#resultat_chercher_salle_resultat table").html(html);
+
+			// Affectation d'une méthode au clic sur le bouton "Fermer"
+			$("#resultat_chercher_salle_resultat_fermer").click(function() {
+				$("#resultat_chercher_salle_resultat").dialog("close");
+			});
+
+			// Affichage de la boîte de dialogue résultat
+			$("#resultat_chercher_salle_resultat").dialog({
+				width: 350,
+				modal: true,
+				show: { effect: "fade", duration: 200 },
+				hide: { effect: "explode", duration: 200 }
+			});
+		} else {
+			window.showToast("Aucune salle disponible avec ces critères");
 		}
-		alert(str);
+
 	};
 
+	
+	/**
+	 * Met une bordure de couleur autour de l'élément
+	 * 
+	 * @param champ
+	 * 			champ à entourer
+	 * @param color
+	 * 			couleur de la bordure, si elle vaut NULL la bordure est enlevée
+	 */
+	RechercheSalle.prototype.bordureSurChamp = function(champ, color) {
+		if (color == null) {
+			$(champ).css("box-shadow", "none");
+			$(champ).css("border", "1px solid black");
+		} else {
+			$(champ).css("box-shadow", color+" 0 0 10px");
+			$(champ).css("border", "1px solid "+color);
+		}
+	};
+	
+	
 	return RechercheSalle;
+	
+	
 
 });
