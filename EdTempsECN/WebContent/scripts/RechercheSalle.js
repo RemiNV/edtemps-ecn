@@ -196,7 +196,7 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 			date: param_date, heureDebut: param_heureDebut, heureFin: param_heureFin, capacite: param_capacite, materiel: listeMaterielQuantite, token: this.restManager.getToken()
 		}, function(response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
-				me.afficherResultatalert(response.data);
+				me.afficherResultat(response.data);
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la recheche d'une salle libre ; vérifiez votre connexion.");
 			} else {
@@ -206,12 +206,20 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 		
 		
 	};
-	
+
+
 	/**
 	 * Méthode qui affiche le résultat
 	 */
 	RechercheSalle.prototype.afficherResultat = function(data) {
-		alert('Affiche le résultat');
+		var str = "";
+		for (var i=0, maxI=data.sallesDisponibles.length ; i<maxI ; i++) {
+			if (str != "") {
+				str += ", ";
+			}
+			str += data.sallesDisponibles[i].nom;
+		}
+		alert(str);
 	};
 
 	return RechercheSalle;
