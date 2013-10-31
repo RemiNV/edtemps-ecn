@@ -39,7 +39,8 @@ require(["qunit"], function(q) {
 	          "test/mockRestManager",
 	          // Chargement des tests
 	         "test/testRestManager",
-	         "test/testDialogConnexion"
+	         "test/testDialogConnexion",
+	         "test/testRechercheSalle"
 	         ],
 			function(mockRestManager) {
 		

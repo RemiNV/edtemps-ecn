@@ -26,6 +26,11 @@ define(["mockjax"], function() {
 		{"id":6,"nom":"EI3","parentId":1,"rattachementAutorise":false,"estCours":true,"estCalendrierUnique":false,"calendriers":[],"proprietaires":[5]},
 		{"id":1,"nom":"Elèves ingénieur","parentId":0,"rattachementAutorise":false,"estCours":true,"estCalendrierUnique":false,"calendriers":[],"proprietaires":[5]}
 	];
+
+	var materiels = [
+		{"id":1,"nom":"Ordinateur","quantite":0},
+		{"id":2,"nom":"Vidéoprojecteur","quantite":0}
+	];
 	
 	var getEvenementsIntervalle = function(dateDebut, dateFin) {
 		var res = Array();
@@ -113,7 +118,22 @@ define(["mockjax"], function() {
 				}
 			});
 			
+			// Simulation de la récupération des matériels
+			$.mockjax({
+				url: "listemateriels",
+				responseTime: 500,
+				contentType: "application/json",
+				type: "GET",
+				responseText: JSON.stringify({resultCode: resultCode_Success, message:"", data:
+					{ listeMateriels: materiels }
+				})
+			});
+			
 			console.log("*** Utilisation de mockjax. Les requêtes AJAX jQuery sont interceptées par le mockRestManager pour les tests unitaires ***");
+		},
+		
+		getMockedCalls: function() {
+			return $.mockjax.mockedAjaxCalls();
 		}
 	};
 	
