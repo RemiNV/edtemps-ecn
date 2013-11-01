@@ -129,6 +129,24 @@ define(["mockjax"], function() {
 				})
 			});
 			
+			// Simulation de la requête d'abonnement
+			$.mockjax({
+				url: "sabonner",
+				responseTime: 500,
+				contentType: "application/json",
+				type: "POST",
+				responseText: JSON.stringify({resultCode: resultCode_Success, message: "", data: null})
+			});
+			
+			// Simulation de la requête de désabonnement
+			$.mockjax({
+				url: "sedesabonner",
+				responseTime: 500,
+				contentType: "application/json",
+				type: "POST",
+				responseText: JSON.stringify({resultCode: resultCode_Success, message: "", data: null})
+			});
+			
 			console.log("*** Utilisation de mockjax. Les requêtes AJAX jQuery sont interceptées par le mockRestManager pour les tests unitaires ***");
 		},
 		
