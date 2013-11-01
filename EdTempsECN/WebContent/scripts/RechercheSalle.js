@@ -183,7 +183,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 				
 				// Reactivation du bouton de recherche
 				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
-				me.jqRechercheSalleForm.find("#form_chercher_salle_materiel_chargement").css("display", "none");
+				me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
 
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération des matériels disponibles ; vérifiez votre connexion.");
