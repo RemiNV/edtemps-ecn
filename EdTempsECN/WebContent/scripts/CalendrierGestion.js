@@ -6,7 +6,8 @@ define([], function() {
 	
 	
 	CalendrierGestion.prototype.listerMesCalendriers = function(callback) {
-		this.restManager.effectuerRequete("GET", "mescalendriers", { token: this.restManager.getToken() }, function(data) {
+		var me = this;
+		this.restManager.effectuerRequete("GET", "mescalendriers", { token: me.restManager.getToken() }, function(data) {
 			callback(data.resultCode, data.data);
 		});
 	};

@@ -397,6 +397,8 @@ public class CalendrierGestion {
 	 */
 	public ArrayList<CalendrierIdentifie> listerCalendriersUtilisateur(int userId) throws DatabaseException {
 		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle FROM edt.calendrier " +
+				"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
+				"INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
 				"INNER JOIN edt.proprietairecalendrier ON calendrier.cal_id = proprietairecalendrier.cal_id AND proprietairecalendrier.utilisateur_id = " + userId);
 		
 		try {

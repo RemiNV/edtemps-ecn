@@ -108,7 +108,9 @@
 		</tr>
 		<tr>
 			<td>Rattachement au calendrier : </td>
-			<td><select id="select_ajout_evenement_calendriers"></select></td>
+			<td id="calendriers_evenement">
+				<select class="select_calendriers"></select>
+			</td>
 		</tr>
 		<tr>
 			<td><label for="date_evenement">Date : </label></td>
@@ -128,6 +130,11 @@
 		</tr>
 	</table>
 
-	<div id="btn_valider_ajout_evenement" class="button">Valider</div>
+	<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Valider" />
+	
+	<div id="dialog_ajout_evenement_chargement" style="display: none">
+		<img src="img/spinner_chargement_outer_small.gif" alt="chargement" />
+		<span id="dialog_ajout_evenement_message_chargement"></span>
+	</div>
 
 </div>

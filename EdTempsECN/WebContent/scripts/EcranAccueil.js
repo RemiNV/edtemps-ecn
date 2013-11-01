@@ -10,7 +10,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
-		this.ajoutEvenement = new AjoutEvenement($("#dialog_ajout_evenement"));
+		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"));
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
@@ -28,6 +28,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		
 		$("#btn_chercher_salle").click(function(e) {
 			me.rechercheSalle.init();
+		});
+		
+		$("#btn_ajout_evenement").click(function(e) {
+			me.ajoutEvenement.show();
 		});
 
 		this.setVue("mes_abonnements");
