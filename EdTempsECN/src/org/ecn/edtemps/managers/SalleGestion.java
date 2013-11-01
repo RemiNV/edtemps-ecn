@@ -346,14 +346,14 @@ public class SalleGestion {
 
 		String requeteString =
 		"SELECT salle.salle_id, salle.salle_batiment, salle.salle_niveau, salle.salle_nom, salle.salle_numero, salle.salle_capacite" +
-	    " FROM edt.salle" +
-	    " LEFT JOIN edt.contientmateriel ON salle.salle_id = contientmateriel.salle_id"; /* Join avec les matériels que la salle contient et qui sont nécessaires */
-	    
+	    " FROM edt.salle";
+		
+	    /* Join avec les matériels que la salle contient et qui sont nécessaires, si il y en a */
 		if (!materiels.isEmpty()) {
-			requeteString += "AND (";
+			requeteString += " LEFT JOIN edt.contientmateriel ON salle.salle_id = contientmateriel.salle_id AND (";
 			for (int i = 0 ; i < materiels.size() ; i++) {
 				if (i!=0) {
-					requeteString += "OR ";
+					requeteString += " OR ";
 				}
 				requeteString += "(contientmateriel.materiel_id = "+materiels.get(i).getId()+" AND contientmateriel.contientmateriel_quantite >= "+materiels.get(i).getQuantite()+")";
 			}
@@ -365,9 +365,14 @@ public class SalleGestion {
 	    " AND (evenement.eve_datedebut < '"+dateFin+"') AND (evenement.eve_datefin > '"+dateDebut+"')" + /* Join avec les évènements qui se passent dans la salle au créneau demandé */
 	    " WHERE evenement.eve_id IS NULL" + /* Aucun évènement qui se passe dans la salle au créneau demandé (LEFT JOIN, donc aucune correspondance -> colonnes null) */
 	    " AND salle.salle_capacite>=" + capacite + /* Vérifie la capacité de la salle */
-	    " GROUP BY salle.salle_id" + /* On somme les matériels *par salle* */
-	    " HAVING COUNT(DISTINCT contientmateriel.materiel_id) = "+materiels.size() + /* Le nombre de matériels que la salle contient et qui sont nécessaires correspond avec le nombre de matériels demandés */
-	    " ORDER BY salle.salle_capacite";
+	    " GROUP BY salle.salle_id"; /* On somme les matériels *par salle* */
+		
+		if(!materiels.isEmpty()) {
+			/* Le nombre de types de matériels que la salle contient et qui sont nécessaires correspond avec le nombre de matériels demandés */
+			requeteString += " HAVING COUNT(DISTINCT contientmateriel.materiel_id) = "+materiels.size();
+		}
+	    
+		requeteString += " ORDER BY salle.salle_capacite";
 
 		ArrayList<SalleIdentifie> resultatRecherche = new ArrayList<SalleIdentifie>();
 		try {
