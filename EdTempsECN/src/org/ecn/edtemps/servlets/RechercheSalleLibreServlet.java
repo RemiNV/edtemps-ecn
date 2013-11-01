@@ -79,7 +79,7 @@ public class RechercheSalleLibreServlet extends RequiresConnectionServlet {
 
 		try {
 			// Appel de la méthode de recherche
-			ArrayList<SalleIdentifie> listeSalles = salleGestion.rechercherSalle2(dateDebut, dateFin, listeMateriel, capacite);
+			ArrayList<SalleIdentifie> listeSalles = salleGestion.rechercherSalle(dateDebut, dateFin, listeMateriel, capacite);
 
 			// Création de la réponse
 			data = Json.createObjectBuilder()

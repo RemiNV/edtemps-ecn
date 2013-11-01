@@ -146,27 +146,9 @@ public class Salle {
 		this.numero = numero;
 	}
 
-	
 	@Override
 	public String toString() {
 		return this.getNom();
 	}
-	
-	/**
-	 * Vérifie si la salle contient le matériel en quantité supérieure ou égale à la valeur souhaitée
-	 * 
-	 * @param id
-	 * 			identifiant du matériel à rechercher
-	 * @param quantite
-	 * 			quantité minimale requise de ce matériel
-	 * @return VRAI si le matériel est présent en quantité suffisante
-	 */
-	public boolean containMateriel(int id, int quantite) {
-		for (Materiel mat : this.materiels) {
-			if ((mat.getId() == id) && (mat.getQuantite() >= quantite)) {
-				return true;
-			}
-		}
-		return false;
-	}
+
 }
