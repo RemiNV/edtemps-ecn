@@ -26,6 +26,9 @@ define(["mockjax"], function() {
 		{"id":6,"nom":"EI3","parentId":1,"rattachementAutorise":false,"estCours":true,"estCalendrierUnique":false,"calendriers":[],"proprietaires":[5]},
 		{"id":1,"nom":"Elèves ingénieur","parentId":0,"rattachementAutorise":false,"estCours":true,"estCalendrierUnique":false,"calendriers":[],"proprietaires":[5]}
 	];
+	
+	var groupesAbonnements = new Array(groupes[0], groupes[1]);
+	var groupesNonAbonnements = new Array(groupes[2]);
 
 	var materiels = [
 		{"id":1,"nom":"Ordinateur","quantite":0},
@@ -132,6 +135,19 @@ define(["mockjax"], function() {
 				type: "GET",
 				responseText: JSON.stringify({resultCode: resultCode_Success, message:"", data:
 					{ listeMateriels: materiels }
+				})
+			});
+			
+			// Simulation de la requête de récupération des abonnements & non abonnements
+			$.mockjax({
+				url: "abonnementsetnonabonnements",
+				responseTime: 500,
+				contentType: "application/json",
+				type: "GET",
+				responseText: JSON.stringify({resultCode: resultCode_Success, message: "", data: {
+					groupesAbonnements: groupesAbonnements,
+					groupesNonAbonnements: groupesNonAbonnements
+					}
 				})
 			});
 			

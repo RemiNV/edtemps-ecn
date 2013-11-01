@@ -13,6 +13,25 @@ require(["GroupeGestion", "RestManager", "test/mockRestManager", "qunit"], funct
 		}
 	});
 	
+	asyncTest("queryAbonnementsEtNonAbonnements", function() {
+		
+		groupeGestion.queryAbonnementsEtNonAbonnements(function(resultCode, data) {
+			deepEqual(resultCode, RestManager.resultCode_Success, "Succès de la requête émulée par mockjax");
+			
+			// Vérification de la correspondance du résultat avec les données de mockjax
+			ok(data.groupesAbonnements, "Le résultat contient les groupes d'abonnements");
+			ok(data.groupesNonAbonnements, "Le résultat contient les groupes de non abonnement");
+			
+			equal(data.groupesAbonnements.length, 2, "Le nombre de groupes abonnement correspond avec mockjax");
+			equal(data.groupesNonAbonnements.length, 1, "Le nombre de groupes non abonnement correspond avec mockjax");
+			
+			equal(data.groupesAbonnements[0].id, 7, "Groupe abonnement correspondant avec mockjax");
+			equal(data.groupesAbonnements[1].id, 6, "Groupe abonnement correspondant avec mockjax");
+			equal(data.groupesNonAbonnements[0].id, 1, "Groupe non abonnement correspondant avec mockjax");
+			
+			start();
+		});
+	});
 	
 	asyncTest("sAbonner", function() {
 		
