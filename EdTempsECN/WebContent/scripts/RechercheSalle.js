@@ -3,7 +3,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 	/**
 	 * Constructeur
 	 */
-	var RechercheSalle = function(restManager, jqRechercheSalle) {
+	function RechercheSalle(restManager, jqRechercheSalle) {
 		this.restManager = restManager;
 		this.jqRechercheSalleForm = jqRechercheSalle.find("#form_chercher_salle");
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");

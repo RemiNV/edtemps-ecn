@@ -28,7 +28,7 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 		.animate({ top: -40 }, 500);
 	};
 	
-	var init = function() {
+	function init() {
 		
 		/**
 		 * Reconnexion dynamique après erreur de requête à cause d'un problème d'identification
@@ -129,7 +129,7 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 	 * Arguments : 
 	 * - dependencies : tableau de chaînes indiquant les dépendances à charger par requirejs
 	 * - callback : fonction appelée à l'étape 2), avec les dépendances demandées chargées en argument */
-	var transitionInterface = function(dependencies, callback) {
+	function transitionInterface(dependencies, callback) {
 		var jqInterface = $("#main_interface_hook");
 		
 		// Pas d'utilisation de .fadeOut() pour éviter le display: none (incompatible avec chargement fullcalendar)
@@ -150,7 +150,7 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 		});
 	};
 	
-	var chargerInterfaceConnection = function(dialogConnexion) {
+	function chargerInterfaceConnection(dialogConnexion) {
 		// Suppression de l'interface actuelle
 		$("#main_interface_hook").empty();
 		dialogConnexion.show("Connexion", function(success) {
@@ -163,7 +163,7 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 		currentPage.nom = "connexion";
 	};
 	
-	var chargerInterfacePrincipale = function(vue) {
+	function chargerInterfacePrincipale(vue) {
 	
 		transitionInterface(["EcranAccueil", "text!../templates/page_accueil.html"], function(EcranAccueil, pageAccueilHtml) {
 			$("#main_interface_hook").empty().append(pageAccueilHtml);
@@ -176,7 +176,7 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 		});
 	};
 	
-	var chargerInterfaceParametres = function() {
+	function chargerInterfaceParametres() {
 		transitionInterface(["EcranParametres", "text!../templates/page_parametres.html"], function(EcranParametres, pageAccueilHtml) {
 			$("#main_interface_hook").empty().append($(pageAccueilHtml));
 			

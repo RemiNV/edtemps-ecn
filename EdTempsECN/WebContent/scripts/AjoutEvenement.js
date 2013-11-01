@@ -1,6 +1,6 @@
 define(["jquery", "jqueryui"], function() {
 	
-	var AjoutEvenement = function(jqDialog) {
+	function AjoutEvenement(jqDialog) {
 		
 		this.jqDialog = jqDialog;
 		

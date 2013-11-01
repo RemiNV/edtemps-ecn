@@ -3,7 +3,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	/**
 	 * Constructeur
 	 */
-	var ListeGroupesParticipants = function(restManager, calendrier) {
+	function ListeGroupesParticipants(restManager, calendrier) {
 		this.restManager = restManager;
 
 		// Liste des groupes masqués initialisée avec la mémoire localStorage du navigateur

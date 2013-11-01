@@ -4,7 +4,7 @@
 define(["jquery"], function() {
 	
 	// Constructeur
-	var RestManager = function() {
+	function RestManager() {
 		
 		// Récupération du dernier token de connection depuis le stockage local.
 		// Il peut avoir expiré.

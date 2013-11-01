@@ -5,7 +5,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	/**
 	 * Cet écran est associé au HTML templates/page_accueil.html.
 	 * Il s'agit de la page principale d'affichage des évènements. */
-	var EcranAccueil = function(restManager) { // Constructeur
+	function EcranAccueil(restManager) { // Constructeur
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);

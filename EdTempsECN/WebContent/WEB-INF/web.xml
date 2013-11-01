@@ -66,6 +66,11 @@
       <servlet-class>org.ecn.edtemps.servlets.RechercheSalleLibreServlet</servlet-class>
   </servlet>
   
+  <servlet>
+      <servlet-name>CalendriersUtilisateur</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.CalendriersUtilisateurServlet</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -124,6 +129,11 @@
   <servlet-mapping>
       <servlet-name>RechercheSalleLibre</servlet-name>
       <url-pattern>/recherchesallelibre</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>CalendriersUtilisateur</servlet-name>
+      <url-pattern>/mescalendriers</url-pattern>
   </servlet-mapping>
   
 </web-app>
