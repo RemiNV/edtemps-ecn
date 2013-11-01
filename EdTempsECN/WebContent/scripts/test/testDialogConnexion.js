@@ -12,7 +12,7 @@ require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexi
 		}
 	});
 	
-	asyncTest("Connexion valide", function() {
+	asyncTest("Test avec identifiants corrects", function() {
 		// 2 assertions
 		expect(2);
 		
@@ -36,7 +36,7 @@ require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexi
 		jqDialog.find("#btn_connexion").trigger("click");
 	});
 	
-	asyncTest("Connexion invalide", function() {
+	asyncTest("Test avec identifiants incorrects", function() {
 		// 2 assertions
 		expect(2);
 		

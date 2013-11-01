@@ -32,6 +32,12 @@ define(["mockjax"], function() {
 		{"id":2,"nom":"Vidéoprojecteur","quantite":0}
 	];
 	
+	var salles = [
+		{"id":1,"nom":"Salle info B12","batiment":"B","capacite":20,"niveau":2,"numero":12},
+		{"id":3,"nom":"Amphi L","batiment":"L","capacite":200,"niveau":1,"numero":0},
+		{"id":4,"nom":"Salle C02","batiment":"C","capacite":35,"niveau":2,"numero":1}
+	];
+	
 	var getEvenementsIntervalle = function(dateDebut, dateFin) {
 		var res = Array();
 		
@@ -146,6 +152,18 @@ define(["mockjax"], function() {
 				type: "POST",
 				responseText: JSON.stringify({resultCode: resultCode_Success, message: "", data: null})
 			});
+			
+			// Simulation de la requête de recherche de salle
+			$.mockjax({
+				url: "recherchesallelibre",
+				responseTime: 500,
+				contentType: "application/json",
+				type: "GET",
+				responseText: JSON.stringify({resultCode: resultCode_Success, message: "", data: {
+					sallesDisponibles: salles
+				}})
+			});
+			
 			
 			console.log("*** Utilisation de mockjax. Les requêtes AJAX jQuery sont interceptées par le mockRestManager pour les tests unitaires ***");
 		},
