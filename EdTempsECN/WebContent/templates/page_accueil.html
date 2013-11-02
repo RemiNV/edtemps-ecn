@@ -60,15 +60,15 @@
 					</div>
 				</div>
 
-				<div id="form_chercher_salle_boutons">
-					<input type="button" id="form_chercher_salle_fermer" value="Fermer" />
-					<input type="button" id="form_chercher_salle_valid" value="Rechercher" />
+				<div id="form_chercher_salle_boutons" class="boutons_valider">
+					<input type="button" id="form_chercher_salle_fermer" class="bouton_droite" value="Fermer" />
+					<input type="button" id="form_chercher_salle_valid" class="bouton_droite" value="Rechercher" />
 				</div>
 			</form>
 		</div>
 		<div id="resultat_chercher_salle" title="Résultat de la recherche">
 			<table></table>
-			<div id="resultat_chercher_salle_boutons"><input type="button" id="resultat_chercher_salle_fermer" value="Fermer" /></div>
+			<div id="resultat_chercher_salle_boutons" class="boutons_valider"><input type="button" id="resultat_chercher_salle_fermer" value="Fermer" /></div>
 		</div>
 	</div>
 	
@@ -126,11 +126,13 @@
 		</tr>
 		<tr>
 			<td>Salles : </td>
-			<td><span id="salles_evenement">(Aucune)</span><span id="btn_rechercher_salle_evenement" class="button">Rechercher une salle</span></td>
+			<td><span id="salles_evenement">(Aucune)</span><span id="btn_rechercher_salle_evenement" class="button">Rechercher</span></td>
 		</tr>
 	</table>
 
-	<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Valider" />
+	<div class="boutons_valider">
+		<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Valider" />
+	</div>
 	
 	<div id="dialog_ajout_evenement_chargement" style="display: none">
 		<img src="img/spinner_chargement_outer_small.gif" alt="chargement" />
