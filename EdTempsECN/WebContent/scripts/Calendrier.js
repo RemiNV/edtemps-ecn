@@ -1,6 +1,6 @@
 define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager) {
 
-	var Calendrier = function(eventsSource) {
+	function Calendrier(eventsSource) {
 		var me = this;
 
 		this.jqCalendar = $("#calendar");

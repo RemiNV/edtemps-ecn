@@ -389,4 +389,31 @@ public class CalendrierGestion {
 		
 	}
 	
+	/**
+	 * Listing des calendriers dont un utilisateur est propriétaire
+	 * @param userId ID de l'utilisateur propriétaire
+	 * @return Liste des calendriers trouvés
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	public ArrayList<CalendrierIdentifie> listerCalendriersUtilisateur(int userId) throws DatabaseException {
+		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle FROM edt.calendrier " +
+				"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
+				"INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
+				"INNER JOIN edt.proprietairecalendrier ON calendrier.cal_id = proprietairecalendrier.cal_id AND proprietairecalendrier.utilisateur_id = " + userId);
+		
+		try {
+			ArrayList<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
+			while(results.next()){
+				res.add(inflateCalendrierFromRow(results));
+			}
+			
+			results.close();
+			
+			return res;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
 }

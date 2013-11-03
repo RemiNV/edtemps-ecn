@@ -1,6 +1,6 @@
 define(["RestManager"], function(RestManager) {
 
-	var EvenementGestion = function(restManager) {
+	function EvenementGestion(restManager) {
 		this.restManager = restManager;
 		
 		this.cachedEvents = Object();

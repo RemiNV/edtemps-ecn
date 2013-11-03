@@ -3,7 +3,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 	/**
 	 * Constructeur
 	 */
-	var RechercheSalle = function(restManager, jqRechercheSalle) {
+	function RechercheSalle(restManager, jqRechercheSalle) {
 		this.restManager = restManager;
 		this.jqRechercheSalleForm = jqRechercheSalle.find("#form_chercher_salle");
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
@@ -141,7 +141,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 		
 		// Blocage du bouton de validation avant le chargement
 		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
-		this.jqRechercheSalleForm.find("#form_chercher_salle_materiel_chargement").css("display", "block");
+		this.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
+		this.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Chargement des options de matériel...");
 		
 		// Récupération de la liste des matériels en base de données
 		this.restManager.effectuerRequete("GET", "listemateriels", {
@@ -180,7 +181,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 				
 				// Reactivation du bouton de recherche
 				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
-				me.jqRechercheSalleForm.find("#form_chercher_salle_materiel_chargement").css("display", "none");
+				me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
 
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération des matériels disponibles ; vérifiez votre connexion.");
@@ -196,6 +197,11 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 	 */
 	RechercheSalle.prototype.effectuerRecherche = function() {
 		var me = this;
+		
+		// Message d'attente
+		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
+		this.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
+		this.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Recherche...");
 		
 		// Récupération des valeurs du formulaire
 		var param_date = this.date.val();
@@ -226,6 +232,10 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 			} else {
 				window.showToast(response.resultCode + " Erreur lors de la recheche d'une salle libre ; votre session a peut-être expiré ?");
 			}
+			
+			// Supression message d'attente
+			me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
+			me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
 		});
 		
 		

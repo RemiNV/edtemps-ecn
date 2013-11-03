@@ -1,6 +1,6 @@
 define(["RestManager"], function(RestManager) {
 
-	var GroupeGestion = function(restManager) {
+	function GroupeGestion(restManager) {
 		this.restManager = restManager;
 	};
 	

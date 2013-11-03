@@ -4,7 +4,7 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 	 * Initialisation de l'interface de connexion.
 	 * jqParent : bloc parent contenant le HTML nécessaire (chargé depuis les templates)
 	 */
-	var DialogConnection = function(restManager, jqDialog) {
+	function DialogConnection(restManager, jqDialog) {
 		this.restManager = restManager;
 		this.jqDialog = jqDialog;
 		this.connectionSuccess = false;

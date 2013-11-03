@@ -23,7 +23,9 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 	});
 	
 	test("Initialisation", function() {
-		expect(0);
+		
+		deepEqual(jqFormChercherSalle.length, 1, "Unique dialog de recherche de salle #form_chercher_salle trouvée");
+		deepEqual(jqResultatChercherSalle.length, 1, "Unique dialog de résultats #resultat_chercher_salle trouvée");
 		
 		rechercheSalle.init();
 	});
@@ -83,22 +85,48 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 				
 				ok(materielTrouve, "Vidéoprojecteur nécessaire ajouté avec succès");
 				
+				jqFormChercherSalle.find("#form_recherche_salle_date").val("2013-10-31");
+				jqFormChercherSalle.find("#form_recherche_salle_debut").val("12:45");
+				jqFormChercherSalle.find("#form_recherche_salle_fin").val("13:45");
+				jqFormChercherSalle.find("#form_recherche_salle_capacite").val("42");
+				
 				// Validation de la demande
-				$("#form_chercher_salle_valid").trigger("click");
+				jqFormChercherSalle.find("#form_chercher_salle_valid").trigger("click");
 				
-				// TODO : vérifier que la requête est effectuée avec les bons paramètres
-				// mockRestManager.getMockedCalls("recherchesallelibre", "GET")
+				var mockedCalls = mockRestManager.getMockedCalls("recherchesallelibre", "GET");
+				deepEqual(mockedCalls.length, 1, "Une unique recherche de salle effectuée");
 				
-				start();
+				equal(mockedCalls[0].data.capacite, 42, "Capacité de salle dans la requête correspondant au formulaire");
+				equal(mockedCalls[0].data.date, "2013-10-31", "Date dans la requête correspondant au formulaire");
+				equal(mockedCalls[0].data.heureDebut, "12:45", "Heure début dans la requête correspondant au formulaire");
+				equal(mockedCalls[0].data.heureFin, "13:45", "Heure fin dans la requête correspondant au formulaire");
+				
+				// Vérification du matériel
+				var materiels = mockedCalls[0].data.materiel.split(",");
+				
+				for(var i=0, maxI = materiels.length; i<maxI; i++) {
+					var mat = materiels[i].split(":");
+					// Aucun matériel, sauf les vidéoprojecteurs (2)
+					ok(mat[1] == 0 || (mat[0] == 2 && mat[1] == 2), "Matériel de la requête correspondant au formulaire");
+				}
+				
+				
+				function fermerDialogResultats() {
+					// Attente fin de la recherche (réactivation du bouton) pour fermer la dialog 
+					if(jqResultatChercherSalle.hasClass("ui-dialog-content") && jqResultatChercherSalle.dialog("isOpen")) {
+						jqResultatChercherSalle.dialog("destroy").remove();
+						
+						start();
+					}
+					else {
+						setTimeout(fermerDialogResultats, 100);
+					}
+				}
+				
+				fermerDialogResultats();
 			}
 			
 		};
-		
-		
-		jqFormChercherSalle.find("#form_recherche_salle_date").val("31/10/2013");
-		jqFormChercherSalle.find("#form_recherche_salle_debut").val("12:45");
-		jqFormChercherSalle.find("#form_recherche_salle_fin").val("13:45");
-		jqFormChercherSalle.find("#form_recherche_salle_capacite").val("42");
 		
 		launchTest();
 		
