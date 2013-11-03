@@ -30,7 +30,7 @@
 				<table id="form_chercher_salle_table">
 					<tr>
 						<td><label for="form_recherche_salle_date">Date de réservation</label></td>
-						<td><input type="date" name="form_recherche_salle_date" id="form_recherche_salle_date" /></td>
+						<td><input type="text" name="form_recherche_salle_date" id="form_recherche_salle_date" /></td>
 					</tr>
 					<tr>
 						<td><label for="form_recherche_salle_debut">Heure de début (ex: 14:00)</label></td>
@@ -68,7 +68,10 @@
 		</div>
 		<div id="resultat_chercher_salle" title="Résultat de la recherche">
 			<table></table>
-			<div id="resultat_chercher_salle_boutons" class="boutons_valider"><input type="button" id="resultat_chercher_salle_fermer" value="Fermer" /></div>
+			<div id="resultat_chercher_salle_boutons" class="boutons_valider">
+				<input type="button" id="resultat_chercher_salle_fermer" value="Fermer" />
+				<input type="button" id="resultat_chercher_salle_creer" value="Créer un événement" />
+			</div>
 		</div>
 	</div>
 	

@@ -38,10 +38,9 @@ public class RechercheSalleLibreServlet extends RequiresConnectionServlet {
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
 		// Récupération des paramètres
-		String paramDate = req.getParameter("date");
-		String paramHeureDebut = req.getParameter("heureDebut");
-		String paramHeureFin = req.getParameter("heureFin");
-		String paramCapacite = req.getParameter("capacite");
+		String paramDateDebut = req.getParameter("dateDebut");
+		String paramDateFin = req.getParameter("dateFin");
+		String paramEffectif = req.getParameter("effectif");
 		String paramMateriel = req.getParameter("materiel");
 
 		// Transformation de ces paramètres pour appeler la fonction de recherche
@@ -51,12 +50,12 @@ public class RechercheSalleLibreServlet extends RequiresConnectionServlet {
 		ArrayList<Materiel> listeMateriel = new ArrayList<Materiel>();;
 		try {
 			// Dates de début et fin
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			dateDebut = simpleDateFormat.parse(paramDate + " " + paramHeureDebut + ":00");
-			dateFin = simpleDateFormat.parse(paramDate + " " + paramHeureFin + ":00");
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+			dateDebut = simpleDateFormat.parse(paramDateDebut);
+			dateFin = simpleDateFormat.parse(paramDateFin);
 		
 			// Capacité de la salle
-			capacite = Integer.valueOf(paramCapacite);
+			capacite = Integer.valueOf(paramEffectif);
 			
 			// Liste du matériel
 			String[] tableauMateriel = paramMateriel.split(",");

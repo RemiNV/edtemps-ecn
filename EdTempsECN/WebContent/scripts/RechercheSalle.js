@@ -9,10 +9,10 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
 		
 		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
-		this.date = this.jqRechercheSalleForm.find("#form_recherche_salle_date");
-		this.heureDebut = this.jqRechercheSalleForm.find("#form_recherche_salle_debut");
-		this.heureFin = this.jqRechercheSalleForm.find("#form_recherche_salle_fin");
-		this.capacite = this.jqRechercheSalleForm.find("#form_recherche_salle_capacite");
+		this.jqDate = this.jqRechercheSalleForm.find("#form_recherche_salle_date");
+		this.jqHeureDebut = this.jqRechercheSalleForm.find("#form_recherche_salle_debut");
+		this.jqHeureFin = this.jqRechercheSalleForm.find("#form_recherche_salle_fin");
+		this.jqCapacite = this.jqRechercheSalleForm.find("#form_recherche_salle_capacite");
 
 		// Ecrit la liste des matériels disponibles
 		this.ecritListeMateriel();
@@ -25,15 +25,31 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 		var me = this;
 
 		// Ajout des masques aux différents champs
-		this.heureDebut.mask("99:99");
-		this.heureFin.mask("99:99");
-		this.capacite.mask("9?999");
+		this.jqHeureDebut.mask("99:99");
+		this.jqHeureFin.mask("99:99");
+		this.jqCapacite.mask("9?999");
+		this.jqDate.mask("99-99-9999");
 
 		// Affectation d'une méthode au clic sur le bouton "Rechercher"
 		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").click(function() {
 			// Si le formulaire est valide, la requête est effectuée
 			if (me.validationFormulaire()) {
-				me.effectuerRecherche();
+
+				// Traitement des dates et heures au format "yyyy-MM-dd HH:mm:ss"
+				var param_dateDebut = me.jqDate.val() + " " + me.jqHeureDebut.val() + ":00";
+				var param_dateFin = me.jqDate.val() + " " + me.jqHeureFin.val() + ":00";
+
+				// Création de la liste des matériels nécessaires
+				var listeMateriel = new Array();
+				me.jqRechercheSalleForm.find(".quantite input[type=number]").each(function() {
+					var materiel = new Object();
+					materiel.id=$(this).attr("materiel-id");
+					materiel.quantite=$(this).val();
+					listeMateriel.push(materiel);
+				});
+
+				// Appel de la méthode de recherche de salle
+				me.getSalle(param_dateDebut, param_dateFin, me.jqCapacite.val(), listeMateriel);
 			}
 		});
 
@@ -47,6 +63,24 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 			me.bordureSurChamp($(this), null);
 		});
 
+        // Ajout du datepicker sur le champ date
+        this.jqDate.datepicker({
+                showAnim : 'slideDown',
+                showOn: 'button',
+                buttonText: "Calendrier",
+                dateFormat: "dd-mm-yy",
+                buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
+                buttonImageOnly: true, // affiche l'image sans bouton
+                monthNamesShort: [ "Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jui", "Aou", "Sep", "Oct", "Nov", "Dec" ],
+                monthNames: [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ],
+                dayNamesMin: [ "Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa" ],
+                dayNames: [ "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" ],
+                gotoCurrent: true,
+                prevText: "Précédent",
+                nextText: "Suivant",
+                firstDay: 1
+        });
+        
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		this.jqRechercheSalleForm.dialog({
 			width: 440,
@@ -72,39 +106,39 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 		var valid = true;
 
 		// Validation de la date
-		if (this.date.val()=="") {
-			this.bordureSurChamp(this.date, "#FF0000");
+		if (this.jqDate.val()=="") {
+			this.bordureSurChamp(this.jqDate, "#FF0000");
 			valid = false;
 		} else {
-			this.bordureSurChamp(this.date, "#60C003");
+			this.bordureSurChamp(this.jqDate, "#60C003");
 		}
 
 		// Validation de l'heure de début
-		var decoupageHeureMinute = this.heureDebut.val().split(":");
+		var decoupageHeureMinute = this.jqHeureDebut.val().split(":");
 		var calculMinutesDebut = 60*decoupageHeureMinute[0] + decoupageHeureMinute[1];
-		if (this.heureDebut.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1])) {
-			this.bordureSurChamp(this.heureDebut, "#FF0000");
+		if (this.jqHeureDebut.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1])) {
+			this.bordureSurChamp(this.jqHeureDebut, "#FF0000");
 			valid = false;
 		} else {
-			this.bordureSurChamp(this.heureDebut, "#60C003");
+			this.bordureSurChamp(this.jqHeureDebut, "#60C003");
 		}
 		
 		// Validation de l'heure de fin
-		decoupageHeureMinute = this.heureFin.val().split(":");
+		decoupageHeureMinute = this.jqHeureFin.val().split(":");
 		var calculMinutesFin = 60*decoupageHeureMinute[0] + decoupageHeureMinute[1];
-		if (this.heureFin.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1]) || calculMinutesFin-calculMinutesDebut<=0) {
-			this.bordureSurChamp(this.heureFin, "#FF0000");
+		if (this.jqHeureFin.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1]) || calculMinutesFin-calculMinutesDebut<=0) {
+			this.bordureSurChamp(this.jqHeureFin, "#FF0000");
 			valid = false;
 		} else {
-			this.bordureSurChamp(this.heureFin, "#60C003");
+			this.bordureSurChamp(this.jqHeureFin, "#60C003");
 		}
 
 		// Validation de la capacité
-		if (isNaN(this.capacite.val()) || this.capacite.val()>9999 || this.capacite.val()<0) {
-			this.bordureSurChamp(this.capacite, "#FF0000");
+		if (isNaN(this.jqCapacite.val()) || this.jqCapacite.val()>9999 || this.jqCapacite.val()<0) {
+			this.bordureSurChamp(this.jqCapacite, "#FF0000");
 			valid = false;
 		} else {
-			this.bordureSurChamp(this.capacite, "#60C003");
+			this.bordureSurChamp(this.jqCapacite, "#60C003");
 		}
 		
 		// Validation des quantités de matériel
@@ -194,39 +228,48 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 	
 	/**
 	 * Méthode qui effectue la requête
+	 * 
+	 * @param dateDebut
+	 * 		date de début de l'événement au format : "yyyy-MM-dd HH:mm:ss"
+	 * 
+	 * @param dateFin
+	 * 		date de fin de l'événement au format : "yyyy-MM-dd HH:mm:ss"
+	 * 
+	 * @param effectif
+	 * 		effectif requis pour l'événement
+	 * 
+	 * @param materiels
+	 * 		liste du matériel nécessaire : une liste d'objets qui possèdent deux attributs : id et quantité
+	 * 
+	 * @param callback
+	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
-	RechercheSalle.prototype.effectuerRecherche = function() {
+	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, callback) {
 		var me = this;
-		
+
 		// Message d'attente
 		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
 		this.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
 		this.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Recherche...");
-		
-		// Récupération des valeurs du formulaire
-		var param_date = this.date.val();
-		var param_heureDebut = this.heureDebut.val();
-		var param_heureFin = this.heureFin.val();
-		var param_capacite = this.capacite.val();
-		
-		// Récupération des quantités pour chaque item de matériel
+
+		// Création d'une chaine de caractère pour traiter la liste de matériel
 		// La syntaxe choisie est :
 		//    - pour chaque matériel, il y a son identifiant suivi de la quantité, séparés par ":"
 		//    - les matériels sont séparés les uns des autres par ","
 		var listeMaterielQuantite = "";
-		this.jqRechercheSalleForm.find(".quantite input[type=number]").each(function() {
+		for (var i=0, maxI=materiels.length; i<maxI; i++) {
 			if (listeMaterielQuantite!="") {
 				listeMaterielQuantite += ",";
 			}
-			listeMaterielQuantite += $(this).attr("materiel-id") + ":" + $(this).val();
-		});
+			listeMaterielQuantite += materiels[i].id + ":" + materiels[i].quantite;
+		}
 		
 		// Récupération de la liste des matériels en base de données
 		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
-			date: param_date, heureDebut: param_heureDebut, heureFin: param_heureFin, capacite: param_capacite, materiel: listeMaterielQuantite, token: this.restManager.getToken()
+			dateDebut: dateDebut, dateFin: dateFin, effectif: effectif, materiel: listeMaterielQuantite, token: this.restManager.getToken()
 		}, function(response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
-				me.afficherResultat(response.data);
+				me.afficherResultat(response.data, callback);
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la recheche d'une salle libre ; vérifiez votre connexion.");
 			} else {
@@ -238,27 +281,30 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 			me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
 		});
 		
-		
 	};
-
-
+	
+	
 	/**
 	 * Méthode qui affiche le résultat
 	 * 
 	 * @param data
-	 * 			liste de salles
+	 * 			liste des salles retournées par le serveur
+	 * 
+	 * @param callback
+	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
-	RechercheSalle.prototype.afficherResultat = function(data) {
+	RechercheSalle.prototype.afficherResultat = function(data, callback) {
 
+		// Calcule le nombre de salles
 		var maxI = data.sallesDisponibles.length;
 		
+
+		// S'il y a des salles, on les affiche dans une boîte de dialogue
 		if (maxI>0) {
 			var me = this;
 
-			// Affiche le résultat
 			var html = "<tr><th>Nom de la salle</th></tr>";
 			for (var i=0 ; i<maxI ; i++) {
-				
 				// Préparation de l'infobulle qui contient la liste des matériels de la salle
 				var infobulle = "";
 				for (var j=0, maxJ=data.sallesDisponibles[i].materiels.length ; j<maxJ ; j++) {
@@ -270,18 +316,25 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 				if (infobulle=="") {
 					infobulle = "Aucun matériel spécifique";
 				}
-
+				// Créaion du code html de la ligne correspondant à cette salle
 				html += "<tr>" +
 							"<td class='resultat_chercher_salle_ligne' title='" + infobulle + "'>" +
 								data.sallesDisponibles[i].nom +
 							"</td></tr>";
 
 			}
+			// Ecrit le code html dans la boîte de dialogue
 			this.jqRechercheSalleResultat.find("table").html(html);
 
 			// Affectation d'une méthode au clic sur le bouton "Fermer"
 			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_fermer").click(function() {
 				me.jqRechercheSalleResultat.dialog("close");
+			});
+
+			// Affectation d'une méthode au clic sur le bouton "Créer un événement"
+			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_creer").click(function() {
+				// TODO récupérer les salles sélectionnées
+				callback();
 			});
 
 			// Affichage de la boîte de dialogue résultat
@@ -291,6 +344,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 				show: { effect: "fade", duration: 200 },
 				hide: { effect: "explode", duration: 200 }
 			});
+			
 		} else {
 			window.showToast("Aucune salle disponible avec ces critères");
 		}
