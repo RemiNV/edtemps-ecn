@@ -166,12 +166,10 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 					me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table").append(str);
 			
 					// Ajout des masques sur les quantités de matériel
-					$(".quantite input[type=number]").each(function() {
-						me.jqRechercheSalleForm.find(".quantite input[type=number]").each(function() {
-							$(this).mask("?9999", { placeholder: "" });
-							$(this).click(function() {
-								me.bordureSurChamp($(this), "#FFFFFF");
-							});
+					me.jqRechercheSalleForm.find(".quantite input[type=number]").each(function() {
+						$(this).mask("?9999", { placeholder: "" });
+						$(this).click(function() {
+							me.bordureSurChamp($(this), "#FFFFFF");
 						});
 					});
 
@@ -238,7 +236,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 	 * Méthode qui affiche le résultat
 	 * 
 	 * @param data
-	 * 			résultat de la requête auprès du serveur
+	 * 			liste de salles
 	 */
 	RechercheSalle.prototype.afficherResultat = function(data) {
 
@@ -250,7 +248,24 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 			// Affiche le résultat
 			var html = "<tr><th>Nom de la salle</th></tr>";
 			for (var i=0 ; i<maxI ; i++) {
-				html += "<tr><td>"+data.sallesDisponibles[i].nom+"</td></tr>";
+				
+				// Préparation de l'infobulle qui contient la liste des matériels de la salle
+				var infobulle = "";
+				for (var j=0, maxJ=data.sallesDisponibles[i].materiels.length ; j<maxJ ; j++) {
+					if (infobulle!="") {
+						infobulle += "&#13;";
+					}
+					infobulle += data.sallesDisponibles[i].materiels[j].nom + " : " +data.sallesDisponibles[i].materiels[j].quantite; 
+				}
+				if (infobulle=="") {
+					infobulle = "Aucun matériel spécifique";
+				}
+
+				html += "<tr>" +
+							"<td class='resultat_chercher_salle_ligne' title='" + infobulle + "'>" +
+								data.sallesDisponibles[i].nom +
+							"</td></tr>";
+
 			}
 			this.jqRechercheSalleResultat.find("table").html(html);
 

@@ -350,7 +350,7 @@ public class SalleGestion {
 	    " LEFT JOIN edt.contientmateriel ON salle.salle_id = contientmateriel.salle_id"; /* Join avec les matériels que la salle contient et qui sont nécessaires */
 	    
 		if (!materiels.isEmpty()) {
-			requeteString += "AND (";
+			requeteString += " AND (";
 			for (int i = 0 ; i < materiels.size() ; i++) {
 				if (i!=0) {
 					requeteString += "OR ";

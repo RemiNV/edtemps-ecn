@@ -51,6 +51,7 @@ public class SalleIdentifie extends Salle implements JSONAble {
 
 	@Override
 	public JsonValue toJson() {
+		
 		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("id", id)
 				.add("nom", nom)
@@ -61,12 +62,14 @@ public class SalleIdentifie extends Salle implements JSONAble {
 		
 		// Ajout des matériels
 		JsonArrayBuilder materielsArrayBuilder = Json.createArrayBuilder();
-		//TODO: faire la même chose mais avec la liste de matériels au lieu d'être avec une HashMap
-		/*for(Map.Entry<Integer, Integer> materiel : materiels.entrySet()) {
-			materielsArrayBuilder.add(Json.createObjectBuilder().add("id", materiel.getKey()).add("quantite", materiel.getValue()).build());
+		for(Materiel materiel : materiels) {
+			materielsArrayBuilder.add(Json.createObjectBuilder()
+					.add("id", materiel.getId())
+					.add("nom", materiel.getNom())
+					.add("quantite", materiel.getQuantite())
+					.build());
 		}
-		
-		builder.add("materiels", materielsArrayBuilder.build());*/
+		builder.add("materiels", materielsArrayBuilder.build());
 		
 		return builder.build();
 	}
