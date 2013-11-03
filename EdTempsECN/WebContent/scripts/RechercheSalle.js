@@ -1,4 +1,4 @@
-define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager) {
+define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "jqueryquicksearch" ], function(RestManager) {
 
 	/**
 	 * Constructeur
@@ -28,14 +28,14 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 		this.jqHeureDebut.mask("99:99");
 		this.jqHeureFin.mask("99:99");
 		this.jqCapacite.mask("9?999");
-		this.jqDate.mask("99-99-9999");
+		this.jqDate.mask("99/99/9999");
 
 		// Affectation d'une méthode au clic sur le bouton "Rechercher"
 		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").click(function() {
 			// Si le formulaire est valide, la requête est effectuée
 			if (me.validationFormulaire()) {
 
-				// Traitement des dates et heures au format "yyyy-MM-dd HH:mm:ss"
+				// Traitement des dates et heures au format "yyyy/MM/dd HH:mm:ss"
 				var param_dateDebut = me.jqDate.val() + " " + me.jqHeureDebut.val() + ":00";
 				var param_dateFin = me.jqDate.val() + " " + me.jqHeureFin.val() + ":00";
 
@@ -49,7 +49,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 				});
 
 				// Appel de la méthode de recherche de salle
-				me.getSalle(param_dateDebut, param_dateFin, me.jqCapacite.val(), listeMateriel);
+				me.getSalle(param_dateDebut, param_dateFin, me.jqCapacite.val(), listeMateriel, function(data) { alert(data.length + " salles sélectionnées - Action à déterminer"); });
+
 			}
 		});
 
@@ -58,6 +59,11 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 			me.jqRechercheSalleForm.dialog("close");
 		});
 
+		// Affectation d'une méthode au clic sur la zone Date
+		this.jqDate.click(function() {
+			me.jqDate.datepicker("show");
+		});
+		
 		// Affectation d'une méthode au clique sur les différents champs
 		this.jqRechercheSalleForm.find("#form_recherche_salle_date, #form_recherche_salle_debut, #form_recherche_salle_fin, #form_recherche_salle_capacite").click(function() {
 			me.bordureSurChamp($(this), null);
@@ -68,7 +74,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
                 showAnim : 'slideDown',
                 showOn: 'button',
                 buttonText: "Calendrier",
-                dateFormat: "dd-mm-yy",
+                dateFormat: "dd/mm/yy",
                 buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
                 buttonImageOnly: true, // affiche l'image sans bouton
                 monthNamesShort: [ "Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jui", "Aou", "Sep", "Oct", "Nov", "Dec" ],
@@ -78,6 +84,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
                 gotoCurrent: true,
                 prevText: "Précédent",
                 nextText: "Suivant",
+                constrainInput: true,
                 firstDay: 1
         });
         
@@ -230,10 +237,10 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 	 * Méthode qui effectue la requête
 	 * 
 	 * @param dateDebut
-	 * 		date de début de l'événement au format : "yyyy-MM-dd HH:mm:ss"
+	 * 		date de début de l'événement au format : "yyyy/MM/dd HH:mm:ss"
 	 * 
 	 * @param dateFin
-	 * 		date de fin de l'événement au format : "yyyy-MM-dd HH:mm:ss"
+	 * 		date de fin de l'événement au format : "yyyy/MM/dd HH:mm:ss"
 	 * 
 	 * @param effectif
 	 * 		effectif requis pour l'événement
@@ -298,33 +305,52 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 		// Calcule le nombre de salles
 		var maxI = data.sallesDisponibles.length;
 		
-
 		// S'il y a des salles, on les affiche dans une boîte de dialogue
 		if (maxI>0) {
 			var me = this;
-
-			var html = "<tr><th>Nom de la salle</th></tr>";
-			for (var i=0 ; i<maxI ; i++) {
-				// Préparation de l'infobulle qui contient la liste des matériels de la salle
-				var infobulle = "";
-				for (var j=0, maxJ=data.sallesDisponibles[i].materiels.length ; j<maxJ ; j++) {
-					if (infobulle!="") {
-						infobulle += "&#13;";
-					}
-					infobulle += data.sallesDisponibles[i].materiels[j].nom + " : " +data.sallesDisponibles[i].materiels[j].quantite; 
+			
+			// Variable recevant progressivement le code HTML à ajouter à l'élément MultiSelect
+			var html = "";
+			// Parcourt les salles 
+			for (var i = 0; i < maxI; i++) {
+				// Salle en cours de traitement
+				var salle = data.sallesDisponibles[i];
+				// Préparation de l'infobulle
+				var infobulle = "Capacité: "+salle.capacite;
+				for (var j=0, maxJ=salle.materiels.length ; j<maxJ ; j++) {
+					infobulle += "&#13;";
+					infobulle += salle.materiels[j].nom + ": " +salle.materiels[j].quantite; 
 				}
-				if (infobulle=="") {
-					infobulle = "Aucun matériel spécifique";
-				}
-				// Créaion du code html de la ligne correspondant à cette salle
-				html += "<tr>" +
-							"<td class='resultat_chercher_salle_ligne' title='" + infobulle + "'>" +
-								data.sallesDisponibles[i].nom +
-							"</td></tr>";
-
+				html += "<option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+"</option>";
 			}
-			// Ecrit le code html dans la boîte de dialogue
-			this.jqRechercheSalleResultat.find("table").html(html);
+			// Affichage
+			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").html(html);
+
+			// Initialisation d'une liste d'identifiants de salles sélectionnées
+			// C'est un objet référencé par l'identifiant de la salle et qui porte true si la salle est sélectionnée
+			var idSallesSelectionnees = new Object();
+
+			// Paramètres de l'objet multiSelect
+			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").multiSelect({
+				selectableHeader: "Salles disponibles :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
+				selectionHeader: "Salles sélectionnées :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
+				afterInit: function(ms){
+					var me = this,
+					$selectableSearch = me.$selectableUl.prev(),
+					$selectionSearch = me.$selectionUl.prev(),
+					selectableSearchString = '#'+me.$container.attr('id')+' .ms-elem-selectable:not(.ms-selected)',
+					selectionSearchString = '#'+me.$container.attr('id')+' .ms-elem-selection.ms-selected';
+
+					me.qs1 = $selectableSearch.quicksearch(selectableSearchString);
+					me.qs2 = $selectionSearch.quicksearch(selectionSearchString);
+			    },
+				afterSelect: function(idSalle) {
+					idSallesSelectionnees[idSalle]=true;
+				},
+				afterDeselect: function(idSalle) {
+					idSallesSelectionnees[idSalle]=false;
+				}
+			});
 
 			// Affectation d'une méthode au clic sur le bouton "Fermer"
 			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_fermer").click(function() {
@@ -333,13 +359,22 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui" ], function(RestManager)
 
 			// Affectation d'une méthode au clic sur le bouton "Créer un événement"
 			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_creer").click(function() {
-				// TODO récupérer les salles sélectionnées
-				callback();
+				// Récupération des salles sélectionnées
+				var sallesSelectionnees = new Array();
+				for (var i = 0; i < maxI; i++) {
+					// Salle en cours de traitement
+					var salle = data.sallesDisponibles[i];
+					if (idSallesSelectionnees[salle.id]) {
+						sallesSelectionnees.push(salle);
+					}
+				}
+				// Appelle la méthode de callback avec les salles sélectionnées en paramètres
+				callback(sallesSelectionnees);
 			});
 
 			// Affichage de la boîte de dialogue résultat
 			this.jqRechercheSalleResultat.dialog({
-				width: 350,
+				width: 400,
 				modal: true,
 				show: { effect: "fade", duration: 200 },
 				hide: { effect: "explode", duration: 200 }

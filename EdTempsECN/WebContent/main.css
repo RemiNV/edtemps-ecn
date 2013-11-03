@@ -124,7 +124,7 @@ ul.button_nav li:last-child {
 }
 
 .boutons_valider {
-	text-align: right;	
+	text-align: right;
 }
 
 #form_chercher_salle_liste_materiel table {
@@ -158,22 +158,29 @@ ul.button_nav li:last-child {
 	padding: 2px 5px 2px 5px;
 }
 
-#resultat_chercher_salle table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.9em;
+#ms-resultat_chercher_salle_select {
 	margin-bottom: 10px;
 }
 
-#resultat_chercher_salle table td {
-	background-color: white;
-	border: solid 1px gray;
-	padding: 0px 0px 0px 5px;
+#ms-resultat_chercher_salle_select .ms-selection {
+	float: right;
+	background-color: transparent;
 }
 
-#resultat_chercher_salle table th {
-	border: solid 1px gray;
-	padding: 2px 5px 2px 5px;
+#ms-resultat_chercher_salle_select .ms-selectable {
+	float: left;
+	background-color: transparent;
+}
+
+#ms-resultat_chercher_salle_select .ms-list {
+	background-color: white;
+}
+
+#ms-resultat_chercher_salle_select .resultat_chercher_salle_select-filtre {
+	width: 100%;
+	box-sizing: border-box;
+	margin-top: 10px;
+	border-color: gray;
 }
 
 #div_filtres {

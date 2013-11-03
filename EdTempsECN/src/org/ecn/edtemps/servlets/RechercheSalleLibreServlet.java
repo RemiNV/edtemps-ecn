@@ -50,7 +50,7 @@ public class RechercheSalleLibreServlet extends RequiresConnectionServlet {
 		ArrayList<Materiel> listeMateriel = new ArrayList<Materiel>();;
 		try {
 			// Dates de début et fin
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 			dateDebut = simpleDateFormat.parse(paramDateDebut);
 			dateFin = simpleDateFormat.parse(paramDateFin);
 		
