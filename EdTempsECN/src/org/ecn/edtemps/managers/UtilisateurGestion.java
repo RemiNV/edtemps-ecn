@@ -41,10 +41,34 @@ public class UtilisateurGestion {
 	
 	protected BddGestion bdd;
 	
-	// Identifiant de l'utilisateur
-	protected Integer userId;
-	
 	private static Logger logger = LogManager.getLogger(UtilisateurGestion.class.getName());
+	
+	/**
+	 * Objet spécifique de retour de la méthode seConnecter().
+	 * Il contient le token de connexion et l'identifiant de l'utilisateur
+	 * Ces deux informations sont ensuite retournées par le servlet au client
+	 *  
+	 * @author Joffrey
+	 */
+	public class ObjetRetourMethodeConnexion {
+		
+		private Integer userId;
+		private String token;
+		
+		public ObjetRetourMethodeConnexion(Integer userId, String token) {
+			this.userId = userId;
+			this.token = token;
+		}
+
+		public Integer getUserId() {
+			return userId;
+		}
+
+		public String getToken() {
+			return token;
+		}
+	}
+	
 	
 	
 	/**
@@ -246,11 +270,11 @@ public class UtilisateurGestion {
 	 * Connexion de l'utilisateur et création d'un token de connexion (inséré en base de données)
 	 * @param utilisateur Nom d'utilisateur
 	 * @param pass Mot de passe
-	 * @return Token de connexion créé
+	 * @return ObjetRetourMethodeConnexion qui contient le yoken de connexion créé et l'identifiant de l'utilisateur
 	 * @throws IdentificationException Identifiants invalides ou erreur de connexion à LDAP
 	 * @throws DatabaseException Erreur relative à la base de données
 	 */
-	public String seConnecter(String utilisateur, String pass) throws IdentificationException, DatabaseException {
+	public ObjetRetourMethodeConnexion seConnecter(String utilisateur, String pass) throws IdentificationException, DatabaseException {
 		
 		// Connexion à LDAP
 		String dn = "uid=" + utilisateur + ",ou=people,dc=ec-nantes,dc=fr";
@@ -290,7 +314,7 @@ public class UtilisateurGestion {
 			
 			bdd.startTransaction();
 			
-			userId = getUserIdFromLdapId(uidNumber);
+			Integer userId = getUserIdFromLdapId(uidNumber);
 			
 			Connection conn = bdd.getConnection();
 			if(userId != null) { // Utilisateur déjà présent en base
@@ -329,7 +353,7 @@ public class UtilisateurGestion {
 			
 			bdd.commit();
 			
-			return token;
+			return new ObjetRetourMethodeConnexion(userId, token);
 			
 		} catch (com.unboundid.ldap.sdk.LDAPException e) {
 			
@@ -346,11 +370,6 @@ public class UtilisateurGestion {
 			throw new DatabaseException(e);
 		}
 	}
-	
-	public Integer getUserId() {
-		return userId;
-	}
-
 
 	/**
 	 * Création d'un utilisateur à partir d'une ligne de base de données.

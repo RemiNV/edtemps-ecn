@@ -54,7 +54,7 @@ define(["jquery"], function() {
 			
 				if(response.resultCode == RestManager.resultCode_Success) { // Succès de l'identification
 					me.setToken(response.data.token);
-					me.setUserId(response.data.id);
+					me.setUserId(response.data.userId);
 					me._isConnected = true;
 				}
 				
