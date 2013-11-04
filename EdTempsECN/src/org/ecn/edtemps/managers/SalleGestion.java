@@ -1,7 +1,9 @@
 package org.ecn.edtemps.managers;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -90,8 +92,7 @@ public class SalleGestion {
 
 			// Récupère la salle en base
 			ResultSet requeteSalle = _bdd
-					.executeRequest("SELECT * FROM edt.salle WHERE salle_id='"
-							+ identifiant + "'");
+					.executeRequest("SELECT * FROM edt.salle WHERE salle_id=" + identifiant);
 
 			// Accède au premier élément du résultat
 			if (requeteSalle.next()) {
@@ -145,28 +146,29 @@ public class SalleGestion {
 					_bdd.startTransaction();
 
 					// Modifie les informations sur la salle
-					_bdd.executeRequest("UPDATE edt.salle SET salle_batiment='"
-							+ batiment + "', salle_niveau='" + niveau
-							+ "', salle_numero='" + numero
-							+ "', salle_capacite='" + capacite
-							+ "', salle_nom='" + nom + "' WHERE salle_id='"
-							+ id + "'");
-
+					PreparedStatement requete = _bdd.getConnection().prepareStatement(
+							"UPDATE edt.salle SET" +
+							" salle_batiment=?" +
+							", salle_niveau=" + niveau +
+							", salle_numero=" + numero +
+							", salle_capacite=" + capacite +
+							", salle_nom=? WHERE salle_id=" + id);
+					requete.setString(1, batiment);
+					requete.setString(2, nom);
+					
+					requete.execute();
+					
 					// Suppression de l'ancienne liste des matériels
-					_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id='"
-							+ id + "'");
+					_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id="+id);
 
 					// Ajout des nouveaux liens avec les matériels
 					for (int i = 0; i<materiels.size(); i++) {
 						_bdd.executeRequest(
-								"INSERT INTO edt.contientmateriel "
-								+ "(salle_id, materiel_id, contientmateriel_quantite) "
-								+ "VALUES ('"
-								+ id
-								+ "', '"
-								+ materiels.get(i).getId()
-								+ "', '"
-								+ materiels.get(i).getQuantite() + "')");
+								"INSERT INTO edt.contientmateriel " +
+								"(salle_id, materiel_id, contientmateriel_quantite) VALUES (" +
+								id + ", " +
+								materiels.get(i).getId() + ", " +
+								materiels.get(i).getQuantite() +")");
 					}
 
 					// Termine la transaction
@@ -224,18 +226,20 @@ public class SalleGestion {
 
 					// Ajoute la salle dans la bdd et récupère l'identifiant de
 					// la ligne
-					ResultSet resultat = _bdd
-							.executeRequest("INSERT INTO edt.salle (salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES ('"
-									+ batiment
-									+ "', '"
-									+ niveau
-									+ "', '"
-									+ numero
-									+ "', '"
-									+ capacite
-									+ "', '"
-									+ nom
-									+ "') RETURNING salle_id");
+					PreparedStatement requete = _bdd.getConnection().prepareStatement(
+							"INSERT INTO edt.salle (salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES (" +
+							"?" + 
+							"," + niveau + 
+							", " + numero +
+							", " + capacite +
+							", ?) RETURNING salle_id");
+					requete.setString(1, batiment);
+					requete.setString(2, nom);
+					
+					// Exécute la requête
+					ResultSet resultat = requete.executeQuery();
+					
+					// Récupère l'identifiant de la ligne ajoutée
 					resultat.next();
 					int lastInsert = resultat.getInt(1);
 					resultat.close();
@@ -243,13 +247,11 @@ public class SalleGestion {
 					// Ajout du lien avec les matériels
 					for (int i = 0; i<materiels.size(); i++){
 						_bdd.executeRequest(
-								"INSERT INTO edt.contientmateriel "
-								+ "(salle_id, materiel_id, contientmateriel_quantite) "
-								+ "VALUES ('"
-								+ lastInsert
-								+ "', '"
-								+ materiels.get(i).getId()
-								+ "', '" + materiels.get(i).getQuantite() + "')");
+								"INSERT INTO edt.contientmateriel " +
+								"(salle_id, materiel_id, contientmateriel_quantite) VALUES (" +
+								lastInsert + ", " +
+								materiels.get(i).getId() + ", " +
+								materiels.get(i).getQuantite() + ")");
 					}
 
 				} else {
@@ -290,16 +292,13 @@ public class SalleGestion {
 			_bdd.startTransaction();
 
 			// Supprime le matériel
-			_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id='"
-					+ idSalle + "'");
+			_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id=" + idSalle);
 
 			// Supprime les liens avec les événements
-			_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE salle_id='"
-					+ idSalle + "'");
+			_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE salle_id=" + idSalle);
 
 			// Supprime la salle
-			_bdd.executeRequest("DELETE FROM edt.salle WHERE salle_id='"
-					+ idSalle + "'");
+			_bdd.executeRequest("DELETE FROM edt.salle WHERE salle_id=" + idSalle);
 
 			// Termine la transaction
 			_bdd.commit();
@@ -310,19 +309,6 @@ public class SalleGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
-	}
-	
-	/**
-	 * Récupération d'une string d'entiers à partir d'une liste d''entiers
-	 * @param idsSallesRetenues liste d'entiers
-	 * @return valuesIdsSallesRetenues string pouvant être utilisé dans une requête SQl de choix de valeurs
-	 */
-	private String getValuesSallesRetenues(ArrayList<Integer> idsSallesRetenues){
-		String valuesIdsSallesRetenues = idsSallesRetenues.get(0).toString();
-		for (int i = 1; i < idsSallesRetenues.size(); i++){
-			valuesIdsSallesRetenues = valuesIdsSallesRetenues +", "	+ idsSallesRetenues.get(i);
-		}
-		return valuesIdsSallesRetenues;
 	}
 
 
@@ -362,7 +348,7 @@ public class SalleGestion {
 
 		requeteString += " LEFT JOIN edt.alieuensalle ON alieuensalle.salle_id = salle.salle_id" +
 	    " LEFT JOIN edt.evenement ON evenement.eve_id = alieuensalle.eve_id" +
-	    " AND (evenement.eve_datedebut < '"+dateFin+"') AND (evenement.eve_datefin > '"+dateDebut+"')" + /* Join avec les évènements qui se passent dans la salle au créneau demandé */
+	    " AND (evenement.eve_datedebut < ?) AND (evenement.eve_datefin > ?)" + /* Join avec les évènements qui se passent dans la salle au créneau demandé */
 	    " WHERE evenement.eve_id IS NULL" + /* Aucun évènement qui se passe dans la salle au créneau demandé (LEFT JOIN, donc aucune correspondance -> colonnes null) */
 	    " AND salle.salle_capacite>=" + capacite + /* Vérifie la capacité de la salle */
 	    " GROUP BY salle.salle_id"; /* On somme les matériels *par salle* */
@@ -376,8 +362,13 @@ public class SalleGestion {
 
 		ArrayList<SalleIdentifie> resultatRecherche = new ArrayList<SalleIdentifie>();
 		try {
+			// Prépare la requête
+			PreparedStatement requetePreparee = _bdd.getConnection().prepareStatement(requeteString);
+			requetePreparee.setTimestamp(1, new Timestamp(dateFin.getTime()));
+			requetePreparee.setTimestamp(2, new Timestamp(dateDebut.getTime()));
+			
 		    // Effectue la requête
-			ResultSet requete = _bdd.executeRequest(requeteString);
+			ResultSet requete = requetePreparee.executeQuery();
 
 			// Balayage pour chaque élément retour de la requête
 			while(requete.next()) {
