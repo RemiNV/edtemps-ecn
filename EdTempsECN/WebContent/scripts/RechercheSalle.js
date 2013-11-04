@@ -9,6 +9,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
 		
 		this.multiSelectResultatsInitiated = false;
+		this.idSallesSelectionnees = null;
 		
 		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
 		this.jqDate = this.jqRechercheSalleForm.find("#form_recherche_salle_date");
@@ -238,7 +239,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 					for (var i = 0 ; i < maxI ; i++) {
 						str += "<tr>";
 						str += "<td class='libelle'>" + data.data.listeMateriels[i].nom + "</td>";
-						str += "<td class='quantite'><input type='number' materiel-id='" + data.data.listeMateriels[i].id + "' value='0' /></td>";
+						str += "<td class='quantite'><input type='number' class='input_small' materiel-id='" + data.data.listeMateriels[i].id + "' value='0' /></td>";
 						str += "</tr>";
 					}
 					
@@ -304,7 +305,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * @param callbackChargement
 	 * 		méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
 	 * 		Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
-	 * 		par le paramètre suivant "callback"
+	 * 		par le paramètre suivant "callback". Un message d'erreur est déjà affiché dans cette méthode en cas d'erreur.
 	 * 
 	 * @param callback
 	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
@@ -380,7 +381,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 
 			// Initialisation d'une liste d'identifiants de salles sélectionnées
 			// C'est un objet référencé par l'identifiant de la salle et qui porte true si la salle est sélectionnée
-			var idSallesSelectionnees = new Object();
+			this.idSallesSelectionnees = new Object();
 
 			// Paramètres de l'objet multiSelect
 			if(!this.multiSelectResultatsInitiated) {
@@ -398,10 +399,10 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 						me.qs2 = $selectionSearch.quicksearch(selectionSearchString);
 				    },
 					afterSelect: function(idSalle) {
-						idSallesSelectionnees[idSalle]=true;
+						me.idSallesSelectionnees[idSalle]=true;
 					},
 					afterDeselect: function(idSalle) {
-						idSallesSelectionnees[idSalle]=false;
+						me.idSallesSelectionnees[idSalle]=false;
 					}
 				});
 				
@@ -423,12 +424,13 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				for (var i = 0; i < maxI; i++) {
 					// Salle en cours de traitement
 					var salle = data.sallesDisponibles[i];
-					if (idSallesSelectionnees[salle.id]) {
+					if (me.idSallesSelectionnees[salle.id]) {
 						sallesSelectionnees.push(salle);
 					}
 				}
 				// Appelle la méthode de callback avec les salles sélectionnées en paramètres
 				callback(sallesSelectionnees);
+				me.jqRechercheSalleResultat.dialog("close");
 			});
 
 			// Affichage de la boîte de dialogue résultat
