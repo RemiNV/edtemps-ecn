@@ -27,7 +27,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		});
 		
 		$("#btn_chercher_salle").click(function(e) {
-			me.rechercheSalle.init();
+			me.rechercheSalle.show();
 		});
 		
 		$("#btn_ajout_evenement").click(function(e) {

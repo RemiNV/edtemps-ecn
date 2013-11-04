@@ -271,7 +271,6 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 		if(!this.initAppele) {
 			this.init();
-			this.initAppele = true;
 		}
 		
 		this.jqDialog.dialog("open");
@@ -324,6 +323,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			
 			me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
 		}
+
+		this.initAppele = true;
 	};
 	
 	return AjoutEvenement;

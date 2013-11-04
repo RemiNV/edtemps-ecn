@@ -8,39 +8,35 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.jqRechercheSalleForm = jqRechercheSalle.find("#form_chercher_salle");
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
 		
-		this.multiSelectResultatsInitiated = false;
+		this.initAppele = false;
+		this.initDialogResultatAppele = false;
 		this.idSallesSelectionnees = null;
+		this.sallesDisponibles = null;
+		this.callbackSelectionSalles = null;
 		
 		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
 		this.jqDate = this.jqRechercheSalleForm.find("#form_recherche_salle_date");
 		this.jqHeureDebut = this.jqRechercheSalleForm.find("#form_recherche_salle_debut");
 		this.jqHeureFin = this.jqRechercheSalleForm.find("#form_recherche_salle_fin");
-		this.jqCapacite = this.jqRechercheSalleForm.find("#form_recherche_salle_capacite");
-
-		// Ecrit la liste des matériels disponibles
+		this.jqCapacite = this.jqRechercheSalleForm.find("#form_recherche_salle_capacite");		
+	};
+	
+	/**
+	 * Affiche la boîte de dialogue de recherche d'une salle libre
+	 */
+	RechercheSalle.prototype.show = function() {
+		if(!this.initAppele) {
+			this.init();
+			this.initAppele = true;
+		}
 		
-		// Blocage du bouton de validation avant le chargement des matériels
-		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
-		this.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
-		this.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Chargement des options de matériel...");
-		
-		var me = this;
-		this.ecritListeMateriel(this.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"), function(success, nbMateriels) {
-			if(success) {
-				// Reactivation du bouton de recherche
-				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
-				me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
-				
-				// S'il n'y a pas de produits en base de données, on cache le tableau dans le formulaire
-				if(nbMateriels === 0) {
-					me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").hide();
-				}
-			}
-		});
+		this.jqRechercheSalleForm.dialog("open");
 	};
 
 	/**
-	 * Initialise et affiche la boîte de dialogue de recherche d'une salle libre
+	 * Initialise la boîte de dialogue de recherche d'une salle libre
+	 * Doit être appelé uniquement une fois.
+	 * Est automatiquement appelé par show() si nécessaire.
 	 */
 	RechercheSalle.prototype.init = function() {
 		var me = this;
@@ -118,8 +114,30 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
                 firstDay: 1
         });
         
+        // Ecrit la liste des matériels disponibles
+		
+		// Blocage du bouton de validation avant le chargement des matériels
+		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
+		this.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
+		this.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Chargement des options de matériel...");
+		
+		var me = this;
+		this.ecritListeMateriel(this.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"), function(success, nbMateriels) {
+			if(success) {
+				// Reactivation du bouton de recherche
+				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
+				me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
+				
+				// S'il n'y a pas de produits en base de données, on cache le tableau dans le formulaire
+				if(nbMateriels === 0) {
+					me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").hide();
+				}
+			}
+		});
+        
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		this.jqRechercheSalleForm.dialog({
+			autoOpen: false,
 			width: 440,
 			modal: true,
 			show: {
@@ -132,6 +150,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			}
 		});
 
+		this.initAppele = true;
 	};
 
 	/**
@@ -343,6 +362,65 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		
 	};
 	
+	RechercheSalle.prototype.initDialogResultat = function() {
+		
+		var me = this;
+		
+		// Affectation d'une méthode au clic sur le bouton "Fermer"
+		this.jqRechercheSalleResultat.find("#resultat_chercher_salle_fermer").click(function() {
+			me.jqRechercheSalleResultat.dialog("close");
+		});
+
+		// Affectation d'une méthode au clic sur le bouton "Créer un événement"
+		this.jqRechercheSalleResultat.find("#resultat_chercher_salle_creer").click(function() {
+			// Récupération des salles sélectionnées
+			var sallesSelectionnees = new Array();
+			for (var i = 0, maxI = me.sallesDisponibles.length; i < maxI; i++) {
+				// Salle en cours de traitement
+				var salle = me.sallesDisponibles[i];
+				if (me.idSallesSelectionnees[salle.id]) {
+					sallesSelectionnees.push(salle);
+				}
+			}
+			// Appelle la méthode de callback avec les salles sélectionnées en paramètres
+			me.callbackSelectionSalles(sallesSelectionnees);
+			me.jqRechercheSalleResultat.dialog("close");
+		});
+		
+		// Paramètres de l'objet multiSelect
+		this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").multiSelect({
+			selectableHeader: "Salles disponibles :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
+			selectionHeader: "Salles sélectionnées :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
+			afterInit: function(ms){
+				var me = this,
+				$selectableSearch = me.$selectableUl.prev(),
+				$selectionSearch = me.$selectionUl.prev(),
+				selectableSearchString = '#'+me.$container.attr('id')+' .ms-elem-selectable:not(.ms-selected)',
+				selectionSearchString = '#'+me.$container.attr('id')+' .ms-elem-selection.ms-selected';
+
+				me.qs1 = $selectableSearch.quicksearch(selectableSearchString);
+				me.qs2 = $selectionSearch.quicksearch(selectionSearchString);
+		    },
+			afterSelect: function(idSalle) {
+				me.idSallesSelectionnees[idSalle]=true;
+			},
+			afterDeselect: function(idSalle) {
+				me.idSallesSelectionnees[idSalle]=false;
+			}
+		});
+
+		// Affichage de la boîte de dialogue résultat
+		this.jqRechercheSalleResultat.dialog({
+			autoOpen: false,
+			width: 400,
+			modal: true,
+			show: { effect: "fade", duration: 200 },
+			hide: { effect: "explode", duration: 200 }
+		});
+		
+		this.initDialogResultatAppele = true;
+	};
+	
 	
 	/**
 	 * Méthode qui affiche le résultat
@@ -354,13 +432,20 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
 	RechercheSalle.prototype.afficherResultat = function(data, callback) {
-
+		
+		if(!this.initDialogResultatAppele) {
+			this.initDialogResultat();
+		}
+		
+		// Stockage pour utilisation lors du clic sur le bouton "ajouter un évènement" (callback initialisé dans initDialogResultat)
+		this.sallesDisponibles = data.sallesDisponibles;
+		this.callbackSelectionSalles = callback;
+		
 		// Calcule le nombre de salles
 		var maxI = data.sallesDisponibles.length;
 		
 		// S'il y a des salles, on les affiche dans une boîte de dialogue
 		if (maxI>0) {
-			var me = this;
 			
 			// Variable recevant progressivement le code HTML à ajouter à l'élément MultiSelect
 			var html = "";
@@ -377,69 +462,15 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				html += "<option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+"</option>";
 			}
 			// Affichage
-			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").html(html);
+			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").html(html)
+				.multiSelect("refresh");
 
-			// Initialisation d'une liste d'identifiants de salles sélectionnées
+			// Remise à zéro d'une liste d'identifiants de salles sélectionnées
 			// C'est un objet référencé par l'identifiant de la salle et qui porte true si la salle est sélectionnée
 			this.idSallesSelectionnees = new Object();
 
-			// Paramètres de l'objet multiSelect
-			if(!this.multiSelectResultatsInitiated) {
-				this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").multiSelect({
-					selectableHeader: "Salles disponibles :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
-					selectionHeader: "Salles sélectionnées :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
-					afterInit: function(ms){
-						var me = this,
-						$selectableSearch = me.$selectableUl.prev(),
-						$selectionSearch = me.$selectionUl.prev(),
-						selectableSearchString = '#'+me.$container.attr('id')+' .ms-elem-selectable:not(.ms-selected)',
-						selectionSearchString = '#'+me.$container.attr('id')+' .ms-elem-selection.ms-selected';
-	
-						me.qs1 = $selectableSearch.quicksearch(selectableSearchString);
-						me.qs2 = $selectionSearch.quicksearch(selectionSearchString);
-				    },
-					afterSelect: function(idSalle) {
-						me.idSallesSelectionnees[idSalle]=true;
-					},
-					afterDeselect: function(idSalle) {
-						me.idSallesSelectionnees[idSalle]=false;
-					}
-				});
-				
-				this.multiSelectResultatsInitiated = true;
-			}
-			else {
-				this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").multiSelect("refresh");
-			}
-
-			// Affectation d'une méthode au clic sur le bouton "Fermer"
-			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_fermer").click(function() {
-				me.jqRechercheSalleResultat.dialog("close");
-			});
-
-			// Affectation d'une méthode au clic sur le bouton "Créer un événement"
-			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_creer").click(function() {
-				// Récupération des salles sélectionnées
-				var sallesSelectionnees = new Array();
-				for (var i = 0; i < maxI; i++) {
-					// Salle en cours de traitement
-					var salle = data.sallesDisponibles[i];
-					if (me.idSallesSelectionnees[salle.id]) {
-						sallesSelectionnees.push(salle);
-					}
-				}
-				// Appelle la méthode de callback avec les salles sélectionnées en paramètres
-				callback(sallesSelectionnees);
-				me.jqRechercheSalleResultat.dialog("close");
-			});
-
-			// Affichage de la boîte de dialogue résultat
-			this.jqRechercheSalleResultat.dialog({
-				width: 400,
-				modal: true,
-				show: { effect: "fade", duration: 200 },
-				hide: { effect: "explode", duration: 200 }
-			});
+			// Affichage de la dialog
+			this.jqRechercheSalleResultat.dialog("open");
 			
 		} else {
 			window.showToast("Aucune salle disponible avec ces critères");
