@@ -58,16 +58,20 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				var param_dateFin = me.jqDate.val() + " " + me.jqHeureFin.val() + ":00";
 
 				// Création de la liste des matériels nécessaires
-				var listeMateriel = new Array();
-				me.jqRechercheSalleForm.find(".quantite input[type=number]").each(function() {
-					var materiel = new Object();
-					materiel.id=$(this).attr("materiel-id");
-					materiel.quantite=$(this).val();
-					listeMateriel.push(materiel);
-				});
+				var listeMateriel = me.getContenuListeMateriel(me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"));
+				
+				// Message d'attente
+				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
+				me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
+				me.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Recherche...");
 
 				// Appel de la méthode de recherche de salle
-				me.getSalle(param_dateDebut, param_dateFin, me.jqCapacite.val(), listeMateriel, function(data) { alert(data.length + " salles sélectionnées - Action à déterminer"); });
+				me.getSalle(param_dateDebut, param_dateFin, me.jqCapacite.val(), listeMateriel, function() {
+					// Supression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
+					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
+					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
+				}, 
+				function(data) { alert(data.length + " salles sélectionnées - Action à déterminer"); });
 
 			}
 		});
@@ -251,6 +255,23 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	};
 	
 	/**
+	 * Récupération des matériels rentrés dans un tableau de matériel écrit par ecritListeMateriel()
+	 * @param jqTableMateriel Tableau à examiner
+	 * @returns {Array} Tableau des matériels trouvés, avec chacun pour attributs "id" et "quantite"
+	 */
+	RechercheSalle.prototype.getContenuListeMateriel = function(jqTableMateriel) {
+		var listeMateriel = new Array();
+		jqTableMateriel.find(".quantite input[type=number]").each(function() {
+			var materiel = new Object();
+			materiel.id=$(this).attr("materiel-id");
+			materiel.quantite=$(this).val();
+			listeMateriel.push(materiel);
+		});
+		
+		return listeMateriel;
+	};
+	
+	/**
 	 * Méthode qui effectue la requête
 	 * 
 	 * @param dateDebut
@@ -265,16 +286,16 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * @param materiels
 	 * 		liste du matériel nécessaire : une liste d'objets qui possèdent deux attributs : id et quantité
 	 * 
+	 * @param callbackChargement
+	 * 		méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
+	 * 		Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
+	 * 		par le paramètre suivant "callback"
+	 * 
 	 * @param callback
 	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
-	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, callback) {
+	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, callbackChargement, callback) {
 		var me = this;
-
-		// Message d'attente
-		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
-		this.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
-		this.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Recherche...");
 
 		// Création d'une chaine de caractère pour traiter la liste de matériel
 		// La syntaxe choisie est :
@@ -293,16 +314,15 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			dateDebut: dateDebut, dateFin: dateFin, effectif: effectif, materiel: listeMaterielQuantite, token: this.restManager.getToken()
 		}, function(response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
+				callbackChargement(true);
 				me.afficherResultat(response.data, callback);
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la recheche d'une salle libre ; vérifiez votre connexion.");
+				callbackChargement(false);
 			} else {
 				window.showToast(response.resultCode + " Erreur lors de la recheche d'une salle libre ; votre session a peut-être expiré ?");
+				callbackChargement(false);
 			}
-			
-			// Supression message d'attente
-			me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
-			me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
 		});
 		
 	};

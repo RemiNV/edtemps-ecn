@@ -7,12 +7,13 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		this.strOptionsCalendriers = null; // HTML à ajouter au select pour sélectionner les calendriers
 		this.rechercheSalle = rechercheSalle;
 		this.sallesSelectionnees = new Array();
+		this.initAppele = false;
 		
 		// Initialisation de la dialog
 		jqDialog.dialog({
 			autoOpen: false,
 			modal: true,
-			width: 600,
+			width: 670,
 			show: { effect: "fade", duration: 200 },
 			hide: { effect: "explode", duration: 200 }
 		});
@@ -21,14 +22,41 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		jqDialog.find("#heure_debut").mask("99:99");
 		jqDialog.find("#heure_fin").mask("99:99");
 		
+		// Ajout du datepicker sur le champ date
+        jqDialog.find("#date_evenement").mask("99/99/9999").datepicker({
+                showAnim : 'slideDown',
+                showOn: 'button',
+                buttonText: "Calendrier",
+                dateFormat: "dd/mm/yy",
+                buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
+                buttonImageOnly: true, // affiche l'image sans bouton
+                monthNamesShort: [ "Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jui", "Aou", "Sep", "Oct", "Nov", "Dec" ],
+                monthNames: [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ],
+                dayNamesMin: [ "Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa" ],
+                dayNames: [ "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi" ],
+                gotoCurrent: true,
+                prevText: "Précédent",
+                nextText: "Suivant",
+                constrainInput: true,
+                firstDay: 1
+        });
+		
 		// Listeners
 		var me = this;
-		jqDialog.find("#btn_ajout_evenement").click(function() {
+		jqDialog.find("#btn_valider_ajout_evenement").click(function() {
 			me.lancerRechercheSalle();
 		});
+		
+		
 	};
 	
 	AjoutEvenement.prototype.lancerRechercheSalle = function() {
+		
+		var formData = this.getDonneesFormulaire();
+		
+		if(formData.valideRechercheSalle) {
+			// this.rechercheSalle.
+		}
 		
 	};
 	
@@ -60,7 +88,10 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * - calendriers : tableau d'ID de calendriers
 	 * - dateDebut : date JavaScript
 	 * - dateFin : date JavaScript
+	 * - materiel : matériel sélectionné pour l'évènement
 	 * - salles : tableau d'ID de salles
+	 * 
+	 * @return Données du formulaire selon la syntaxe précédente
 	 */
 	AjoutEvenement.prototype.getDonneesFormulaire = function() {
 		var res = {
@@ -86,32 +117,47 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			res.calendriers.push(parseInt($(this).val()));
 		});
 		
-		var strDate = validateNotEmpty(jqDate);
+		var strDate = false;
+		
+		try {
+			var date = $.datepicker.parseDate(jqDate.val());
+			strDate = $.datepicker.formatDate("yy-mm-dd", date);
+			jqDate.addClass("valide").removeClass("invalide");
+		}
+		catch(parseError) {
+			jqDate.addClass("invalide").removeClass("valide");
+		}
 		
 		var heureDebut = validateNotEmpty(jqHeureDebut);
 		var heureFin = validateNotEmpty(jqHeureFin);
 		
 		
-		if(strDate !== "" && heureDebut !== "") {
+		if(strDate && heureDebut !== "") {
 			res.dateDebut = new Date(strDate + " " + heureDebut);
 		}
 		else {
 			res.dateDebut = null;
 		}
 		
-		if(strDate !== "" && heureFin !== "") {
+		if(strDate && heureFin !== "") {
 			res.dateFin = new Date(strDate + " " + heureFin);
 		}
 		else {
 			res.dateFin = null;
 		}
 		
+		res.materiel = this.rechercheSalle.getContenuListeMateriel(this.jqDialog.find("#tbl_materiel"));
 		res.salles = this.sallesSelectionnees;
 		
-		// TODO : ajout du matériel
 		if(res.dateDebut != null && res.dateFin != null) {
+			res.valideRechercheSalle = true;
 			
+			if(res.nom !== "" && res.calendriers.length > 0 && res.salles.length > 0) {
+				res.valide = true;
+			}
 		}
+		
+		return res;
 	};
 	
 	/**
@@ -150,16 +196,27 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		});
 	};
 	
-	
 	/**
 	 * Affichage de la boîte de dialogue d'ajout d'évènement
 	 */
 	AjoutEvenement.prototype.show = function() {
 		
-		this.jqDialog.dialog("open");
+		if(!this.initAppele) {
+			this.init();
+			this.initAppele = true;
+		}
 		
+		this.jqDialog.dialog("open");
+	};
+	
+	/**
+	 * Initialisation de la boîte de dialogue d'ajout d'évènement, ne l'affiche pas.
+	 * Doit être appelé uniquement une fois.
+	 * Est automatiquement appelé par show() si nécessaire.
+	 */
+	AjoutEvenement.prototype.init = function() {
 		// Récupération des calendriers auxquels l'utilisateur peut ajouter des évènements
-		this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
+		// this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Chargement des options de matériel...");
 		
