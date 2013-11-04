@@ -70,6 +70,7 @@
  	border: solid 1px gray;
  	border-radius: 5px;
  	padding: 2px;
+ 	display: none;
  }
 
 .ui-datepicker .ui-datepicker-prev {
