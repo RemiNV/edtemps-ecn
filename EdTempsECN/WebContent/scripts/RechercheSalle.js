@@ -101,7 +101,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
         // Ajout du datepicker sur le champ date
         this.jqDate.datepicker({
                 showAnim : 'slideDown',
-                showOn: 'button',
+                showOn: 'button', // "both" pourrait être utilisé mais le datepicker serait ouvert à l'ouverture de la dialog (focus sur le champ)
                 buttonText: "Calendrier",
                 dateFormat: "dd/mm/yy",
                 buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier

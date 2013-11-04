@@ -25,7 +25,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		// Ajout du datepicker sur le champ date
         jqDialog.find("#date_evenement").mask("99/99/9999").datepicker({
                 showAnim : 'slideDown',
-                showOn: 'button',
+                showOn: 'both',
                 buttonText: "Calendrier",
                 dateFormat: "dd/mm/yy",
                 buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
@@ -55,7 +55,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		var formData = this.getDonneesFormulaire();
 		
 		if(formData.valideRechercheSalle) {
-			// this.rechercheSalle.
+			// TODO : compléter après ajout d'effectifs
+			// this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, )
 		}
 		
 	};
@@ -104,7 +105,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		var jqHeureDebut = this.jqDialog.find("#heure_debut");
 		var jqHeureFin = this.jqDialog.find("#heure_fin");
 		
-		
+		// Validation du nom
 		res.nom = validateNotEmpty(jqNom);
 		
 		// Récupération de la liste des propriétaires à implémenter
@@ -117,6 +118,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			res.calendriers.push(parseInt($(this).val()));
 		});
 		
+		// Validation du jour
 		var strDate = false;
 		
 		try {
@@ -135,6 +137,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			jqDate.addClass("invalide").removeClass("valide");
 		}
 		
+		// Validation des dates de début et fin
 		var heureDebut = validateNotEmpty(jqHeureDebut);
 		var heureFin = validateNotEmpty(jqHeureFin);
 		
@@ -153,9 +156,18 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			res.dateFin = null;
 		}
 		
+		// Récupération des matériels et salles
 		res.materiel = this.rechercheSalle.getContenuListeMateriel(this.jqDialog.find("#tbl_materiel"));
 		res.salles = this.sallesSelectionnees;
 		
+		if(res.salles.length == 0) {
+			$("#btn_rechercher_salle_evenement").addClass("invalide").removeClass("valide");
+		}
+		else {
+			$("#btn_rechercher_salle_evenement").addClass("valide").removeClass("invalide");
+		}
+		
+		// Remplissage de res.valide et res.valideRechercheSalle
 		if(res.dateDebut != null && res.dateFin != null) {
 			res.valideRechercheSalle = true;
 			

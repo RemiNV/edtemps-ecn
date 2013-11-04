@@ -371,11 +371,11 @@ table.liste_materiel th {
 
 input.invalide {
 	box-shadow: #FF0000 0 0 10px;
-	border: 1px solid #FF0000;
+	border: 1px solid #FF0000 !important;
 }
 
 input.valide {
 	box-shadow: #60C003 0 0 10px;
-	border: 1px solid #FF0000;
+	border: 1px solid #FF0000 !important;
 }
 
