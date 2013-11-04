@@ -121,10 +121,17 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 		try {
 			var date = $.datepicker.parseDate("dd/mm/yy", jqDate.val());
-			strDate = $.datepicker.formatDate("yy-mm-dd", date);
-			jqDate.addClass("valide").removeClass("invalide");
+			
+			if(jqDate.val() != "") {
+				strDate = $.datepicker.formatDate("yy-mm-dd", date);
+				jqDate.addClass("valide").removeClass("invalide");
+			}
 		}
 		catch(parseError) {
+			// Rien ici : strDate sera à false en cas d'erreur de parsing de la date
+		}
+		
+		if(!strDate) {
 			jqDate.addClass("invalide").removeClass("valide");
 		}
 		

@@ -150,7 +150,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			dateValid = false;
 		}
 		
-		if (!dateValid) {
+		if (!dateValid || this.jqDate.val() === "") {
 			this.bordureSurChamp(this.jqDate, "#FF0000");
 			valid = false;
 		} else {
