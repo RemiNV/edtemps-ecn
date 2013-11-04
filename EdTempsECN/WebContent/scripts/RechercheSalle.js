@@ -8,6 +8,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.jqRechercheSalleForm = jqRechercheSalle.find("#form_chercher_salle");
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
 		
+		this.multiSelectResultatsInitiated = false;
+		
 		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
 		this.jqDate = this.jqRechercheSalleForm.find("#form_recherche_salle_date");
 		this.jqHeureDebut = this.jqRechercheSalleForm.find("#form_recherche_salle_debut");
@@ -381,26 +383,33 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			var idSallesSelectionnees = new Object();
 
 			// Paramètres de l'objet multiSelect
-			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").multiSelect({
-				selectableHeader: "Salles disponibles :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
-				selectionHeader: "Salles sélectionnées :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
-				afterInit: function(ms){
-					var me = this,
-					$selectableSearch = me.$selectableUl.prev(),
-					$selectionSearch = me.$selectionUl.prev(),
-					selectableSearchString = '#'+me.$container.attr('id')+' .ms-elem-selectable:not(.ms-selected)',
-					selectionSearchString = '#'+me.$container.attr('id')+' .ms-elem-selection.ms-selected';
-
-					me.qs1 = $selectableSearch.quicksearch(selectableSearchString);
-					me.qs2 = $selectionSearch.quicksearch(selectionSearchString);
-			    },
-				afterSelect: function(idSalle) {
-					idSallesSelectionnees[idSalle]=true;
-				},
-				afterDeselect: function(idSalle) {
-					idSallesSelectionnees[idSalle]=false;
-				}
-			});
+			if(!this.multiSelectResultatsInitiated) {
+				this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").multiSelect({
+					selectableHeader: "Salles disponibles :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
+					selectionHeader: "Salles sélectionnées :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
+					afterInit: function(ms){
+						var me = this,
+						$selectableSearch = me.$selectableUl.prev(),
+						$selectionSearch = me.$selectionUl.prev(),
+						selectableSearchString = '#'+me.$container.attr('id')+' .ms-elem-selectable:not(.ms-selected)',
+						selectionSearchString = '#'+me.$container.attr('id')+' .ms-elem-selection.ms-selected';
+	
+						me.qs1 = $selectableSearch.quicksearch(selectableSearchString);
+						me.qs2 = $selectionSearch.quicksearch(selectionSearchString);
+				    },
+					afterSelect: function(idSalle) {
+						idSallesSelectionnees[idSalle]=true;
+					},
+					afterDeselect: function(idSalle) {
+						idSallesSelectionnees[idSalle]=false;
+					}
+				});
+				
+				this.multiSelectResultatsInitiated = true;
+			}
+			else {
+				this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").multiSelect("refresh");
+			}
 
 			// Affectation d'une méthode au clic sur le bouton "Fermer"
 			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_fermer").click(function() {
