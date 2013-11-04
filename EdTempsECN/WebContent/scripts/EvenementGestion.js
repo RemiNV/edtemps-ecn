@@ -158,6 +158,17 @@ define(["RestManager"], function(RestManager) {
 				matieres.push(this.matieresCalendriers[idCalendriers[j]]);
 			}
 		
+			// Est-ce que l'utilisateur est propriétaire
+			var proprietaire = false;
+			if(window.localStorage && window.localStorage["userId"]) {
+				for (var j=0, maxJ = evenements[i].responsables.length; j<maxJ; j++) {
+					if (evenements[i].responsables[j].id==window.localStorage["userId"]) {
+						proprietaire = true;
+						break;
+					}
+				}
+			}
+			
 			res[i] = {
 				id: evenements[i].id,
 				title: evenements[i].nom,
@@ -170,7 +181,8 @@ define(["RestManager"], function(RestManager) {
 				responsables: evenements[i].responsables,
 				matieres: matieres,
 				types: types,
-				allDay: false
+				allDay: false,
+				editable: proprietaire ? true : false
 			};
 		}
 	

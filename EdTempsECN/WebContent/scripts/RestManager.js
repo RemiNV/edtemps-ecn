@@ -31,7 +31,13 @@ define(["jquery"], function() {
 			window.localStorage["token"] = token;
 		}
 	};
-	
+
+	RestManager.prototype.setUserId = function(userId) {
+		if(window.localStorage) {
+			window.localStorage["userId"] = userId;
+		}
+	};
+
 	/* Fonction de connexion auprès du serveur.
 	 * Param identifiant : identifiant de l'utilisateur
 	 * Param pass : mot de passe de l'utilisateur
@@ -48,6 +54,7 @@ define(["jquery"], function() {
 			
 				if(response.resultCode == RestManager.resultCode_Success) { // Succès de l'identification
 					me.setToken(response.data.token);
+					me.setUserId(response.data.id);
 					me._isConnected = true;
 				}
 				

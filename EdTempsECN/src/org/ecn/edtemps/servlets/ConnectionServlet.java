@@ -58,6 +58,7 @@ public class ConnectionServlet extends HttpServlet {
 				
 				JsonObject data = Json.createObjectBuilder()
 						.add("token", token)
+						.add("id", utilisateurGestion.getUserId())
 						.build();
 				
 				reponse = ResponseManager.generateResponse(result, "", data);
