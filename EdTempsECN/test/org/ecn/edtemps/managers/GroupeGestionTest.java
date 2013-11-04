@@ -1,5 +1,7 @@
 package org.ecn.edtemps.managers;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,10 +58,12 @@ public class GroupeGestionTest {
 	
 
 	@Test
-	public void testSauverGetSupprimer() throws EdtempsException {
+	public void testSauverGetSupprimer() throws EdtempsException, SQLException {
 		
 		// Récupération d'un propriétaire au pif
-		int idUtilisateur = this.bddGestion.recupererId("SELECT utilisateur_id FROM edt.utilisateur LIMIT 1", "utilisateur_id");
+		PreparedStatement requetePreparee = bddGestion.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.utilisateur LIMIT 1");
+		int idUtilisateur = this.bddGestion.recupererId(requetePreparee, "utilisateur_id");
 		
 		assertTrue(idUtilisateur > 0); // La base de données doit contenir au moins un utilisateur qui peut être un propriétaire
 		

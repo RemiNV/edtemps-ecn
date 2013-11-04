@@ -1,5 +1,6 @@
 package org.ecn.edtemps.managers;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -52,10 +53,18 @@ public class CalendrierGestion {
 		int matiere_id;
 		int type_id;
 		try {
-			// TODO : éviter les injections SQL
-			matiere_id = _bdd.recupererId("SELECT * FROM edt.matiere WHERE matiere_nom='" + matiere + "'", "matiere_id");
-			type_id = _bdd.recupererId("SELECT * FROM edt.typecalendrier WHERE typecal_libelle='" + type + "'", "typecal_id");
-		} catch (DatabaseException e){
+			// Récupération de l'id de la matière
+			PreparedStatement matiere_id_prepare = _bdd.getConnection().prepareStatement(
+					"SELECT * FROM edt.matiere WHERE matiere_nom=?");
+			matiere_id_prepare.setString(1, matiere);
+			matiere_id = _bdd.recupererId(matiere_id_prepare, "matiere_id");
+
+			// Récupération de l'id du type
+			PreparedStatement type_id_prepare = _bdd.getConnection().prepareStatement(
+					"SELECT * FROM edt.typecalendrier WHERE typecal_libelle=?");
+			type_id_prepare.setString(1, type);
+			type_id = _bdd.recupererId(type_id_prepare, "typecal_id");
+		} catch (SQLException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 		
@@ -67,9 +76,11 @@ public class CalendrierGestion {
 				_bdd.startTransaction();
 				
 				// On crée le calendrier dans la base de données
-				// TODO : éviter les injections SQL
-				ResultSet rs_ligneCreee = _bdd.executeRequest("INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id) "
-						+ "VALUES ( " + matiere_id + ", '" + nom + "', " + type_id + ") RETURNING cal_id");
+				PreparedStatement rs_ligneCreee_prepare = _bdd.getConnection().prepareStatement(
+						"INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id)" +
+						" VALUES (" + matiere_id + ", ?, " + type_id + ") RETURNING cal_id");
+				rs_ligneCreee_prepare.setString(1, nom);
+				ResultSet rs_ligneCreee = rs_ligneCreee_prepare.executeQuery();
 				
 				// On récupère l'id du calendrier créé
 				rs_ligneCreee.next();
@@ -198,24 +209,31 @@ public class CalendrierGestion {
 			int matiere_id;
 			int type_id;
 			try {
-				matiere_id = _bdd.recupererId("SELECT * FROM edt.matiere WHERE matiere_nom LIKE '" + calId.getMatiere() + "'", "matiere_id");
-				type_id = _bdd.recupererId("SELECT * FROM edt.typecalendrier WHERE typecal_libelle LIKE '" + calId.getType() + "'", "typecal_id");
-			} catch (DatabaseException e){
+				// Récupération de l'id de la matière
+				PreparedStatement matiere_id_prepare = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.matiere WHERE matiere_nom LIKE ?");
+				matiere_id_prepare.setString(1, calId.getMatiere());
+				matiere_id = _bdd.recupererId(matiere_id_prepare, "matiere_id");
+
+				// Récupération de l'id du type
+				PreparedStatement type_id_prepare = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.typecalendrier WHERE typecal_libelle LIKE ?");
+				type_id_prepare.setString(1, calId.getType());
+				type_id = _bdd.recupererId(type_id_prepare, "typecal_id");
+			} catch (SQLException e){
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 			}
 			
 			// Modifier matiere, nom, type du calendrier
-			_bdd.executeRequest(
-					"UPDATE edtcalendrier "
-					+ "SET (matiere_id, cal_nom, typeCal_id) = "
-					+ "(" + matiere_id + ", '" + calId.getNom() + "', " + type_id + ") "
+			PreparedStatement requete = _bdd.getConnection().prepareStatement(
+					"UPDATE edtcalendrier SET (matiere_id, cal_nom, typeCal_id) = "
+					+ "(" + matiere_id + ", ?, " + type_id + ") "
 					+ "WHERE cal_id = " + calId.getId() );
-		
+			requete.setString(1, calId.getNom());
+			requete.execute();
+			
 			// Supprimer ancienne liste de propriétaires du calendrier
-			_bdd.executeRequest(
-					"DELETE FROM edt.proprietairecalendrier "
-					 + "WHERE cal_id = " + calId.getId() 
-			);
+			_bdd.executeRequest("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
 			
 			// Ajouter nouvelle liste de propriétaires du calendrier		
 			Iterator<Integer> itrProprios = calId.getIdProprietaires().iterator();

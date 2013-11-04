@@ -3,7 +3,6 @@ package org.ecn.edtemps.managers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -364,8 +363,8 @@ public class SalleGestion {
 		try {
 			// Prépare la requête
 			PreparedStatement requetePreparee = _bdd.getConnection().prepareStatement(requeteString);
-			requetePreparee.setTimestamp(1, new Timestamp(dateFin.getTime()));
-			requetePreparee.setTimestamp(2, new Timestamp(dateDebut.getTime()));
+			requetePreparee.setTimestamp(1, new java.sql.Timestamp(dateFin.getTime()));
+			requetePreparee.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
 			
 		    // Effectue la requête
 			ResultSet requete = requetePreparee.executeQuery();

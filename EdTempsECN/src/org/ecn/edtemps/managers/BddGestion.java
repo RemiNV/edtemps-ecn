@@ -123,8 +123,7 @@ public class BddGestion {
 	 * @throws DatabaseException
 	 *             si une erreur intervient lors d'exécution de la requête
 	 */
-	public ResultSet executeRequest(String request)
-			throws DatabaseException {
+	public ResultSet executeRequest(String request) throws DatabaseException {
 
 		ResultSet resultat = null;
 
@@ -178,7 +177,7 @@ public class BddGestion {
 	/**
 	 * Récupérer l'ID (contenu dans la colonne <nomColonne>) d'une ligne spécifique d'une table
 	 * 
-	 * @param requete : requête à effectuer, devant retourner une et une seule ligne 
+	 * @param requete : requête préparée à effectuer, devant retourner une et une seule ligne 
 	 * @param nomColonne : nom de la colonne contenant l'id
 	 * 
 	 * @return id : id de la ligne cherchée 
@@ -187,7 +186,7 @@ public class BddGestion {
 	 * @throws DatabaseException
 	 *            si une erreur intervient lors d'exécution de la requête
 	 */
-	public int recupererId(String request, String nomColonne) throws DatabaseException {
+	public int recupererId(PreparedStatement request, String nomColonne) throws DatabaseException {
 		
 		ArrayList<Integer> ids = recupererIds(request, nomColonne);
 		
@@ -202,18 +201,18 @@ public class BddGestion {
 	
 	/**
 	 * Récupération des IDs (contenus dans la colonne <nomColonne>) des éléments retournés par une requête
-	 * @param request Requête à effectuer
+	 * @param request Requête préparée à effectuer
 	 * @param nomColonne Colonne à examiner pour les IDs
 	 * @return Liste des IDs trouvés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<Integer> recupererIds(String request, String nomColonne) throws DatabaseException {
+	public ArrayList<Integer> recupererIds(PreparedStatement request, String nomColonne) throws DatabaseException {
 		
 		ArrayList<Integer> lstIds = new ArrayList<Integer>();
 		
 		try {
 			// Execution requete de récupération de la ligne cherchée
-			ResultSet resultat = this.executeRequest(request);
+			ResultSet resultat = request.executeQuery();
 			// Parcourt du resultat
 			while(resultat.next()){
 				 lstIds.add(resultat.getInt(nomColonne));
