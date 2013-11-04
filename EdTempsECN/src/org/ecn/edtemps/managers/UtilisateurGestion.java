@@ -22,6 +22,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationErrorException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -40,6 +41,9 @@ public class UtilisateurGestion {
 	private static final boolean USE_SSL_LDAP = true;
 	
 	protected BddGestion bdd;
+	
+	// Identifiant de l'utilisateur
+	protected Integer userId;
 	
 	private static Logger logger = LogManager.getLogger(UtilisateurGestion.class.getName());
 	
@@ -281,7 +285,7 @@ public class UtilisateurGestion {
 			
 			bdd.startTransaction();
 			
-			Integer userId = getUserIdFromLdapId(uidNumber);
+			userId = getUserIdFromLdapId(uidNumber);
 			
 			Connection conn = bdd.getConnection();
 			if(userId != null) { // Utilisateur déjà présent en base
@@ -303,7 +307,7 @@ public class UtilisateurGestion {
 				String tokenIcal = genererToken(uidNumber);
 				
 				PreparedStatement statement = conn.prepareStatement("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_nom, utilisateur_prenom, " +
-						"utilisateur_email, utilisateur_token_expire, utilisateur_url_ical) VALUES(?, ?, ?, ?, ?, now() + interval '1 hour', ?)");
+						"utilisateur_email, utilisateur_token_expire, utilisateur_url_ical) VALUES(?, ?, ?, ?, ?, now() + interval '1 hour', ?) RETURNING utilisateur_id");
 				statement.setLong(1, uidNumber);
 				statement.setString(2, token);
 				statement.setString(3, nom);
@@ -311,7 +315,11 @@ public class UtilisateurGestion {
 				statement.setString(5,  mail);
 				statement.setString(6, tokenIcal);
 				
-				statement.execute();
+				ResultSet reponse = statement.executeQuery();
+				
+				// Récupération de l'identifiant de l'utilisateur ajouté
+				reponse.next();
+				userId = reponse.getInt(1);
 			}
 			
 			bdd.commit();
@@ -334,6 +342,11 @@ public class UtilisateurGestion {
 		}
 	}
 	
+	public Integer getUserId() {
+		return userId;
+	}
+
+
 	/**
 	 * Création d'un utilisateur à partir d'une ligne de base de données.
 	 * Colonnes nécessaires dans le ResultSet : 
