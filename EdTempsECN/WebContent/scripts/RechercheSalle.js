@@ -15,7 +15,25 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.jqCapacite = this.jqRechercheSalleForm.find("#form_recherche_salle_capacite");
 
 		// Ecrit la liste des matériels disponibles
-		this.ecritListeMateriel();
+		
+		// Blocage du bouton de validation avant le chargement des matériels
+		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
+		this.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
+		this.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Chargement des options de matériel...");
+		
+		var me = this;
+		this.ecritListeMateriel(this.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"), function(success, nbMateriels) {
+			if(success) {
+				// Reactivation du bouton de recherche
+				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
+				me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
+				
+				// S'il n'y a pas de produits en base de données, on cache le tableau dans le formulaire
+				if(nbMateriels === 0) {
+					me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").hide();
+				}
+			}
+		});
 	};
 
 	/**
@@ -175,15 +193,16 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 
 
 	/**
-	 * Ecrit la liste des matériels
+	 * Ecrit la liste des matériels disponibles sélectionnables dans un tableau fourni.
+	 * Si aucun matériel n'est sélectionnable, le tableau sera masqué.
+	 * En cas d'échec, l'affichage d'un messae d'erreur est déjà géré dans la fonction : inutile de le faire.
+	 * 
+	 * @param jqTableMateriel Tableau à populer avec les matériels
+	 * @param callback Fonction à rappeler une fois les matériels chargés et remplis.
+	 * 	Callback prend un booléen en argument indiquant le succès de la procédure, et un entier indiquant le nombre de matériels chargés
 	 */
-	RechercheSalle.prototype.ecritListeMateriel = function() {
+	RechercheSalle.prototype.ecritListeMateriel = function(jqTableMateriel, callback) {
 		var me = this;
-		
-		// Blocage du bouton de validation avant le chargement
-		this.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
-		this.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
-		this.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Chargement des options de matériel...");
 		
 		// Récupération de la liste des matériels en base de données
 		this.restManager.effectuerRequete("GET", "listemateriels", {
@@ -196,7 +215,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				if (maxI!=0) {
 
 					// Préparation du code html
-					var str = "";
+					var str = "<tr><th class='libelle'>Libellé de l'équipement</th><th class='quantite'>Quantité</th></tr>";
 					for (var i = 0 ; i < maxI ; i++) {
 						str += "<tr>";
 						str += "<td class='libelle'>" + data.data.listeMateriels[i].nom + "</td>";
@@ -205,29 +224,27 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 					}
 					
 					// Ajout du code html dans la liste de matériels
-					me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table").append(str);
+					jqTableMateriel.append(str);
+					jqTableMateriel.addClass("liste_materiel");
 			
 					// Ajout des masques sur les quantités de matériel
-					me.jqRechercheSalleForm.find(".quantite input[type=number]").each(function() {
+					jqTableMateriel.find(".quantite input[type=number]").each(function() {
 						$(this).mask("?9999", { placeholder: "" });
 						$(this).click(function() {
 							me.bordureSurChamp($(this), "#FFFFFF");
 						});
 					});
 
-				} else {
-					// S'il n'y a pas de produits en base de données, on cache le tableau dans le formulaire
-					me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").hide();
 				}
 				
-				// Reactivation du bouton de recherche
-				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
-				me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
+				callback(true, maxI);
 
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération des matériels disponibles ; vérifiez votre connexion.");
+				callback(false);
 			} else {
 				window.showToast(data.resultCode + " Erreur de récupération des matériels disponibles ; votre session a peut-être expiré ?");
+				callback(false);
 			}
 		});
 

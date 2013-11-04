@@ -127,32 +127,32 @@ ul.button_nav li:last-child {
 	text-align: right;
 }
 
-#form_chercher_salle_liste_materiel table {
+table.liste_materiel {
 	border-collapse: collapse;
 	font-size: 0.9em;
 }
 
-#form_chercher_salle_liste_materiel table tr .libelle {
+table.liste_materiel tr .libelle {
 	width: 340px;
 }
 
-#form_chercher_salle_liste_materiel table tr .quantite {
+table.liste_materiel tr .quantite {
 	width: 50px;
 }
 	
-#form_chercher_salle_liste_materiel table tr .quantite input[type=number] {
+table.liste_materiel tr .quantite input[type=number] {
 	width: 60px;
 	border: solid 1px white;
 	text-align: center;
 }
 
-#form_chercher_salle_liste_materiel table td {
+table.liste_materiel td {
 	background-color: white;
 	border: solid 1px gray;
 	padding: 0px 0px 0px 5px;
 }
 
-#form_chercher_salle_liste_materiel table th {
+table.liste_materiel th {
 	text-align: left;
 	border: solid 1px gray;
 	padding: 2px 5px 2px 5px;
@@ -367,3 +367,15 @@ ul.button_nav li:last-child {
 #btn_rechercher_salle_evenement {
 	margin-left: 10px;
 }
+
+
+input.invalide {
+	box-shadow: #FF0000 0 0 10px;
+	border: 1px solid #FF0000;
+}
+
+input.valide {
+	box-shadow: #60C003 0 0 10px;
+	border: 1px solid #FF0000;
+}
+

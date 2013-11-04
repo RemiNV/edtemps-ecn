@@ -48,10 +48,7 @@
 
 				<div id="form_chercher_salle_liste_materiel">
 					<table>
-						<tr>
-							<th class="libelle">Libellé de l'équipement</th>
-							<th class="quantite">Quantité</th>
-						</tr>
+						<!-- Table remplie par JS -->
 					</table>
 					
 					<div id="form_chercher_salle_chargement" style="display: none">
@@ -98,6 +95,7 @@
 	<div id="calendar"></div>
 </div>
 
+<!-- Dialog d'ajout d'évènements (masquée au chargement du JavaScript) -->
 <div id="dialog_ajout_evenement">
 	<table>
 		<tr>
@@ -126,6 +124,13 @@
 		<tr>
 			<td><label for="heure_fin_evenement">Heure de fin : </label></td>
 			<td><input type="text" id="heure_fin" /></td>
+		</tr>
+		<tr>
+			<td>Matériel : </td>
+			<td>
+				<table id="tbl_materiel">
+				</table>
+			</td>
 		</tr>
 		<tr>
 			<td>Salles : </td>
