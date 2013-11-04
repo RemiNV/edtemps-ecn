@@ -53,9 +53,14 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			// Si le formulaire est valide, la requête est effectuée
 			if (me.validationFormulaire()) {
 
-				// Traitement des dates et heures au format "yyyy/MM/dd HH:mm:ss"
-				var param_dateDebut = me.jqDate.val() + " " + me.jqHeureDebut.val() + ":00";
-				var param_dateFin = me.jqDate.val() + " " + me.jqHeureFin.val() + ":00";
+				// Traitement des dates et heures au format "yyyy-MM-dd HH:mm:ss"
+				var strJour = $.datepicker.formatDate("yy-mm-dd", $.datepicker.parseDate("dd/mm/yy", me.jqDate.val()));
+				
+				var param_dateDebut = strJour + " " + me.jqHeureDebut.val() + ":00";
+				var param_dateFin = strJour + " " + me.jqHeureFin.val() + ":00";
+				
+				var dateDebut = new Date(param_dateDebut);
+				var dateFin = new Date(param_dateFin);
 
 				// Création de la liste des matériels nécessaires
 				var listeMateriel = me.getContenuListeMateriel(me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"));
@@ -66,7 +71,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				me.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Recherche...");
 
 				// Appel de la méthode de recherche de salle
-				me.getSalle(param_dateDebut, param_dateFin, me.jqCapacite.val(), listeMateriel, function() {
+				me.getSalle(dateDebut, dateFin, me.jqCapacite.val(), listeMateriel, function() {
 					// Supression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
 					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
 					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
@@ -135,7 +140,15 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		var valid = true;
 
 		// Validation de la date
-		if (this.jqDate.val()=="") {
+		var dateValid = true;
+		try {
+			$.datepicker.parseDate("dd/mm/yy", this.jqDate.val());
+		}
+		catch(parsingException) {
+			dateValid = false;
+		}
+		
+		if (!dateValid) {
 			this.bordureSurChamp(this.jqDate, "#FF0000");
 			valid = false;
 		} else {
@@ -275,10 +288,10 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * Méthode qui effectue la requête
 	 * 
 	 * @param dateDebut
-	 * 		date de début de l'événement au format : "yyyy/MM/dd HH:mm:ss"
+	 * 		date de début de l'événement (objet Date javascript)
 	 * 
 	 * @param dateFin
-	 * 		date de fin de l'événement au format : "yyyy/MM/dd HH:mm:ss"
+	 * 		date de fin de l'événement (objet Date javascript)
 	 * 
 	 * @param effectif
 	 * 		effectif requis pour l'événement
@@ -311,7 +324,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		
 		// Récupération de la liste des matériels en base de données
 		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
-			dateDebut: dateDebut, dateFin: dateFin, effectif: effectif, materiel: listeMaterielQuantite, token: this.restManager.getToken()
+			debut: dateDebut.getTime(), fin: dateFin.getTime(), effectif: effectif, materiel: listeMaterielQuantite, token: this.restManager.getToken()
 		}, function(response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				callbackChargement(true);

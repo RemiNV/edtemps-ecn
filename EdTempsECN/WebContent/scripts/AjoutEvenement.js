@@ -120,7 +120,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		var strDate = false;
 		
 		try {
-			var date = $.datepicker.parseDate(jqDate.val());
+			var date = $.datepicker.parseDate("dd/mm/yy", jqDate.val());
 			strDate = $.datepicker.formatDate("yy-mm-dd", date);
 			jqDate.addClass("valide").removeClass("invalide");
 		}
