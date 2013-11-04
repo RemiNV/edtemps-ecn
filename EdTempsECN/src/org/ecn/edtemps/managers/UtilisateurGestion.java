@@ -149,10 +149,13 @@ public class UtilisateurGestion {
 		
 		if(!StringUtils.isAlphanumeric(token))
 			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Format de token invalide");
-		
-		ResultSet res = bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='" + token + "' AND utilisateur_token_expire > now()");
-		
+
 		try {
+		
+			PreparedStatement req = bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token=? AND utilisateur_token_expire > now()");
+			req.setString(1, token);
+			ResultSet res = req.executeQuery();
+		
 			if(res.next()) {
 				return res.getInt(1);
 			}
@@ -175,9 +178,12 @@ public class UtilisateurGestion {
 		if(!StringUtils.isAlphanumeric(token))
 			throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Format de token invalide");
 		
-		ResultSet res = bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_url_ical='" + token + "'");
-		
 		try {
+			
+			PreparedStatement req = bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_url_ical=?");
+			req.setString(1, token);
+			ResultSet res = req.executeQuery();
+
 			if(res.next()) {
 				return res.getInt(1);
 			}
@@ -366,12 +372,19 @@ public class UtilisateurGestion {
 	public ArrayList<UtilisateurIdentifie> rechercherUtilisateur(String debutNomPrenomMail) throws DatabaseException{
 		try {
 			ArrayList<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
-			ResultSet reponse = bdd.executeRequest(
+			
+			PreparedStatement statement = bdd.getConnection().prepareStatement(
 					"SELECT utilisateur_nom, utilisateur.prenom, utilisateur_email, utilisateur_id "
 					+ "FROM edt.utilisateur "
-					+ "WHERE utilisateur_nom LIKE '" + debutNomPrenomMail +"%' "
-					+ "OR utilisateur_prenom LIKE '" + debutNomPrenomMail +"%' "
-					+ "OR utilisateur_email LIKE '" + debutNomPrenomMail +"%' ");
+					+ "WHERE utilisateur_nom LIKE ?% "
+					+ "OR utilisateur_prenom LIKE ?% "
+					+ "OR utilisateur_email LIKE ?% ");
+			statement.setString(1, debutNomPrenomMail);
+			statement.setString(2, debutNomPrenomMail);
+			statement.setString(3, debutNomPrenomMail);
+			
+			ResultSet reponse = statement.executeQuery();
+
 			while(reponse.next()) {
 				res.add(inflateUtilisateurFromRow(reponse));
 			}
