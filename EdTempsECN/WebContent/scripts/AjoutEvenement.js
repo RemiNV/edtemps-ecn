@@ -190,14 +190,15 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 		
 		if(strDate && heureDebut !== "") {
-			res.dateDebut = new Date(strDate + " " + heureDebut);
+			// Chaîne au format ISO8601
+			res.dateDebut = new Date(strDate + "T" + heureDebut);
 		}
 		else {
 			res.dateDebut = null;
 		}
 		
 		if(strDate && heureFin !== "") {
-			res.dateFin = new Date(strDate + " " + heureFin);
+			res.dateFin = new Date(strDate + "T" + heureFin);
 		}
 		else {
 			res.dateFin = null;

@@ -52,11 +52,11 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			// Si le formulaire est valide, la requête est effectuée
 			if (me.validationFormulaire()) {
 
-				// Traitement des dates et heures au format "yyyy-MM-dd HH:mm:ss"
+				// Traitement des dates et heures au format "yyyy-MM-ddTHH:mm:ss" (ISO8601)
 				var strJour = $.datepicker.formatDate("yy-mm-dd", $.datepicker.parseDate("dd/mm/yy", me.jqDate.val()));
 				
-				var param_dateDebut = strJour + " " + me.jqHeureDebut.val() + ":00";
-				var param_dateFin = strJour + " " + me.jqHeureFin.val() + ":00";
+				var param_dateDebut = strJour + "T" + me.jqHeureDebut.val() + ":00";
+				var param_dateFin = strJour + "T" + me.jqHeureFin.val() + ":00";
 				
 				var dateDebut = new Date(param_dateDebut);
 				var dateFin = new Date(param_dateFin);
