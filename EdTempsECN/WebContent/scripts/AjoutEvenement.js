@@ -21,6 +21,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		// Initialisation des champs
 		jqDialog.find("#heure_debut").mask("99:99");
 		jqDialog.find("#heure_fin").mask("99:99");
+		jqDialog.find("#nb_personnes_evenement").mask("9?99", { placeholder: "" });
 		
 		// Ajout du datepicker sur le champ date
         jqDialog.find("#date_evenement").mask("99/99/9999").datepicker({
@@ -94,6 +95,9 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 				
 				me.jqDialog.find("#salles_evenement").html(strSalles);
 			});
+		}
+		else {
+			window.showToast("Remplissez les champs indiqués pour lancer la recherche");
 		}
 		
 	};

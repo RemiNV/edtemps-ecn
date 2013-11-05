@@ -140,7 +140,7 @@ table.liste_materiel tr .quantite {
 	width: 50px;
 }
 	
-table.liste_materiel tr .quantite input[type=number] {
+input[type=number].input_small {
 	width: 60px;
 	border: solid 1px white;
 	text-align: center;
