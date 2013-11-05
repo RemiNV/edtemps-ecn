@@ -161,10 +161,10 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		res.salles = this.sallesSelectionnees;
 		
 		if(res.salles.length == 0) {
-			$("#btn_rechercher_salle_evenement").addClass("invalide").removeClass("valide");
+			this.jqDialog.find("#btn_rechercher_salle_evenement").addClass("invalide").removeClass("valide");
 		}
 		else {
-			$("#btn_rechercher_salle_evenement").addClass("valide").removeClass("invalide");
+			this.jqDialog.find("#btn_rechercher_salle_evenement").addClass("valide").removeClass("invalide");
 		}
 		
 		// Remplissage de res.valide et res.valideRechercheSalle
