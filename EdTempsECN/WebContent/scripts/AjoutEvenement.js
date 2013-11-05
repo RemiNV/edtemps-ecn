@@ -43,7 +43,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 		// Listeners
 		var me = this;
-		jqDialog.find("#btn_valider_ajout_evenement").click(function() {
+		jqDialog.find("#btn_rechercher_salle_evenement").click(function() {
 			me.lancerRechercheSalle();
 		});
 		
@@ -52,11 +52,48 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	
 	AjoutEvenement.prototype.lancerRechercheSalle = function() {
 		
-		var formData = this.getDonneesFormulaire();
+		var formData = this.getDonneesFormulaire(true);
 		
 		if(formData.valideRechercheSalle) {
-			// TODO : compléter après ajout d'effectifs
-			// this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, )
+			
+			// Affichage message de chargement
+			this.jqDialog.find("#btn_rechercher_salle_evenement").attr("disabled", "disabled");
+			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
+			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Recherche des salles disponibles...");
+			
+			// Récupération des effectifs
+			var me = this;
+			var effectif = this.jqDialog.find("#nb_personnes_evenement").val();
+			if(!effectif) {
+				effectif = 0;
+			}
+			
+			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, function(succes) {
+				if(succes) {
+					me.jqDialog.find("#btn_rechercher_salle_evenement").removeAttr("disabled");
+					me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
+				}
+			}, function(salles) {
+				me.sallesSelectionnees = salles;
+				
+				// Affichage des salles dans la zone de texte
+				var strSalles;
+				if(salles.length > 0) {
+					strSalles = "";
+					for(var i=0, maxI = salles.length; i<maxI; i++) {
+						if(i != 0) {
+							strSalles += ", ";
+						}
+						
+						strSalles += salles[i].nom;
+					}
+				}
+				else {
+					strSalles = "(Sélectionnez une ou plusieurs salle(s))";
+				}
+				
+				me.jqDialog.find("#salles_evenement").html(strSalles);
+			});
 		}
 		
 	};
@@ -89,15 +126,16 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * - calendriers : tableau d'ID de calendriers
 	 * - dateDebut : date JavaScript
 	 * - dateFin : date JavaScript
-	 * - materiel : matériel sélectionné pour l'évènement
+	 * - materiels : matériels sélectionnés pour l'évènement
 	 * - salles : tableau d'ID de salles
 	 * 
+	 * @param pourRechercheSalle Signaler les champs non remplis nécessaires pour rechercher une salle uniquement (booléen)
 	 * @return Données du formulaire selon la syntaxe précédente
 	 */
-	AjoutEvenement.prototype.getDonneesFormulaire = function() {
+	AjoutEvenement.prototype.getDonneesFormulaire = function(pourRechercheSalle) {
 		var res = {
-			valide: true,
-			valideRechercheSalle: true
+			valide: false,
+			valideRechercheSalle: false
 		};
 		
 		var jqNom = this.jqDialog.find("#txt_nom_evenement");
@@ -105,8 +143,13 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		var jqHeureDebut = this.jqDialog.find("#heure_debut");
 		var jqHeureFin = this.jqDialog.find("#heure_fin");
 		
-		// Validation du nom
-		res.nom = validateNotEmpty(jqNom);
+		if(pourRechercheSalle) {
+			res.nom = jqNom.val();
+		}
+		else {
+			// Validation du nom
+			res.nom = validateNotEmpty(jqNom);
+		}
 		
 		// Récupération de la liste des propriétaires à implémenter
 		res.proprietaires = null;
@@ -157,14 +200,16 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		}
 		
 		// Récupération des matériels et salles
-		res.materiel = this.rechercheSalle.getContenuListeMateriel(this.jqDialog.find("#tbl_materiel"));
+		res.materiels = this.rechercheSalle.getContenuListeMateriel(this.jqDialog.find("#tbl_materiel"));
 		res.salles = this.sallesSelectionnees;
 		
-		if(res.salles.length == 0) {
-			this.jqDialog.find("#btn_rechercher_salle_evenement").addClass("invalide").removeClass("valide");
-		}
-		else {
-			this.jqDialog.find("#btn_rechercher_salle_evenement").addClass("valide").removeClass("invalide");
+		if(!pourRechercheSalle) {
+			if(res.salles.length == 0) {
+				this.jqDialog.find("#btn_rechercher_salle_evenement").addClass("invalide").removeClass("valide");
+			}
+			else {
+				this.jqDialog.find("#btn_rechercher_salle_evenement").addClass("valide").removeClass("invalide");
+			}
 		}
 		
 		// Remplissage de res.valide et res.valideRechercheSalle
@@ -236,6 +281,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	AjoutEvenement.prototype.init = function() {
 		// Récupération des calendriers auxquels l'utilisateur peut ajouter des évènements
 		// this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
+		// TODO : remettre la désactivation du bouton
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Chargement des options de matériel...");
 		

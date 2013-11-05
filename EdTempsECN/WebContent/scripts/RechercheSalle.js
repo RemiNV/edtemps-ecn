@@ -304,7 +304,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * @param callbackChargement
 	 * 		méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
 	 * 		Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
-	 * 		par le paramètre suivant "callback"
+	 * 		par le paramètre suivant "callback". Un message d'erreur est déjà affiché dans cette méthode en cas d'erreur.
 	 * 
 	 * @param callback
 	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
@@ -429,6 +429,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				}
 				// Appelle la méthode de callback avec les salles sélectionnées en paramètres
 				callback(sallesSelectionnees);
+				me.jqRechercheSalleResultat.dialog("close");
 			});
 
 			// Affichage de la boîte de dialogue résultat
