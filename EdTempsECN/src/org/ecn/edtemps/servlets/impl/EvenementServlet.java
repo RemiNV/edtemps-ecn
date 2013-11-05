@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 
@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ecn.edtemps.managers.BddGestion;
+import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 public class EvenementServlet extends RequiresConnectionServlet {
 

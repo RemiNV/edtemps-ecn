@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -26,6 +26,7 @@ import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
 public class AbonnementsServlet extends QueryWithIntervalServlet {
 	

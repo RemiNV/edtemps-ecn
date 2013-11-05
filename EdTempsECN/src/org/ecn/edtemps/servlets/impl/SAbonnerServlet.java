@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +19,7 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
  * Servlet permettant l'abonnement d'un utilisateur à un groupeDeParcipants

@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 import java.util.Date;
@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
@@ -18,6 +20,7 @@ import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
+import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
  * Servlet de récupération des évènements dont l'utilisateur est responsable
@@ -26,6 +29,8 @@ import org.ecn.edtemps.models.identifie.EvenementIdentifie;
  */
 public class EvenementsResponsableServlet extends RequiresConnectionServlet {
 
+	private static Logger logger = LogManager.getLogger(EvenementsResponsableServlet.class.getName());
+	
 	@Override
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);

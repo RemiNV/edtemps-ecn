@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 
@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
+import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 public class CheckConnectionServlet extends RequiresConnectionServlet {
 
