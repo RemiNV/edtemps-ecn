@@ -1,4 +1,4 @@
-define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier) {
+define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier, DialogCreationGroupeParticipants) {
 	
 	/**
 	 * Cet écran est associé au HTML templates/page_parametres.html.
@@ -7,6 +7,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "jqueryquick
 		this.restManager = restManager;
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
+ 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager);
 	};
 	
 	EcranParametres.prototype.init = function() {
@@ -147,11 +148,15 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "jqueryquick
 		// Affichage des calendriers (utiliser template ?)
 		
 		// Listeners
-		var me2 = this;
+		var me = this;
 		$("#btn_creer_calendrier").click(function() {
-			me2.dialogCreationCalendrier.init();
+			me.dialogCreationCalendrier.init();
 		});
-		
+
+		$("#btn_creer_groupe").click(function() {
+			me.dialogCreationGroupeParticipants.show();
+		});
+
 	};
 	
 	return EcranParametres;

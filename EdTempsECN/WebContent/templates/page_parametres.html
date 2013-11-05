@@ -112,6 +112,52 @@
 		<div id="tab-mes-groupes">
 			<div class="button" id="btn_creer_groupe">Ajouter un groupe de participants</div>
 			
+			<div id="form_creer_groupe" title="Formulaire de création d'un groupe de participants">
+				<form>
+					<table id="form_creer_groupe_table">
+						<tr>
+							<td>
+								<label for="form_creer_groupe_nom">Nom du groupe</label>
+							</td>
+							<td>
+								<input type="text" name="form_creer_groupe_nom"	id="form_creer_groupe_nom" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="form_creer_groupe_parent">Groupe parent</label>
+							</td>
+							<td>
+								<select id="form_creer_groupe_parent"></select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="form_creer_groupe_rattachement">Rattachement autorisé</label>
+							</td>
+							<td>
+								<input type="checkbox" id="form_creer_groupe_rattachement" name="form_creer_groupe_rattachement" />
+								<img alt="Aide" title="Si vous cochez la case, vous autorisez d'autres personnes à rattacher un calendrier à ce groupe de participants. Ce rattachement serait soumis à votre validation." src="img/help.png" class="help_icon" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="form_creer_groupe_cours">Groupe associé à un cours</label>
+							</td>
+							<td>
+								<input type="checkbox" id="form_creer_groupe_cours" name="form_creer_groupe_cours" />
+								<img alt="Aide" title="Si vous cochez la case, le groupe sera considéré comme un cours." src="img/help.png" class="help_icon" />
+							</td>
+						</tr>
+					</table>
+
+					<div id="form_creer_groupe_boutons" class="boutons_valider">
+						<input type="button" id="form_creer_groupe_annuler" value="Annuler" /> 
+						<input type="button" id="form_creer_groupe_valider" value="Valider" />
+					</div>
+				</form>
+			</div>
+			
 			<table id="tbl_mes_groupes">
 				<!-- TODO : Utiliser un template pour remplir la liste -->
 			

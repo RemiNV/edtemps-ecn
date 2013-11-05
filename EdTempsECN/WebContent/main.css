@@ -112,7 +112,7 @@ ul.button_nav li:last-child {
 	margin-left: 20px;
 }
 
-#form_chercher_salle, #resultat_chercher_salle, #form_creer_calendrier {
+#form_chercher_salle, #resultat_chercher_salle, #form_creer_calendrier, #form_creer_groupe {
 	display: none;
 }
 
@@ -379,3 +379,7 @@ input.valide {
 	border: 1px solid #60C003 !important;
 }
 
+.help_icon {
+	width: 15px;
+	cursor: help;
+}
