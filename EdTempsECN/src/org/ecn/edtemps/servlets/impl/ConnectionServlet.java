@@ -17,6 +17,7 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion.ObjetRetourMethodeConnexion;
 
 public class ConnectionServlet extends HttpServlet {
 
@@ -51,14 +52,14 @@ public class ConnectionServlet extends HttpServlet {
 				BddGestion bddGestion = new BddGestion();
 				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bddGestion);
 				
-				String token = utilisateurGestion.seConnecter(username, password);
+				ObjetRetourMethodeConnexion retourConnexion = utilisateurGestion.seConnecter(username, password);
 				result = ResultCode.SUCCESS;
 				
 				bddGestion.close();
 				
 				JsonObject data = Json.createObjectBuilder()
-						.add("token", token)
-						.add("id", utilisateurGestion.getUserId())
+						.add("token", retourConnexion.getToken())
+						.add("userId", retourConnexion.getUserId())
 						.build();
 				
 				reponse = ResponseManager.generateResponse(result, "", data);

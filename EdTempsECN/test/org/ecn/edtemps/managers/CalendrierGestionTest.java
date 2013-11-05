@@ -3,6 +3,7 @@ package org.ecn.edtemps.managers;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,10 +66,14 @@ public class CalendrierGestionTest {
 		assertTrue(typesCalendrier.size() > 0); // Il doit y avoir des types de calendrier pré-rentrés dans la BDD
 		
 		// Récupération d'un utilisateur de test (correspond au jeu de tests de la BDD)
-		int idUser1 = bdd.recupererId("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='2'", "utilisateur_id");
+		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='2'");
+		int idUser1 = bdd.recupererId(requetePreparee, "utilisateur_id");
 		assertTrue(idUser1 > 0);
 		
-		int idUser2 = bdd.recupererId("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='3'", "utilisateur_id");
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='3'");
+		int idUser2 = bdd.recupererId(requetePreparee, "utilisateur_id");
 		assertTrue(idUser2 > 0);
 		
 		ArrayList<Integer> lstProprietaires = new ArrayList<Integer>(2);

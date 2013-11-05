@@ -3,7 +3,6 @@ package org.ecn.edtemps.managers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -61,10 +60,11 @@ public class EvenementGestion {
 			// On crée l'événement dans la base de données
 			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
 					+ "(eve_nom, eve_dateDebut, eve_dateFin) "
-					+ "VALUES ('" + nom + "', '?', '?') "
+					+ "VALUES ('?', '?', '?') "
 				    + "RETURNING eve_id");
-			req.setTimestamp(1, new Timestamp(dateDebut.getTime()));
-			req.setTimestamp(2, new Timestamp(dateFin.getTime()));
+			req.setString(1, nom);
+			req.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
+			req.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
 			
 			ResultSet rsLigneCreee = req.executeQuery();
 			 
@@ -156,12 +156,16 @@ public class EvenementGestion {
 			}
 			
 			// Modifier l'évenement (nom, date début, date fin)
-			_bdd.executeUpdate(
+			PreparedStatement requetePreparee = _bdd.getConnection().prepareStatement(
 					"UPDATE edt.evenement"
-					+ "SET eve_nom = " + evenementIdentifie.getNom() + " "
-					+ "SET eve_datedebut = " + evenementIdentifie.getDateDebut() + " "
-					+ "SET eve_datefin = " +  evenementIdentifie.getDateFin() + " "
+					+ "SET eve_nom = ? "
+					+ "SET eve_datedebut = ? "
+					+ "SET eve_datefin = ? "
 					+ "WHERE eve_id = " + evenementIdentifie.getId());
+			requetePreparee.setString(1, evenementIdentifie.getNom());
+			requetePreparee.setTimestamp(2, new java.sql.Timestamp(evenementIdentifie.getDateDebut().getTime()));
+			requetePreparee.setTimestamp(3, new java.sql.Timestamp(evenementIdentifie.getDateFin().getTime()));
+			requetePreparee.execute();
 			
 			// Modifier  les intervenants de l'évenement (supprimer les anciens puis ajouter les nouveaux)
 			_bdd.executeRequest(
@@ -308,10 +312,11 @@ public class EvenementGestion {
 		Date dateFin = reponse.getTimestamp("eve_datefin");
 		
 		// Récupération des IDs des calendriers
-		ArrayList<Integer> idCalendriers = _bdd.recupererIds(
+		PreparedStatement requetePreparee = _bdd.getConnection().prepareStatement(
 				"SELECT cal_id "
 				+ "FROM edt.evenementappartient "
-				+ "WHERE eve_id=" + id, "cal_id");
+				+ "WHERE eve_id=" + id);
+		ArrayList<Integer> idCalendriers = _bdd.recupererIds(requetePreparee, "cal_id");
 		
 		// Récupération des salles
 		SalleGestion salleGestion = new SalleGestion(_bdd);
