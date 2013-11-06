@@ -588,4 +588,32 @@ public class GroupeGestion {
 		_bdd.executeRequest(s);
 	}
 	
+	/**
+	 * Récupérer la liste des groupes de participants auxquels un ajout de groupe peut être rattaché
+	 * 
+	 * @return liste des groupes parents potentiels
+	 * 
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifie> getGroupesParentsPotentiels() throws DatabaseException {
+		
+		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
+				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
+					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant " +
+					"WHERE groupeparticipant.groupeparticipant_rattachementautorise = TRUE");
+
+		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+
+		try {
+			while(resGroupes.next()) {
+				res.add(inflateGroupeFromRow(resGroupes));
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return res;
+	}
+	
 }
