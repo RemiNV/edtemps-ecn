@@ -120,7 +120,10 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
 			
-			this.restManager.effectuerRequete("POST", "ajoutEvenement"); // TODO : compléter)
+			// TODO : compléter)
+			// this.restManager.effectuerRequete("POST", "ajoutEvenement"); 
+			
+			// TODO	: invalider le cache de EvenementGestion pour la période de l'évènement 
 		}
 	};
 	
