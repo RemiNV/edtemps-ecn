@@ -275,7 +275,21 @@ table.liste_materiel th {
 	color:white;
 	cursor: pointer;
 }
-	
+
+
+/* Formulaire CreationGroupeParticipants */
+
+.help_icon {
+	width: 15px;
+	cursor: help;
+}
+
+#form_creer_groupe_parent_message {
+	font-size: 0.8em;
+	color: gray;
+}
+
+
 /* CSS jquery ui */
 
 .ui-tabs-panel {
@@ -377,9 +391,4 @@ input.invalide {
 input.valide {
 	box-shadow: #60C003 0 0 10px;
 	border: 1px solid #60C003 !important;
-}
-
-.help_icon {
-	width: 15px;
-	cursor: help;
 }
