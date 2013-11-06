@@ -76,6 +76,11 @@
       <servlet-class>org.ecn.edtemps.servlets.impl.EvenementsResponsableServlet</servlet-class>
   </servlet>
   
+  <servlet>
+      <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.GroupesParentsPotentielsServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -146,5 +151,9 @@
       <url-pattern>/mesevenements</url-pattern>
   </servlet-mapping>
   
+	<servlet-mapping>
+      <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
+      <url-pattern>/groupesparentspotentiels</url-pattern>
+  </servlet-mapping>
 </web-app>
 

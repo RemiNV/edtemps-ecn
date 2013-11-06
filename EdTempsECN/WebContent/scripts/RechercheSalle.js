@@ -344,7 +344,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			listeMaterielQuantite += materiels[i].id + ":" + materiels[i].quantite;
 		}
 		
-		// Récupération de la liste des matériels en base de données
+		// Appel de la méthode du serveur
 		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
 			debut: dateDebut.getTime(), fin: dateFin.getTime(), effectif: effectif, materiel: listeMaterielQuantite, token: this.restManager.getToken()
 		}, function(response) {
