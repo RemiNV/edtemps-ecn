@@ -91,12 +91,22 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			}
 			break;
 			
+		case EcranAccueil.MODE_MES_EVENEMENTS:
+			
+			// TODO : compléter
+			
+			
+			break;
+			
 		default: 
 			// TODO : gérer
 			callback(new Array());
 		
 		}
 	};
+	
+	
+	
 	
 	/**
 	 * Fonction fournissant au callback de fullcalendar les évènements de la période demandée
