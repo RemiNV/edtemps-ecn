@@ -1,4 +1,4 @@
-require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexion.html", "qunit", "jquery", "jqueryui"], function(DialogConnexion, RestManager, htmlFormulaireConnexion) {
+require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexion.html", "jquery", "jqueryui"], function(DialogConnexion, RestManager, htmlFormulaireConnexion) {
 	
 	var jqDialog = null;
 	
