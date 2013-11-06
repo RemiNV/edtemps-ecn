@@ -129,31 +129,30 @@
 							</td>
 							<td>
 								<select id="form_creer_groupe_parent"></select>
+								<span id="form_creer_groupe_parent_message" style="display: none;"></span>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<label for="form_creer_groupe_rattachement">Rattachement autorisé</label>
+								<label for="form_creer_groupe_rattachement">Rattachement autorisé <img alt="Aide" title="Si vous cochez la case, vous autorisez d'autres personnes à rattacher un calendrier à ce groupe de participants. Ce rattachement serait soumis à votre validation." src="img/help.png" class="help_icon" /></label>
 							</td>
 							<td>
 								<input type="checkbox" id="form_creer_groupe_rattachement" name="form_creer_groupe_rattachement" />
-								<img alt="Aide" title="Si vous cochez la case, vous autorisez d'autres personnes à rattacher un calendrier à ce groupe de participants. Ce rattachement serait soumis à votre validation." src="img/help.png" class="help_icon" />
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<label for="form_creer_groupe_cours">Groupe associé à un cours</label>
+								<label for="form_creer_groupe_cours">Groupe associé à un cours <img alt="Aide" title="Si vous cochez la case, le groupe sera considéré comme un cours." src="img/help.png" class="help_icon" /></label>
 							</td>
 							<td>
 								<input type="checkbox" id="form_creer_groupe_cours" name="form_creer_groupe_cours" />
-								<img alt="Aide" title="Si vous cochez la case, le groupe sera considéré comme un cours." src="img/help.png" class="help_icon" />
 							</td>
 						</tr>
 					</table>
 
 					<div id="form_creer_groupe_boutons" class="boutons_valider">
-						<input type="button" id="form_creer_groupe_annuler" value="Annuler" /> 
-						<input type="button" id="form_creation_groupe_ajouter" value="Ajouter" />
+						<input type="button" id="form_creer_groupe_annuler" class="button" value="Annuler" /> 
+						<input type="button" id="form_creation_groupe_ajouter" class="button" value="Ajouter" />
 					</div>
 					
 					<div id="form_creer_groupe_chargement" style="display: none">
