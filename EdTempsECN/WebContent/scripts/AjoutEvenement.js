@@ -48,6 +48,10 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			me.lancerRechercheSalle();
 		});
 		
+		jqDialog.find("#btn_valider_ajout_evenement").click(function() {
+			me.validationDialog();
+		});
+		
 		
 	};
 	
@@ -100,6 +104,20 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			window.showToast("Remplissez les champs indiqués pour lancer la recherche");
 		}
 		
+	};
+	
+	AjoutEvenement.prototype.validationDialog = function() {
+		// Récupération des données du formulaire
+		var formData = this.getDonneesFormulaire(false);
+		
+		if(formData.valide) {
+			
+			// Message d'attente
+			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
+			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
+			
+			this.restManager.effectuerRequete("POST", "ajoutEvenement"); // TODO : compléter)
+		}
 	};
 	
 	/**

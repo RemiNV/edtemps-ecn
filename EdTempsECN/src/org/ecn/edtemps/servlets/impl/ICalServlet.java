@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 
@@ -12,6 +12,7 @@ import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.ICalGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
+import org.ecn.edtemps.servlets.TokenServlet;
 
 public class ICalServlet extends TokenServlet {
 

@@ -8,67 +8,67 @@
   
   <servlet>
       <servlet-name>Connection</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.ConnectionServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.ConnectionServlet</servlet-class>
   </servlet>
   
   <servlet>
       <servlet-name>CheckConnection</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.CheckConnectionServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.CheckConnectionServlet</servlet-class>
   </servlet>
   
   <servlet>
       <servlet-name>Deconnexion</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.DisconnectServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.DisconnectServlet</servlet-class>
   </servlet>
   
   <servlet>
       <servlet-name>Abonnements</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.AbonnementsServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.AbonnementsServlet</servlet-class>
   </servlet>
   
   <servlet>
       <servlet-name>GroupesAbonnementsEtNonAbonnements</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.GroupesAbonnementsEtNonAbonnementsServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.GroupesAbonnementsEtNonAbonnementsServlet</servlet-class>
   </servlet>
   
   <servlet>
       <servlet-name>SAbonner</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.SAbonnerServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.SAbonnerServlet</servlet-class>
   </servlet>
   
   <servlet>
       <servlet-name>SeDesabonner</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.SeDesabonnerServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.SeDesabonnerServlet</servlet-class>
   </servlet>  
   
   <servlet>
       <servlet-name>RecupererMatieresEtTypes</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.MatieresEtTypesServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.MatieresEtTypesServlet</servlet-class>
   </servlet>  
   
   <servlet>
       <servlet-name>ICalToken</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.ICalTokenServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.ICalTokenServlet</servlet-class>
   </servlet>
 
   <servlet>
       <servlet-name>GetICal</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.ICalServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.ICalServlet</servlet-class>
   </servlet>
   
   <servlet>
       <servlet-name>GetListeMateriels</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.MaterielServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.MaterielServlet</servlet-class>
   </servlet>
 
   <servlet>
       <servlet-name>RechercheSalleLibre</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.RechercheSalleLibreServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.RechercheSalleLibreServlet</servlet-class>
   </servlet>
   
   <servlet>
       <servlet-name>CalendriersUtilisateur</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.CalendriersUtilisateurServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.CalendriersUtilisateurServlet</servlet-class>
   </servlet>
   
   <servlet>

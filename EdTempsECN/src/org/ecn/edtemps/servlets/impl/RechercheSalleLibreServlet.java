@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,6 +16,7 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.SalleGestion;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
+import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
 /**
  * Servlet pour rechercher une salle libre

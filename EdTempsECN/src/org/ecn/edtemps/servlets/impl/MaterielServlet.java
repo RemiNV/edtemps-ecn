@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +17,7 @@ import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.MaterielGestion;
 import org.ecn.edtemps.models.Materiel;
+import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
  * Servlet pour récupérer la liste de tous les matériels
