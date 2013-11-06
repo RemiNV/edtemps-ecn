@@ -481,7 +481,7 @@ public class EvenementGestion {
 			boolean createTransaction) throws DatabaseException {
 		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 				"FROM edt.evenement " +
-				"INNER JOIN edt.responsablevenement ON evenement.eve_id = responsableevenement.eve_id " +
+				"INNER JOIN edt.responsableevenement ON evenement.eve_id = responsableevenement.eve_id " +
 				"WHERE responsableevenement.utilisateur_id = " + idResponsable + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
