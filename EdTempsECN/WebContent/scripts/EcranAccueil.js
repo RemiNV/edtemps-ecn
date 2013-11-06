@@ -94,7 +94,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		case EcranAccueil.MODE_MES_EVENEMENTS:
 			
 			// TODO : compléter
-			
+			callback(new Array());
 			
 			break;
 			
@@ -122,7 +122,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				
 				// Filtrage et passage à fullcalendar
 				var evenementsGroupesActifs = me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data);
-				callback(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
+				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
 			}
 			else if(resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");

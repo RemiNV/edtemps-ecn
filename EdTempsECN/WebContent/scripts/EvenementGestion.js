@@ -259,11 +259,11 @@ define(["RestManager"], function(RestManager) {
 	 * 
 	 */
 	EvenementGestion.prototype.getEvenementsAbonnements = function(start, end, ignoreCache, callback) {
-		getEvenements("abonnements/evenements", EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, ignoreCache, callback);
+		this.getEvenements("abonnements/evenements", EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, ignoreCache, callback);
 	};
 	
 	EvenementGestion.prototype.getMesEvenements = function(start, end, ignoreCache, callback) {
-		getEvenements("mesevenements", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, ignoreCache, callback);
+		this.getEvenements("mesevenements", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, ignoreCache, callback);
 	};
 	
 	// TODO : ajouter getEvenementsSalle (même style d'appel)
