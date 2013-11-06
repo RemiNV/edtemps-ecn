@@ -73,9 +73,13 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		}
 	};
 	
+	/**
+	 * Fonction appelée par fullCalendar lorsque le mécanisme de "fetch" est déclenché
+	 * @param start Début de la période pendant laquelle les évènements doivent être récupérés
+	 * @param end Fin de la période pendant laquelle les évènements doivent être récupérés
+	 * @param callback Callback de fullcalendar auquel il faut fournir les évènements (au format compatible fullcalendar)
+	 */
 	EcranAccueil.prototype.onCalendarFetchEvents = function(start, end, callback) {
-	
-		var me = this;
 
 		switch(this.mode) {
 		case EcranAccueil.MODE_MES_ABONNEMENTS:
@@ -83,20 +87,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				this.remplirMesAbonnements(start, end, callback);
 			}
 			else { // Récupération uniquement des évènements (pas besoin des calendriers & groupes). Utilisation du cache.
-				this.evenementGestion.getEvenementsAbonnements(start, end, false, function(resultCode, data) {
-					if(resultCode == RestManager.resultCode_Success) {
-						
-						// Filtrage et passage à fullcalendar
-						var evenementsGroupesActifs = me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data);
-						callback(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
-					}
-					else if(resultCode == RestManager.resultCode_NetworkError) {
-						window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
-					}
-					else {
-						window.showToast("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
-					}
-				});
+				this.remplirEvenementsAbonnements(start, end, callback);
 			}
 			break;
 			
@@ -105,9 +96,42 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			callback(new Array());
 		
 		}
+	};
 	
+	/**
+	 * Fonction fournissant au callback de fullcalendar les évènements de la période demandée
+	 * 
+	 * @param dateDebut date de début de la période
+	 * @param dateFin date de fin de la période
+	 * @param callbackCalendrier callback de fullcalendar
+	 */
+	EcranAccueil.prototype.remplirEvenementsAbonnements = function(dateDebut, dateFin, callbackCalendrier) {
+		var me = this;
+		this.evenementGestion.getEvenementsAbonnements(dateDebut, dateFin, false, function(resultCode, data) {
+			if(resultCode == RestManager.resultCode_Success) {
+				
+				// Filtrage et passage à fullcalendar
+				var evenementsGroupesActifs = me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data);
+				callback(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
+			}
+			else if(resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
+			}
+			else {
+				window.showToast("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
+			}
+		});
 	};
 
+	/**
+	 * Fonction fournissant au callback de fullcalendar les évènements de la période demandée, et remplissant
+	 * les informations d'abonnement de l'utilisateur (calendriers, groupes). Est typiquement appelée une unique fois,
+	 * remplirEvenementsAbonnements peut être utilisée pour récupérer les évènements des autres périoders.
+	 * 
+	 * @param dateDebut Date de début de la période
+	 * @param dateFin Date de fin de la période
+	 * @param callbackCalendrier Callback de fullcalendar
+	 */
 	EcranAccueil.prototype.remplirMesAbonnements = function(dateDebut, dateFin, callbackCalendrier) {
 		// Récupération des abonnements pendant la période affichée
 		var me = this;
