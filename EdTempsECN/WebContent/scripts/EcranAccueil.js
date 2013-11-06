@@ -11,6 +11,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.evenementGestion = new EvenementGestion(this.restManager);
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
 		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle);
+		// TODO : enlever ce test
+		window.ajoutEvenement = this.ajoutEvenement;
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
