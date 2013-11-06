@@ -9,7 +9,14 @@
 		<link rel="stylesheet" type="text/css" href="main.css" />
 		<link rel="stylesheet" type="text/css" href="dialog.css" />
 		
-		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/qunit/qunit-1.12.0.css" />
+		<link rel="stylesheet" type="text/css" href="qunit-1.12.0.css" />
+
+		<!-- Chargement de qUnit (incompatible avec requireJS : les setup() sont exécutés dans le mauvais ordre par ex.) -->
+		<script type="text/javascript" src="scripts/test/qunit-1.12.0.js"></script>
+		<script type="text/javascript">
+			// Permet le chargement des tests avec requireJS (pas celui de QUnit)
+			QUnit.config.autostart = false;
+		</script>
 
 		<!-- Configuration de require.js -->
 		<script type="text/javascript" src="scripts/requirejs-config.js"></script>

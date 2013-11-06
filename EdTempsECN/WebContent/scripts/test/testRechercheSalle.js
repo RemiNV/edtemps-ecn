@@ -1,4 +1,4 @@
-require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager", "test/mockRestManager", "qunit"], 
+require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager", "test/mockRestManager"], 
 		function(RechercheSalle, pageAccueilHtml, RestManager, mockRestManager) {
 	
 	var jqFormChercherSalle = null;

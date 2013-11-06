@@ -1,6 +1,6 @@
 define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager) {
 
-	function Calendrier(eventsSource) {
+	function Calendrier(eventsSource, ajoutEvenement) {
 		var me = this;
 
 		this.jqCalendar = $("#calendar");
@@ -32,7 +32,14 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 			windowResize: function(view) {
 				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 110, 500));
 			},
-			events: eventsSource
+			events: eventsSource,
+			dayClick: function(date, allDay, jsEvent, view) {
+				
+				// Durée d'1h par défaut
+				var dateFin = new Date(date.getTime() + 1000 * 3600);
+				
+				ajoutEvenement.show(date, dateFin, null);
+			}
 		});
 		
 		// Ajout des listeners d'évènements aux dropdown de filtres

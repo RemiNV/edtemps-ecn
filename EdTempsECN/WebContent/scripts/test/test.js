@@ -6,8 +6,7 @@
 requirejs.config({
 	
 	paths: {
-		mockjax: "test/jquery.mockjax",
-		qunit: "test/qunit-1.12.0"
+		mockjax: "test/jquery.mockjax"
 	},
 	
 	shim: {
@@ -21,32 +20,22 @@ requirejs.config({
 /**
  * Test unitaires JavaScript : script point d'entrée (voir test.html)
  */
-require(["qunit"], function(q) {
-	
 
-	QUnit.config.autostart = false;
+// Simulation de window.showToast
+window.showToast = function(text) {
+	console.log("[Tests unitaires] Toast demandé par l'application : " + text);
+};
+
+require([ 
+          "test/mockRestManager",
+         "test/testRestManager",
+         "test/testDialogConnexion",
+         "test/testRechercheSalle",
+         "test/testGroupeGestion"
+         ],
+		function(mockRestManager) {
 	
-	// Simulation de window.showToast
-	window.showToast = function(text) {
-		console.log("[Tests unitaires] Toast demandé par l'application : " + text);
-	};
+	mockRestManager.mock(); // Simulation des requêtes AJAX
 	
-	require([ 
-	          "test/mockRestManager",
-	         "test/testRestManager",
-	         "test/testDialogConnexion",
-	         "test/testRechercheSalle",
-	         "test/testGroupeGestion"
-	         ],
-			function(mockRestManager) {
-		
-		mockRestManager.mock(); // Simulation des requêtes AJAX
-		
-		/* QUnit utilise normalement l'évènement onLoad, mais est ici chargé de façon asynchrone par requireJS,
-		 * il faut appeler manuellement la méthode load()
-		 */
-		QUnit.load();
-		
-		QUnit.start(); // Lancement des tests
-	});
+	QUnit.start(); // Lancement des tests
 });

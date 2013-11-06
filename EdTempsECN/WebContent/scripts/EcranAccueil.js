@@ -11,6 +11,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.evenementGestion = new EvenementGestion(this.restManager);
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
 		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle);
+		// TODO : enlever ce test
+		window.ajoutEvenement = this.ajoutEvenement;
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
@@ -35,7 +37,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		});
 
 		this.setVue("mes_abonnements");
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); });
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement);
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier);
 	};

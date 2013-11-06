@@ -1,4 +1,4 @@
-require(["GroupeGestion", "RestManager", "test/mockRestManager", "qunit"], function(GroupeGestion, RestManager, mockRestManager) {
+require(["GroupeGestion", "RestManager", "test/mockRestManager"], function(GroupeGestion, RestManager, mockRestManager) {
 	
 	var groupeGestion = null;
 	
