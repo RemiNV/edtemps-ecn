@@ -1,4 +1,4 @@
-package org.ecn.edtemps.servlets;
+package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,6 +19,7 @@ import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.managers.MaterielGestion;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
  * Servlet pour récupérer la liste des groupes parents potentiels
@@ -39,7 +40,7 @@ public class GroupesParentsPotentielsServlet extends RequiresConnectionServlet {
 		
 		try {
 			// Récupération de la liste des groupes potentiellement parents
-			List<GroupeIdentifie> listeGroupes = groupeGestion.getGroupesParentsPotentiels();
+			List<GroupeIdentifie> listeGroupes = groupeGestion.getGroupesParentsPotentiels(userId);
 
 			// Création de la réponse
 			data = Json.createObjectBuilder()

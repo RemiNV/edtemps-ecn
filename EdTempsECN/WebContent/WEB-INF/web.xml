@@ -73,7 +73,7 @@
   
   <servlet>
       <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.GroupesParentsPotentielsServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.GroupesParentsPotentielsServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
