@@ -9,6 +9,7 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
+import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
@@ -24,7 +25,7 @@ public class EvenementsResponsableServlet extends QueryWithIntervalServlet {
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
 		// Récupération des calendriers dont l'utilisateur est propriétaire
-		List<EvenementIdentifie> evenements = evenementGestion.listerEvenementsResponsable(userId, dateDebut, dateFin, true);
+		List<EvenementComplet> evenements = evenementGestion.listerEvenementsResponsable(userId, dateDebut, dateFin, true);
 		
 		bdd.close();
 		

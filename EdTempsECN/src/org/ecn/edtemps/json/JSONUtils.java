@@ -31,4 +31,14 @@ public class JSONUtils {
 		
 		return builder.build();
 	}
+	
+	public static JsonArray getJsonStringArray(Iterable<String> strings) {
+		JsonArrayBuilder builder = Json.createArrayBuilder();
+		
+		for(String s : strings) {
+			builder.add(s);
+		}
+		
+		return builder.build();
+	}
 }
