@@ -1,4 +1,4 @@
-define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
+define([ "RestManager", "jquerycombobox" ], function(RestManager) {
 
 	/**
 	 * Constructeur
@@ -110,6 +110,8 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 					$(object).attr("disabled", "disabled");
 				}
 
+				$("#form_creer_groupe_parent").combobox();
+				 
 				callback(true);
 
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {

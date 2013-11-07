@@ -3,8 +3,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	/**
 	 * Constructeur
 	 */
-	function RechercheSalle(restManager, jqRechercheSalle) {
+	function RechercheSalle(restManager, jqRechercheSalle, ajoutEvenement) {
 		this.restManager = restManager;
+		this.ajoutEvenement = ajoutEvenement;
 		this.jqRechercheSalleForm = jqRechercheSalle.find("#form_chercher_salle");
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
 		
@@ -74,8 +75,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 					// Supression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
 					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
 					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
-				}, 
-				function(data) { alert(data.length + " salles sélectionnées - Action à déterminer"); });
+				}, function(data) {
+					me.ajoutEvenement.show(dateDebut, dateFin, data);
+				});
 
 			}
 		});
