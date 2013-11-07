@@ -292,6 +292,8 @@ public class UtilisateurGestion {
 			SearchResult searchResult = connection.search(request);
 			List<SearchResultEntry> lstResults = searchResult.getSearchEntries();
 			
+			connection.close();
+			
 			// Entrée correspondant à l'utilisateur dans la recherche
 			if(lstResults.isEmpty()) {
 				logger.error("Erreur de récupération de l'ID LDAP de l'utilisateur : " + utilisateur);

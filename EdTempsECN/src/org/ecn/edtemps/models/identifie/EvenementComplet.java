@@ -52,7 +52,7 @@ public class EvenementComplet extends EvenementIdentifie {
 	protected JsonObjectBuilder makeJsonObjectBuilder() {
 		
 		// Ajout d'attributs au builder pour compléter l'objet JSON
-		JsonObjectBuilder builder = makeJsonObjectBuilder();
+		JsonObjectBuilder builder = super.makeJsonObjectBuilder();
 		
 		builder.add("matieres", JSONUtils.getJsonStringArray(matieres));
 		builder.add("types", JSONUtils.getJsonStringArray(types));
