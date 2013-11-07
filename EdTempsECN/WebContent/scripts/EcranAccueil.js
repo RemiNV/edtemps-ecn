@@ -12,6 +12,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
 		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle);
 		this.calendrier = null;
+		this.listeGroupesParticipants = null;
 		// TODO : enlever ce test
 		window.ajoutEvenement = this.ajoutEvenement;
 	};
@@ -43,7 +44,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement);
 		
-		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier);
+		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 	};
 	
 	EcranAccueil.prototype.setVue = function(vue) {
@@ -92,23 +93,24 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			}
 			else { // Récupération uniquement des évènements (pas besoin des calendriers & groupes). Utilisation du cache.
 				this.remplirEvenementsAbonnements(start, end, callback);
+				this.listeGroupesParticipants.afficherBlocVosAgendas(); // Ne fait rien si déjà appelé
 			}
 			break;
 			
 		case EcranAccueil.MODE_MES_EVENEMENTS:
 			
+			this.listeGroupesParticipants.clear();
 			this.remplirMesEvenements(start, end, callback);
 			break;
 			
 		default: 
+			
+			this.listeGroupesParticipants.clear();
 			// TODO : gérer
 			callback(new Array());
 		
 		}
 	};
-	
-	
-	
 	
 	/**
 	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
