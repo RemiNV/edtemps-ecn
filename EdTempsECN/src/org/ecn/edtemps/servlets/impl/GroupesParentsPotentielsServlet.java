@@ -22,7 +22,7 @@ import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet pour récupérer la liste des groupes parents potentiels
+ * Servlet pour récupérer la liste des groupes parents potentiels (auquel des groupes peuvent être rattachés)
  * 
  * @author Joffrey Terrade
  */

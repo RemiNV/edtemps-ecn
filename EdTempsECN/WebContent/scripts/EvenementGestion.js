@@ -72,15 +72,30 @@ define(["RestManager"], function(RestManager) {
 	};
 	
 	/**
-	 * Fonction identique à queryAbonnements mais ne fournit que les évènements sous forme d'un tableau dans callback.
-	 * Plus efficace une fois les calendriers et groupes déjà chargés */
-	EvenementGestion.prototype.queryEvenementsAbonnements = function(dateDebut, dateFin, callback) {
-	
-		this.restManager.effectuerRequete("GET", "abonnements/evenements", {
+	 * Fonction générique de récupération d'évènements. Utilisable pour la récupération de : 
+	 * - Evènements de mes abonnements
+	 * - Evènements dont je suis propriétaire
+	 * - Evènements d'une salle
+	 * 
+	 * @param url URL à laquelle faire la requête
+	 * @param dateDebut Début de la fenêtre de recherche
+	 * @param dateFin Fin de la fenêtre de recherche
+	 * @param callback Fonction à appeler pour fournir le résultat de la requête (paramètres resultCode et data)
+	 * @param idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 */
+	EvenementGestion.prototype.queryEvenements = function(url, dateDebut, dateFin, callback, idSalle) {
+		
+		var params = {
 			token: this.restManager.getToken(),
 			debut: dateDebut.getTime(),
 			fin: dateFin.getTime()
-		}, function(data) {
+		};
+		
+		if(idSalle) {
+			params.idSalle = idSalle;
+		}
+		
+		this.restManager.effectuerRequete("GET", url, params, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback(data.resultCode, data.data);
 			}
@@ -190,6 +205,46 @@ define(["RestManager"], function(RestManager) {
 	};
 	
 	/**
+	 * Récupération générique d'évènements
+	 * @param url URL de récupération de ces évènements
+	 * @param modeCache Mode de cache des évènements. Doit correspondre à l'URL fourni avec le paramètre url
+	 * @param dateDebut Début de la fenêtre de recherche
+	 * @param dateFin Fin de la fenêtre de recherche
+	 * @param ignoreCache Ignorer les évènements stockés en cache et forcer la requête vers le serveur
+	 * @param callback Fonction de rappel à appeler avec les résultats. Prend les paramètres resultCode et evenements (tableau des évènements)
+	 */
+	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, ignoreCache, callback) {
+		var me = this;
+		
+		if(this.matieresCalendriers == null || this.typesCalendriers == null)
+			throw "getAbonnements doit avoir été appelé avant getEvenements : " +
+					"les calendriers sont nécessaires pour remplir les matières & types des évènements.";
+		
+		// Récupération depuis le cache si disponible
+		var evenements = ignoreCache ? null : this.getEventsFromCache(modeCache, dateDebut, dateFin);
+		
+		if(evenements !== null) {
+			callback(RestManager.resultCode_Success, evenements);
+		}
+		else {
+			// Récupération depuis le serveur
+			this.queryEvenements(url, dateDebut, dateFin, function(resultCode, data) {
+				if(resultCode == RestManager.resultCode_Success) {
+					var parsedEvents = me.parseEventsFullcalendar(data);
+					
+					// Ajout des évènements récupérés au cache
+					me.cacheEvents(modeCache, dateDebut, dateFin, parsedEvents);
+					
+					callback(resultCode, parsedEvents);
+				}
+				else {
+					callback(resultCode);
+				}
+			});
+		}
+	};
+	
+	/**
 	 * Récupération des évènements auxquels l'utilisateur est abonné pour l'intervalle donné.
 	 * Les évènements sont éventuellements récupérés depuis le cache si disponibles.
 	 * Les matières des évènements sont remplis avec les calendriers précédemment chargés
@@ -204,36 +259,14 @@ define(["RestManager"], function(RestManager) {
 	 * 
 	 */
 	EvenementGestion.prototype.getEvenementsAbonnements = function(start, end, ignoreCache, callback) {
-		var me = this;
-		
-		if(this.matieresCalendriers == null || this.typesCalendriers == null)
-			throw "getAbonnements doit avoir été appelé avant getEvenementsAbonnements : " +
-					"les calendriers sont nécessaires pour remplir les matières & types des évènements.";
-		
-		// Récupération depuis le cache si disponible
-		var evenements = ignoreCache ? null : this.getEventsFromCache(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end);
-		
-		if(evenements !== null) {
-			callback(RestManager.resultCode_Success, evenements);
-		}
-		else {
-			// Récupération depuis le serveur
-			
-			this.queryEvenementsAbonnements(start, end, function(resultCode, data) {
-				if(resultCode == RestManager.resultCode_Success) {
-					var parsedEvents = me.parseEventsFullcalendar(data);
-					
-					// Ajout des évènements récupérés au cache
-					me.cacheEvents(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, parsedEvents);
-					
-					callback(resultCode, parsedEvents);
-				}
-				else {
-					callback(resultCode);
-				}
-			});
-		}
+		this.getEvenements("abonnements/evenements", EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, ignoreCache, callback);
 	};
+	
+	EvenementGestion.prototype.getMesEvenements = function(start, end, ignoreCache, callback) {
+		this.getEvenements("mesevenements", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, ignoreCache, callback);
+	};
+	
+	// TODO : ajouter getEvenementsSalle (même style d'appel)
 	
 	/**
 	 * Enregistrement des évènements récupérés pour un intervalle donné

@@ -72,6 +72,11 @@
   </servlet>
   
   <servlet>
+      <servlet-name>EvenementsResponsable</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.EvenementsResponsableServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
       <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.GroupesParentsPotentielsServlet</servlet-class>
   </servlet>
@@ -142,9 +147,13 @@
   </servlet-mapping>
   
   <servlet-mapping>
+      <servlet-name>EvenementsResponsable</servlet-name>
+      <url-pattern>/mesevenements</url-pattern>
+  </servlet-mapping>
+  
+	<servlet-mapping>
       <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
       <url-pattern>/groupesparentspotentiels</url-pattern>
   </servlet-mapping>
-
 </web-app>
 
