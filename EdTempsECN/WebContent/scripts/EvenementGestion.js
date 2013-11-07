@@ -175,6 +175,8 @@ define(["RestManager"], function(RestManager) {
 		for(var i=0, maxI = evenements.length; i<maxI; i++) {
 			var strSalles = evenements[i].salles.join(", ");
 			
+			var estProprietaire = this.estProprietaire(evenements[i]);
+			
 			res.push({
 				id: evenements[i].id,
 				title: evenements[i].nom,
@@ -188,7 +190,7 @@ define(["RestManager"], function(RestManager) {
 				matieres: evenements[i].matieres,
 				types: evenements[i].types,
 				allDay: false,
-				editable: proprietaire
+				editable: estProprietaire
 			});
 		}
 		
@@ -228,7 +230,7 @@ define(["RestManager"], function(RestManager) {
 			}
 		
 			// Est-ce que l'utilisateur est propriétaire
-			var proprietaire = this.estProprietaire(evenements[i]);
+			var estProprietaire = this.estProprietaire(evenements[i]);
 			
 			res[i] = {
 				id: evenements[i].id,
@@ -243,7 +245,7 @@ define(["RestManager"], function(RestManager) {
 				matieres: matieres,
 				types: types,
 				allDay: false,
-				editable: proprietaire
+				editable: estProprietaire
 			};
 		}
 	
@@ -262,10 +264,6 @@ define(["RestManager"], function(RestManager) {
 	 */
 	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, parsingMethod, ignoreCache, callback) {
 		var me = this;
-		
-		if(this.matieresCalendriers == null || this.typesCalendriers == null)
-			throw "getAbonnements doit avoir été appelé avant getEvenements : " +
-					"les calendriers sont nécessaires pour remplir les matières & types des évènements.";
 		
 		// Récupération depuis le cache si disponible
 		var evenements = ignoreCache ? null : this.getEventsFromCache(modeCache, dateDebut, dateFin);
@@ -306,11 +304,15 @@ define(["RestManager"], function(RestManager) {
 	 * 
 	 */
 	EvenementGestion.prototype.getEvenementsAbonnements = function(start, end, ignoreCache, callback) {
-		this.getEvenements("abonnements/evenements", EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, this.parseEventsSimplesFullcalendar, ignoreCache, callback);
+		var me = this;
+		this.getEvenements("abonnements/evenements", EvenementGestion.CACHE_MODE_MES_ABONNEMENTS, start, end, 
+				function(events) { return me.parseEventsSimplesFullcalendar(events); }, ignoreCache, callback);
 	};
 	
 	EvenementGestion.prototype.getMesEvenements = function(start, end, ignoreCache, callback) {
-		this.getEvenements("mesevenements", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, this.parseEventsCompletsFullCalendar, ignoreCache, callback);
+		var me = this;
+		this.getEvenements("mesevenements", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, 
+				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback);
 	};
 	
 	// TODO : ajouter getEvenementsSalle (même style d'appel)

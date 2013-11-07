@@ -11,6 +11,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.evenementGestion = new EvenementGestion(this.restManager);
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
 		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle);
+		this.calendrier = null;
 		// TODO : enlever ce test
 		window.ajoutEvenement = this.ajoutEvenement;
 	};
@@ -36,7 +37,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			me.ajoutEvenement.show();
 		});
 
-		this.setVue("mes_abonnements");
+		if(!this.mode) {
+			this.setVue("mes_abonnements");
+		}
+		
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement);
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier);
@@ -68,7 +72,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			break;
 		}
 		
-		if(this.abonnementsRecuperes) {
+		if(this.calendrier != null) {
 			this.calendrier.refetchEvents();
 		}
 	};
@@ -93,9 +97,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			
 		case EcranAccueil.MODE_MES_EVENEMENTS:
 			
-			// TODO : compléter
-			callback(new Array());
-			
+			this.remplirMesEvenements(start, end, callback);
 			break;
 			
 		default: 
@@ -109,7 +111,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	
 	
 	/**
-	 * Fonction fournissant au callback de fullcalendar les évènements de la période demandée
+	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
+	 * pour les évènements d'abonnement de l'utilisateur
 	 * 
 	 * @param dateDebut date de début de la période
 	 * @param dateFin date de fin de la période
@@ -123,6 +126,31 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				// Filtrage et passage à fullcalendar
 				var evenementsGroupesActifs = me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data);
 				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
+			}
+			else if(resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
+			}
+			else {
+				window.showToast("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
+			}
+		});
+	};
+	
+	/**
+	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
+	 * pour les évènements dont l'utilisateur est propriétaire
+	 * 
+	 * @param dateDebut date de début de la période
+	 * @param dateFin date de fin de la période
+	 * @param callbackCalendrier callback de fullcalendar
+	 */
+	EcranAccueil.prototype.remplirMesEvenements = function(dateDebut, dateFin, callbackCalendrier) {
+		
+		var me = this;
+		this.evenementGestion.getMesEvenements(dateDebut, dateFin, false, function(resultCode, data) {
+			if(resultCode == RestManager.resultCode_Success) {
+				// Filtrage et passage à fullcalendar
+				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(data));
 			}
 			else if(resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
