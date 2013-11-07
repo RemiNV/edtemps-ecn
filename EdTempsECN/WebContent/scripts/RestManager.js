@@ -91,6 +91,14 @@ define(["jquery"], function() {
 		return this._token;
 	};
 	
+	/**
+	 * Récupération de l'ID d'utilisateur de l'utilisateur actuel
+	 * @returns ID de l'utilisateur actuel
+	 */
+	RestManager.prototype.getUserId = function() {
+		return this._userId;
+	};
+	
 	/* Dans le cas où l'application possède un token de connexion,
 	 * vérifie auprès du serveur que ce token est (encore) valide.
 	 * Param callback : fonction de rappel appelée une fois la requête effectuée. Arguments : 
