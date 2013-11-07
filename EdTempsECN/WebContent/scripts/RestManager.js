@@ -40,6 +40,7 @@ define(["jquery"], function() {
 	};
 
 	RestManager.prototype.setUserId = function(userId) {
+		this._userId = userId;
 		if(window.localStorage) {
 			window.localStorage["userId"] = userId;
 		}
@@ -110,7 +111,7 @@ define(["jquery"], function() {
 			this.effectuerRequete("GET", "identification/checkconnection", { token: this._token }, function(data) {
 				if(data.resultCode == RestManager.resultCode_Success) {
 					me._isConnected = true;
-					me.setUserId(data.id);
+					me.setUserId(data.data.id);
 				}
 			
 				callback(data.resultCode);
