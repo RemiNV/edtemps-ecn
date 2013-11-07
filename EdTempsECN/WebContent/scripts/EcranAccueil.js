@@ -99,13 +99,18 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			
 		case EcranAccueil.MODE_MES_EVENEMENTS:
 			
-			this.listeGroupesParticipants.clear();
+			if(this.listeGroupesParticipants) {
+				this.listeGroupesParticipants.clear();
+			}
+			
 			this.remplirMesEvenements(start, end, callback);
 			break;
 			
 		default: 
 			
-			this.listeGroupesParticipants.clear();
+			if(this.listeGroupesParticipants) {
+				this.listeGroupesParticipants.clear();
+			}
 			// TODO : gérer
 			callback(new Array());
 		
