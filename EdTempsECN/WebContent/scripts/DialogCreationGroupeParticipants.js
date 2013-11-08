@@ -1,7 +1,7 @@
 /**
  * @module DialogCreationGroupeParticipants
  */
-define([ "RestManager", "jquerycombobox" ], function(RestManager) {
+define([ "RestManager" ], function(RestManager) {
 
 	/**
 	 * @constructor
@@ -113,8 +113,6 @@ define([ "RestManager", "jquerycombobox" ], function(RestManager) {
 					me.jqCreationGroupeForm.find("#form_creer_groupe_parent_message").html("Aucun rattachement possible").show();
 					$(object).attr("disabled", "disabled");
 				}
-
-				$("#form_creer_groupe_parent").combobox();
 				 
 				callback(true);
 

@@ -16,7 +16,7 @@ import org.ecn.edtemps.models.Groupe;
  */
 public class GroupeIdentifie extends Groupe implements JSONAble {
 
-	/** Identifiant de la salle */
+	/** Identifiant du groupe */
 	protected int id;
 
 	/**
@@ -30,6 +30,17 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 	 */
 	public GroupeIdentifie(int id, String nom, List<Integer> idProprietaires, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique) {
 		super(nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
+		this.id = id;
+	}
+	
+	/**
+	 * Autre constructeur, uniquement avec "nom", "parendId" et "id"
+	 * @param id
+	 * @param nom
+	 * @param parentId
+	 */
+	public GroupeIdentifie(int id, String nom, int parentId) {
+		super(nom, parentId);
 		this.id = id;
 	}
 

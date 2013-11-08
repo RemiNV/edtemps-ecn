@@ -18,6 +18,7 @@ import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
@@ -38,8 +39,8 @@ public class GroupesAbonnementsEtNonAbonnementsServlet extends RequiresConnectio
 		
 		try {
 			// Récupération des groupes 
-			ArrayList<GroupeIdentifie> abonnementsGroupes = groupeGestion.listerGroupesAbonnement(userId, true, false);
-			ArrayList<GroupeIdentifie> nonAbonnementsGroupes = groupeGestion.listerGroupesNonAbonnement(userId, true, false);
+			ArrayList<GroupeIdentifieAbonnement> abonnementsGroupes = groupeGestion.listerGroupesAbonnementDirect(userId);
+			ArrayList<GroupeIdentifieAbonnement> nonAbonnementsGroupes = groupeGestion.listerGroupesNonAbonnement(userId);
 			
 			// Création de la réponse
 			data = Json.createObjectBuilder()

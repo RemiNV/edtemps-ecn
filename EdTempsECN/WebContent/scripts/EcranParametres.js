@@ -60,7 +60,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
 					gpe = data.groupesAbonnements[i];
 					html += '<option value="' + gpe.id + '"';
-					if (gpe.estCours) {
+					if (gpe.abonnementObligatoire) {
 						html += ' disabled="disabled"';
 					}
 					html += '>' + gpe.nom + '</option>';
