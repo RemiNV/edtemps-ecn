@@ -16,7 +16,7 @@ import org.ecn.edtemps.models.Groupe;
  */
 public class GroupeIdentifie extends Groupe implements JSONAble {
 
-	/** Identifiant de la salle */
+	/** Identifiant du groupe */
 	protected int id;
 
 	/**
