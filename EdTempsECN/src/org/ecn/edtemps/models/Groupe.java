@@ -44,6 +44,16 @@ public class Groupe {
 		this.estCours = estCours;
 		this.estCalendrierUnique = estCalendrierUnique;
 	}
+	
+	/**
+	 * Autre constructeur, uniquement avec "nom" et "parendId"
+	 * @param nom
+	 * @param parentId
+	 */
+	public Groupe(String nom, int parentId) {
+		this.nom = nom;
+		this.parentId = parentId;
+	}	
 
 	/**
 	 * @return idCalendriers
