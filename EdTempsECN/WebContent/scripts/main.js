@@ -170,8 +170,8 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 			
 			// Initialisation
 			currentPage.manager = new EcranAccueil(restManager);
-			currentPage.manager.init();
 			currentPage.manager.setVue(vue);
+			currentPage.manager.init();
 			currentPage.nom = "agenda";
 		});
 	};

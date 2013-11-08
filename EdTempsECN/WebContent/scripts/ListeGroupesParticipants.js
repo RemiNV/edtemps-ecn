@@ -3,8 +3,9 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	/**
 	 * Constructeur
 	 */
-	function ListeGroupesParticipants(restManager, calendrier) {
+	function ListeGroupesParticipants(restManager, calendrier, jqListe) {
 		this.restManager = restManager;
+		this.jqListe = jqListe;
 
 		// Liste des groupes masqués initialisée avec la mémoire localStorage du navigateur
 		this.groupesMasques = new Object();
@@ -44,6 +45,8 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		// Tableau qui contient un arbre des groupes pour facilite l'affichage de l'arborescence
 		this.arbre = null;
 		
+		// Ignore les appels à afficherBlocVosAgendas si déjà affiché
+		this.estAffiche = false;
 	};
 
 
@@ -141,35 +144,48 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 
 	/**
-	 * Affiche le bloc Vos agendas sur la page
+	 * Affiche le bloc Vos agendas sur la page.
+	 * Ne s'exécute plus si a déjà été appelé, et que clear() n'a pas été appelé
 	 */
 	ListeGroupesParticipants.prototype.afficherBlocVosAgendas = function() {
 
+		if(this.estAffiche)
+			return;
+		
 		var me = this;
 
 		// Affiche l'arbre dans la zone "Vos agendas"
-		$("#liste_groupes").html(this.afficherNoeud(this.arbre, ""));
+		this.jqListe.html(this.afficherNoeud(this.arbre, ""));
 
 		// Initialise l'ouverture de l'arborescence avec le localStorage
-		$(".liste_groupes_sous_groupe").each(function(i) {
+		this.jqListe.find(".liste_groupes_sous_groupe").each(function(i) {
 			var idGroupe = $(this).attr("data-groupe-id");
 			// Si le groupe doit être fermé
 			if (!me.arbreGroupesOuverts[idGroupe]) {
-				$("#liste_groupes_sous_groupe_" + $(this).attr("data-groupe-id")).hide();
-				$("#liste_groupes_triangle_" + $(this).attr("data-groupe-id")).rotate(-90);
+				me.jqListe.find("#liste_groupes_sous_groupe_" + $(this).attr("data-groupe-id")).hide();
+				me.jqListe.find("#liste_groupes_triangle_" + $(this).attr("data-groupe-id")).rotate(-90);
 			}
 		});
 		
 		// Listener pour les checkbox
-		$(".liste_groupes_checkbox").click(function() {
+		this.jqListe.find(".liste_groupes_checkbox").click(function() {
 			me.afficheCacheAgenda($(this).attr("data-groupe-id"));
 		});
 
 		// Listener pour les triangles
-		$(".liste_groupes_triangle").click(function() {
+		this.jqListe.find(".liste_groupes_triangle").click(function() {
 			me.afficheCacheArborescence($(this).attr("data-groupe-id"));
 		});
 
+		this.estAffiche = true;
+	};
+	
+	/**
+	 * Vide la liste de groupes de participants, et autorise un nouvel appel à afficherBlocVosAgendas
+	 */
+	ListeGroupesParticipants.prototype.clear = function() {
+		this.estAffiche = false;
+		this.jqListe.children().remove();
 	};
 
 	/**
@@ -179,7 +195,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	 * 			identifiant du groupe
 	 */
 	ListeGroupesParticipants.prototype.afficheCacheArborescence = function(groupeId) {
-		var sousGroupe = $("#liste_groupes_sous_groupe_" + groupeId);
+		var sousGroupe = this.jqListe.find("#liste_groupes_sous_groupe_" + groupeId);
 
 		if (sousGroupe.is(":visible")) {
 			
@@ -187,7 +203,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			sousGroupe.slideUp(200);
 			
 			// Tourne le triangle en position horizontale
-			$("#liste_groupes_triangle_" + groupeId).rotate(-90);
+			this.jqListe.find("#liste_groupes_triangle_" + groupeId).rotate(-90);
 			
 			// Met à jour le tableau des groupes qui doivent être ouverts 
 			this.arbreGroupesOuverts[groupeId]=false;
@@ -198,7 +214,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			sousGroupe.slideDown(300);
 
 			// Tourne le triangle en position verticale
-			$("#liste_groupes_triangle_" + groupeId).rotate(0);
+			this.jqListe.find("#liste_groupes_triangle_" + groupeId).rotate(0);
 
 			// Met à jour le tableau des groupes qui doivent être ouverts 
 			this.arbreGroupesOuverts[groupeId]=true;

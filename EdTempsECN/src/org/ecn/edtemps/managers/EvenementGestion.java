@@ -11,8 +11,12 @@ import java.util.List;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.model.inflaters.AbsEvenementInflater;
+import org.ecn.edtemps.model.inflaters.EvenementCompletInflater;
+import org.ecn.edtemps.model.inflaters.EvenementIdentifieInflater;
 import org.ecn.edtemps.models.Evenement;
 import org.ecn.edtemps.models.Materiel;
+import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -433,7 +437,7 @@ public class EvenementGestion {
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<EvenementIdentifie> listerEvenementsGroupe(int idGroupe, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
+	public ArrayList<EvenementComplet> listerEvenementsGroupe(int idGroupe, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
 		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
@@ -441,7 +445,7 @@ public class EvenementGestion {
 				"WHERE calendrierappartientgroupe.cal_id = " + idGroupe + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
-		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, createTransaction);
+		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
 		return res;
 	}
 	
@@ -455,7 +459,7 @@ public class EvenementGestion {
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<EvenementIdentifie> listerEvenementsSalle(int idSalle, Date dateDebut, Date dateFin, 
+	public ArrayList<EvenementComplet> listerEvenementsSalle(int idSalle, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
 		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 				"FROM edt.evenement " +
@@ -463,7 +467,7 @@ public class EvenementGestion {
 				"WHERE alieuensalle.salle_id = " + idSalle +" "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
-		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, createTransaction);
+		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
 		return res;
 	}
 	
@@ -477,7 +481,7 @@ public class EvenementGestion {
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<EvenementIdentifie> listerEvenementsResponsable(int idResponsable, Date dateDebut, Date dateFin, 
+	public ArrayList<EvenementComplet> listerEvenementsResponsable(int idResponsable, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
 		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 				"FROM edt.evenement " +
@@ -485,7 +489,7 @@ public class EvenementGestion {
 				"WHERE responsableevenement.utilisateur_id = " + idResponsable + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
-		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, createTransaction);
+		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
 		return res;
 	}
 	
@@ -507,22 +511,25 @@ public class EvenementGestion {
 				"WHERE evenementappartient.cal_id = " + idCalendrier + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
-		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, createTransaction);
+		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, new EvenementIdentifieInflater(), createTransaction);
 		return res;
 	}
 	
 	/**
 	 * Liste les évènements correspondant à une requête préparée (pour obtenir les événements liés à un groupe, à une salle, à un calendrier, à un responsable)
 	 * @param request requêre SQL pour obtenir les événements souhaités
-	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @param dateDebut
 	 * @param dateFin
+	 * @parm inflater Inflater permettant de créer l'objet voulu à partir des lignes de base de donnée
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * 
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException
 	 */
-	private ArrayList<EvenementIdentifie> listerEvenements(String request, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
-		ArrayList<EvenementIdentifie> res = null;
+	private <T  extends EvenementIdentifie> ArrayList<T> listerEvenements(String request, Date dateDebut, Date dateFin, 
+			AbsEvenementInflater<T> inflater, boolean createTransaction) throws DatabaseException {
+		
+		ArrayList<T> res = null;
 		try {
 			if(createTransaction){
 				_bdd.startTransaction();
@@ -535,9 +542,9 @@ public class EvenementGestion {
 			
 			ResultSet reponse = req.executeQuery();
 			
-			res = new ArrayList<EvenementIdentifie>();
+			res = new ArrayList<T>();
 			while(reponse.next()) {
-				res.add(inflateEvenementFromRow(reponse));
+				res.add(inflater.inflateEvenement(reponse, _bdd));
 			}
 			
 			reponse.close();
