@@ -3,9 +3,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	/**
 	 * Constructeur
 	 */
-	function RechercheSalle(restManager, jqRechercheSalle, ajoutEvenement) {
+	function RechercheSalle(restManager, jqRechercheSalle) {
 		this.restManager = restManager;
-		this.ajoutEvenement = ajoutEvenement;
 		this.jqRechercheSalleForm = jqRechercheSalle.find("#form_chercher_salle");
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
 		
@@ -25,9 +24,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	/**
 	 * Affiche la boîte de dialogue de recherche d'une salle libre
 	 */
-	RechercheSalle.prototype.show = function() {
+	RechercheSalle.prototype.show = function(ajoutEvenement) {
 		if(!this.initAppele) {
-			this.init();
+			this.init(ajoutEvenement);
 			this.initAppele = true;
 		}
 		
@@ -41,6 +40,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 */
 	RechercheSalle.prototype.init = function() {
 		var me = this;
+		this.ajoutEvenement = ajoutEvenement;
 
 		// Ajout des masques aux différents champs
 		this.jqHeureDebut.mask("99:99");
