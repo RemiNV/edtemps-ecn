@@ -588,4 +588,48 @@ public class GroupeGestion {
 		_bdd.executeRequest(s);
 	}
 	
+	/**
+	 * Récupérer la liste des groupes de participants auxquels un ajout de groupe peut être rattaché
+	 * 
+	 * @param userId
+	 * 			identiiant de l'utilisateur en cours pour trier la liste des résultats
+	 * 
+	 * @return liste des groupes parents potentiels
+	 * 
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifie> getGroupesParentsPotentiels(int userId) throws DatabaseException {
+		
+		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
+				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
+					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant " +
+					"WHERE groupeparticipant.groupeparticipant_rattachementautorise = TRUE");
+
+		ArrayList<GroupeIdentifie> listeRangee = new ArrayList<GroupeIdentifie>();
+		ArrayList<GroupeIdentifie> resteARanger = new ArrayList<GroupeIdentifie>();
+
+		try {
+			while(resGroupes.next()) {
+				GroupeIdentifie grp = inflateGroupeFromRow(resGroupes);
+				
+				if (grp.getIdProprietaires().contains(userId)) {
+					// Si l'utilisateur est dans la liste des propiétaires, on l'ajoute dans la liste finale
+					listeRangee.add(grp);
+				} else {
+					// Sinon, on le range dans une liste temporaire
+					resteARanger.add(grp);
+				}
+			}
+
+			// Ajout de la liste à ranger à la suite des groupes déjà rangés
+			listeRangee.addAll(resteARanger);
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return listeRangee;
+	}
+	
 }

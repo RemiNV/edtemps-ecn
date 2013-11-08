@@ -1,4 +1,4 @@
-define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedinput"], function(CalendrierGestion, RestManager) {
+define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedinput", "lib/fullcalendar.translated.min"], function(CalendrierGestion, RestManager) {
 	
 	function AjoutEvenement(restManager, jqDialog, rechercheSalle) {
 		
@@ -48,7 +48,33 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			me.lancerRechercheSalle();
 		});
 		
+		jqDialog.find("#btn_valider_ajout_evenement").click(function() {
+			me.validationDialog();
+		});
 		
+		
+	};
+	
+	AjoutEvenement.prototype.setSalles = function(salles) {
+		this.sallesSelectionnees = salles;
+		
+		// Affichage des salles dans la zone de texte
+		var strSalles;
+		if(salles.length > 0) {
+			strSalles = "";
+			for(var i=0, maxI = salles.length; i<maxI; i++) {
+				if(i != 0) {
+					strSalles += ", ";
+				}
+				
+				strSalles += salles[i].nom;
+			}
+		}
+		else {
+			strSalles = "(Sélectionnez une ou plusieurs salle(s))";
+		}
+		
+		this.jqDialog.find("#salles_evenement").html(strSalles);
 	};
 	
 	AjoutEvenement.prototype.lancerRechercheSalle = function() {
@@ -75,31 +101,30 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 					me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
 				}
 			}, function(salles) {
-				me.sallesSelectionnees = salles;
-				
-				// Affichage des salles dans la zone de texte
-				var strSalles;
-				if(salles.length > 0) {
-					strSalles = "";
-					for(var i=0, maxI = salles.length; i<maxI; i++) {
-						if(i != 0) {
-							strSalles += ", ";
-						}
-						
-						strSalles += salles[i].nom;
-					}
-				}
-				else {
-					strSalles = "(Sélectionnez une ou plusieurs salle(s))";
-				}
-				
-				me.jqDialog.find("#salles_evenement").html(strSalles);
+				me.setSalles(salles);
 			});
 		}
 		else {
 			window.showToast("Remplissez les champs indiqués pour lancer la recherche");
 		}
 		
+	};
+	
+	AjoutEvenement.prototype.validationDialog = function() {
+		// Récupération des données du formulaire
+		var formData = this.getDonneesFormulaire(false);
+		
+		if(formData.valide) {
+			
+			// Message d'attente
+			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
+			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
+			
+			// TODO : compléter)
+			// this.restManager.effectuerRequete("POST", "ajoutEvenement"); 
+			
+			// TODO	: invalider le cache de EvenementGestion pour la période de l'évènement 
+		}
 	};
 	
 	/**
@@ -266,12 +291,40 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	};
 	
 	/**
-	 * Affichage de la boîte de dialogue d'ajout d'évènement
+	 * Affichage de la boîte de dialogue d'ajout d'évènement.
+	 * Les paramètres de pré-remplissage peuvent être null pour ne rien préremplir
+	 * 
+	 * @param dateDebut date de début à pré-remplir ; objet Date JavaScript
+	 * @param dateFin date de fin à pré-remplir. <b>Doit être le même jour</b> que dateDebut si il est non null ; objet Date JavaScript
+	 * @param salles salles à pré-remplir. Tableau d'objets contenant au moins les attributs id et nom
 	 */
-	AjoutEvenement.prototype.show = function() {
+	AjoutEvenement.prototype.show = function(dateDebut, dateFin, salles) {
 		
 		if(!this.initAppele) {
 			this.init();
+		}
+		
+		this.jqDialog.find("#txt_nom_evenement").val("");
+		this.jqDialog.find("#tbl_materiel td.quantite input").val("0");
+		
+		var jqDate = this.jqDialog.find("#date_evenement").val("");
+		var jqHeureDebut = this.jqDialog.find("#heure_debut").val("");
+		var jqHeureFin = this.jqDialog.find("#heure_fin").val("");
+		
+		if(dateDebut) {
+			jqDate.val($.datepicker.formatDate("dd/mm/yy", dateDebut));
+			jqHeureDebut.val($.fullCalendar.formatDate(dateDebut, "HH:mm"));
+		}
+		else if(dateFin) {
+			jqDate.val($.datepicker.formatDate("dd/mm/yy", dateFin));
+		}
+		
+		if(dateFin) {
+			jqHeureFin.val($.fullCalendar.formatDate(dateFin, "HH:mm"));
+		}
+		
+		if(salles) {
+			this.setSalles(salles);
 		}
 		
 		this.jqDialog.dialog("open");

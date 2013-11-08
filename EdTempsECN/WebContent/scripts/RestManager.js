@@ -10,9 +10,16 @@ define(["jquery"], function() {
 		// Il peut avoir expiré.
 		if(window.localStorage) {
 			this._token = window.localStorage["token"];
+			this._userId = parseInt(window.localStorage["userId"]);
+			
+			if(isNaN(this._userId)) {
+				this._userId = null;
+			}
 		}
-		else
+		else {
 			this._token = null; // Navigateurs ne supportant pas localStorage
+			this._userId = null;
+		}
 			
 		this._connected = false; // Appeler connexion() ou checkConnexion() pour mettre à jour ce statut
 		
@@ -33,6 +40,7 @@ define(["jquery"], function() {
 	};
 
 	RestManager.prototype.setUserId = function(userId) {
+		this._userId = userId;
 		if(window.localStorage) {
 			window.localStorage["userId"] = userId;
 		}
@@ -84,6 +92,14 @@ define(["jquery"], function() {
 		return this._token;
 	};
 	
+	/**
+	 * Récupération de l'ID d'utilisateur de l'utilisateur actuel
+	 * @returns ID de l'utilisateur actuel
+	 */
+	RestManager.prototype.getUserId = function() {
+		return this._userId;
+	};
+	
 	/* Dans le cas où l'application possède un token de connexion,
 	 * vérifie auprès du serveur que ce token est (encore) valide.
 	 * Param callback : fonction de rappel appelée une fois la requête effectuée. Arguments : 
@@ -95,6 +111,7 @@ define(["jquery"], function() {
 			this.effectuerRequete("GET", "identification/checkconnection", { token: this._token }, function(data) {
 				if(data.resultCode == RestManager.resultCode_Success) {
 					me._isConnected = true;
+					me.setUserId(data.data.id);
 				}
 			
 				callback(data.resultCode);

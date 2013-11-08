@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
@@ -49,18 +50,26 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 		this.id = id;
 	}
 
+	/**
+	 * Génération et remplissage du JsonObjectBuilder de cet objet pour la conversion en JsonValue.
+	 * Peut être surclassé pour ajouter des champs supplémentaires
+	 * 
+	 * @return Le builder créé et initialisé
+	 */
+	protected JsonObjectBuilder makeJsonObjectBuilder() {
+		return Json.createObjectBuilder()
+			.add("id", id)
+			.add("nom", nom)
+			.add("dateDebut", dateDebut.getTime())
+			.add("dateFin", dateFin.getTime())
+			.add("calendriers", JSONUtils.getJsonIntArray(idCalendriers))
+			.add("salles", JSONUtils.getJsonArray(salles))
+			.add("intervenants", JSONUtils.getJsonArray(intervenants))
+			.add("responsables", JSONUtils.getJsonArray(responsables));
+	}
 
 	@Override
-	public JsonValue toJson() {
-		return Json.createObjectBuilder()
-				.add("id", id)
-				.add("nom", nom)
-				.add("dateDebut", dateDebut.getTime())
-				.add("dateFin", dateFin.getTime())
-				.add("calendriers", JSONUtils.getJsonIntArray(idCalendriers))
-				.add("salles", JSONUtils.getJsonArray(salles))
-				.add("intervenants", JSONUtils.getJsonArray(intervenants))
-				.add("responsables", JSONUtils.getJsonArray(responsables))
-				.build();
+	public final JsonValue toJson() {
+		return makeJsonObjectBuilder().build();
 	}
 }

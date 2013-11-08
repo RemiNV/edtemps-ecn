@@ -70,6 +70,7 @@
  	border: solid 1px gray;
  	border-radius: 5px;
  	padding: 2px;
+ 	display: none;
  }
 
 .ui-datepicker .ui-datepicker-prev {
@@ -157,4 +158,12 @@
 .ui-datepicker .ui-datepicker-calendar td:hover {
 	color: black;
 	border: solid 1px gray;
+}
+
+/**
+ * Custom combobox
+ */
+
+.ui-helper-hidden-accessible {
+	background-color: red;
 }

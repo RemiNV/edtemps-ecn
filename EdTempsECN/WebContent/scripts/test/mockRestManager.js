@@ -36,9 +36,9 @@ define(["mockjax"], function() {
 	];
 	
 	var salles = [
-		{"id":1,"nom":"Salle info B12","batiment":"B","capacite":20,"niveau":2,"numero":12},
-		{"id":3,"nom":"Amphi L","batiment":"L","capacite":200,"niveau":1,"numero":0},
-		{"id":4,"nom":"Salle C02","batiment":"C","capacite":35,"niveau":2,"numero":1}
+		{"id":1,"nom":"Salle info B12","batiment":"B","capacite":20,"niveau":2,"numero":12,"materiels":[{"id":1,"nom":"Ordinateur","quantite":10},{"id":2,"nom":"Vidéoprojecteur","quantite":1}]},
+		{"id":3,"nom":"Amphi L","batiment":"L","capacite":200,"niveau":1,"numero":0,"materiels":[]},
+		{"id":4,"nom":"Salle C02","batiment":"C","capacite":35,"niveau":2,"numero":1,"materiels":[{"id":2,"nom":"Vidéoprojecteur","quantite":10}]}
 	];
 	
 	var getEvenementsIntervalle = function(dateDebut, dateFin) {

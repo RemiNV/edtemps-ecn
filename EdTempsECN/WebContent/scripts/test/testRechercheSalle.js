@@ -1,4 +1,4 @@
-require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager", "test/mockRestManager", "qunit"], 
+require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager", "test/mockRestManager"], 
 		function(RechercheSalle, pageAccueilHtml, RestManager, mockRestManager) {
 	
 	var jqFormChercherSalle = null;
@@ -27,12 +27,12 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 		deepEqual(jqFormChercherSalle.length, 1, "Unique dialog de recherche de salle #form_chercher_salle trouvée");
 		deepEqual(jqResultatChercherSalle.length, 1, "Unique dialog de résultats #resultat_chercher_salle trouvée");
 		
-		rechercheSalle.init();
+		rechercheSalle.show();
 	});
 	
 	asyncTest("Liste de matériels correspondant aux données du mockRestManager", function() {
 		
-		rechercheSalle.init();
+		rechercheSalle.show();
 		
 		// Attente de la disponibilité des matériels dans le listing
 		function launchTest() {
@@ -62,7 +62,7 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 	
 	asyncTest("Recherche", function() {
 		
-		rechercheSalle.init();
+		rechercheSalle.show();
 		
 		// Attente de la disponibilité des matériels dans le listing
 		function launchTest() {
@@ -85,7 +85,7 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 				
 				ok(materielTrouve, "Vidéoprojecteur nécessaire ajouté avec succès");
 				
-				jqFormChercherSalle.find("#form_recherche_salle_date").val("2013-10-31");
+				jqFormChercherSalle.find("#form_recherche_salle_date").val("31/10/2013");
 				jqFormChercherSalle.find("#form_recherche_salle_debut").val("12:45");
 				jqFormChercherSalle.find("#form_recherche_salle_fin").val("13:45");
 				jqFormChercherSalle.find("#form_recherche_salle_capacite").val("42");
@@ -96,10 +96,14 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 				var mockedCalls = mockRestManager.getMockedCalls("recherchesallelibre", "GET");
 				deepEqual(mockedCalls.length, 1, "Une unique recherche de salle effectuée");
 				
-				equal(mockedCalls[0].data.capacite, 42, "Capacité de salle dans la requête correspondant au formulaire");
-				equal(mockedCalls[0].data.date, "2013-10-31", "Date dans la requête correspondant au formulaire");
-				equal(mockedCalls[0].data.heureDebut, "12:45", "Heure début dans la requête correspondant au formulaire");
-				equal(mockedCalls[0].data.heureFin, "13:45", "Heure fin dans la requête correspondant au formulaire");
+				if(mockedCalls.length < 1) {
+					start();
+					return;
+				}
+				
+				equal(mockedCalls[0].data.effectif, 42, "Capacité de salle dans la requête correspondant au formulaire");
+				equal(mockedCalls[0].data.debut, (new Date("2013-10-31T12:45:00")).getTime(), "Date début dans la requête correspondant au formulaire");
+				equal(mockedCalls[0].data.fin, (new Date("2013-10-31T13:45:00")).getTime(), "Date fin dans la requête correspondant au formulaire");
 				
 				// Vérification du matériel
 				var materiels = mockedCalls[0].data.materiel.split(",");

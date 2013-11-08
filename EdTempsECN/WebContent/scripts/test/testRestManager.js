@@ -1,4 +1,4 @@
-require(["RestManager", "qunit"], function(RestManager) {
+require(["RestManager"], function(RestManager) {
 
 	
 	module("RestManager", {
