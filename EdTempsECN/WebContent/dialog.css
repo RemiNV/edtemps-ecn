@@ -159,11 +159,3 @@
 	color: black;
 	border: solid 1px gray;
 }
-
-/**
- * Custom combobox
- */
-
-.ui-helper-hidden-accessible {
-	background-color: red;
-}

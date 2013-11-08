@@ -5,16 +5,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.model.inflaters.AbsEvenementInflater;
 import org.ecn.edtemps.model.inflaters.EvenementCompletInflater;
 import org.ecn.edtemps.model.inflaters.EvenementIdentifieInflater;
-import org.ecn.edtemps.models.Evenement;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
@@ -45,18 +44,13 @@ public class EvenementGestion {
 	 * 
 	 * @param evenement
 	 */
-	public void sauverEvenement(Evenement evenement) throws EdtempsException {
+	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
+			List<Integer> idIntervenants, List<Integer> idResponsables, List<Materiel> materiels) throws EdtempsException {
 		
-		// Récupération des attributs de l'evenement
-		String nom = evenement.getNom();
-		Date dateDebut = evenement.getDateDebut();
-		Date dateFin = evenement.getDateFin();
-		List<Integer> idCalendriers = evenement.getIdCalendriers();
-		List<SalleIdentifie> salles = evenement.getSalles();
-		List<UtilisateurIdentifie> intervenants = evenement.getIntervenants();
-		List<UtilisateurIdentifie> responsables = evenement.getResponsables();
-		List<Materiel> materiels = evenement.getMateriels();
-			
+		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idSalles.isEmpty() || idResponsables.isEmpty()) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier, une salle et un responsable");
+		}
+		
 		try {		
 			// Début transaction
 			_bdd.startTransaction();			
@@ -64,7 +58,7 @@ public class EvenementGestion {
 			// On crée l'événement dans la base de données
 			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
 					+ "(eve_nom, eve_dateDebut, eve_dateFin) "
-					+ "VALUES ('?', '?', '?') "
+					+ "VALUES (?, ?, ?) "
 				    + "RETURNING eve_id");
 			req.setString(1, nom);
 			req.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
@@ -77,67 +71,57 @@ public class EvenementGestion {
 			int idEvenement = rsLigneCreee.getInt("eve_id");
 			rsLigneCreee.close();
 			
-			// On rattache l'evenement aux calendriers 
-			Iterator<Integer> itrCal = idCalendriers.iterator();
-			while (itrCal.hasNext()){
-				int idCalendrier = itrCal.next();
+			// On rattache l'evenement aux calendriers
+			for(int idCalendrier : idCalendriers) {
 				_bdd.executeRequest(
-						"INSERT INTO edt.evenementappartient "
-						+ "(eve_id, cal_id) "
-						+ "VALUES (" + idEvenement + ", " + idCalendrier + ")"
-						);
+					"INSERT INTO edt.evenementappartient "
+					+ "(eve_id, cal_id) "
+					+ "VALUES (" + idEvenement + ", " + idCalendrier + ")"
+					);
 			}
 			
 			// On rattache l'evenement aux salles
-			Iterator<SalleIdentifie> itrSalle = salles.iterator();
-			while (itrSalle.hasNext()){
-				int idSalle = itrSalle.next().getId();
+			for(int idSalle : idSalles) {
 				_bdd.executeRequest(
-						"INSERT INTO edt.alieuensalle "
-						+ "(eve_id, salle_id) "
-						+ "VALUES ("+ idEvenement + ", " + idSalle + ")");
+					"INSERT INTO edt.alieuensalle "
+					+ "(eve_id, salle_id) "
+					+ "VALUES ("+ idEvenement + ", " + idSalle + ")");
 			}
 			
 			// On indique le(s) responsable(s) dans la base
-			Iterator<UtilisateurIdentifie> itrResponsable = responsables.iterator();
-			while (itrResponsable.hasNext()){
-				int idResponsable = itrResponsable.next().getId();
+			for(int idResponsable : idResponsables) {
 				_bdd.executeRequest(
-						"INSERT INTO edt.responsableevenement "
-						+ "(eve_id, utilisateur_id) "
-						+ "VALUES ("+ idEvenement + ", " + idResponsable + ")");
+					"INSERT INTO edt.responsableevenement "
+					+ "(eve_id, utilisateur_id) "
+					+ "VALUES ("+ idEvenement + ", " + idResponsable + ")");
 			}
 			
 			// On indique le(s) intervenant(s) dans la base
-			Iterator<UtilisateurIdentifie> itrIntervenant = intervenants.iterator();
-			while (itrIntervenant.hasNext()){
-				int idIntervenant = itrIntervenant.next().getId();
+			for(int idIntervenant : idIntervenants) {
 				_bdd.executeRequest(
-						"INSERT INTO edt.intervenantevenement "
-						+ "(eve_id, utilisateur_id) "
-						+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
+					"INSERT INTO edt.intervenantevenement "
+					+ "(eve_id, utilisateur_id) "
+					+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
 			}
 			
 			// On rattache le matériel nécessité à l'évenement
-			Iterator<Materiel> itrMateriel = materiels.iterator();
-			while (itrMateriel.hasNext()){
-				Materiel materiel = itrMateriel.next();
+			for(Materiel materiel : materiels) {
 				int idMateriel = materiel.getId();
 				int quantiteMateriel = materiel.getQuantite();
 				_bdd.executeRequest(
-						"INSERT INTO edt.necessitemateriel "
-						+ "(eve_id, materiel_id, necessitemateriel_quantite) "
-						+ "VALUES ("+ idEvenement + ", " + idMateriel + ", " + quantiteMateriel +")");
+					"INSERT INTO edt.necessitemateriel "
+					+ "(eve_id, materiel_id, necessitemateriel_quantite) "
+					+ "VALUES ("+ idEvenement + ", " + idMateriel + ", " + quantiteMateriel +")");
 			}
 			
 			// Fin transaction
 			_bdd.commit();
 		} 
 		catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 		catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 		
 			

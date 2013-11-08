@@ -1,11 +1,13 @@
 define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedinput", "lib/fullcalendar.translated.min"], function(CalendrierGestion, RestManager) {
 	
-	function AjoutEvenement(restManager, jqDialog, rechercheSalle) {
+	function AjoutEvenement(restManager, jqDialog, rechercheSalle, evenementGestion, callbackRafraichirCalendrier) {
 		
 		this.jqDialog = jqDialog;
 		this.restManager = restManager;
-		this.strOptionsCalendriers = null; // HTML à ajouter au select pour sélectionner les calendriers
 		this.rechercheSalle = rechercheSalle;
+		this.evenementGestion = evenementGestion;
+		this.callbackRafraichirCalendrier = callbackRafraichirCalendrier;
+		this.strOptionsCalendriers = null; // HTML à ajouter au select pour sélectionner les calendriers
 		this.sallesSelectionnees = new Array();
 		this.initAppele = false;
 		
@@ -113,6 +115,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	AjoutEvenement.prototype.validationDialog = function() {
 		// Récupération des données du formulaire
 		var formData = this.getDonneesFormulaire(false);
+		var me = this;
 		
 		if(formData.valide) {
 			
@@ -120,10 +123,28 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
 			
-			// TODO : compléter)
-			// this.restManager.effectuerRequete("POST", "ajoutEvenement"); 
-			
-			// TODO	: invalider le cache de EvenementGestion pour la période de l'évènement 
+			this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
+					formData.intervenants, formData.responsables, formData.materiels, 
+					function(resultCode) {
+				
+				// Masquage du message d'attente
+				me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
+				
+				if(resultCode === RestManager.resultCode_Success) {
+					window.showToast("Evènement ajouté avec succès");
+					me.jqDialog.dialog("close");
+					
+					// Mise à jour du calendrier
+					me.callbackRafraichirCalendrier();
+					
+				}
+				else if(resultCode == RestManager.resultCode_NetworkError) {
+					window.showToast("Erreur d'enregistrement de l'évènement ; vérifiez votre connexion");
+				}
+				else {
+					window.showToast("Erreur d'enregistrement de l'évènement ; code retour " + resultCode);
+				}
+			});
 		}
 	};
 	
@@ -151,7 +172,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * - valideRechercheSalle: booléen, true si les informations nécessaires à la recherche
 	 * 		d'une salle sont présentes
 	 * - nom
-	 * - proprietaires : non implémenté pour l'instant (null)
+	 * - responsables : tableau d'ID des responsables
+	 * - intervenants : tableau d'ID des intervenants
 	 * - calendriers : tableau d'ID de calendriers
 	 * - dateDebut : date JavaScript
 	 * - dateFin : date JavaScript
@@ -180,8 +202,12 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			res.nom = validateNotEmpty(jqNom);
 		}
 		
-		// Récupération de la liste des propriétaires à implémenter
-		res.proprietaires = null;
+		// TODO : Récupération de la liste des responsables à implémenter
+		res.responsables = new Array();
+		res.responsables.push(this.restManager.getUserId());
+		
+		// TODO : Récupération des intervenants à implémenter
+		res.intervenants = new Array();
 		
 		// Récupération de la liste des calendriers
 		res.calendriers = new Array();
@@ -231,7 +257,11 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 		// Récupération des matériels et salles
 		res.materiels = this.rechercheSalle.getContenuListeMateriel(this.jqDialog.find("#tbl_materiel"));
-		res.salles = this.sallesSelectionnees;
+		
+		res.salles = new Array();
+		for(var i=0, max=this.sallesSelectionnees.length; i<max; i++) {
+			res.salles.push(this.sallesSelectionnees[i].id);
+		}
 		
 		if(!pourRechercheSalle) {
 			if(res.salles.length == 0) {

@@ -636,30 +636,25 @@ public class GroupeGestion {
 					"FROM edt.groupeparticipant " +
 					"WHERE groupeparticipant.groupeparticipant_rattachementautorise = TRUE");
 
-		ArrayList<GroupeIdentifie> listeRangee = new ArrayList<GroupeIdentifie>();
-		ArrayList<GroupeIdentifie> resteARanger = new ArrayList<GroupeIdentifie>();
+		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
 
 		try {
 			while(resGroupes.next()) {
 				GroupeIdentifie grp = inflateGroupeFromRow(resGroupes);
-				
 				if (grp.getIdProprietaires().contains(userId)) {
-					// Si l'utilisateur est dans la liste des propiétaires, on l'ajoute dans la liste finale
-					listeRangee.add(grp);
+					// Si l'utilisateur est dans la liste des propiétaires, on l'ajoute au début de la liste
+					res.add(0, grp);
 				} else {
-					// Sinon, on le range dans une liste temporaire
-					resteARanger.add(grp);
+					// Sinon, on le range à la suite de la liste
+					res.add(grp);
 				}
 			}
 
-			// Ajout de la liste à ranger à la suite des groupes déjà rangés
-			listeRangee.addAll(resteARanger);
-			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
 		
-		return listeRangee;
+		return res;
 	}
 	
 }

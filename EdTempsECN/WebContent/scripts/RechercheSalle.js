@@ -300,8 +300,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		var listeMateriel = new Array();
 		jqTableMateriel.find(".quantite input[type=number]").each(function() {
 			var materiel = new Object();
-			materiel.id=$(this).attr("materiel-id");
-			materiel.quantite=$(this).val();
+			materiel.id = parseInt($(this).attr("materiel-id"));
+			materiel.quantite = parseInt($(this).val());
 			listeMateriel.push(materiel);
 		});
 		

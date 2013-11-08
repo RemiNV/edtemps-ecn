@@ -6,15 +6,16 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 * Cet écran est associé au HTML templates/page_accueil.html.
 	 * Il s'agit de la page principale d'affichage des évènements. */
 	function EcranAccueil(restManager) { // Constructeur
+		var me = this;
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
-		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle);
+		
+		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
+		
 		this.calendrier = null;
 		this.listeGroupesParticipants = null;
-		// TODO : enlever ce test
-		window.ajoutEvenement = this.ajoutEvenement;
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
@@ -45,6 +46,24 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement);
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
+	};
+	
+	EcranAccueil.prototype.rafraichirCalendrier = function() {
+		if(this.calendrier != null) {
+			this.calendrier.refetchEvents();
+		}
+	};
+	
+	EcranAccueil.prototype.getRechercheSalle = function() {
+		return this.rechercheSalle;
+	};
+	
+	EcranAccueil.prototype.getEvenementGestion = function() {
+		return this.evenementGestion;
+	};
+	
+	EcranAccueil.prototype.getCalendrier = function() {
+		return this.calendrier;
 	};
 	
 	EcranAccueil.prototype.setVue = function(vue) {

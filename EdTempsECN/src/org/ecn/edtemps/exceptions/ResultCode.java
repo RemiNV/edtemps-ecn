@@ -18,7 +18,10 @@ public enum ResultCode {
 	CRYPTOGRAPHIC_ERROR(5),
 	
 	/** La requête a été effectuée sans tous les paramètres nécessaires */
-	WRONG_PARAMETERS_FOR_REQUEST(6);
+	WRONG_PARAMETERS_FOR_REQUEST(6),
+	
+	/** Un objet invalide a été fourni à une méthode d'enregistrement */
+	INVALID_OBJECT(7);
 	
 	private int code;
 	
