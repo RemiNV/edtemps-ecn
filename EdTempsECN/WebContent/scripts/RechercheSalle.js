@@ -24,9 +24,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	/**
 	 * Affiche la boîte de dialogue de recherche d'une salle libre
 	 */
-	RechercheSalle.prototype.show = function() {
+	RechercheSalle.prototype.show = function(ajoutEvenement) {
 		if(!this.initAppele) {
-			this.init();
+			this.init(ajoutEvenement);
 			this.initAppele = true;
 		}
 		
@@ -40,6 +40,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 */
 	RechercheSalle.prototype.init = function() {
 		var me = this;
+		this.ajoutEvenement = ajoutEvenement;
 
 		// Ajout des masques aux différents champs
 		this.jqHeureDebut.mask("99:99");
@@ -74,8 +75,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 					// Supression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
 					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
 					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
-				}, 
-				function(data) { alert(data.length + " salles sélectionnées - Action à déterminer"); });
+				}, function(data) {
+					me.ajoutEvenement.show(dateDebut, dateFin, data);
+				});
 
 			}
 		});
