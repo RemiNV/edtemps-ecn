@@ -1,17 +1,16 @@
 package org.ecn.edtemps.models.identifie;
 
-import java.util.List;
-
 import javax.json.Json;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
-import org.ecn.edtemps.json.JSONUtils;
-import org.ecn.edtemps.models.Groupe;
+
 
 /**
  * Classe modèle d'un groupe de participants identifié
- * auquel on rajoute l'information "abonnementObligatoire" (booléen) [valable pour un utilisateur donnée]. 
+ * auquel on rajoute l'information "abonnementObligatoire" (booléen) [valable pour un utilisateur donnée].
+ * 
+ *  Seules les informations utiles pour la page d'Abonnements/Désabonnements seront renseignées 
  * 
  * @author Maxime Terrade
  */
@@ -19,35 +18,18 @@ public class GroupeIdentifieAbonnement extends GroupeIdentifie implements JSONAb
 
 	/** information "abonnementObligatoire", pour un utilisateur donnée */
 	protected boolean abonnementObligatoire;
-
+	
 	/**
-	 * Constructeur utilisant les informations indispensables
-	 * @param id
-	 * @param idProprietaires
-	 * @param nom
-	 * @param rattachementAutorise
-	 * @param estCours
-	 * @param estCalendrierUnique
-	 * @param abonnementObligatoire
-	 */
-	public GroupeIdentifieAbonnement(int id, String nom, List<Integer> idProprietaires, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique, boolean abonnementObligatoire) {
-		super(id, nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
-		this.abonnementObligatoire = abonnementObligatoire;
-	}
-
-	/**
-	 * @return abonnementObligatoire
-	 */
-	public boolean getAbonnementObligatoire() {
-		return abonnementObligatoire;
-	}
-
-	/**
-	 * Affecte une valeur à l'attribut abonnementObligatoire
+	 * Constructeur utilisant uniquement les informations utiles pour  
+	 * la page d'Abonnements/Désabonnements 
 	 * 
+	 * @param id
+	 * @param nom
+	 * @param idParent
 	 * @param abonnementObligatoire
 	 */
-	public void setAbonnementObligatoire(boolean abonnementObligatoire) {
+	public GroupeIdentifieAbonnement(int id, String nom, int idParent, boolean abonnementObligatoire) {
+		super(id, nom, idParent);
 		this.abonnementObligatoire = abonnementObligatoire;
 	}
 
