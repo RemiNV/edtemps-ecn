@@ -372,5 +372,20 @@ define(["RestManager"], function(RestManager) {
 		return null;
 	};
 	
+	/**
+	 * Ajout d'un évènement en base de données
+	 * 
+	 * @param nom Nom de l'évènement
+	 * @param idProprietaires tableau d'IDs des propriétaires
+	 * @param idCalendriers tableau d'IDs des calendriers
+	 * @param dateDebut date de début de l'évènement
+	 * @param dateFin date de fin de l'évènement
+	 * @param materiels tableau de matériels. Chaque objet contient les attributs id et quantite
+	 * @param idSalles tableau d'IDs des salles de l'évènement
+	 */
+	EvenementGestion.prototype.ajouterEvenement = function(nom, idProprietaires, idCalendriers, dateDebut, dateFin, materiels, idSalles) {
+		
+	};
+	
 	return EvenementGestion;
 });

@@ -45,17 +45,8 @@ public class EvenementGestion {
 	 * 
 	 * @param evenement
 	 */
-	public void sauverEvenement(Evenement evenement) throws EdtempsException {
-		
-		// Récupération des attributs de l'evenement
-		String nom = evenement.getNom();
-		Date dateDebut = evenement.getDateDebut();
-		Date dateFin = evenement.getDateFin();
-		List<Integer> idCalendriers = evenement.getIdCalendriers();
-		List<SalleIdentifie> salles = evenement.getSalles();
-		List<UtilisateurIdentifie> intervenants = evenement.getIntervenants();
-		List<UtilisateurIdentifie> responsables = evenement.getResponsables();
-		List<Materiel> materiels = evenement.getMateriels();
+	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
+			List<Integer> idIntervenants, List<Integer> idResponsables, List<Materiel> materiels) throws EdtempsException {
 			
 		try {		
 			// Début transaction
@@ -77,57 +68,47 @@ public class EvenementGestion {
 			int idEvenement = rsLigneCreee.getInt("eve_id");
 			rsLigneCreee.close();
 			
-			// On rattache l'evenement aux calendriers 
-			Iterator<Integer> itrCal = idCalendriers.iterator();
-			while (itrCal.hasNext()){
-				int idCalendrier = itrCal.next();
+			// On rattache l'evenement aux calendriers
+			for(int idCalendrier : idCalendriers) {
 				_bdd.executeRequest(
-						"INSERT INTO edt.evenementappartient "
-						+ "(eve_id, cal_id) "
-						+ "VALUES (" + idEvenement + ", " + idCalendrier + ")"
-						);
+					"INSERT INTO edt.evenementappartient "
+					+ "(eve_id, cal_id) "
+					+ "VALUES (" + idEvenement + ", " + idCalendrier + ")"
+					);
 			}
 			
 			// On rattache l'evenement aux salles
-			Iterator<SalleIdentifie> itrSalle = salles.iterator();
-			while (itrSalle.hasNext()){
-				int idSalle = itrSalle.next().getId();
+			for(int idSalle : idSalles) {
 				_bdd.executeRequest(
-						"INSERT INTO edt.alieuensalle "
-						+ "(eve_id, salle_id) "
-						+ "VALUES ("+ idEvenement + ", " + idSalle + ")");
+					"INSERT INTO edt.alieuensalle "
+					+ "(eve_id, salle_id) "
+					+ "VALUES ("+ idEvenement + ", " + idSalle + ")");
 			}
 			
 			// On indique le(s) responsable(s) dans la base
-			Iterator<UtilisateurIdentifie> itrResponsable = responsables.iterator();
-			while (itrResponsable.hasNext()){
-				int idResponsable = itrResponsable.next().getId();
+			for(int idResponsable : idResponsables) {
 				_bdd.executeRequest(
-						"INSERT INTO edt.responsableevenement "
-						+ "(eve_id, utilisateur_id) "
-						+ "VALUES ("+ idEvenement + ", " + idResponsable + ")");
+					"INSERT INTO edt.responsableevenement "
+					+ "(eve_id, utilisateur_id) "
+					+ "VALUES ("+ idEvenement + ", " + idResponsable + ")");
 			}
 			
 			// On indique le(s) intervenant(s) dans la base
-			Iterator<UtilisateurIdentifie> itrIntervenant = intervenants.iterator();
-			while (itrIntervenant.hasNext()){
-				int idIntervenant = itrIntervenant.next().getId();
+			for(int idIntervenant : idIntervenants) {
 				_bdd.executeRequest(
-						"INSERT INTO edt.intervenantevenement "
-						+ "(eve_id, utilisateur_id) "
-						+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
+					"INSERT INTO edt.intervenantevenement "
+					+ "(eve_id, utilisateur_id) "
+					+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
 			}
 			
 			// On rattache le matériel nécessité à l'évenement
-			Iterator<Materiel> itrMateriel = materiels.iterator();
-			while (itrMateriel.hasNext()){
-				Materiel materiel = itrMateriel.next();
+			for(Materiel materiel : materiels) {
 				int idMateriel = materiel.getId();
 				int quantiteMateriel = materiel.getQuantite();
 				_bdd.executeRequest(
-						"INSERT INTO edt.necessitemateriel "
-						+ "(eve_id, materiel_id, necessitemateriel_quantite) "
-						+ "VALUES ("+ idEvenement + ", " + idMateriel + ", " + quantiteMateriel +")");
+					"INSERT INTO edt.necessitemateriel "
+					+ "(eve_id, materiel_id, necessitemateriel_quantite) "
+					+ "VALUES ("+ idEvenement + ", " + idMateriel + ", " + quantiteMateriel +")");
 			}
 			
 			// Fin transaction
