@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
@@ -47,7 +48,11 @@ public class EvenementGestion {
 	 */
 	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables, List<Materiel> materiels) throws EdtempsException {
-			
+		
+		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idSalles.isEmpty() || idResponsables.isEmpty()) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier, une salle et un responsable");
+		}
+		
 		try {		
 			// Début transaction
 			_bdd.startTransaction();			
@@ -115,10 +120,10 @@ public class EvenementGestion {
 			_bdd.commit();
 		} 
 		catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 		catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 		
 			
