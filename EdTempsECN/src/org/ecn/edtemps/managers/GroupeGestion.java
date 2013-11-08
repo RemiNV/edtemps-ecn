@@ -12,6 +12,8 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Groupe;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
+import org.ecn.edtemps.servlets.impl.AbonnementsServlet;
 
 /**
  * Classe de gestion des groupes de gestion
@@ -487,39 +489,33 @@ public class GroupeGestion {
 
 	
 	/**
-	 * Listing des groupes auxquels n'est pas abonné l'utilisateur (directement et indirectement)
+	 * Listing des groupes auxquels n'est pas abonné l'utilisateur directement
 	 * @param idUtilisateur ID de l'utilisateur en question
-	 * @param createTransaction Créer une transaction pour les requêtes. Si false, doit obligatoirement être appelé à l'intérieur d'une transaction
 	 * 
 	 * @return Liste de groupes trouvés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<GroupeIdentifie> listerGroupesNonAbonnement(int idUtilisateur, boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException {
+	public ArrayList<GroupeIdentifieAbonnement> listerGroupesNonAbonnement(int idUtilisateur) throws DatabaseException {
 		
 		try {
-			if(createTransaction)
-				_bdd.startTransaction(); // Définit la durée de vie de la table temporaire
-			
-			if(!reuseTempTableAbonnements)
-				makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
-			
 			// Requete des groupes auxquels l'utilisateur n'est pas abonné
 			ResultSet resGroupes = _bdd.executeRequest(
-					"SELECT * FROM edt.groupeparticipant" + 
-					" EXCEPT" +
-					" SELECT * FROM " + NOM_TEMPTABLE_ABONNEMENTS 
+					"SELECT * FROM edt.groupeparticipant" +
+					" LEFT JOIN (SELECT * FROM edt.abonnegroupeparticipant WHERE utilisateur_id = 9) AS gpesUser" + 
+					" ON (gpesUser.groupeparticipant_id = groupeparticipant.groupeparticipant_id)" + 
+					" WHERE utilisateur_id IS NULL"  
 			);
 			
 			
-			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+			ArrayList<GroupeIdentifieAbonnement> res = new ArrayList<GroupeIdentifieAbonnement>();
 			
 			while(resGroupes.next()) {
-				res.add(inflateGroupeFromRow(resGroupes));
+				int id = resGroupes.getInt("groupeparticipant_id");
+				String nom = resGroupes.getString("groupeparticipant_nom");
+				int parentId = resGroupes.getInt("groupeparticipant_id_parent");
+				boolean abonnementObligatoire = resGroupes.getBoolean("abonnementgroupeparticipant_obligatoire");
+				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, abonnementObligatoire));
 			}
-			
-			// Supprime aussi la table temporaire
-			if(createTransaction)
-				_bdd.commit();
 			
 			return res;
 		}
@@ -528,6 +524,40 @@ public class GroupeGestion {
 		}
 	}
 	
+	/**
+	 * Listing des groupes auxquels n'est pas abonné l'utilisateur directement
+	 * @param idUtilisateur ID de l'utilisateur en question
+	 * 
+	 * @return Liste de groupes trouvés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifieAbonnement> listerGroupesAbonnementDirect(int idUtilisateur) throws DatabaseException {
+		
+		try {
+			// Requete des groupes auxquels l'utilisateur est abonné directement
+			ResultSet resGroupes = _bdd.executeRequest(
+					"SELECT * FROM edt.abonnegroupeparticipant "
+					+ "INNER JOIN edt.groupeparticipant "
+					+ "ON (abonnegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id)"
+					+ "WHERE utilisateur_id = " + idUtilisateur  
+			);
+			
+			ArrayList<GroupeIdentifieAbonnement> res = new ArrayList<GroupeIdentifieAbonnement>();
+			
+			while(resGroupes.next()) {
+				int id = resGroupes.getInt("groupeparticipant_id");
+				String nom = resGroupes.getString("groupeparticipant_nom");
+				int parentId = resGroupes.getInt("groupeparticipant_id_parent");
+				boolean abonnementObligatoire = resGroupes.getBoolean("abonnementgroupeparticipant_obligatoire");
+				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, abonnementObligatoire));
+			}
+			
+			return res;
+		}
+		catch(SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
 	
 	/**
 	 * Listing des groupes auxquels l'utilisateur est abonné directement (sans remonter ni descendre les parents/enfants)
