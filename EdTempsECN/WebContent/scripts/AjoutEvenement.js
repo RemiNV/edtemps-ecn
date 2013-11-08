@@ -1,5 +1,13 @@
 define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedinput", "lib/fullcalendar.translated.min"], function(CalendrierGestion, RestManager) {
 	
+	/**
+	 * Création d'un module d'ajout d'évènements (contrôle la boîte de dialogue associée)
+	 * @param restManager Référence au restManager instancié
+	 * @param jqDialog Objet jQuery du DOM dans lequel afficher la dialog
+	 * @param rechercheSalle Référence à l'objet rechercheSalle instancié
+	 * @param evenementGestion Référence à l'objet evenementGestion instancié
+	 * @param callbackRafraichirCalendrier Fonction à appeler pour déclencher le rafraîchissement du calendrier après ajout d'un évènement
+	 */
 	function AjoutEvenement(restManager, jqDialog, rechercheSalle, evenementGestion, callbackRafraichirCalendrier) {
 		
 		this.jqDialog = jqDialog;
