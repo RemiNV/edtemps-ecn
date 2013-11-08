@@ -60,7 +60,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			String nom = jsonEvenement.getString("nom", null);
 			JsonNumber jsonDebut = jsonEvenement.getJsonNumber("dateDebut");
 			JsonNumber jsonFin = jsonEvenement.getJsonNumber("dateFin");
-			JsonArray jsonIdCalendriers = jsonEvenement.getJsonArray("idCalendriers");
+			JsonArray jsonIdCalendriers = jsonEvenement.getJsonArray("calendriers");
 			JsonArray jsonIdSalles = jsonEvenement.getJsonArray("salles");
 			JsonArray jsonIdIntervenants = jsonEvenement.getJsonArray("intervenants");
 			JsonArray jsonIdResponsables = jsonEvenement.getJsonArray("responsables");

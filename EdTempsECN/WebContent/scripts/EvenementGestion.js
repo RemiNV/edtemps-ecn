@@ -373,18 +373,65 @@ define(["RestManager"], function(RestManager) {
 	};
 	
 	/**
+	 * Invalidation du cache pendant un intervalle donné. Tous les modes de cache sont concernés
+	 * (MODE_MES_EVENEMENTS, MODE_MES_ABONNEMENTS...)
+	 * 
+	 * @param dateDebut début de la fenêtre à invalider
+	 * @param dateFin fin de la fenêtre à invalider
+	 */
+	EvenementGestion.prototype.invalidateCache = function(dateDebut, dateFin) {
+		var me = this;
+		
+		function invalidateMode(mode) {
+			// Parcours dans le sens inverse puisqu'on enlève des éléments
+			for(var i=me.cachedEvents[mode].length - 1; i>=0; i--) {
+				if(dateDebut < me.cachedEvents[mode][i].dateFin && dateFin > me.cachedEvents[mode][i].dateDebut) {
+					// Suppression de l'intervalle de cache
+					me.cachedEvents[mode].splice(i, 1);
+				}
+			}
+		}
+		
+		invalidateMode(EvenementGestion.CACHE_MODE_GROUPE);
+		invalidateMode(EvenementGestion.CACHE_MODE_SALLE);
+		invalidateMode(EvenementGestion.CACHE_MODE_MES_EVENEMENTS);
+		invalidateMode(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS);
+	};
+	
+	/**
 	 * Ajout d'un évènement en base de données
 	 * 
 	 * @param nom Nom de l'évènement
-	 * @param idProprietaires tableau d'IDs des propriétaires
-	 * @param idCalendriers tableau d'IDs des calendriers
 	 * @param dateDebut date de début de l'évènement
 	 * @param dateFin date de fin de l'évènement
-	 * @param materiels tableau de matériels. Chaque objet contient les attributs id et quantite
+	 * @param idCalendriers tableau d'IDs des calendriers
 	 * @param idSalles tableau d'IDs des salles de l'évènement
+	 * @param idIntervenants tableau d'IDs des intervenants
+	 * @param idResponsables tableau d'IDs des responsables
+	 * @param materiels tableau de matériels. Chaque objet contient les attributs id et quantite
+	 * @param callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
 	 */
-	EvenementGestion.prototype.ajouterEvenement = function(nom, idProprietaires, idCalendriers, dateDebut, dateFin, materiels, idSalles) {
-		
+	EvenementGestion.prototype.ajouterEvenement = function(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, materiels, callback) {
+		this.restManager.effectuerRequete("POST", "evenement/ajouter", {
+			evenement: JSON.stringify({
+				nom: nom,
+				dateDebut: dateDebut.getTime(),
+				dateFin: dateFin.getTime(),
+				calendriers: idCalendriers,
+				salles: idSalles,
+				intervenants: idIntervenants,
+				responsables: idResponsables, 
+				materiels: materiels
+			})
+		}, function(response) {
+			
+			if(response.resultCode === RestManager.resultCode_Success) {
+				// Invalidation du cache pendant l'intervalle de l'évènement ajouté
+				invalidateCache(dateDebut, dateFin);
+			}
+			
+			callback(response.resultCode);
+		});
 	};
 	
 	return EvenementGestion;

@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +14,6 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.model.inflaters.AbsEvenementInflater;
 import org.ecn.edtemps.model.inflaters.EvenementCompletInflater;
 import org.ecn.edtemps.model.inflaters.EvenementIdentifieInflater;
-import org.ecn.edtemps.models.Evenement;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
