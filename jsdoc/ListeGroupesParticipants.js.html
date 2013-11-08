@@ -1,4 +1,31 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ListeGroupesParticipants.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: ListeGroupesParticipants.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
  * @module ListeGroupesParticipants
  */
 define([ "RestManager", "jqueryrotate" ], function(RestManager) {
@@ -16,7 +43,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		if (localStorage && localStorage["GroupesMasques"]) {
 			// Parse du localStorage sur les virgules
 			var idMasques = localStorage["GroupesMasques"].split(",");
-			for (var i = 0, maxI=idMasques.length ; i<maxI ; i++) {
+			for (var i = 0, maxI=idMasques.length ; i&lt;maxI ; i++) {
 				// Si un id de groupe est présent, c'est qu'il doit être masqué
 				this.groupesMasques[idMasques[i]] = true;
 			}
@@ -27,7 +54,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		if (localStorage && localStorage["ArborescenceOuverte"]) {
 			// Parse du localStorage sur les virgules
 			var idsGroupes = localStorage["ArborescenceOuverte"].split(",");
-			for (var i = 0, maxI=idsGroupes.length ; i<maxI ; i++) {
+			for (var i = 0, maxI=idsGroupes.length ; i&lt;maxI ; i++) {
 				// Si un id de groupe est présent, c'est qu'il doit être ouvert
 				this.arbreGroupesOuverts[idsGroupes[i]] = true;
 			}
@@ -69,7 +96,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		this.arbre = new Object();
 		
 		// Pour chaque groupe, ajout d'un attribut affiche qui indique si ses événements doivent être affichés
-		for (var i = 0, maxI=groupes.length ; i < maxI ; i++) {
+		for (var i = 0, maxI=groupes.length ; i &lt; maxI ; i++) {
 			
 			// Récupère la valeur de l'affichage dans la liste des groupes masqués (provenant de localStorage)
 			this.listeGroupes[i].affiche = (this.groupesMasques[groupes[i].id] !== true);
@@ -78,7 +105,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			this.groupes[groupes[i].id] = groupes[i];
 			
 			// Pour chaque calendrier du groupe
-			for(var j=0, maxJ=groupes[i].calendriers.length; j<maxJ; j++) {
+			for(var j=0, maxJ=groupes[i].calendriers.length; j&lt;maxJ; j++) {
 				var idCalendrier = groupes[i].calendriers[j];
 
 				// Initialisation d'une liste de groupes auxquels sont rattachés le calendrier en cours de traitement
@@ -105,21 +132,21 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		
 		if (noeud.id==0) {
 			// Si c'est le premier noeud, seulement l'affichage des fils
-			for (var i = 0 ; i<nbFils ; i++) {
+			for (var i = 0 ; i&lt;nbFils ; i++) {
 				str = this.afficherNoeud(noeud.fils[i], str);
 			}
 		} else {
 
 			// Début du paquet de groupe
-			str += "<div>";
+			str += "&lt;div>";
 			
 			// S'il y a des fils, affichage d'une icone pour dérouler
 			if ( nbFils > 0 ){
-				str += "<img class='liste_groupes_triangle' src='./img/triangle.png' title='Cliquer pour afficher/cacher l&apos;arborescence' id='liste_groupes_triangle_"+noeud.id+"' data-groupe-id='"+noeud.id+"' />";
+				str += "&lt;img class='liste_groupes_triangle' src='./img/triangle.png' title='Cliquer pour afficher/cacher l&apos;arborescence' id='liste_groupes_triangle_"+noeud.id+"' data-groupe-id='"+noeud.id+"' />";
 			}
 
 			// Affiche les checkbox en fonction de l'état d'affichage du groupe
-			str += "<input data-groupe-id='" + noeud.id + "' class='liste_groupes_checkbox' type='checkbox' title='Cliquer pour afficher/cacher les événements de cet agenda' ";
+			str += "&lt;input data-groupe-id='" + noeud.id + "' class='liste_groupes_checkbox' type='checkbox' title='Cliquer pour afficher/cacher les événements de cet agenda' ";
 			str += this.groupes[noeud.id].affiche ? "checked >" : " >";
 
 			// Affiche le nom du groupe
@@ -127,19 +154,19 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 			if ( nbFils > 0 ) {
 				// Début du sous-groupe pour ouvrir/fermer
-				str += "<div class='liste_groupes_sous_groupe' id='liste_groupes_sous_groupe_"+noeud.id+"' data-groupe-id='"+noeud.id+"'>";
+				str += "&lt;div class='liste_groupes_sous_groupe' id='liste_groupes_sous_groupe_"+noeud.id+"' data-groupe-id='"+noeud.id+"'>";
 
 				// Pour chaque fils, appel de la méthode
-				for (var i = 0 ; i<nbFils ; i++) {
+				for (var i = 0 ; i&lt;nbFils ; i++) {
 					str = this.afficherNoeud(noeud.fils[i], str);
 				}
 
 				// Fin du sous-bloc
-				str += "</div>";
+				str += "&lt;/div>";
 			}
 
 			// Fin du paquet
-			str += "</div>";
+			str += "&lt;/div>";
 		}
 		
 		return str;
@@ -284,18 +311,18 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		var res = new Array();
 
 		// Pour chaque événement de la liste passée en paramètre
-		for (var i = 0, maxI = evenements.length ; i < maxI ; i++) {
+		for (var i = 0, maxI = evenements.length ; i &lt; maxI ; i++) {
 			// Initialisation d'un flag pour arrêter le traitement d'un événement s'il doit être affiché
 			var eventOk = false;
 
 			// Pour chaque calendrier lié à cet événement
-			for (var j = 0, maxJ = evenements[i].calendriers.length ; j < maxJ && !eventOk ; j++) {
+			for (var j = 0, maxJ = evenements[i].calendriers.length ; j &lt; maxJ && !eventOk ; j++) {
 
 				 // Si le calendrier existe pour l'utilisateur (il y est abonné indirectement)
 				if(this.groupesCalendriers[evenements[i].calendriers[j]]) {
 
 					// Pour chaque groupe lié à ce calendrier
-					for (var k = 0, maxK = this.groupesCalendriers[evenements[i].calendriers[j]].length ; k<maxK && !eventOk ; k++) {
+					for (var k = 0, maxK = this.groupesCalendriers[evenements[i].calendriers[j]].length ; k&lt;maxK && !eventOk ; k++) {
 
 						// Si l'événement est lié à un groupe qui doit être affiché
 						if(this.groupesCalendriers[evenements[i].calendriers[j]][k].affiche) {
@@ -338,7 +365,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		while (copieGroupes.length > 0) {
 
 			// Pour chaque groupe restant
-			for (var i = 0, maxI = copieGroupes.length ; i < maxI ; i++ ) {
+			for (var i = 0, maxI = copieGroupes.length ; i &lt; maxI ; i++ ) {
 
 				if (copieGroupes[i].parentId==0) {
 					// Si le groupe n'a pas de parent
@@ -390,4 +417,26 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	
 	return ListeGroupesParticipants;
 
-});
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-AjoutEvenement.html">AjoutEvenement</a></li><li><a href="module-Calendrier.html">Calendrier</a></li><li><a href="module-CalendrierGestion.html">CalendrierGestion</a></li><li><a href="module-DialogConnexion.html">DialogConnexion</a></li><li><a href="module-DialogCreationCalendrier.html">DialogCreationCalendrier</a></li><li><a href="module-DialogCreationGroupeParticipants.html">DialogCreationGroupeParticipants</a></li><li><a href="module-EcranAccueil.html">EcranAccueil</a></li><li><a href="module-EcranParametres.html">EcranParametres</a></li><li><a href="module-EvenementGestion.html">EvenementGestion</a></li><li><a href="module-GroupeGestion.html">GroupeGestion</a></li><li><a href="module-ListeGroupesParticipants.html">ListeGroupesParticipants</a></li><li><a href="module-RechercheSalle.html">RechercheSalle</a></li><li><a href="module-RestManager.html">RestManager</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Nov 08 2013 18:52:10 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

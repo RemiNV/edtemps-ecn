@@ -1,4 +1,31 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: RechercheSalle.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: RechercheSalle.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
  * @module RechercheSalle
  */
 define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "jqueryquicksearch" ], function(RestManager) {
@@ -196,7 +223,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		// Validation de l'heure de fin
 		decoupageHeureMinute = this.jqHeureFin.val().split(":");
 		var calculMinutesFin = 60*decoupageHeureMinute[0] + decoupageHeureMinute[1];
-		if (this.jqHeureFin.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1]) || calculMinutesFin-calculMinutesDebut<=0) {
+		if (this.jqHeureFin.val().length==0 || decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1]) || calculMinutesFin-calculMinutesDebut&lt;=0) {
 			this.bordureSurChamp(this.jqHeureFin, "#FF0000");
 			valid = false;
 		} else {
@@ -204,7 +231,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		}
 
 		// Validation de la capacité
-		if (isNaN(this.jqCapacite.val()) || this.jqCapacite.val()>9999 || this.jqCapacite.val()<0) {
+		if (isNaN(this.jqCapacite.val()) || this.jqCapacite.val()>9999 || this.jqCapacite.val()&lt;0) {
 			this.bordureSurChamp(this.jqCapacite, "#FF0000");
 			valid = false;
 		} else {
@@ -214,7 +241,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		// Validation des quantités de matériel
 		var me = this;
 		this.jqRechercheSalleForm.find(".quantite input[type=number]").each(function() {
-			if (isNaN($(this).val()) || $(this).val()<0 || $(this).val()>9999 || $(this).val()=="" ) {
+			if (isNaN($(this).val()) || $(this).val()&lt;0 || $(this).val()>9999 || $(this).val()=="" ) {
 				me.bordureSurChamp($(this), "#FF0000");
 				valid = false;
 			} else {
@@ -223,7 +250,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		});
 
 		// Message d'erreur pour un problème d'ordre des heures
-		if (calculMinutesFin-calculMinutesDebut<=0) {
+		if (calculMinutesFin-calculMinutesDebut&lt;=0) {
 			window.showToast("L'heure de fin doit être supérieure à l'heure de début");
 		}
 		
@@ -260,12 +287,12 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				if (maxI!=0) {
 
 					// Préparation du code html
-					var str = "<tr><th class='libelle'>Libellé de l'équipement</th><th class='quantite'>Quantité</th></tr>";
-					for (var i = 0 ; i < maxI ; i++) {
-						str += "<tr>";
-						str += "<td class='libelle'>" + data.data.listeMateriels[i].nom + "</td>";
-						str += "<td class='quantite'><input type='number' class='input_small' materiel-id='" + data.data.listeMateriels[i].id + "' value='0' /></td>";
-						str += "</tr>";
+					var str = "&lt;tr>&lt;th class='libelle'>Libellé de l'équipement&lt;/th>&lt;th class='quantite'>Quantité&lt;/th>&lt;/tr>";
+					for (var i = 0 ; i &lt; maxI ; i++) {
+						str += "&lt;tr>";
+						str += "&lt;td class='libelle'>" + data.data.listeMateriels[i].nom + "&lt;/td>";
+						str += "&lt;td class='quantite'>&lt;input type='number' class='input_small' materiel-id='" + data.data.listeMateriels[i].id + "' value='0' />&lt;/td>";
+						str += "&lt;/tr>";
 					}
 					
 					// Ajout du code html dans la liste de matériels
@@ -343,7 +370,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		//    - pour chaque matériel, il y a son identifiant suivi de la quantité, séparés par ":"
 		//    - les matériels sont séparés les uns des autres par ","
 		var listeMaterielQuantite = "";
-		for (var i=0, maxI=materiels.length; i<maxI; i++) {
+		for (var i=0, maxI=materiels.length; i&lt;maxI; i++) {
 			if (listeMaterielQuantite!="") {
 				listeMaterielQuantite += ",";
 			}
@@ -381,7 +408,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.jqRechercheSalleResultat.find("#resultat_chercher_salle_creer").click(function() {
 			// Récupération des salles sélectionnées
 			var sallesSelectionnees = new Array();
-			for (var i = 0, maxI = me.sallesDisponibles.length; i < maxI; i++) {
+			for (var i = 0, maxI = me.sallesDisponibles.length; i &lt; maxI; i++) {
 				// Salle en cours de traitement
 				var salle = me.sallesDisponibles[i];
 				if (me.idSallesSelectionnees[salle.id]) {
@@ -395,8 +422,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		
 		// Paramètres de l'objet multiSelect
 		this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").multiSelect({
-			selectableHeader: "Salles disponibles :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
-			selectionHeader: "Salles sélectionnées :<input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
+			selectableHeader: "Salles disponibles :&lt;input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
+			selectionHeader: "Salles sélectionnées :&lt;input type='text' class='resultat_chercher_salle_select-filtre' autocomplete='off' placeholder='Filtrer...' />",
 			afterInit: function(ms){
 				var me = this,
 				$selectableSearch = me.$selectableUl.prev(),
@@ -456,16 +483,16 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			// Variable recevant progressivement le code HTML à ajouter à l'élément MultiSelect
 			var html = "";
 			// Parcourt les salles 
-			for (var i = 0; i < maxI; i++) {
+			for (var i = 0; i &lt; maxI; i++) {
 				// Salle en cours de traitement
 				var salle = data.sallesDisponibles[i];
 				// Préparation de l'infobulle
 				var infobulle = "Capacité: "+salle.capacite;
-				for (var j=0, maxJ=salle.materiels.length ; j<maxJ ; j++) {
+				for (var j=0, maxJ=salle.materiels.length ; j&lt;maxJ ; j++) {
 					infobulle += "&#13;";
 					infobulle += salle.materiels[j].nom + ": " +salle.materiels[j].quantite; 
 				}
-				html += "<option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+"</option>";
+				html += "&lt;option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+"&lt;/option>";
 			}
 			// Affichage
 			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").html(html)
@@ -506,3 +533,26 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	return RechercheSalle;
 
 });
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-AjoutEvenement.html">AjoutEvenement</a></li><li><a href="module-Calendrier.html">Calendrier</a></li><li><a href="module-CalendrierGestion.html">CalendrierGestion</a></li><li><a href="module-DialogConnexion.html">DialogConnexion</a></li><li><a href="module-DialogCreationCalendrier.html">DialogCreationCalendrier</a></li><li><a href="module-DialogCreationGroupeParticipants.html">DialogCreationGroupeParticipants</a></li><li><a href="module-EcranAccueil.html">EcranAccueil</a></li><li><a href="module-EcranParametres.html">EcranParametres</a></li><li><a href="module-EvenementGestion.html">EvenementGestion</a></li><li><a href="module-GroupeGestion.html">GroupeGestion</a></li><li><a href="module-ListeGroupesParticipants.html">ListeGroupesParticipants</a></li><li><a href="module-RechercheSalle.html">RechercheSalle</a></li><li><a href="module-RestManager.html">RestManager</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Nov 08 2013 18:52:10 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

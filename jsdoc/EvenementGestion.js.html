@@ -1,4 +1,31 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: EvenementGestion.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: EvenementGestion.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
  * Module de gestion/récupération des évènements, utilise un système de cache
  * @module EvenementGestion
  */
@@ -133,7 +160,7 @@ define(["RestManager"], function(RestManager) {
 				// Parsing des calendriers pour les matières & types d'évènement
 				me.matieresCalendriers = Object();
 				me.typesCalendriers = Object();
-				for(var i=0, maxI = data.calendriers.length; i<maxI; i++) {
+				for(var i=0, maxI = data.calendriers.length; i&lt;maxI; i++) {
 					me.matieresCalendriers[data.calendriers[i].id] = data.calendriers[i].matiere;
 					me.typesCalendriers[data.calendriers[i].id] = data.calendriers[i].type;
 				}
@@ -160,7 +187,7 @@ define(["RestManager"], function(RestManager) {
 		
 		var userId = this.restManager.getUserId();
 		
-		for (var j=0, maxJ = evenement.responsables.length; j<maxJ; j++) {
+		for (var j=0, maxJ = evenement.responsables.length; j&lt;maxJ; j++) {
 			if (evenement.responsables[j].id === userId) {
 				return true;
 			}
@@ -180,7 +207,7 @@ define(["RestManager"], function(RestManager) {
 		
 		var res = new Array();
 		
-		for(var i=0, maxI = evenements.length; i<maxI; i++) {
+		for(var i=0, maxI = evenements.length; i&lt;maxI; i++) {
 			var strSalles = evenements[i].salles.join(", ");
 			
 			var estProprietaire = this.estProprietaire(evenements[i]);
@@ -219,10 +246,10 @@ define(["RestManager"], function(RestManager) {
 					"les calendriers sont nécessaires pour remplir les matières & types des évènements.";
 		
 		var res = new Array();
-		for(var i=0, max = evenements.length; i<max; i++) {
+		for(var i=0, max = evenements.length; i&lt;max; i++) {
 			// Chaîne de salles
 			var strSalles = "";
-			for(var j=0, maxj = evenements[i].salles.length; j<maxj; j++) {
+			for(var j=0, maxj = evenements[i].salles.length; j&lt;maxj; j++) {
 				if(j != 0)
 					strSalles += ", ";
 				strSalles += evenements[i].salles[j].nom;
@@ -232,7 +259,7 @@ define(["RestManager"], function(RestManager) {
 			var types = new Array();
 			var matieres = new Array();
 			var idCalendriers = evenements[i].calendriers;
-			for(var j=0, maxJ = idCalendriers.length; j<maxJ; j++) {
+			for(var j=0, maxJ = idCalendriers.length; j&lt;maxJ; j++) {
 				types.push(this.typesCalendriers[idCalendriers[j]]);
 				matieres.push(this.matieresCalendriers[idCalendriers[j]]);
 			}
@@ -335,7 +362,7 @@ define(["RestManager"], function(RestManager) {
 			var current = this.cachedEvents[modeVue][i];
 			
 			// Si l'intervalle déjà en cache est contenu dans celui récupéré
-			if(dateDebut <= current.dateDebut && dateFin >= current.dateFin) {
+			if(dateDebut &lt;= current.dateDebut && dateFin >= current.dateFin) {
 				this.cachedEvents[modeVue].splice(i, 1); // Suppression de l'intervalle existant de la liste
 			}
 		}
@@ -349,8 +376,8 @@ define(["RestManager"], function(RestManager) {
 	var filtrerEvenementsIntervalle = function(dateDebut, dateFin, evenements) {
 		
 		var res = Array();
-		for(var i=0, maxI = evenements.length; i<maxI; i++) {
-			if(evenements[i].end >= dateDebut && evenements[i].start <= dateFin) {
+		for(var i=0, maxI = evenements.length; i&lt;maxI; i++) {
+			if(evenements[i].end >= dateDebut && evenements[i].start &lt;= dateFin) {
 				res.push(evenements[i]);
 			}
 		}
@@ -363,10 +390,10 @@ define(["RestManager"], function(RestManager) {
 	 * Renvoie : un tableau d'évènements si trouvé, sinon null */
 	EvenementGestion.prototype.getEventsFromCache = function(modeVue, dateDebut, dateFin) {
 		
-		for(var i=0, max=this.cachedEvents[modeVue].length; i<max; i++) {
+		for(var i=0, max=this.cachedEvents[modeVue].length; i&lt;max; i++) {
 			var current = this.cachedEvents[modeVue][i];
 			// L'intervalle demandé est contenu dans l'intervalle en cache
-			if(current.dateDebut <= dateDebut && current.dateFin >= dateFin) {
+			if(current.dateDebut &lt;= dateDebut && current.dateFin >= dateFin) {
 				
 				// Si l'intervalle est seulement contenu dans le cache, on ne prend que les évènements dans l'intervalle demandé
 				if(current.dateDebut.getTime() != dateDebut.getTime() || current.dateFin.getTime() != dateFin.getTime()) {
@@ -393,7 +420,7 @@ define(["RestManager"], function(RestManager) {
 		function invalidateMode(mode) {
 			// Parcours dans le sens inverse puisqu'on enlève des éléments
 			for(var i=me.cachedEvents[mode].length - 1; i>=0; i--) {
-				if(dateDebut < me.cachedEvents[mode][i].dateFin && dateFin > me.cachedEvents[mode][i].dateDebut) {
+				if(dateDebut &lt; me.cachedEvents[mode][i].dateFin && dateFin > me.cachedEvents[mode][i].dateDebut) {
 					// Suppression de l'intervalle de cache
 					me.cachedEvents[mode].splice(i, 1);
 				}
@@ -446,3 +473,26 @@ define(["RestManager"], function(RestManager) {
 	
 	return EvenementGestion;
 });
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-AjoutEvenement.html">AjoutEvenement</a></li><li><a href="module-Calendrier.html">Calendrier</a></li><li><a href="module-CalendrierGestion.html">CalendrierGestion</a></li><li><a href="module-DialogConnexion.html">DialogConnexion</a></li><li><a href="module-DialogCreationCalendrier.html">DialogCreationCalendrier</a></li><li><a href="module-DialogCreationGroupeParticipants.html">DialogCreationGroupeParticipants</a></li><li><a href="module-EcranAccueil.html">EcranAccueil</a></li><li><a href="module-EcranParametres.html">EcranParametres</a></li><li><a href="module-EvenementGestion.html">EvenementGestion</a></li><li><a href="module-GroupeGestion.html">GroupeGestion</a></li><li><a href="module-ListeGroupesParticipants.html">ListeGroupesParticipants</a></li><li><a href="module-RechercheSalle.html">RechercheSalle</a></li><li><a href="module-RestManager.html">RestManager</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Nov 08 2013 18:52:10 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
