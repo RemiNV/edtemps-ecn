@@ -12,7 +12,6 @@ var require = {
 		jquerymaskedinput: "lib/jquery.maskedinput.min",
 		text: "lib/text",
 		jqueryquicksearch: "lib/jquery.quicksearch",
-		jquerycombobox: "lib/jquery.combobox"
 	},
 
 	/* Configuration des bibliothèques non AMD (non compatibles avec 
