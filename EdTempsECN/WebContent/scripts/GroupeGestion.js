@@ -1,6 +1,13 @@
+/**
+ * @module GroupeGestion
+ */
 define(["RestManager"], function(RestManager) {
 
-	function GroupeGestion(restManager) {
+	/**
+	 * @constructor
+	 * @alias module:GroupeGestion
+	 */
+	var GroupeGestion = function(restManager) {
 		this.restManager = restManager;
 	};
 	
