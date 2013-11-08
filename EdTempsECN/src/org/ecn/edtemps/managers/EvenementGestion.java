@@ -58,7 +58,7 @@ public class EvenementGestion {
 			// On crée l'événement dans la base de données
 			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
 					+ "(eve_nom, eve_dateDebut, eve_dateFin) "
-					+ "VALUES ('?', '?', '?') "
+					+ "VALUES (?, ?, ?) "
 				    + "RETURNING eve_id");
 			req.setString(1, nom);
 			req.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));

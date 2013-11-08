@@ -83,7 +83,7 @@
   
   <servlet>
       <servlet-name>Evenement</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.impl.evenementServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.EvenementServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

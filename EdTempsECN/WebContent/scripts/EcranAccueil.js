@@ -49,8 +49,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	};
 	
 	EcranAccueil.prototype.rafraichirCalendrier = function() {
-		if(me.calendrier != null) {
-			me.calendrier.refetchEvents();
+		if(this.calendrier != null) {
+			this.calendrier.refetchEvents();
 		}
 	};
 	

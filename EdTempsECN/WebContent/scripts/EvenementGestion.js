@@ -412,7 +412,9 @@ define(["RestManager"], function(RestManager) {
 	 * @param callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
 	 */
 	EvenementGestion.prototype.ajouterEvenement = function(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, materiels, callback) {
+		var me = this;
 		this.restManager.effectuerRequete("POST", "evenement/ajouter", {
+			token: me.restManager.getToken(),
 			evenement: JSON.stringify({
 				nom: nom,
 				dateDebut: dateDebut.getTime(),
@@ -427,7 +429,7 @@ define(["RestManager"], function(RestManager) {
 			
 			if(response.resultCode === RestManager.resultCode_Success) {
 				// Invalidation du cache pendant l'intervalle de l'évènement ajouté
-				invalidateCache(dateDebut, dateFin);
+				me.invalidateCache(dateDebut, dateFin);
 			}
 			
 			callback(response.resultCode);

@@ -133,9 +133,9 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 				if(resultCode === RestManager.resultCode_Success) {
 					window.showToast("Evènement ajouté avec succès");
 					me.jqDialog.dialog("close");
-					me.callbackRafraichirCalendrier();
 					
 					// Mise à jour du calendrier
+					me.callbackRafraichirCalendrier();
 					
 				}
 				else if(resultCode == RestManager.resultCode_NetworkError) {
@@ -203,7 +203,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		}
 		
 		// TODO : Récupération de la liste des responsables à implémenter
-		res.responsables = new Arra();
+		res.responsables = new Array();
 		res.responsables.push(this.restManager.getUserId());
 		
 		// TODO : Récupération des intervenants à implémenter
@@ -257,7 +257,11 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 		// Récupération des matériels et salles
 		res.materiels = this.rechercheSalle.getContenuListeMateriel(this.jqDialog.find("#tbl_materiel"));
-		res.salles = this.sallesSelectionnees;
+		
+		res.salles = new Array();
+		for(var i=0, max=this.sallesSelectionnees.length; i<max; i++) {
+			res.salles.push(this.sallesSelectionnees[i].id);
+		}
 		
 		if(!pourRechercheSalle) {
 			if(res.salles.length == 0) {

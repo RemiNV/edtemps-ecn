@@ -120,11 +120,14 @@ public class EvenementServlet extends RequiresConnectionServlet {
 	
 	protected void doAjouterEvenement(int userId, BddGestion bdd, HttpServletResponse resp, String nom, Date dateDebut, Date dateFin, 
 			ArrayList<Integer> idCalendriers, ArrayList<Integer> idSalles, ArrayList<Integer> idIntervenants, 
-			ArrayList<Integer> idResponsables, ArrayList<Materiel> materiels) throws EdtempsException {
+			ArrayList<Integer> idResponsables, ArrayList<Materiel> materiels) throws EdtempsException, IOException {
 		
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
 		evenementGestion.sauverEvenement(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, materiels);
+
+		// Succès
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Evènement ajouté", null));
 	}
 	
 	

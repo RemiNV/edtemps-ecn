@@ -85,19 +85,15 @@ public class Materiel implements JSONAble {
 	/**
 	 * Lit un objet Materiel à partir de sa représentation JSON
 	 * @param object représentation JSON du matériel (attributs id, nom, quantite)
-	 * @return Matériel créé, ou null si des attributs sont manquants dans l'objet JSON.
+	 * @return Matériel créé
 	 * @throws ClassCastException Si un attribut est présent mais invalide
 	 */
 	public static Materiel inflateFromJson(JsonObject object) throws ClassCastException {
 		JsonNumber jsonId = object.getJsonNumber("id");
-		String nom = object.getString("nom", null);
-		JsonNumber quantite = object.getJsonNumber("quantite");
+		String nom = object.getString("nom", "");
+		JsonNumber jsonQuantite = object.getJsonNumber("quantite");
 		
-		if(jsonId == null || nom == null || quantite == null) {
-			return null;
-		}
-		
-		return new Materiel(jsonId.intValue(), nom, quantite.intValue());
+		return new Materiel(jsonId != null ? jsonId.intValue() : 0, nom, jsonQuantite != null ? jsonQuantite.intValue() : 0);
 	}
 	
 }
