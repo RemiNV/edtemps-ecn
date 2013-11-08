@@ -46,7 +46,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "jqueryquick
 				// Parcourt des groupes auxquels l'utilisateur est abonné 
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
 					gpe = data.groupesAbonnements[i];
-					html += '<option value="' + gpe.id + '"';
+					html += '<option class="decaler" value="' + gpe.id + '"';
 					if (gpe.estCours) {
 						html += ' disabled="disabled"';
 					}
@@ -100,6 +100,9 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "jqueryquick
 						});
 					}
 				});
+				
+				//Mettre en forme d'arborescence
+				$(".decaler").children().addClass("decalage");
 				
 			}
 			
