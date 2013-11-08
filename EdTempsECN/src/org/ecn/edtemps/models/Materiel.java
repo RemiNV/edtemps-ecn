@@ -6,6 +6,8 @@
 package org.ecn.edtemps.models;
 
 import javax.json.Json;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
@@ -78,6 +80,20 @@ public class Materiel implements JSONAble {
 		
 		return builder.build();
 
+	}
+	
+	/**
+	 * Lit un objet Materiel à partir de sa représentation JSON
+	 * @param object représentation JSON du matériel (attributs id, nom, quantite)
+	 * @return Matériel créé
+	 * @throws ClassCastException Si un attribut est présent mais invalide
+	 */
+	public static Materiel inflateFromJson(JsonObject object) throws ClassCastException {
+		JsonNumber jsonId = object.getJsonNumber("id");
+		String nom = object.getString("nom", "");
+		JsonNumber jsonQuantite = object.getJsonNumber("quantite");
+		
+		return new Materiel(jsonId != null ? jsonId.intValue() : 0, nom, jsonQuantite != null ? jsonQuantite.intValue() : 0);
 	}
 	
 }
