@@ -89,7 +89,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			}
 		}
 		else {
-			strSalles = "(Sélectionnez une ou plusieurs salle(s))";
+			strSalles = "(Recherchez une ou plusieurs salle(s))";
 		}
 		
 		this.jqDialog.find("#salles_evenement").html(strSalles);
