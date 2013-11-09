@@ -64,10 +64,9 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			JsonArray jsonIdSalles = jsonEvenement.getJsonArray("salles");
 			JsonArray jsonIdIntervenants = jsonEvenement.getJsonArray("intervenants");
 			JsonArray jsonIdResponsables = jsonEvenement.getJsonArray("responsables");
-			JsonArray jsonMateriels = jsonEvenement.getJsonArray("materiels");
 			
 			if(nom == null || StringUtils.isBlank(nom) || jsonDebut == null || jsonFin == null || jsonIdCalendriers == null || jsonIdSalles == null 
-					|| jsonIdIntervenants == null || jsonIdResponsables == null || jsonMateriels == null) {
+					|| jsonIdIntervenants == null || jsonIdResponsables == null) {
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet evenenement incomplet : paramètres manquants", null));
 				bdd.close();
 				return;
@@ -80,14 +79,8 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			ArrayList<Integer> idIntervenants = JSONUtils.getIntegerArrayList(jsonIdIntervenants);
 			ArrayList<Integer> idResponsables = JSONUtils.getIntegerArrayList(jsonIdResponsables);
 			
-			ArrayList<Materiel> materiels = new ArrayList<Materiel>(jsonMateriels.size());
-			for(JsonValue v : jsonMateriels) {
-				JsonObject o = (JsonObject) v;
-				materiels.add(Materiel.inflateFromJson(o));
-			}
-			
 			if(pathInfo.equals("/ajouter")) { // Requête /evenement/ajouter
-				doAjouterEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, materiels);
+				doAjouterEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);
 			}
 			else if(pathInfo.equals("/modifier")) { // Requête /evenement/modifier
 				
@@ -101,7 +94,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 				
 				int idEvenement = jsonIdEvenement.intValue();
 				
-				doModifierEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, materiels, idEvenement);
+				doModifierEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, idEvenement);
 			}
 			
 			bdd.close();
@@ -120,11 +113,11 @@ public class EvenementServlet extends RequiresConnectionServlet {
 	
 	protected void doAjouterEvenement(int userId, BddGestion bdd, HttpServletResponse resp, String nom, Date dateDebut, Date dateFin, 
 			ArrayList<Integer> idCalendriers, ArrayList<Integer> idSalles, ArrayList<Integer> idIntervenants, 
-			ArrayList<Integer> idResponsables, ArrayList<Materiel> materiels) throws EdtempsException, IOException {
+			ArrayList<Integer> idResponsables) throws EdtempsException, IOException {
 		
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
-		evenementGestion.sauverEvenement(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, materiels);
+		evenementGestion.sauverEvenement(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);
 
 		// Succès
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Evènement ajouté", null));
@@ -133,7 +126,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 	
 	protected void doModifierEvenement(int userId, BddGestion bdd, HttpServletResponse resp, String nom, Date dateDebut, Date dateFin, 
 			ArrayList<Integer> idCalendriers, ArrayList<Integer> idSalles, ArrayList<Integer> idIntervenants, 
-			ArrayList<Integer> idResponsables, ArrayList<Materiel> materiels, int idEvenement) throws IOException, EdtempsException {
+			ArrayList<Integer> idResponsables, int idEvenement) throws IOException, EdtempsException {
 		// TODO : remplir
 		resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}

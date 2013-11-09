@@ -47,6 +47,14 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 				var dateFin = new Date(date.getTime() + 1000 * 3600);
 				
 				ajoutEvenement.show(date, dateFin, null);
+			},
+			eventRender: function(event, jqElement) {
+				if(event.loading) {
+					jqElement.append("<img src='img/spinner_chargement_outer_small.gif' class='spinner_evenement_loading' alt='Enregistrement...' />");
+				}
+			},
+			eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+				event.loading = true;
 			}
 		});
 		

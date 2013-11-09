@@ -296,6 +296,608 @@
             
                 
 <dt>
+    <h4 class="name" id="CallbackEcritListeMateriel"><span class="type-signature"></span>CallbackEcritListeMateriel<span class="signature">(success, nbMateriels)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Callback appelé par la fonction RechercheSalle.ecritListeMateriel
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>success</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Succès de l'opération</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>nbMateriels</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Nombre de matériels chargés</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RechercheSalle.js.html">RechercheSalle.js</a>, <a href="RechercheSalle.js.html#line239">line 239</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+            
+                
+<dt>
+    <h4 class="name" id="CallbackRemplirCalendriers"><span class="type-signature"></span>CallbackRemplirCalendriers<span class="signature">(Succès, Nombre)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Fonction rappelée une fois les calendriers remplis dans remplirCalendrier
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>Succès</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">de l'opération</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>Nombre</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">de calendriers trouvés</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="AjoutEvenement.js.html">AjoutEvenement.js</a>, <a href="AjoutEvenement.js.html#line306">line 306</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+            
+                
+<dt>
+    <h4 class="name" id="DonneesFormulaireAjoutEvenement">DonneesFormulaireAjoutEvenement</h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Données rentrées dans le formulaire d'ajout d'évènement
+    </div>
+    
+    
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Object</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>valide</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">true si le formulaire est complet</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>valideRechercheSalle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">true si les informations nécessaires à la recherche d'une salle sont présentes</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>nom</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Nom de l'évènement</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>responsables</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number[]</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">tableau d'ID des responsables</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>intervenants</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number[]</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">tableau d'ID des intervenants</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>calendriers</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number[]</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">tableau d'ID des calendriers</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>dateDebut</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Date</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Date de début de l'évènement</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>dateFin</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Date</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Date de fin de l'évènement</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>materiels</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Materiel[]</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Matériels sélectionnés pour l'évènement</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>salles</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number[]</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Tableau d'IDs des salles sélectionnées</td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="AjoutEvenement.js.html">AjoutEvenement.js</a>, <a href="AjoutEvenement.js.html#line184">line 184</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+            
+                
+<dt>
     <h4 class="name" id="listerCalendriersCallback"><span class="type-signature"></span>listerCalendriersCallback<span class="signature">(resultCode, calendriers)</span><span class="type-signature"></span></h4>
     
     
@@ -493,6 +1095,144 @@
     
 </dd>
 
+            
+                
+<dt>
+    <h4 class="name" id="SalleRemplissageAjoutEvenement">SalleRemplissageAjoutEvenement</h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Salles utilisées pour préremplir la dialog d'ajout d'évènement
+    </div>
+    
+    
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Object</span>
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">ID de la salle</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>nom</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Nom de la salle</td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="AjoutEvenement.js.html">AjoutEvenement.js</a>, <a href="AjoutEvenement.js.html#line349">line 349</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
             </dl>
     
     
@@ -513,7 +1253,7 @@
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Fri Nov 08 2013 18:52:10 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Sat Nov 09 2013 01:25:57 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

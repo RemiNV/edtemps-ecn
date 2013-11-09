@@ -17,7 +17,7 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 	@Override
 	public EvenementComplet inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, 
 			ArrayList<SalleIdentifie> salles, ArrayList<UtilisateurIdentifie> intervenants, 
-			ArrayList<UtilisateurIdentifie> responsables, ArrayList<Materiel> materiels, int id, ResultSet reponse, BddGestion bdd) throws DatabaseException {
+			ArrayList<UtilisateurIdentifie> responsables, int id, ResultSet reponse, BddGestion bdd) throws DatabaseException {
 		// Récupération des types et matières (calendriers)
 		ResultSet reponseCalendriers = bdd.executeRequest("SELECT matiere.matiere_nom, typecalendrier.typecal_libelle " +
 				"FROM edt.calendrier " +
@@ -38,7 +38,7 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 			throw new DatabaseException(e);
 		}
 		
-		return new EvenementComplet(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiels, 
+		return new EvenementComplet(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, 
 				id, matieres, types);
 	}
 

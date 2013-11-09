@@ -392,3 +392,9 @@ input.valide {
 	box-shadow: #60C003 0 0 10px;
 	border: 1px solid #60C003 !important;
 }
+
+.spinner_evenement_loading {
+	position: absolute;
+	top: 3px;
+	right: 3px;
+}

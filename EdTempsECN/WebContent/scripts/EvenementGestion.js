@@ -409,17 +409,16 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Ajout d'un évènement en base de données
 	 * 
-	 * @param nom Nom de l'évènement
-	 * @param dateDebut date de début de l'évènement
-	 * @param dateFin date de fin de l'évènement
-	 * @param idCalendriers tableau d'IDs des calendriers
-	 * @param idSalles tableau d'IDs des salles de l'évènement
-	 * @param idIntervenants tableau d'IDs des intervenants
-	 * @param idResponsables tableau d'IDs des responsables
-	 * @param materiels tableau de matériels. Chaque objet contient les attributs id et quantite
-	 * @param callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
+	 * @param {string} nom Nom de l'évènement
+	 * @param {Date} dateDebut date de début de l'évènement
+	 * @param {Date} dateFin date de fin de l'évènement
+	 * @param {number[]} idCalendriers tableau d'IDs des calendriers
+	 * @param {number[]} idSalles tableau d'IDs des salles de l'évènement
+	 * @param {number[]} idIntervenants tableau d'IDs des intervenants
+	 * @param {number[]} idResponsables tableau d'IDs des responsables
+	 * @param {function} callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
 	 */
-	EvenementGestion.prototype.ajouterEvenement = function(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, materiels, callback) {
+	EvenementGestion.prototype.ajouterEvenement = function(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, callback) {
 		var me = this;
 		this.restManager.effectuerRequete("POST", "evenement/ajouter", {
 			token: me.restManager.getToken(),
@@ -430,8 +429,7 @@ define(["RestManager"], function(RestManager) {
 				calendriers: idCalendriers,
 				salles: idSalles,
 				intervenants: idIntervenants,
-				responsables: idResponsables, 
-				materiels: materiels
+				responsables: idResponsables
 			})
 		}, function(response) {
 			

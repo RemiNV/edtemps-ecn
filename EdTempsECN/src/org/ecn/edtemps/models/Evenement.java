@@ -35,9 +35,6 @@ public class Evenement {
 	/** Liste des noms des responsables de l'événement */
 	protected List<UtilisateurIdentifie> responsables;
 	
-	/** Liste de matériel nécessaire */
-	protected List<Materiel> materiels;
-	
 	/** Constructeur avec uniquement attributs indispensables */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers) {
 		this.nom = nom;
@@ -49,12 +46,11 @@ public class Evenement {
 
 	/** Constructeur avec tous les attributs */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<SalleIdentifie> salles,
-			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables, ArrayList<Materiel> materiels) {
+			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables) {
 		this(nom, dateDebut, dateFin, idCalendriers);
 		this.salles = salles;
 		this.intervenants = intervenants;
 		this.responsables = responsables;
-		this.materiels = materiels;
 	}
 
 	
@@ -119,21 +115,5 @@ public class Evenement {
 	 */
 	public void setResponsables(List<UtilisateurIdentifie> responsables) {
 		this.responsables = responsables;
-	}
-
-
-	/**
-	 * @return the materiels
-	 */
-	public List<Materiel> getMateriels() {
-		return materiels;
-	}
-
-
-	/**
-	 * @param materiels the materiels to set
-	 */
-	public void setMateriels(List<Materiel> materiels) {
-		this.materiels = materiels;
 	}
 }
