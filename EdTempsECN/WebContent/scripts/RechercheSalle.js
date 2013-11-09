@@ -42,7 +42,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * Doit être appelé uniquement une fois.
 	 * Est automatiquement appelé par show() si nécessaire.
 	 */
-	RechercheSalle.prototype.init = function() {
+	RechercheSalle.prototype.init = function(ajoutEvenement) {
 		var me = this;
 		this.ajoutEvenement = ajoutEvenement;
 
