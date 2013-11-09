@@ -1,4 +1,4 @@
-package org.ecn.edtemps.model.inflaters;
+package org.ecn.edtemps.models.inflaters;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;

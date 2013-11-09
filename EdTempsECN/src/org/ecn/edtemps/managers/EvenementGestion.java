@@ -11,14 +11,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
-import org.ecn.edtemps.model.inflaters.AbsEvenementInflater;
-import org.ecn.edtemps.model.inflaters.EvenementCompletInflater;
-import org.ecn.edtemps.model.inflaters.EvenementIdentifieInflater;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
+import org.ecn.edtemps.models.inflaters.AbsEvenementInflater;
+import org.ecn.edtemps.models.inflaters.EvenementCompletInflater;
+import org.ecn.edtemps.models.inflaters.EvenementIdentifieInflater;
 
 /** 
  * Classe de gestion des evenements
