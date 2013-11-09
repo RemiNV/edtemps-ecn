@@ -10,9 +10,18 @@ define([ "RestManager" ], function(RestManager) {
 	var DialogCreationGroupeParticipants = function(restManager) {
 		this.restManager = restManager;
 		
+		// Des liens vers les objets javascript
 		this.jqCreationGroupeForm = $("#form_creer_groupe");
 		this.jqChampNom = this.jqCreationGroupeForm.find("#form_creer_groupe_nom");
-		
+		this.jqCreationGroupeTable = this.jqCreationGroupeForm.find("#form_creer_groupe_table");
+
+		// Liste des identifiants des propriétaires
+		this.listeIdProprietaires = new Array();
+
+		// Liste des propriétaires potentiels (récupérée en base de données)
+		this.listeProprietairesPotentiels = new Array();
+
+		// Est ce que la fonction init a déjà été appelée ?
 		this.initAppele = false;
 	};
 
@@ -42,7 +51,9 @@ define([ "RestManager" ], function(RestManager) {
 						me.jqChampNom.val(),
 						me.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
 						me.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
-						me.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'));
+						me.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
+						me.listeIdProprietaires,
+						function() { me.jqCreationGroupeForm.dialog("close"); });
 			}
 		});
 
@@ -50,12 +61,25 @@ define([ "RestManager" ], function(RestManager) {
 		this.jqCreationGroupeForm.find("#form_creer_groupe_annuler").click(function() {
 			me.jqCreationGroupeForm.dialog("close");
 		});
-        
+
+		// Blocage du bouton de validation avant le chargement des propriétaires potentiels
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement en cours ...");
+		
+		this.recupererProprietairesPotentiels(function(success) {
+			if (success) {
+				// Reactivation du bouton "Valider"
+				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
+				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
+			}
+		});
+		
 		// Blocage du bouton de validation avant le chargement des groupes parents disponibles
 		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
 		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
-		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement des groupes parents disponibles ...");
-		
+		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement des groupes parents potentiels en cours ...");
+
 		this.ecritListeGroupesParentsDisponibles(this.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
 			if (success) {
 				// Reactivation du bouton "Valider"
@@ -67,7 +91,7 @@ define([ "RestManager" ], function(RestManager) {
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		this.jqCreationGroupeForm.dialog({
 			autoOpen: false,
-			width: 440,
+			width: 500,
 			modal: true,
 			show: {
 				effect: "fade",
@@ -95,7 +119,7 @@ define([ "RestManager" ], function(RestManager) {
 		var me = this;
 		
 		// Récupération de la liste des groupes parents potentiels
-		this.restManager.effectuerRequete("GET", "groupesparentspotentiels", {
+		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
@@ -161,18 +185,23 @@ define([ "RestManager" ], function(RestManager) {
 	 * 			booleen qui indique si un rattachement est autorisé
 	 * @param estCours
 	 * 			booleen qui indique si le groupe est un cours
+	 * @param listeIdProprietaires
+	 * 			liste des identifiants des propriétaires
+	 * @param callback
+	 * 			méthode à effectuer en retour
 	 */
-	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours) {
-
+	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, callback) {
+		
 		this.restManager.effectuerRequete("POST", "groupeparticipants/ajouter", {
 			token: this.restManager.getToken(),
 			groupe: JSON.stringify({
 				nom: nom,
 				idGroupeParent: idGroupeParent,
 				rattachementAutorise: rattachementAutorise,
-				estCours: estCours
+				estCours: estCours,
+				proprietaires: listeIdProprietaires
 			})
-		}, function(response) {
+		}, function (response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				window.showToast("Le groupe de participant à été créé avec succès.");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
@@ -180,10 +209,60 @@ define([ "RestManager" ], function(RestManager) {
 			} else {
 				window.showToast(response.resultCode + " Erreur lors de la création du groupe de participants ; votre session a peut-être expiré ?");
 			}
+			callback();
 		});
 		
 	};
+	
+	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function() {
+/*
+		// Récupération de la liste des propriétaires potentiels
+		this.restManager.effectuerRequete("POST", "proprietairespotentiels", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				this.listeProprietairesPotentiels = data.data.listeProprietaires;
+				callback(true);
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; vérifiez votre connexion.");
+				callback(false);
+			} else {
+				window.showToast(data.resultCode + " Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
+				callback(false);
+			}
+		});*/
+	};
+	
+	
+	
+	DialogCreationGroupeParticipants.prototype.ajouterLigneProprietaire = function() {
+		var maxI = data.data.listeProprietaires.length;
 
+		var str = "<option value='-1'>---</option>";
+		if (maxI>0) {
+			for (var i=0; i<maxI; i++) {
+				str += "<option value='"+data.data.listeProprietaires[i].id+"'>"+data.data.listeProprietaires[i].nom+"</option>";
+			}
+		} else {
+			me.jqCreationGroupeForm.find("#form_creer_groupe_parent_message").html("Aucun rattachement possible").show();
+			$(object).attr("disabled", "disabled");
+		}
+		$(object).append(str);
+		 
+
+		str =
+			"<tr>" +
+				"<td>" +
+					"<label for='form_creer_groupe_parent'>Groupe parent</label>" +
+				"</td>" +
+				"<td>" +
+					"<select id='form_creer_groupe_parent'></select>" +
+				"</td>" +
+			"</tr>";
+
+		jqCreationGroupeTable.append(str);
+
+	};
 
 	return DialogCreationGroupeParticipants;
 

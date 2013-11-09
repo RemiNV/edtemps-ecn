@@ -231,7 +231,7 @@ public class GroupeGestion {
 				PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
 						"?, '"
 						+ rattachementAutorise
-						+ "', " + idGroupeParent
+						+ "', " + (idGroupeParent == -1 ? "null" : idGroupeParent)
 						+ ", 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id ");
 				req.setString(1, nom);
 
