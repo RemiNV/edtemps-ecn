@@ -10,6 +10,10 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 	 */
 	var Calendrier = function(eventsSource, ajoutEvenement, evenementGestion) {
 		var me = this;
+		
+		
+		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
+		var oldDatesDrag = Object();
 
 		this.jqCalendar = $("#calendar");
 		// Initialisation du calendrier
@@ -53,17 +57,29 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 					jqElement.append("<img src='img/spinner_chargement_outer_small.gif' class='spinner_evenement_loading' alt='Enregistrement...' />");
 				}
 			},
+			eventDragStop: function(event, jsEvent, ui, view) {
+				if(!event.pendingUpdates) { // L'évènement est synchronisé avec le serveur
+					
+					// Copie profonde des dates (fullCalendar les modifie)
+					oldDatesDrag[event.id] = { start: new Date(event.start.getTime()), end: new Date(event.end.getTime()) };
+				}
+			},
+			eventResizeStop: function(event, jsEvent, ui, view) {
+				if(!event.pendingUpdates) {
+					oldDatesDrag[event.id] = { start: event.start, end: event.end };
+				}
+			},
 			eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
 				// Evènements "toute la journée" non supportés
 				if(allDay) {
 					revertFunc();
 				}
 				else {			
-					updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar);
+					updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
 				}
 			},
 			eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
-				updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar);
+				updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
 			}
 			
 		});
@@ -80,11 +96,14 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 	 * Retarde toutes les mises à jour de 1.5sec et n'exécute que la dernière à l'expiration du délai, 
 	 * même si l'utilisateur effectue plusieurs modifications
 	 * 
-	 * @param event Nouvel évènement à enregistrer
-	 * @param evenementGestion Gestionnaire d'évènements JS
-	 * @param revertFunc Fonction à appeler pour invalider la modification (en cas d'erreur)
+	 * @param {Object} event Nouvel évènement à enregistrer
+	 * @param {module:EvenementGestion} evenementGestion Gestionnaire d'évènements JS
+	 * @param {function} revertFunc Fonction à appeler pour invalider la modification (en cas d'erreur)
+	 * @param {jQuery} jqCalendar Objet jQuery de fullCalendar
+	 * @param {Date} oldStart Ancienne date de début de l'évènement
+	 * @param {Date} oldEnd Ancienne date de fin de l'évènement
 	 */
-	function updateDatesEvenement(event, evenementGestion, revertFunc, jqCalendar) {
+	function updateDatesEvenement(event, evenementGestion, revertFunc, jqCalendar, oldStart, oldEnd) {
 		
 		event.loading = true;
 		if(event.pendingUpdates) {
@@ -98,12 +117,18 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 			event.pendingUpdates--;
 			
 			if(event.pendingUpdates == 0) {
+				
 				evenementGestion.modifierEvenement(event.id, function(resultCode) {
-					if(resultCode == RestManager.resultCode_NetworkError) {
+					
+					if(resultCode == RestManager.resultCode_Success) {
+						// Invalidation du cache aux anciennes dates de l'évènement
+						evenementGestion.invalidateCache(oldStart, oldEnd);
+					}
+					else if(resultCode == RestManager.resultCode_NetworkError) {
 						window.showToast("Erreur de mise à jour de l'évènement ; vérifiez votre connexion");
 						revertFunc();
 					}
-					else if(resultCode != RestManager.resultCode_Success) {
+					else {
 						window.showToast("Erreur de mise à jour de l'évènement ; code retour " + resultCode);
 						revertFunc();
 					}
