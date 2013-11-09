@@ -19,10 +19,9 @@ public class EvenementComplet extends EvenementIdentifie {
 	public EvenementComplet(String nom, Date dateDebut, Date dateFin,
 			List<Integer> idCalendriers, List<SalleIdentifie> salles,
 			List<UtilisateurIdentifie> intervenants,
-			List<UtilisateurIdentifie> responsables,
-			ArrayList<Materiel> materiels, int id, List<String> matieres, List<String> types) {
+			List<UtilisateurIdentifie> responsables, int id, List<String> matieres, List<String> types) {
 		super(nom, dateDebut, dateFin, idCalendriers, salles, intervenants,
-				responsables, materiels, id);
+				responsables, id);
 		
 		this.matieres = matieres;
 		this.types = types;

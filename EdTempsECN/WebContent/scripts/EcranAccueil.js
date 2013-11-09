@@ -1,11 +1,17 @@
+/**
+ * Module d'affichage de l'écran d'accueil (page principale d'affichage des évènements).
+ * Associé au HTML templates/page_accueil.html
+ * @module EcranAccueil
+ */
 define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", 
         "AjoutEvenement", "RestManager", "jquery", "jqueryui"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
         		RechercheSalle, AjoutEvenement, RestManager) {
 	
 	/**
-	 * Cet écran est associé au HTML templates/page_accueil.html.
-	 * Il s'agit de la page principale d'affichage des évènements. */
-	function EcranAccueil(restManager) { // Constructeur
+	 * @constructor
+	 * @alias module:EcranAccueil 
+	 */
+	var EcranAccueil = function(restManager) { // Constructeur
 		var me = this;
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
@@ -43,7 +49,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			this.setVue("mes_abonnements");
 		}
 		
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement);
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement, this.evenementGestion);
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 	};

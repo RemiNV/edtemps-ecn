@@ -1,9 +1,13 @@
+/**
+ * @module RechercheSalle
+ */
 define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "jqueryquicksearch" ], function(RestManager) {
 
 	/**
-	 * Constructeur
+	 * @constructor
+	 * @alias module:RechercheSalle
 	 */
-	function RechercheSalle(restManager, jqRechercheSalle) {
+	var RechercheSalle = function(restManager, jqRechercheSalle) {
 		this.restManager = restManager;
 		this.jqRechercheSalleForm = jqRechercheSalle.find("#form_chercher_salle");
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
@@ -231,6 +235,13 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		return valid;
 
 	};
+	
+	/**
+	 * Callback appelé par la fonction RechercheSalle.ecritListeMateriel
+	 * @callback CallbackEcritListeMateriel
+	 * @param {boolean} success - Succès de l'opération
+	 * @param {number} nbMateriels - Nombre de matériels chargés
+	 */
 
 
 	/**
@@ -238,9 +249,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * Si aucun matériel n'est sélectionnable, le tableau sera masqué.
 	 * En cas d'échec, l'affichage d'un messae d'erreur est déjà géré dans la fonction : inutile de le faire.
 	 * 
-	 * @param jqTableMateriel Tableau à populer avec les matériels
-	 * @param callback Fonction à rappeler une fois les matériels chargés et remplis.
-	 * 	Callback prend un booléen en argument indiquant le succès de la procédure, et un entier indiquant le nombre de matériels chargés
+	 * @param {jQuery} jqTableMateriel Tableau à populer avec les matériels
+	 * @param {CallbackEcritListeMateriel} callback Fonction à rappeler une fois les matériels chargés et remplis.
 	 */
 	RechercheSalle.prototype.ecritListeMateriel = function(jqTableMateriel, callback) {
 		var me = this;
@@ -292,9 +302,16 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	};
 	
 	/**
+	 * Matériel qui équipe une salle
+	 * @typedef {Object} RechercheSalle~Materiel
+	 * @property {number} id - ID du matériel
+	 * @property {number} quantite - Quantité du matériel
+	 */
+	
+	/**
 	 * Récupération des matériels rentrés dans un tableau de matériel écrit par ecritListeMateriel()
-	 * @param jqTableMateriel Tableau à examiner
-	 * @returns {Array} Tableau des matériels trouvés, avec chacun pour attributs "id" et "quantite"
+	 * @param {jQuery} jqTableMateriel Tableau à examiner
+	 * @return {Materiel[]} Tableau des matériels trouvés
 	 */
 	RechercheSalle.prototype.getContenuListeMateriel = function(jqTableMateriel) {
 		var listeMateriel = new Array();

@@ -50,27 +50,23 @@ public class AbonnementsServlet extends QueryWithIntervalServlet {
 		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 
-		try {
-			bdd.startTransaction();
-			
-			GroupeGestion.makeTempTableListeGroupesAbonnement(bdd, userId); // Création de la table temporaire d'abonnements pour cette transaction
-			
-			ArrayList<GroupeIdentifie> abonnementsGroupes = groupeGestion.listerGroupesAbonnement(userId, false, true);
-			ArrayList<CalendrierIdentifie> abonnementsCalendriers = calendrierGestion.listerCalendriersAbonnementsUtilisateur(userId, false, true);
-			ArrayList<EvenementIdentifie> abonnementsEvenements = evenementGestion.listerEvenementsUtilisateur(userId, dateDebut, dateFin, false, true);
-			
-			bdd.commit(); // Suppression de la table temporaire
-			
-			// Création de la réponse
-			return Json.createObjectBuilder()
-					.add("evenements", JSONUtils.getJsonArray(abonnementsEvenements))
-					.add("calendriers", JSONUtils.getJsonArray(abonnementsCalendriers))
-					.add("groupes", JSONUtils.getJsonArray(abonnementsGroupes))
-					.build();
-			
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
+		bdd.startTransaction();
+		
+		GroupeGestion.makeTempTableListeGroupesAbonnement(bdd, userId); // Création de la table temporaire d'abonnements pour cette transaction
+		
+		ArrayList<GroupeIdentifie> abonnementsGroupes = groupeGestion.listerGroupesAbonnement(userId, false, true);
+		ArrayList<CalendrierIdentifie> abonnementsCalendriers = calendrierGestion.listerCalendriersAbonnementsUtilisateur(userId, false, true);
+		ArrayList<EvenementIdentifie> abonnementsEvenements = evenementGestion.listerEvenementsUtilisateur(userId, dateDebut, dateFin, false, true);
+		
+		bdd.commit(); // Suppression de la table temporaire
+		
+		// Création de la réponse
+		return Json.createObjectBuilder()
+				.add("evenements", JSONUtils.getJsonArray(abonnementsEvenements))
+				.add("calendriers", JSONUtils.getJsonArray(abonnementsCalendriers))
+				.add("groupes", JSONUtils.getJsonArray(abonnementsGroupes))
+				.build();
+
 	}
 
 	@Override

@@ -1,15 +1,24 @@
+/**
+ * Module d'affichage de la page de paramètres, avec ses différents onglets (abonnements, mes agendas, mes groupes...)
+ * Associé au HTML templates/page_parametres.html
+ * @module EcranParametres
+ */
 define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier, DialogCreationGroupeParticipants) {
 	
 	/**
-	 * Cet écran est associé au HTML templates/page_parametres.html.
-	 * Il affiche la page de paramètres, avec ses différents onglets (abonnements, mes agendas, mes groupes...) */
-	function EcranParametres(restManager) {
+	 * @constructor
+	 * @alias module:EcranParametres
+	 */
+	var EcranParametres = function(restManager) {
 		this.restManager = restManager;
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager);
 	};
 	
+	/**
+	 * Initialisation de l'écran
+	 */
 	EcranParametres.prototype.init = function() {
 		
 		// Initialisaion de la navigation par tabs
@@ -35,31 +44,43 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		
 	};
 
+	/**
+	 * Initialisation de l'onglet "mes abonnements"
+	 */
 	EcranParametres.prototype.initMesAbonnements = function() {
 
 		// Remplir les "abonnements" et "non abonnments" dans le MultiSelect
 		this.groupeGestion.queryAbonnementsEtNonAbonnements(function(resultCode, data) {
+			
 			if(resultCode == RestManager.resultCode_Success) {
+				
 				// Variable recevant progressivement le code HTML à ajouter à l'élément MultiSelect
 				var html = "";
 				// Variable temporaire contenant le groupe en cours de lecture
 				var gpe; 
-				// Parcourt des groupes auxquels l'utilisateur est abonné 
-				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
-					gpe = data.groupesAbonnements[i];
-					html += '<option value="' + gpe.id + '"';
-					if (gpe.estCours) {
-						html += ' disabled="disabled"';
-					}
-					html += '>' + gpe.nom + '</option>';
-				}
 				// Parcourt des groupes auxquels l'utilisateur n'est pas abonné
 				for (var i = 0, maxI=data.groupesNonAbonnements.length ; i < maxI ; i++) {
+					// Ajout du groupe dans "abonnements disponibles"
 					gpe = data.groupesNonAbonnements[i];
-					html += '<option value="' + gpe.id + '" selected="selected">' + gpe.nom + '</option>';
+					html += '<option value="' + gpe.id + '"'
+						+ ' idparent="' + gpe.parentId + '"'
+						+ ' selected="selected">' 
+						+ gpe.nom + '</option>';
 				}
-
-				// Affichage		 
+				// Parcourt des groupes auxquels l'utilisateur est abonné 
+				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
+					// Ajout du groupe dans "mes abonnements"
+					gpe = data.groupesAbonnements[i];
+					html += '<option value="' + gpe.id + '"';
+					// Si abonnementObligatoire, empecher le désabonnement
+					if (gpe.abonnementObligatoire) {
+						html += ' disabled="disabled"';
+					}
+					html += ' idparent="' + gpe.parentId + '"';
+					html += '>' + gpe.nom + '</option>';
+				}
+			
+				// Affichage	 
 				$("#select-abonnements").html(html);
 				
 				// Paramètres de l'objet multiSelect
@@ -100,8 +121,12 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 							}
 						});
 					}
-				});
+				});	
 				
+				// Mise en forme des abonnements indirectes à ce groupe (=> parcours des abonnements directs)
+				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
+					me.afficheAbonnementsIndirectes(data.groupesAbonnements[i].id, data.groupesAbonnements[i].parentId);
+				}
 			}
 			
 			else if(resultCode == RestManager.resultCode_NetworkError) {
@@ -143,6 +168,9 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 
 	};
 	
+	/**
+	 * Initialisation de l'onglet "mes calendriers"
+	 */
 	EcranParametres.prototype.initMesCalendriers = function() {
 		
 		// Affichage des calendriers (utiliser template ?)
@@ -157,6 +185,54 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 			me.dialogCreationGroupeParticipants.show();
 		});
 
+	};
+	
+	/**
+	 * Permet d'ajouter l'info "abonné indirectement" aux parents et fils du groupe ayant l'id "id"
+	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
+	 *
+	 * @param : id
+	 */
+	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id) {
+		this.afficheAbonnementsIndirectesFils(id);
+		this.afficheAbonnementsIndirectesParent(id);
+	};
+	
+	/**
+	 * Permet d'ajouter l'info "abonné indirectement" aux parents du groupe ayant l'id "id"
+	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
+	 * 
+	 * @param : id
+	 */
+	EcranParametres.prototype.afficheAbonnementsIndirectesParent = function(id) {
+		//On cherche le parent (unique) de l'élément
+		var idparent = $("#"+id+"-selection").attr("idparent");
+		//Si l'élément a bien un parent
+		if (idparent != "0") {
+			//On lui ajoute la classe "abonnement_indirect"
+			$( "#" + idparent + "-selection").addClass("abonnement_indirect");
+			this.afficheAbonnementsIndirectesParent(idparent);
+		}
+	};
+	
+	/**
+	 * Permet d'ajouter l'info "abonné indirectement" aux fils du groupe ayant l'id "id"
+	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
+	 * 
+	 * @param : id
+	 */
+	EcranParametres.prototype.afficheAbonnementsIndirectesFils = function(id) {
+		var me = this;
+		//On parcourt les fils de l'élément
+		if (id != 0) {
+			$( '.ms-selection li[idparent="'+id+'"]' ).each(function() {
+				//A chaque fils, on ajoute la classe "abonnementIndirect"
+				$(this).addClass("abonnement_indirect");
+				//Pour chaque fils, on parcourt ses fils via un appel récursif
+				var idfils = $(this).attr("id").replace("-selection", "");
+				me.afficheAbonnementsIndirectesFils(idfils);
+			});
+		}
 	};
 	
 	return EcranParametres;

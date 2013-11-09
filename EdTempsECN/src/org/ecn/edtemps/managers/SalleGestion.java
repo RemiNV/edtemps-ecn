@@ -281,32 +281,24 @@ public class SalleGestion {
 	 *            identifiant de la salle à supprimer
 	 * 
 	 * @throws EdtempsException
-	 *             en cas d'erreur
+	 *             en cas d'erreur de communication avec la bdd
 	 */
-	public void supprimerSalle(int idSalle) throws EdtempsException {
+	public void supprimerSalle(int idSalle) throws DatabaseException {
 
-		try {
+		// Démarre une transaction
+		_bdd.startTransaction();
 
-			// Démarre une transaction
-			_bdd.startTransaction();
+		// Supprime le matériel
+		_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id=" + idSalle);
 
-			// Supprime le matériel
-			_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id=" + idSalle);
+		// Supprime les liens avec les événements
+		_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE salle_id=" + idSalle);
 
-			// Supprime les liens avec les événements
-			_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE salle_id=" + idSalle);
+		// Supprime la salle
+		_bdd.executeRequest("DELETE FROM edt.salle WHERE salle_id=" + idSalle);
 
-			// Supprime la salle
-			_bdd.executeRequest("DELETE FROM edt.salle WHERE salle_id=" + idSalle);
-
-			// Termine la transaction
-			_bdd.commit();
-
-		} catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		}
+		// Termine la transaction
+		_bdd.commit();
 
 	}
 

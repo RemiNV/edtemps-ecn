@@ -1,9 +1,13 @@
+/**
+ * @module DialogCreationGroupeParticipants
+ */
 define([ "RestManager" ], function(RestManager) {
 
 	/**
-	 * Constructeur
+	 * @constructor
+	 * @alias module:DialogCreationGroupeParticipants
 	 */
-	function DialogCreationGroupeParticipants(restManager) {
+	var DialogCreationGroupeParticipants = function(restManager) {
 		this.restManager = restManager;
 		
 		this.jqCreationGroupeForm = $("#form_creer_groupe");

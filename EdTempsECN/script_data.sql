@@ -500,13 +500,6 @@
 		WHERE utilisateur.utilisateur_nom='Doe' AND utilisateur.utilisateur_prenom='John'
 		AND evenement.eve_nom='Réunion d''information alternance';
 
-/* necessitemateriel */
-
-	INSERT INTO edt.necessitemateriel(eve_id, materiel_id, necessitemateriel_quantite)
-		SELECT evenement.eve_id, materiel.materiel_id, 15
-		FROM edt.evenement CROSS JOIN edt.materiel
-		WHERE evenement.eve_nom='OBJET' AND evenement.eve_datedebut='2013-10-23 14:00:00' AND materiel.materiel_nom='Ordinateur';
-
 /* droits */
 /* TODO : compléter */
 

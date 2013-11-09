@@ -1,6 +1,22 @@
+
+/**
+ * Module de contrôle de la boîte de dialogue d'ajout d'évènement
+ * @module AjoutEvenement
+ */
 define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedinput", "lib/fullcalendar.translated.min"], function(CalendrierGestion, RestManager) {
 	
-	function AjoutEvenement(restManager, jqDialog, rechercheSalle, evenementGestion, callbackRafraichirCalendrier) {
+	/**
+	 * Création d'un module d'ajout d'évènements (contrôle la boîte de dialogue associée)
+	 * @param {module:RestManager} restManager Référence au restManager instancié
+	 * @param {jQuery} jqDialog Objet jQuery du DOM dans lequel afficher la dialog
+	 * @param {module:RechercheSalle} rechercheSalle Référence à l'objet rechercheSalle instancié
+	 * @param {module:EvenementGestion} evenementGestion Référence à l'objet evenementGestion instancié
+	 * @param {function} callbackRafraichirCalendrier Fonction à appeler pour déclencher le rafraîchissement du calendrier après ajout d'un évènement
+	 * 
+	 * @constructor
+	 * @alias module:AjoutEvenement
+	 */
+	var AjoutEvenement = function(restManager, jqDialog, rechercheSalle, evenementGestion, callbackRafraichirCalendrier) {
 		
 		this.jqDialog = jqDialog;
 		this.restManager = restManager;
@@ -73,7 +89,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			}
 		}
 		else {
-			strSalles = "(Sélectionnez une ou plusieurs salle(s))";
+			strSalles = "(Recherchez une ou plusieurs salle(s))";
 		}
 		
 		this.jqDialog.find("#salles_evenement").html(strSalles);
@@ -124,7 +140,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
 			
 			this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
-					formData.intervenants, formData.responsables, formData.materiels, 
+					formData.intervenants, formData.responsables, 
 					function(resultCode) {
 				
 				// Masquage du message d'attente
@@ -163,25 +179,28 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		}
 		
 		return val;
-	} 
+	}
+	
+	/**
+	 * Données rentrées dans le formulaire d'ajout d'évènement
+	 * @typedef {Object} DonneesFormulaireAjoutEvenement
+	 * @property {boolean} valide - true si le formulaire est complet
+	 * @property {boolean} valideRechercheSalle - true si les informations nécessaires à la recherche d'une salle sont présentes
+	 * @property {string} nom - Nom de l'évènement
+	 * @property {number[]} responsables - tableau d'ID des responsables
+	 * @property {number[]} intervenants - tableau d'ID des intervenants
+	 * @property {number[]} calendriers - tableau d'ID des calendriers
+	 * @property {Date} dateDebut - Date de début de l'évènement
+	 * @property {Date} dateFin - Date de fin de l'évènement
+	 * @property {Materiel[]} materiels - Matériels sélectionnés pour l'évènement
+	 * @property {number[]} salles - Tableau d'IDs des salles sélectionnées
+	 */
 	
 	/**
 	 * Vérifie les données du formulaire et les renvoie
-	 * Format de l'objet renvoyé : contient les attributs : 
-	 * - valide : booléen, true si le formulaire est complet
-	 * - valideRechercheSalle: booléen, true si les informations nécessaires à la recherche
-	 * 		d'une salle sont présentes
-	 * - nom
-	 * - responsables : tableau d'ID des responsables
-	 * - intervenants : tableau d'ID des intervenants
-	 * - calendriers : tableau d'ID de calendriers
-	 * - dateDebut : date JavaScript
-	 * - dateFin : date JavaScript
-	 * - materiels : matériels sélectionnés pour l'évènement
-	 * - salles : tableau d'ID de salles
 	 * 
-	 * @param pourRechercheSalle Signaler les champs non remplis nécessaires pour rechercher une salle uniquement (booléen)
-	 * @return Données du formulaire selon la syntaxe précédente
+	 * @param {boolean} pourRechercheSalle Signaler les champs non remplis nécessaires pour rechercher une salle uniquement
+	 * @return {DonneesFormulaireAjoutEvenement} Données du formulaire
 	 */
 	AjoutEvenement.prototype.getDonneesFormulaire = function(pourRechercheSalle) {
 		var res = {
@@ -285,8 +304,15 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	};
 	
 	/**
+	 * Fonction rappelée une fois les calendriers remplis dans remplirCalendrier
+	 * @typedef {function} CallbackRemplirCalendriers
+	 * @param {boolean} Succès de l'opération
+	 * @param {number} Nombre de calendriers trouvés
+	 */
+	
+	/**
 	 * Remplissage de la sélection des calendriers dans la boîte de dialogue d'ajout d'évènement
-	 * @param callback Fonction rappelée une fois les calendriers remplis, avec un booléen en argument indiquant le succès de l'opération et le nombre de calendriers trouvés
+	 * @param {CallbackRemplirCalendriers} callback Fonction rappelée une fois les calendriers remplis
 	 */
 	AjoutEvenement.prototype.remplirCalendriers = function(callback) {
 		var calendrierGestion = new CalendrierGestion(this.restManager);
@@ -321,12 +347,19 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	};
 	
 	/**
+	 * Salles utilisées pour préremplir la dialog d'ajout d'évènement
+	 * @typedef {Object} SalleRemplissageAjoutEvenement
+	 * @property {number} id - ID de la salle
+	 * @property {string} nom - Nom de la salle
+	 */
+	
+	/**
 	 * Affichage de la boîte de dialogue d'ajout d'évènement.
 	 * Les paramètres de pré-remplissage peuvent être null pour ne rien préremplir
 	 * 
-	 * @param dateDebut date de début à pré-remplir ; objet Date JavaScript
-	 * @param dateFin date de fin à pré-remplir. <b>Doit être le même jour</b> que dateDebut si il est non null ; objet Date JavaScript
-	 * @param salles salles à pré-remplir. Tableau d'objets contenant au moins les attributs id et nom
+	 * @param {Date} dateDebut date de début à pré-remplir ; objet Date JavaScript
+	 * @param {Date} dateFin date de fin à pré-remplir. <b>Doit être le même jour</b> que dateDebut si il est non null ; objet Date JavaScript
+	 * @param {SalleRemplissageAjoutEvenement} salles salles à pré-remplir.
 	 */
 	AjoutEvenement.prototype.show = function(dateDebut, dateFin, salles) {
 		

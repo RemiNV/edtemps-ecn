@@ -11,8 +11,6 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.SalleGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.models.Materiel;
-import org.ecn.edtemps.models.Salle;
-import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -49,19 +47,7 @@ public abstract class AbsEvenementInflater<T extends EvenementIdentifie> {
 			// Récupération des responsables
 			ArrayList<UtilisateurIdentifie> responsables = utilisateurGestion.getResponsablesEvenement(id);
 			
-			// Matériel
-			ResultSet reponseMateriel = bdd.executeRequest(
-					"SELECT materiel.materiel_id AS id, materiel.materiel_nom AS nom, necessitemateriel.necessitemateriel_quantite AS quantite " +
-					"FROM edt.materiel INNER JOIN edt.necessitemateriel ON necessitemateriel.materiel_id = materiel.materiel_id "
-					+ "AND necessitemateriel.eve_id=" + id);
-			
-			ArrayList<Materiel> materiels = new ArrayList<Materiel>();
-			while(reponseMateriel.next()) {
-				materiels.add(new Materiel(reponseMateriel.getInt("id"), reponseMateriel.getString("nom"), reponseMateriel.getInt("quantite")));
-			}
-			reponseMateriel.close();
-			
-			return inflate(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiels, id, reponse, bdd);
+			return inflate(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, id, reponse, bdd);
 			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
@@ -69,6 +55,6 @@ public abstract class AbsEvenementInflater<T extends EvenementIdentifie> {
 	}
 	
 	protected abstract T inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, ArrayList<SalleIdentifie> salles, ArrayList<UtilisateurIdentifie> intervenants, 
-			ArrayList<UtilisateurIdentifie> responsables, ArrayList<Materiel> materiels, int id, ResultSet reponse, BddGestion bdd) throws DatabaseException;
+			ArrayList<UtilisateurIdentifie> responsables, int id, ResultSet reponse, BddGestion bdd) throws DatabaseException;
 
 }

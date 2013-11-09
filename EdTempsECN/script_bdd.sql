@@ -78,14 +78,6 @@ CREATE TABLE edt.ALieuenSalle (
 );
 
 
-CREATE TABLE edt.NecessiteMateriel (
-                eve_id INTEGER NOT NULL,
-                materiel_id INTEGER NOT NULL,
-				necessitemateriel_quantite INTEGER NOT NULL,
-                CONSTRAINT eve_id_materiel_id PRIMARY KEY (eve_id, materiel_id)
-);
-
-
 CREATE SEQUENCE edt.matiere_matiere_id_seq;
 
 CREATE TABLE edt.Matiere (
@@ -234,13 +226,6 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE edt.NecessiteMateriel ADD CONSTRAINT materiel_necessitemateriel_fk
-FOREIGN KEY (materiel_id)
-REFERENCES edt.Materiel (materiel_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
 ALTER TABLE edt.ContientMateriel ADD CONSTRAINT materiel_contientmateriel_fk
 FOREIGN KEY (materiel_id)
 REFERENCES edt.Materiel (materiel_id)
@@ -298,13 +283,6 @@ ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE edt.EvenementAppartient ADD CONSTRAINT evenement_evenementappartient_fk
-FOREIGN KEY (eve_id)
-REFERENCES edt.Evenement (eve_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
-ALTER TABLE edt.NecessiteMateriel ADD CONSTRAINT evenement_necessitemateriel_fk
 FOREIGN KEY (eve_id)
 REFERENCES edt.Evenement (eve_id)
 ON DELETE NO ACTION
@@ -430,7 +408,6 @@ ALTER TABLE edt.typecalendrier OWNER TO "edtemps-ecn";
 ALTER TABLE edt.groupeparticipant OWNER TO "edtemps-ecn";
 ALTER TABLE edt.evenement OWNER TO "edtemps-ecn";
 ALTER TABLE edt.aLieuensalle OWNER TO "edtemps-ecn";
-ALTER TABLE edt.necessitemateriel OWNER TO "edtemps-ecn";
 ALTER TABLE edt.matiere OWNER TO "edtemps-ecn";
 ALTER TABLE edt.calendrier OWNER TO "edtemps-ecn";
 ALTER TABLE edt.calendrierappartientgroupe OWNER TO "edtemps-ecn";

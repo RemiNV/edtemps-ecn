@@ -1,10 +1,14 @@
-/* Module effectuant les requêtes sur le serveur,
+/** Module effectuant les requêtes sur le serveur,
  * et gérant la connexion à celui-ci. Gère entre autres
- * le token de connexion */
+ * le token de connexion
+ * @module RestManager 
+ */
 define(["jquery"], function() {
-	
-	// Constructeur
-	function RestManager() {
+	/**
+	 * @constructor
+	 * @alias module:RestManager
+	 */
+	var RestManager = function() {
 		
 		// Récupération du dernier token de connection depuis le stockage local.
 		// Il peut avoir expiré.
@@ -26,7 +30,17 @@ define(["jquery"], function() {
 		this._identificationErrorFallback = null; // Fonction appelée en cas d'erreur d'identification
 	};
 	
-	// Correspondent aux codes définis dans le Java
+	/**
+	 * Code de retour de RestManager.
+	 * Correspond aux codes définis dans le serveur Java.
+	 * Accepte les valeurs : <br>
+	 * - RestManager.resultCode_NetworkError<br>
+	 * - RestManager.resultCode_Success<br>
+	 * - RestManager.resultCode_IdentificationError<br>
+	 * - RestManager.resultCode_LdapError
+	 * @typedef ResultCode
+	 * @type {number}
+	 */
 	RestManager.resultCode_NetworkError = -1;
 	RestManager.resultCode_Success = 0;
 	RestManager.resultCode_IdentificationError = 1;
@@ -46,13 +60,15 @@ define(["jquery"], function() {
 		}
 	};
 
-	/* Fonction de connexion auprès du serveur.
-	 * Param identifiant : identifiant de l'utilisateur
-	 * Param pass : mot de passe de l'utilisateur
-	 * Param callback : fonction de rappel appelée pour fournir les résultats de la requête
+	/** 
+	 * Fonction de connexion auprès du serveur.
+	 * @param identifiant identifiant de l'utilisateur
+	 * @param pass mot de passe de l'utilisateur
+	 * @param callback fonction de rappel appelée pour fournir les résultats de la requête
+	 * 
 	 * 	La fonction callback prend les arguments : 
 	 *  - resultCode (entier) : résultat de la connexion, correspondant à RestManager.resultCode_*
-	 * Valeur de retour : aucune */
+	 */
 	RestManager.prototype.connexion = function(identifiant, pass, callback) {
 		var me = this;
 		
@@ -72,9 +88,11 @@ define(["jquery"], function() {
 	};
 	
 	/**
-	 * Fonction de déconnexion auprès du serveur
-	 * Param callback : fonction appelée une fois la requête terminée. Arguments : 
-	 * - resultCode (entier) : code de résultat renvoyé par le serveur. RestManager.resultCode_Success en cas de succès de la déconnexion. */
+	 * Fonction de déconnexion auprès du serveur.
+	 * Arguments de callback : 
+	 * - resultCode (entier) : code de résultat renvoyé par le serveur. RestManager.resultCode_Success en cas de succès de la déconnexion.
+	 * @param callback : fonction appelée une fois la requête terminée.
+	 */
 	RestManager.prototype.deconnexion = function(callback) {
 		this.effectuerRequete("GET", "identification/disconnect", { token: this._token }, function(data) {
 			// On considère que la déconnexion est un succès si il y a une erreur d'identification
@@ -94,16 +112,18 @@ define(["jquery"], function() {
 	
 	/**
 	 * Récupération de l'ID d'utilisateur de l'utilisateur actuel
-	 * @returns ID de l'utilisateur actuel
+	 * @return ID de l'utilisateur actuel
 	 */
 	RestManager.prototype.getUserId = function() {
 		return this._userId;
 	};
 	
-	/* Dans le cas où l'application possède un token de connexion,
+	/**
+	 * Dans le cas où l'application possède un token de connexion,
 	 * vérifie auprès du serveur que ce token est (encore) valide.
-	 * Param callback : fonction de rappel appelée une fois la requête effectuée. Arguments : 
+	 * Paramètres de callback : 
 	 * - resultCode (int) : code de retour, RestManager.resultCode_Success en cas de succès
+	 * @param callback fonction de rappel appelée une fois la requête effectuée.
 	 */
 	RestManager.prototype.checkConnection = function(callback) {
 		var me = this;
@@ -122,9 +142,11 @@ define(["jquery"], function() {
 		}
 	};
 	
-	/* Indique si l'utilisateur en cours est connecté.
+	/**
+	 * Indique si l'utilisateur en cours est connecté.
 	 * L'utilisateur peut être connecté si on a fait appel à connexion(), ou à checkConnection si un token valide était enregistré
-	 * (si les informations de connexion ont été stockées dans le navigateur par exemple) */
+	 * (si les informations de connexion ont été stockées dans le navigateur par exemple)
+	 * @return true si l'utilisateur est connecté */
 	RestManager.prototype.isConnected = function() {
 		return this._isConnected;
 	};
@@ -134,10 +156,11 @@ define(["jquery"], function() {
 	 * avant de faire échouer la requête. Permet de reconnecter l'utilisateur sans faire
 	 * échouer la requête.
 	 * 
-	 * Argument fallback : fonction à appeler en cas d'erreur de connexion lors d'une requête.
-	 * Arguments de fallback :  
+	 * Paramètres de fallback :  
 	 * - callback : fonction à appeler une fois la reconnexion effectuée.
 	 *   La fonction callback doit être appelée avec un argument booléen indiquant si la reconnexion a réussi.
+	 * 
+	 * @param fallback : fonction à appeler en cas d'erreur de connexion lors d'une requête.
 	 */
 	RestManager.prototype.setIdentificationErrorFallback = function(fallback) {
 		this._identificationErrorFallback = fallback;

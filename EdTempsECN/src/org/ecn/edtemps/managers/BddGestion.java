@@ -79,24 +79,36 @@ public class BddGestion {
 	 * Démarre une transaction avec la connection associée à cet objet BddGestion 
 	 * @throws SQLException
 	 */
-	public void startTransaction() throws SQLException {
-		_connection.setAutoCommit(false);
+	public void startTransaction() throws DatabaseException {
+		try {
+			_connection.setAutoCommit(false);
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 	}
 	
 	/**
 	 * Commit une transaction associée à la connection de cet objet BddGestion
 	 * @throws SQLException
 	 */
-	public void commit() throws SQLException {
-		_connection.commit();
+	public void commit() throws DatabaseException {
+		try {
+			_connection.commit();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 	}
 	
 	/**
 	 * Rollback une transaction associée à la connection de cet objet BddGestion
 	 * @throws SQLException 
 	 */
-	public void rollback() throws SQLException {
-		_connection.rollback();
+	public void rollback() throws DatabaseException {
+		try {
+			_connection.rollback();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 	}
 
 	/**

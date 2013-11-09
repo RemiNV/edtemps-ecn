@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: RestManager.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: RestManager.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/** Module effectuant les requêtes sur le serveur,
+ * et gérant la connexion à celui-ci. Gère entre autres
+ * le token de connexion
+ * @module RestManager 
+ */
+define(["jquery"], function() {
+	/**
+	 * @constructor
+	 * @alias module:RestManager
+	 */
+	var RestManager = function() {
+		
+		// Récupération du dernier token de connection depuis le stockage local.
+		// Il peut avoir expiré.
+		if(window.localStorage) {
+			this._token = window.localStorage["token"];
+			this._userId = parseInt(window.localStorage["userId"]);
+			
+			if(isNaN(this._userId)) {
+				this._userId = null;
+			}
+		}
+		else {
+			this._token = null; // Navigateurs ne supportant pas localStorage
+			this._userId = null;
+		}
+			
+		this._connected = false; // Appeler connexion() ou checkConnexion() pour mettre à jour ce statut
+		
+		this._identificationErrorFallback = null; // Fonction appelée en cas d'erreur d'identification
+	};
+	
+	/**
+	 * Code de retour de RestManager.
+	 * Correspond aux codes définis dans le serveur Java.
+	 * Accepte les valeurs : &lt;br>
+	 * - RestManager.resultCode_NetworkError&lt;br>
+	 * - RestManager.resultCode_Success&lt;br>
+	 * - RestManager.resultCode_IdentificationError&lt;br>
+	 * - RestManager.resultCode_LdapError
+	 * @typedef ResultCode
+	 * @type {number}
+	 */
+	RestManager.resultCode_NetworkError = -1;
+	RestManager.resultCode_Success = 0;
+	RestManager.resultCode_IdentificationError = 1;
+	RestManager.resultCode_LdapError = 3;
+	
+	RestManager.prototype.setToken = function(token) {
+		this._token = token;
+		if(window.localStorage) {
+			window.localStorage["token"] = token;
+		}
+	};
+
+	RestManager.prototype.setUserId = function(userId) {
+		this._userId = userId;
+		if(window.localStorage) {
+			window.localStorage["userId"] = userId;
+		}
+	};
+
+	/** 
+	 * Fonction de connexion auprès du serveur.
+	 * @param identifiant identifiant de l'utilisateur
+	 * @param pass mot de passe de l'utilisateur
+	 * @param callback fonction de rappel appelée pour fournir les résultats de la requête
+	 * 
+	 * 	La fonction callback prend les arguments : 
+	 *  - resultCode (entier) : résultat de la connexion, correspondant à RestManager.resultCode_*
+	 */
+	RestManager.prototype.connexion = function(identifiant, pass, callback) {
+		var me = this;
+		
+		// Connection depuis le serveur
+		this.effectuerRequete("POST", "identification/connection", { username: identifiant, password: pass }, 
+			function(response) {
+			
+				if(response.resultCode == RestManager.resultCode_Success) { // Succès de l'identification
+					me.setToken(response.data.token);
+					me.setUserId(response.data.userId);
+					me._isConnected = true;
+				}
+				
+				callback(response.resultCode);
+			}, true // On ignore le fallback en cas d'échec de connexion ici
+		);
+	};
+	
+	/**
+	 * Fonction de déconnexion auprès du serveur.
+	 * Arguments de callback : 
+	 * - resultCode (entier) : code de résultat renvoyé par le serveur. RestManager.resultCode_Success en cas de succès de la déconnexion.
+	 * @param callback : fonction appelée une fois la requête terminée.
+	 */
+	RestManager.prototype.deconnexion = function(callback) {
+		this.effectuerRequete("GET", "identification/disconnect", { token: this._token }, function(data) {
+			// On considère que la déconnexion est un succès si il y a une erreur d'identification
+			if(data.resultCode === RestManager.resultCode_Success || data.resultCode === RestManager.resultCode_IdentificationError) {
+				this._isConnected = false;
+				this._token = null;
+			}
+			
+			callback(data.resultCode);
+		});
+	};
+	
+	/* Récupère le token de connexion en cours */
+	RestManager.prototype.getToken = function() {
+		return this._token;
+	};
+	
+	/**
+	 * Récupération de l'ID d'utilisateur de l'utilisateur actuel
+	 * @return ID de l'utilisateur actuel
+	 */
+	RestManager.prototype.getUserId = function() {
+		return this._userId;
+	};
+	
+	/**
+	 * Dans le cas où l'application possède un token de connexion,
+	 * vérifie auprès du serveur que ce token est (encore) valide.
+	 * Paramètres de callback : 
+	 * - resultCode (int) : code de retour, RestManager.resultCode_Success en cas de succès
+	 * @param callback fonction de rappel appelée une fois la requête effectuée.
+	 */
+	RestManager.prototype.checkConnection = function(callback) {
+		var me = this;
+		if(this._token) {
+			this.effectuerRequete("GET", "identification/checkconnection", { token: this._token }, function(data) {
+				if(data.resultCode == RestManager.resultCode_Success) {
+					me._isConnected = true;
+					me.setUserId(data.data.id);
+				}
+			
+				callback(data.resultCode);
+			}, true);
+		}
+		else {
+			callback(RestManager.resultCode_IdentificationError); // Aucune requête serveur nécessaire
+		}
+	};
+	
+	/**
+	 * Indique si l'utilisateur en cours est connecté.
+	 * L'utilisateur peut être connecté si on a fait appel à connexion(), ou à checkConnection si un token valide était enregistré
+	 * (si les informations de connexion ont été stockées dans le navigateur par exemple)
+	 * @return true si l'utilisateur est connecté */
+	RestManager.prototype.isConnected = function() {
+		return this._isConnected;
+	};
+	
+	/**
+	 * Définition d'une fonction à appeler en cas d'erreur d'identification,
+	 * avant de faire échouer la requête. Permet de reconnecter l'utilisateur sans faire
+	 * échouer la requête.
+	 * 
+	 * Paramètres de fallback :  
+	 * - callback : fonction à appeler une fois la reconnexion effectuée.
+	 *   La fonction callback doit être appelée avec un argument booléen indiquant si la reconnexion a réussi.
+	 * 
+	 * @param fallback : fonction à appeler en cas d'erreur de connexion lors d'une requête.
+	 */
+	RestManager.prototype.setIdentificationErrorFallback = function(fallback) {
+		this._identificationErrorFallback = fallback;
+	};
+	
+	/**
+	 *  Effectue une requête AJAX avec la méthode donnée ('GET', 'POST', 'PUT' ou 'DELETE'),
+	 * pour l'URL donnée, avec les données fournies.
+	 * La fonction de callback prend en argument : 
+	 * - data (object) : résultat de la requête.
+	 * En cas d'échec de la connexion, il ne contient qu'un attribut resultCode correspondant à
+	 * RestManager.resultCode_NetworkError.
+	 * 
+	 * Lorsque le token de connexion de l'utilisateur n'est pas valide, cette méthode peut utiliser un fallback
+	 * défini précédemment pour rétablir la connexion avant de renvoyer un résultat.
+	 * Le paramètre ignoreFallback (booléen) permet de ne pas utiliser ce fallback et renvoyer un code IdentificationError
+	 */
+	RestManager.prototype.effectuerRequete = function(method, url, data, callback, ignoreFallback) {
+		
+		var me = this;
+		$.ajax(url, {
+			data: data,
+			dataType: "json",
+			type: method,
+			traditional: true, //pour éviter les problèmes de retranscription des données -> ajout %5B%5D dans l'URL en méthode GET
+			timeout: 15000 // 15 sec.
+		}).done(function(ajaxData) {
+			
+			
+			if(!ignoreFallback && me._identificationErrorFallback != null && ajaxData.resultCode == RestManager.resultCode_IdentificationError) {
+				me._identificationErrorFallback(function(reconnectionSuccess) {
+					if(reconnectionSuccess) { // Réessai
+						var newData = $.extend({}, data, { token: me.getToken() });
+						me.effectuerRequete(method, url, newData, callback);
+					}
+					else {
+						callback(ajaxData);
+					}
+				});
+			}
+			else {
+				callback(ajaxData);
+			}
+		}).fail(function() {
+			callback({ resultCode: RestManager.resultCode_NetworkError });
+		});
+	};
+	
+	// Renvoyer RestManager dans cette fonction le définit comme l'objet de ce fichier de module
+	return RestManager;
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-AjoutEvenement.html">AjoutEvenement</a></li><li><a href="module-Calendrier.html">Calendrier</a></li><li><a href="module-CalendrierGestion.html">CalendrierGestion</a></li><li><a href="module-DialogConnexion.html">DialogConnexion</a></li><li><a href="module-DialogCreationCalendrier.html">DialogCreationCalendrier</a></li><li><a href="module-DialogCreationGroupeParticipants.html">DialogCreationGroupeParticipants</a></li><li><a href="module-EcranAccueil.html">EcranAccueil</a></li><li><a href="module-EcranParametres.html">EcranParametres</a></li><li><a href="module-EvenementGestion.html">EvenementGestion</a></li><li><a href="module-GroupeGestion.html">GroupeGestion</a></li><li><a href="module-ListeGroupesParticipants.html">ListeGroupesParticipants</a></li><li><a href="module-RechercheSalle.html">RechercheSalle</a></li><li><a href="module-RestManager.html">RestManager</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Sat Nov 09 2013 01:25:57 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,6 +1,14 @@
+/**
+ * Module de gestion/récupération des évènements, utilise un système de cache
+ * @module EvenementGestion
+ */
 define(["RestManager"], function(RestManager) {
 
-	function EvenementGestion(restManager) {
+	/**
+	 * @constructor
+	 * @alias module:EvenementGestion
+	 */
+	var EvenementGestion = function(restManager) {
 		this.restManager = restManager;
 		
 		this.cachedEvents = Object();
@@ -401,17 +409,16 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Ajout d'un évènement en base de données
 	 * 
-	 * @param nom Nom de l'évènement
-	 * @param dateDebut date de début de l'évènement
-	 * @param dateFin date de fin de l'évènement
-	 * @param idCalendriers tableau d'IDs des calendriers
-	 * @param idSalles tableau d'IDs des salles de l'évènement
-	 * @param idIntervenants tableau d'IDs des intervenants
-	 * @param idResponsables tableau d'IDs des responsables
-	 * @param materiels tableau de matériels. Chaque objet contient les attributs id et quantite
-	 * @param callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
+	 * @param {string} nom Nom de l'évènement
+	 * @param {Date} dateDebut date de début de l'évènement
+	 * @param {Date} dateFin date de fin de l'évènement
+	 * @param {number[]} idCalendriers tableau d'IDs des calendriers
+	 * @param {number[]} idSalles tableau d'IDs des salles de l'évènement
+	 * @param {number[]} idIntervenants tableau d'IDs des intervenants
+	 * @param {number[]} idResponsables tableau d'IDs des responsables
+	 * @param {function} callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
 	 */
-	EvenementGestion.prototype.ajouterEvenement = function(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, materiels, callback) {
+	EvenementGestion.prototype.ajouterEvenement = function(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, callback) {
 		var me = this;
 		this.restManager.effectuerRequete("POST", "evenement/ajouter", {
 			token: me.restManager.getToken(),
@@ -422,8 +429,7 @@ define(["RestManager"], function(RestManager) {
 				calendriers: idCalendriers,
 				salles: idSalles,
 				intervenants: idIntervenants,
-				responsables: idResponsables, 
-				materiels: materiels
+				responsables: idResponsables
 			})
 		}, function(response) {
 			
@@ -435,6 +441,50 @@ define(["RestManager"], function(RestManager) {
 			callback(response.resultCode);
 		});
 	};
+	
+	/**
+	 * Modification d'un évènement en base de données.
+	 * Les paramètres peuvent être null (ou non renseignés) pour indiquer "aucune modification" (sauf l'ID d'évènement).
+	 * <b>Ne pas oublier d'invalider le cache d'évènements</b> via EvenementGestion.invalidateCache() une fois
+	 * l'évènement modifié, pendant l'ancienne période de l'évènement (la nouvelle est automatiquement invalidée) 
+	 * 
+	 * @param {number] id ID de l'évènement à modifier
+	 * @param {function} callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
+	 * @param {Date} dateDebut Nouvelle date de début de l'évènement
+	 * @param {Date} dateFin Nouvelle date de fin de l'évènement
+	 * @param {string} nom Nouveau nom de l'évènement
+	 * @param {number[]} idCalendriers Nouveau tableau d'IDs des calendriers
+	 * @param {number[]} idSalles Nouveau tableau d'IDs des salles de l'évènement
+	 * @param {number[]} idIntervenants Nouveau tableau d'IDs des intervenants
+	 * @param {number[]} idResponsables Nouveau tableau d'IDs des responsables
+	 */
+	EvenementGestion.prototype.modifierEvenement = function(id, callback, dateDebut, dateFin, nom, idCalendriers, idSalles, idIntervenants, idResponsables) {
+		
+		var me = this;
+		this.restManager.effectuerRequete("POST", "evenement/modifier", {
+			token: me.restManager.getToken(),
+			evenement: JSON.stringify({
+				id: id,
+				nom: nom,
+				dateDebut: dateDebut.getTime(),
+				dateFin: dateFin.getTime(),
+				calendriers: idCalendriers,
+				salles: idSalles,
+				intervenants: idIntervenants,
+				responsables: idResponsables
+			})
+		}, function(response) {
+			
+			if(response.resultCode === RestManager.resultCode_Success) {
+				// Invalidation du cache pendant le nouvel intervalle de l'évènement modifié
+				// L'ancien intervalle n'est pas invalidé et doit être fait par l'appelant
+				me.invalidateCache(dateDebut, dateFin);
+			}
+			
+			callback(response.resultCode);
+		});
+	};
+	
 	
 	return EvenementGestion;
 });

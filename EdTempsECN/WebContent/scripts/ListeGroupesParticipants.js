@@ -1,9 +1,13 @@
+/**
+ * @module ListeGroupesParticipants
+ */
 define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 	/**
-	 * Constructeur
+	 * @constructor
+	 * @alias module:ListeGroupesParticipants
 	 */
-	function ListeGroupesParticipants(restManager, calendrier, jqListe) {
+	var ListeGroupesParticipants = function(restManager, calendrier, jqListe) {
 		this.restManager = restManager;
 		this.jqListe = jqListe;
 

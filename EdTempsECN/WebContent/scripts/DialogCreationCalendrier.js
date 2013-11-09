@@ -1,9 +1,13 @@
+/**
+ * @module DialogCreationCalendrier
+ */
 define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 
 	/**
-	 * Constructeur
+	 * @constructor
+	 * @alias module:DialogCreationCalendrier
 	 */
-	function DialogCreationCalendrier(restManager) {
+	var DialogCreationCalendrier = function(restManager) {
 		this.restManager = restManager;
 		// Accès direct aux champs du formulaire
 		this.nom = $("#form_creer_calendrier_nom");

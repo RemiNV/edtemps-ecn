@@ -45,7 +45,7 @@ public class EvenementGestion {
 	 * @param evenement
 	 */
 	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
-			List<Integer> idIntervenants, List<Integer> idResponsables, List<Materiel> materiels) throws EdtempsException {
+			List<Integer> idIntervenants, List<Integer> idResponsables) throws EdtempsException {
 		
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idSalles.isEmpty() || idResponsables.isEmpty()) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier, une salle et un responsable");
@@ -104,21 +104,8 @@ public class EvenementGestion {
 					+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
 			}
 			
-			// On rattache le matériel nécessité à l'évenement
-			for(Materiel materiel : materiels) {
-				int idMateriel = materiel.getId();
-				int quantiteMateriel = materiel.getQuantite();
-				_bdd.executeRequest(
-					"INSERT INTO edt.necessitemateriel "
-					+ "(eve_id, materiel_id, necessitemateriel_quantite) "
-					+ "VALUES ("+ idEvenement + ", " + idMateriel + ", " + quantiteMateriel +")");
-			}
-			
 			// Fin transaction
 			_bdd.commit();
-		} 
-		catch (DatabaseException e) {
-			throw new DatabaseException(e);
 		}
 		catch (SQLException e) {
 			throw new DatabaseException(e);
@@ -134,10 +121,16 @@ public class EvenementGestion {
 	 * avec de nouveaux ayant été modifiés par un utilisateur</p>
 	 * 
 	 * @param 
-	 * @throws EdtempsException
+	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	public void modifierEvenement(EvenementIdentifie evenementIdentifie, boolean createTransaction) throws EdtempsException{
+	public void modifierEvenement(int id, String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
+			List<Integer> idIntervenants, List<Integer> idResponsables, boolean createTransaction) throws EdtempsException{
 		try {
+			
+			if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idSalles.isEmpty() || idResponsables.isEmpty()) {
+				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier, une salle et un responsable");
+			}
+			
 			//début d'une transaction si requis
 			if (createTransaction){
 				_bdd.startTransaction();
@@ -145,69 +138,67 @@ public class EvenementGestion {
 			
 			// Modifier l'évenement (nom, date début, date fin)
 			PreparedStatement requetePreparee = _bdd.getConnection().prepareStatement(
-					"UPDATE edt.evenement"
-					+ "SET eve_nom = ? "
-					+ "SET eve_datedebut = ? "
-					+ "SET eve_datefin = ? "
-					+ "WHERE eve_id = " + evenementIdentifie.getId());
-			requetePreparee.setString(1, evenementIdentifie.getNom());
-			requetePreparee.setTimestamp(2, new java.sql.Timestamp(evenementIdentifie.getDateDebut().getTime()));
-			requetePreparee.setTimestamp(3, new java.sql.Timestamp(evenementIdentifie.getDateFin().getTime()));
+					"UPDATE edt.evenement "
+					+ "SET eve_nom = ?, "
+					+ "eve_datedebut = ?, "
+					+ "eve_datefin = ? "
+					+ "WHERE eve_id = " + id);
+			requetePreparee.setString(1, nom);
+			requetePreparee.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
+			requetePreparee.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
 			requetePreparee.execute();
 			
 			// Modifier  les intervenants de l'évenement (supprimer les anciens puis ajouter les nouveaux)
 			_bdd.executeRequest(
 					"DELETE FROM edt.intervenantevenement "
-					 + "WHERE eve_id = " + evenementIdentifie.getId());
-			for (int i=0; i<evenementIdentifie.getIntervenants().size();i++){
-				_bdd.executeRequest(
-						"INSERT INTO edt.intervenantevenement "
-						+ "VALUES (utilisateur_id, eve_id) = "
-						+ "(" + evenementIdentifie.getIntervenants().get(i).getId() +", " + evenementIdentifie.getId() + ")");
-			}
+					 + "WHERE eve_id = " + id);
 			
-			// Modifier le matériel nécessaire à l'évenement
-			_bdd.executeRequest(
-					"DELETE FROM edt.necessitemateriel "
-					 + "WHERE eve_id = " + evenementIdentifie.getId());
-			for (int i=0; i<evenementIdentifie.getMateriels().size();i++){
-				_bdd.executeRequest(
-						"INSERT INTO edt.necessitemateriel "
-						+ "VALUES (materiel_id, necessitemateriel_quantite, eve_id) = "
-						+ "(" + evenementIdentifie.getMateriels().get(i).getId() + ", " + evenementIdentifie.getMateriels().get(i).getQuantite() + ", " + evenementIdentifie.getId() + ")");
+			PreparedStatement addIntervenantStatement = _bdd.getConnection().prepareStatement(
+					"INSERT INTO edt.intervenantevenement(utilisateur_id, eve_id) VALUES(?, " + id + ")");
+			
+			for(int idIntervenant : idIntervenants) {
+				
+				addIntervenantStatement.setInt(1, idIntervenant);
+				addIntervenantStatement.execute();
 			}
 			
 			// Modifier  les responsables de l'événement
 			_bdd.executeRequest(
 					"DELETE FROM edt.responsableevenement "
-					 + "WHERE eve_id = " + evenementIdentifie.getId());
-			for (int i=0; i<evenementIdentifie.getIntervenants().size();i++){
-				_bdd.executeRequest(
-						"INSERT INTO edt.responsableevenement "
-						+ "VALUES (utilisateur_id, eve_id) = "
-						+ "(" + evenementIdentifie.getResponsables().get(i).getId() +", " + evenementIdentifie.getId() + ")");
+					 + "WHERE eve_id = " + id);
+			
+			PreparedStatement addResponsableStatement = _bdd.getConnection().prepareStatement(
+					"INSERT INTO edt.responsableevenement(utilisateur_id, eve_id) VALUES(?," + id + ")");
+			
+			for (int idResponsable : idResponsables){
+				addResponsableStatement.setInt(1, idResponsable);
+				addResponsableStatement.execute();
 			}
 			
 			// Modifier les calendriers associés à l'événement
 			_bdd.executeRequest(
 					"DELETE FROM edt.evenementappartient "
-					+ "WHERE eve_id = " + evenementIdentifie.getId());
-			for (int i=0; i<evenementIdentifie.getIdCalendriers().size();i++){
-				_bdd.executeRequest(
-						"INSERT INTO edt.evenementappartient "	
-						+ "VALUES (cal_id, eve_id) = "
-						+ "(" + evenementIdentifie.getIdCalendriers().get(i) + ", " + evenementIdentifie.getId() + ")");
+					+ "WHERE eve_id = " + id);
+			
+			PreparedStatement addCalendrierStatement = _bdd.getConnection().prepareStatement(
+					"INSERT INTO edt.evenementappartient(cal_id, eve_id) VALUES(?," + id + ")");
+			
+			for (int idCalendrier : idCalendriers){
+				addCalendrierStatement.setInt(1, idCalendrier);
+				addCalendrierStatement.execute();
 			}
 			
-			// Modifier les salles de l'�v�nement
+			// Modifier les salles de l'évènement
 			_bdd.executeRequest(
 					"DELETE FROM edt.alieuensalle "
-					+ "WHERE eve_id = " + evenementIdentifie.getId());
-			for (int i=0; i<evenementIdentifie.getSalles().size();i++){
-				_bdd.executeRequest(
-						"INSERT INTO edt.alieuensalle "	
-						+ "VALUES (salle_id, eve_id) = "
-						+ "(" + evenementIdentifie.getSalles().get(i) + ", " + evenementIdentifie.getId() + ")");
+					+ "WHERE eve_id = " + id);
+			
+			PreparedStatement addSalleStatement = _bdd.getConnection().prepareStatement(
+					"INSERT INTO edt.alieuensalle(salle_id, eve_id) VALUES(?," + id + ")");
+			
+			for (int idSalle : idSalles){
+				addSalleStatement.setInt(1, idSalle);
+				addSalleStatement.execute();
 			}
 			
 			// fin transaction si requis
@@ -215,16 +206,13 @@ public class EvenementGestion {
 				_bdd.commit();
 			}
 			
-		} catch (DatabaseException e){
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}  catch (SQLException e) {
+			throw new DatabaseException(e);
 		}
 	}
 	
 	/**
-	 * Suppresion d'un évènement
+	 * Suppression d'un évènement
 	 * 
 	 * Permet de supprimer un évènement dans la base de données,
 	 * l'évènement est identifié par son ID entier
@@ -278,58 +266,7 @@ public class EvenementGestion {
 			
 		} catch (DatabaseException e){
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-	}
-	
-	/**
-	 * Créé un évènement à partir de l'entrée de base de données fournie.
-	 * Colonnes nécessaires pour le ResultSet fourni : eve_id, eve_nom, eve_datedebut, eve_datefin
-	 * 
-	 * @param reponse Réponse de la base de données, curseur déjà placé sur la ligne à lire
-	 * @return Evènement créé
-	 * @throws DatabaseException 
-	 */
-	private EvenementIdentifie inflateEvenementFromRow(ResultSet reponse) throws SQLException, DatabaseException {
-
-		int id = reponse.getInt("eve_id");
-		String nom = reponse.getString("eve_nom");
-		Date dateDebut = reponse.getTimestamp("eve_datedebut");
-		Date dateFin = reponse.getTimestamp("eve_datefin");
-		
-		// Récupération des IDs des calendriers
-		PreparedStatement requetePreparee = _bdd.getConnection().prepareStatement(
-				"SELECT cal_id "
-				+ "FROM edt.evenementappartient "
-				+ "WHERE eve_id=" + id);
-		ArrayList<Integer> idCalendriers = _bdd.recupererIds(requetePreparee, "cal_id");
-		
-		// Récupération des salles
-		SalleGestion salleGestion = new SalleGestion(_bdd);
-		ArrayList<SalleIdentifie> salles = salleGestion.getSallesEvenement(id);
-		
-		// Récupération des intervenants
-		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(_bdd);
-		ArrayList<UtilisateurIdentifie> intervenants = utilisateurGestion.getIntervenantsEvenement(id);
-		
-		// Récupération des responsables
-		ArrayList<UtilisateurIdentifie> responsables = utilisateurGestion.getResponsablesEvenement(id);
-		
-		// Matériel
-		ResultSet reponseMateriel = _bdd.executeRequest(
-				"SELECT materiel.materiel_id AS id, materiel.materiel_nom AS nom, necessitemateriel.necessitemateriel_quantite AS quantite " +
-				"FROM edt.materiel INNER JOIN edt.necessitemateriel ON necessitemateriel.materiel_id = materiel.materiel_id "
-				+ "AND necessitemateriel.eve_id=" + id);
-		
-		ArrayList<Materiel> materiels = new ArrayList<Materiel>();
-		while(reponseMateriel.next()) {
-			materiels.add(new Materiel(reponseMateriel.getInt("id"), reponseMateriel.getString("nom"), reponseMateriel.getInt("quantite")));
-		}
-		reponseMateriel.close();
-		
-		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, materiels, id);
 	}
 	
 	/**
@@ -347,7 +284,7 @@ public class EvenementGestion {
 		EvenementIdentifie res = null;
 		try {
 			if(reponse.next()) {
-				res = inflateEvenementFromRow(reponse);
+				res = new EvenementIdentifieInflater().inflateEvenement(reponse, _bdd);
 			}
 			reponse.close();
 			
@@ -398,7 +335,7 @@ public class EvenementGestion {
 			
 			res = new ArrayList<EvenementIdentifie>();
 			while(reponse.next()) {
-				res.add(inflateEvenementFromRow(reponse));
+				res.add(new EvenementIdentifieInflater().inflateEvenement(reponse, _bdd));
 			}
 			
 			reponse.close();

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: DialogCreationGroupeParticipants.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: DialogCreationGroupeParticipants.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/**
+ * @module DialogCreationGroupeParticipants
+ */
+define([ "RestManager" ], function(RestManager) {
+
+	/**
+	 * @constructor
+	 * @alias module:DialogCreationGroupeParticipants
+	 */
+	var DialogCreationGroupeParticipants = function(restManager) {
+		this.restManager = restManager;
+		
+		this.jqCreationGroupeForm = $("#form_creer_groupe");
+		this.jqChampNom = this.jqCreationGroupeForm.find("#form_creer_groupe_nom");
+		
+		this.initAppele = false;
+	};
+
+	/**
+	 * Affiche la boîte de dialogue de création d'un groupe de participants
+	 */
+	DialogCreationGroupeParticipants.prototype.show = function() {
+		if(!this.initAppele) {
+			this.init();
+			this.initAppele = true;
+		}
+		
+		this.jqCreationGroupeForm.dialog("open");
+	};
+	
+	
+	/**
+	 * Initialise et affiche la boîte de dialogue de création d'un groupe de participants
+	 */
+	DialogCreationGroupeParticipants.prototype.init = function() {
+		var me = this;
+
+		// Affectation d'une méthode au clic sur le bouton "Ajouter"
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").click(function() {
+			if (me.validationFormulaire()) {
+				me.ajouterGroupe(
+						me.jqChampNom.val(),
+						me.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
+						me.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
+						me.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'));
+			}
+		});
+
+		// Affectation d'une méthode au clic sur le bouton "Annuler"
+		this.jqCreationGroupeForm.find("#form_creer_groupe_annuler").click(function() {
+			me.jqCreationGroupeForm.dialog("close");
+		});
+        
+		// Blocage du bouton de validation avant le chargement des groupes parents disponibles
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement des groupes parents disponibles ...");
+		
+		this.ecritListeGroupesParentsDisponibles(this.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
+			if (success) {
+				// Reactivation du bouton "Valider"
+				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
+				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
+			}
+		});
+		
+		// Affiche la boîte dialogue de recherche d'une salle libre
+		this.jqCreationGroupeForm.dialog({
+			autoOpen: false,
+			width: 440,
+			modal: true,
+			show: {
+				effect: "fade",
+				duration: 200
+			},
+			hide: {
+				effect: "explode",
+				duration: 200
+			}
+		});
+
+		this.initAppele = true;
+	};
+
+
+	/**
+	 * Ecrit la liste des groupes parents potentiels dans le select dédié
+	 *  
+	 * @param object
+	 * 			l'objet jquery où il faut écrire la liste des groupes
+	 * @param callback
+	 * 			fonction à appeler au retour avec l'état de la requête en paramètre
+	 */
+	DialogCreationGroupeParticipants.prototype.ecritListeGroupesParentsDisponibles = function(object, callback) {
+		var me = this;
+		
+		// Récupération de la liste des groupes parents potentiels
+		this.restManager.effectuerRequete("GET", "groupesparentspotentiels", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+
+				var maxI = data.data.listeGroupes.length;
+
+				if (maxI>0) {
+					var str = "&lt;option value='-1'>---&lt;/option>";
+					for (var i=0; i&lt;maxI; i++) {
+						str += "&lt;option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"&lt;/option>";
+					}
+					$(object).append(str);
+				} else {
+					$(object).append("&lt;option value='-1'>---&lt;/option>");
+					me.jqCreationGroupeForm.find("#form_creer_groupe_parent_message").html("Aucun rattachement possible").show();
+					$(object).attr("disabled", "disabled");
+				}
+				 
+				callback(true);
+
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; vérifiez votre connexion.");
+				callback(false);
+			} else {
+				window.showToast(data.resultCode + " Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
+				callback(false);
+			}
+		});
+
+	};
+
+
+	/**
+	 * Valide le formulaire
+	 * 
+	 * @return VRAI si le formulaire est valide, FAUX sinon
+	 */
+	DialogCreationGroupeParticipants.prototype.validationFormulaire = function() {
+		var valid = true;
+
+		// Validation du champ "Nom"
+		if (this.jqChampNom.val()=="") {
+			this.jqChampNom.css("box-shadow", "#FF0000 0 0 10px");
+			this.jqChampNom.css("border", "1px solid #FF0000");
+			valid = false;
+		} else {
+			this.jqChampNom.css("box-shadow", "#60C003 0 0 10px");
+			this.jqChampNom.css("border", "1px solid #60C003");
+		}
+
+		return valid;
+	};
+
+
+	/**
+	 * Méthode qui ajoute un groupe en base de données
+	 * 
+	 * @param nom
+	 * 			nom du groupe
+	 * @param idGroupe
+	 * 			identifiant du groupe parent
+	 * @param rattachementAutorise
+	 * 			booleen qui indique si un rattachement est autorisé
+	 * @param estCours
+	 * 			booleen qui indique si le groupe est un cours
+	 */
+	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours) {
+
+		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
+			nom: nom, idGroupeParent: idGroupeParent, rattachementAutorise: rattachementAutorise, estCours: estCours, token: this.restManager.getToken()
+		}, function(response) {
+			if (response.resultCode == RestManager.resultCode_Success) {
+				window.showToast("Le groupe de participant à été créé avec succès.");
+			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
+			} else {
+				window.showToast(response.resultCode + " Erreur lors de la création du groupe de participants ; votre session a peut-être expiré ?");
+			}
+		});
+		
+	};
+
+
+	return DialogCreationGroupeParticipants;
+
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-AjoutEvenement.html">AjoutEvenement</a></li><li><a href="module-Calendrier.html">Calendrier</a></li><li><a href="module-CalendrierGestion.html">CalendrierGestion</a></li><li><a href="module-DialogConnexion.html">DialogConnexion</a></li><li><a href="module-DialogCreationCalendrier.html">DialogCreationCalendrier</a></li><li><a href="module-DialogCreationGroupeParticipants.html">DialogCreationGroupeParticipants</a></li><li><a href="module-EcranAccueil.html">EcranAccueil</a></li><li><a href="module-EcranParametres.html">EcranParametres</a></li><li><a href="module-EvenementGestion.html">EvenementGestion</a></li><li><a href="module-GroupeGestion.html">GroupeGestion</a></li><li><a href="module-ListeGroupesParticipants.html">ListeGroupesParticipants</a></li><li><a href="module-RechercheSalle.html">RechercheSalle</a></li><li><a href="module-RestManager.html">RestManager</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Sat Nov 09 2013 01:25:57 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
