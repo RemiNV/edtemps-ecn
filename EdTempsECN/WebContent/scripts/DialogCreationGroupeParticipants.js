@@ -160,8 +160,14 @@ define([ "RestManager" ], function(RestManager) {
 	 */
 	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours) {
 
-		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
-			nom: nom, idGroupeParent: idGroupeParent, rattachementAutorise: rattachementAutorise, estCours: estCours, token: this.restManager.getToken()
+		this.restManager.effectuerRequete("POST", "groupeparticipants/ajouter", {
+			token: this.restManager.getToken(),
+			groupe: JSON.stringify({
+				nom: nom,
+				idGroupeParent: idGroupeParent,
+				rattachementAutorise: rattachementAutorise,
+				estCours: estCours
+			})
 		}, function(response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				window.showToast("Le groupe de participant à été créé avec succès.");

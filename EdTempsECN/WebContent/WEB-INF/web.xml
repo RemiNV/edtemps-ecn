@@ -86,6 +86,11 @@
       <servlet-class>org.ecn.edtemps.servlets.impl.EvenementServlet</servlet-class>
   </servlet>
 
+  <servlet>
+      <servlet-name>GroupeParticipants</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.GroupeParticipantsServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -156,15 +161,20 @@
       <url-pattern>/mesevenements</url-pattern>
   </servlet-mapping>
   
-	<servlet-mapping>
-      <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
-      <url-pattern>/groupesparentspotentiels</url-pattern>
+  <servlet-mapping>
+    <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
+    <url-pattern>/groupesparentspotentiels</url-pattern>
   </servlet-mapping>
-  
-	
-	<servlet-mapping>
-	    <servlet-name>Evenement</servlet-name>
-	    <url-pattern>/evenement/*</url-pattern>
-	</servlet-mapping>
+
+  <servlet-mapping>
+	<servlet-name>Evenement</servlet-name>
+	<url-pattern>/evenement/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+	<servlet-name>GroupeParticipants</servlet-name>
+	<url-pattern>/groupeparticipants/*</url-pattern>
+  </servlet-mapping>
+
 </web-app>
 

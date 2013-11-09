@@ -16,13 +16,11 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
-import org.ecn.edtemps.managers.MaterielGestion;
-import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet pour récupérer la liste des groupes parents potentiels (auquel des groupes peuvent être rattachés)
+ * Servlet pour récupérer la liste des groupes parents potentiels (auquels des groupes peuvent être rattachés)
  * 
  * @author Joffrey Terrade
  */
