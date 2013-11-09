@@ -25,8 +25,10 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
+import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.models.Materiel;
+import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -112,6 +114,18 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			ArrayList<Integer> idCalendriers, ArrayList<Integer> idSalles, ArrayList<Integer> idIntervenants, 
 			ArrayList<Integer> idResponsables) throws EdtempsException, IOException {
 		
+		// TODO : autoriser un administrateur à faire ceci
+		// Vérification que l'utilisateur peut ajouter des évènements dans les calendriers
+		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
+		for(int idCalendrier : idCalendriers) {
+			CalendrierIdentifie cal = calendrierGestion.getCalendrier(idCalendrier);
+			
+			if(!cal.getIdProprietaires().contains(userId)) {
+				throw new EdtempsException(ResultCode.IDENTIFICATION_ERROR, "Vous n'êtes pas autorisé à ajouter des évènements dans le calendrier " + idCalendrier);
+			}
+		}
+		
+		
 		// Vérification des paramètres
 		if(nom == null || StringUtils.isBlank(nom) || dateDebut == null || dateFin == null || idCalendriers == null || idSalles == null 
 				|| idIntervenants == null || idResponsables == null) {
@@ -144,6 +158,15 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Evènement d'ID " + idEvenement + " inexistant", null));
 			logger.warn("ID d'évènement inexistant fourni pour l'ajout d'un évènement");
 			return;
+		}
+		
+		ArrayList<Integer> oldIdsResponsables = getUserIds(even.getResponsables());
+		
+		// TODO : autoriser un administrateur à faire ceci
+		// Vérification que l'utilisateur est autorisé à modifier cet évènement
+		if(!oldIdsResponsables.contains(userId)) {
+			bdd.rollback();
+			throw new EdtempsException(ResultCode.IDENTIFICATION_ERROR, "Vous n'êtes pas responsable de cet évènement");
 		}
 		
 		// Génération des nouveaux paramètres
