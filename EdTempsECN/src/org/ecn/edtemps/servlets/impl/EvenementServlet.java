@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -26,6 +27,9 @@ import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.models.Materiel;
+import org.ecn.edtemps.models.identifie.EvenementIdentifie;
+import org.ecn.edtemps.models.identifie.SalleIdentifie;
+import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 public class EvenementServlet extends RequiresConnectionServlet {
@@ -65,19 +69,12 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			JsonArray jsonIdIntervenants = jsonEvenement.getJsonArray("intervenants");
 			JsonArray jsonIdResponsables = jsonEvenement.getJsonArray("responsables");
 			
-			if(nom == null || StringUtils.isBlank(nom) || jsonDebut == null || jsonFin == null || jsonIdCalendriers == null || jsonIdSalles == null 
-					|| jsonIdIntervenants == null || jsonIdResponsables == null) {
-				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet evenenement incomplet : paramètres manquants", null));
-				bdd.close();
-				return;
-			}
-			
-			Date dateDebut = new Date(jsonDebut.longValue());
-			Date dateFin = new Date(jsonFin.longValue());
-			ArrayList<Integer> idCalendriers = JSONUtils.getIntegerArrayList(jsonIdCalendriers);
-			ArrayList<Integer> idSalles = JSONUtils.getIntegerArrayList(jsonIdSalles);
-			ArrayList<Integer> idIntervenants = JSONUtils.getIntegerArrayList(jsonIdIntervenants);
-			ArrayList<Integer> idResponsables = JSONUtils.getIntegerArrayList(jsonIdResponsables);
+			Date dateDebut = jsonDebut == null ? null : new Date(jsonDebut.longValue());
+			Date dateFin = jsonFin == null ? null : new Date(jsonFin.longValue());
+			ArrayList<Integer> idCalendriers = jsonIdCalendriers == null ? null : JSONUtils.getIntegerArrayList(jsonIdCalendriers);
+			ArrayList<Integer> idSalles = jsonIdSalles == null ? null : JSONUtils.getIntegerArrayList(jsonIdSalles);
+			ArrayList<Integer> idIntervenants = jsonIdIntervenants == null ? null : JSONUtils.getIntegerArrayList(jsonIdIntervenants);
+			ArrayList<Integer> idResponsables = jsonIdResponsables == null ? null : JSONUtils.getIntegerArrayList(jsonIdResponsables);
 			
 			if(pathInfo.equals("/ajouter")) { // Requête /evenement/ajouter
 				doAjouterEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);
@@ -115,6 +112,14 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			ArrayList<Integer> idCalendriers, ArrayList<Integer> idSalles, ArrayList<Integer> idIntervenants, 
 			ArrayList<Integer> idResponsables) throws EdtempsException, IOException {
 		
+		// Vérification des paramètres
+		if(nom == null || StringUtils.isBlank(nom) || dateDebut == null || dateFin == null || idCalendriers == null || idSalles == null 
+				|| idIntervenants == null || idResponsables == null) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet evenenement incomplet : paramètres manquants", null));
+			logger.warn("Objet d'évènement fourni avec des paramètres manquants lors de l'ajout");
+			return;
+		}
+		
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
 		evenementGestion.sauverEvenement(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);
@@ -127,7 +132,53 @@ public class EvenementServlet extends RequiresConnectionServlet {
 	protected void doModifierEvenement(int userId, BddGestion bdd, HttpServletResponse resp, String nom, Date dateDebut, Date dateFin, 
 			ArrayList<Integer> idCalendriers, ArrayList<Integer> idSalles, ArrayList<Integer> idIntervenants, 
 			ArrayList<Integer> idResponsables, int idEvenement) throws IOException, EdtempsException {
-		// TODO : remplir
-		resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+		
+		EvenementGestion evenementGestion = new EvenementGestion(bdd);
+		
+		bdd.startTransaction();
+		
+		// Récupération de l'ancien évènement
+		EvenementIdentifie even = evenementGestion.getEvenement(idEvenement);
+		
+		if(even == null) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Evènement d'ID " + idEvenement + " inexistant", null));
+			logger.warn("ID d'évènement inexistant fourni pour l'ajout d'un évènement");
+			return;
+		}
+		
+		// Génération des nouveaux paramètres
+		String nvNom = nom == null ? even.getNom() : nom;
+		Date nvDateDebut = dateDebut == null ? even.getDateDebut() : dateDebut;
+		Date nvDateFin = dateFin == null ? even.getDateFin() : dateFin;
+		List<Integer> nvIdCalendriers = idCalendriers == null ? even.getIdCalendriers() : idCalendriers;
+		ArrayList<Integer> nvIdSalles = idSalles == null ? getIdSalles(even.getSalles()) : idSalles;
+		ArrayList<Integer> nvIdIntervenants = idIntervenants == null ? getUserIds(even.getIntervenants()) : idIntervenants;
+		ArrayList<Integer> nvIdResponsables = idResponsables == null ? getUserIds(even.getResponsables()) : idResponsables;
+		
+		evenementGestion.modifierEvenement(idEvenement, nvNom, nvDateDebut, nvDateFin, nvIdCalendriers, nvIdSalles, nvIdIntervenants, nvIdResponsables, false);
+		
+		bdd.commit();
+		
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Evènement modifié", null));
+	}
+	
+	protected static ArrayList<Integer> getIdSalles(List<SalleIdentifie> salles) {
+		ArrayList<Integer> res = new ArrayList<Integer>(salles.size());
+		
+		for(SalleIdentifie s : salles) {
+			res.add(s.getId());
+		}
+		
+		return res;
+	}
+	
+	protected static ArrayList<Integer> getUserIds(List<UtilisateurIdentifie> utilisateurs) {
+		ArrayList<Integer> res = new ArrayList<Integer>(utilisateurs.size());
+		
+		for(UtilisateurIdentifie u : utilisateurs) {
+			res.add(u.getId());
+		}
+		
+		return res;
 	}
 }

@@ -442,5 +442,49 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	/**
+	 * Modification d'un évènement en base de données.
+	 * Les paramètres peuvent être null (ou non renseignés) pour indiquer "aucune modification" (sauf l'ID d'évènement).
+	 * <b>Ne pas oublier d'invalider le cache d'évènements</b> via EvenementGestion.invalidateCache() une fois
+	 * l'évènement modifié, pendant l'ancienne période de l'évènement (la nouvelle est automatiquement invalidée) 
+	 * 
+	 * @param {number] id ID de l'évènement à modifier
+	 * @param {function} callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
+	 * @param {Date} dateDebut Nouvelle date de début de l'évènement
+	 * @param {Date} dateFin Nouvelle date de fin de l'évènement
+	 * @param {string} nom Nouveau nom de l'évènement
+	 * @param {number[]} idCalendriers Nouveau tableau d'IDs des calendriers
+	 * @param {number[]} idSalles Nouveau tableau d'IDs des salles de l'évènement
+	 * @param {number[]} idIntervenants Nouveau tableau d'IDs des intervenants
+	 * @param {number[]} idResponsables Nouveau tableau d'IDs des responsables
+	 */
+	EvenementGestion.prototype.modifierEvenement = function(id, callback, dateDebut, dateFin, nom, idCalendriers, idSalles, idIntervenants, idResponsables) {
+		
+		var me = this;
+		this.restManager.effectuerRequete("POST", "evenement/modifier", {
+			token: me.restManager.getToken(),
+			evenement: JSON.stringify({
+				id: id,
+				nom: nom,
+				dateDebut: dateDebut.getTime(),
+				dateFin: dateFin.getTime(),
+				calendriers: idCalendriers,
+				salles: idSalles,
+				intervenants: idIntervenants,
+				responsables: idResponsables
+			})
+		}, function(response) {
+			
+			if(response.resultCode === RestManager.resultCode_Success) {
+				// Invalidation du cache pendant le nouvel intervalle de l'évènement modifié
+				// L'ancien intervalle n'est pas invalidé et doit être fait par l'appelant
+				me.invalidateCache(dateDebut, dateFin);
+			}
+			
+			callback(response.resultCode);
+		});
+	};
+	
+	
 	return EvenementGestion;
 });

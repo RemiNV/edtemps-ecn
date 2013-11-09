@@ -8,7 +8,7 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, ajoutEvenement) {
+	var Calendrier = function(eventsSource, ajoutEvenement, evenementGestion) {
 		var me = this;
 
 		this.jqCalendar = $("#calendar");
@@ -54,8 +54,18 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 				}
 			},
 			eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-				event.loading = true;
+				// Evènements "toute la journée" non supportés
+				if(allDay) {
+					revertFunc();
+				}
+				else {			
+					updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar);
+				}
+			},
+			eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
+				updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar);
 			}
+			
 		});
 		
 		// Ajout des listeners d'évènements aux dropdown de filtres
@@ -65,6 +75,47 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 		$("#dropdown_filtre_responsable").change(updateFiltres);
 	};
 	
+	/**
+	 * Mise à jour des dates d'un évènement auprès de la base de données.
+	 * Retarde toutes les mises à jour de 1.5sec et n'exécute que la dernière à l'expiration du délai, 
+	 * même si l'utilisateur effectue plusieurs modifications
+	 * 
+	 * @param event Nouvel évènement à enregistrer
+	 * @param evenementGestion Gestionnaire d'évènements JS
+	 * @param revertFunc Fonction à appeler pour invalider la modification (en cas d'erreur)
+	 */
+	function updateDatesEvenement(event, evenementGestion, revertFunc, jqCalendar) {
+		
+		event.loading = true;
+		if(event.pendingUpdates) {
+			event.pendingUpdates++;
+		}
+		else {
+			event.pendingUpdates = 1;
+		}
+		
+		setTimeout(function() {
+			event.pendingUpdates--;
+			
+			if(event.pendingUpdates == 0) {
+				evenementGestion.modifierEvenement(event.id, function(resultCode) {
+					if(resultCode == RestManager.resultCode_NetworkError) {
+						window.showToast("Erreur de mise à jour de l'évènement ; vérifiez votre connexion");
+						revertFunc();
+					}
+					else if(resultCode != RestManager.resultCode_Success) {
+						window.showToast("Erreur de mise à jour de l'évènement ; code retour " + resultCode);
+						revertFunc();
+					}
+					
+					// Suppression de l'indicateur de chargement
+					event.loading = false;
+					jqCalendar.fullCalendar("updateEvent", event);
+					
+				}, event.start, event.end);
+			}
+		}, 1500);
+	}
 	
 
 	/**

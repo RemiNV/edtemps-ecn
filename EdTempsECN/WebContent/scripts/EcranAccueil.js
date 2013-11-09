@@ -49,7 +49,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			this.setVue("mes_abonnements");
 		}
 		
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement);
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement, this.evenementGestion);
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 	};
