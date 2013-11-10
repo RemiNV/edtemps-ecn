@@ -58,13 +58,22 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			if (me.validationFormulaire()) {
 
 				// Traitement des dates et heures au format "yyyy-MM-ddTHH:mm:ss" (ISO8601)
-				var strJour = $.datepicker.formatDate("yy-mm-dd", $.datepicker.parseDate("dd/mm/yy", me.jqDate.val()));
+				var dateJour = $.datepicker.parseDate("dd/mm/yy", me.jqDate.val());
+				var year = dateJour.getFullYear();
+				var month = dateJour.getMonth();
+				var day = dateJour.getDate();
 				
-				var param_dateDebut = strJour + "T" + me.jqHeureDebut.val() + ":00";
-				var param_dateFin = strJour + "T" + me.jqHeureFin.val() + ":00";
+				var strHeureDebut = me.jqHeureDebut.val();
+				var strHeureFin = me.jqHeureFin.val();
 				
-				var dateDebut = new Date(param_dateDebut);
-				var dateFin = new Date(param_dateFin);
+				var heureDebut = parseInt(strHeureDebut.substring(0, 2));
+				var minutesDebut = parseInt(strHeureDebut.substring(3));
+				
+				var heureFin = parseInt(strHeureFin.substring(0, 2));
+				var minutesFin = parseInt(strHeureFin.substring(3));
+				
+				var dateDebut = new Date(year, month, day, heureDebut, minutesDebut, 0);
+				var dateFin = new Date(year, month, day, heureFin, minutesFin, 0);
 
 				// Création de la liste des matériels nécessaires
 				var listeMateriel = me.getContenuListeMateriel(me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"));

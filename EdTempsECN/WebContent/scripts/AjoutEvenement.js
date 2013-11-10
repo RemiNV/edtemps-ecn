@@ -236,42 +236,63 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		});
 		
 		// Validation du jour
-		var strDate = false;
+		var jour = false;
+		var year = null;
+		var month = null;
+		var day = null;
 		
 		try {
-			var date = $.datepicker.parseDate("dd/mm/yy", jqDate.val());
+			jour = $.datepicker.parseDate("dd/mm/yy", jqDate.val());
+			
+			year = jour.getFullYear();
+			month = jour.getMonth();
+			day = jour.getDate();
 			
 			if(jqDate.val() != "") {
-				strDate = $.datepicker.formatDate("yy-mm-dd", date);
 				jqDate.addClass("valide").removeClass("invalide");
 			}
 		}
 		catch(parseError) {
-			// Rien ici : strDate sera à false en cas d'erreur de parsing de la date
+			// Rien ici : date sera à false en cas d'erreur de parsing de la date
 		}
 		
-		if(!strDate) {
+		if(!jour) {
 			jqDate.addClass("invalide").removeClass("valide");
 		}
 		
 		// Validation des dates de début et fin
-		var heureDebut = validateNotEmpty(jqHeureDebut);
-		var heureFin = validateNotEmpty(jqHeureFin);
+		var strHeureDebut = jqHeureDebut.val();
+		var strHeureFin = jqHeureFin.val();
+		
+		var heureDebut = parseInt(strHeureDebut.substring(0, 2));
+		var minutesDebut = parseInt(strHeureDebut.substring(3));
+		
+		var heureFin = parseInt(strHeureFin.substring(0, 2));
+		var minutesFin = parseInt(strHeureFin.substring(3));
 		
 		
-		if(strDate && heureDebut !== "") {
-			// Chaîne au format ISO8601
-			res.dateDebut = new Date(strDate + "T" + heureDebut);
+		if(strHeureDebut !== "" && heureDebut < 24 && minutesDebut < 60) {
+			jqHeureDebut.addClass("valide").removeClass("invalide");
+			
+			if(jour) {
+				res.dateDebut = new Date(year, month, day, heureDebut, minutesDebut, 0);
+			}
 		}
 		else {
 			res.dateDebut = null;
+			jqHeureDebut.addClass("invalide").removeClass("valide");
 		}
 		
-		if(strDate && heureFin !== "") {
-			res.dateFin = new Date(strDate + "T" + heureFin);
+		if(strHeureFin !== "" && heureFin < 24 && minutesFin < 60) {
+			
+			if(jour) {
+				res.dateFin = new Date(year, month, day, heureFin, minutesFin, 0);
+			}
+			jqHeureFin.addClass("valide").removeClass("invalide");
 		}
 		else {
 			res.dateFin = null;
+			jqHeureFin.addClass("invalide").removeClass("valide");
 		}
 		
 		// Récupération des matériels et salles

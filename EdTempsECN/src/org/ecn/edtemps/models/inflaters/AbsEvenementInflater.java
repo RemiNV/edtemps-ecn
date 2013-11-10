@@ -47,7 +47,9 @@ public abstract class AbsEvenementInflater<T extends EvenementIdentifie> {
 			// Récupération des responsables
 			ArrayList<UtilisateurIdentifie> responsables = utilisateurGestion.getResponsablesEvenement(id);
 			
-			return inflate(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, id, reponse, bdd);
+			T res = inflate(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, id, reponse, bdd);
+			
+			return res;
 			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
