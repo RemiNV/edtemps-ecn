@@ -2,6 +2,9 @@ package org.ecn.edtemps.models.identifie;
 
 import java.util.ArrayList;
 
+import javax.json.JsonObjectBuilder;
+
+import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.Materiel;
 
 /**
@@ -35,4 +38,17 @@ public class SalleRecherche extends SalleIdentifie {
 		this.evenementsEnCours = evenementsEnCours;
 	}
 
+	@Override
+	protected JsonObjectBuilder makeJsonObjectBuilder() {
+		JsonObjectBuilder builder = super.makeJsonObjectBuilder();
+		
+		if(this.evenementsEnCours != null) {
+			builder.add("evenementsEnCours", JSONUtils.getJsonArray(this.evenementsEnCours));
+		}
+		else {
+			builder.addNull("evenementsEnCours");
+		}
+		
+		return builder;
+	}
 }

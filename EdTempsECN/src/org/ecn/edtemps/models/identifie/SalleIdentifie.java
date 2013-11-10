@@ -48,10 +48,8 @@ public class SalleIdentifie extends Salle implements JSONAble {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	@Override
-	public JsonValue toJson() {
-		
+	
+	protected JsonObjectBuilder makeJsonObjectBuilder() {
 		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("id", id)
 				.add("nom", nom)
@@ -71,7 +69,12 @@ public class SalleIdentifie extends Salle implements JSONAble {
 		}
 		builder.add("materiels", materielsArrayBuilder.build());
 		
-		return builder.build();
+		return builder;
+	}
+
+	@Override
+	public final JsonValue toJson() {
+		return makeJsonObjectBuilder().build();
 	}
 
 }
