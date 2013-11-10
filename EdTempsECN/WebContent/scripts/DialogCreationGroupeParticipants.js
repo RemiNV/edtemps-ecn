@@ -215,7 +215,7 @@ define([ "RestManager" ], function(RestManager) {
 	};
 	
 	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function() {
-/*
+
 		// Récupération de la liste des propriétaires potentiels
 		this.restManager.effectuerRequete("POST", "proprietairespotentiels", {
 			token: this.restManager.getToken()
@@ -230,7 +230,8 @@ define([ "RestManager" ], function(RestManager) {
 				window.showToast(data.resultCode + " Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
 				callback(false);
 			}
-		});*/
+		});
+
 	};
 	
 	

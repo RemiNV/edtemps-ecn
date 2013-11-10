@@ -507,4 +507,28 @@ public class UtilisateurGestion {
 		}
 	}
 	
+	
+	/**
+	 * Récupère la liste de tous les utilisateurs qui peuvent potentiellement être propriétaires d'un groupe de participants
+	 * 
+	 * @return
+	 * @throws DatabaseException
+	 */
+	public List<UtilisateurIdentifie> getResponsablesPotentiels() throws DatabaseException {
+		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur");
+		
+		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+
+		try {
+			while(reponse.next()) {
+				res.add(inflateUtilisateurFromRow(reponse));
+			}
+			reponse.close();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return res;
+	}
+	
 }
