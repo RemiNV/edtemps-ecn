@@ -360,26 +360,46 @@ define([ "RestManager" ], function(RestManager) {
 			}
 		}
 
+		// Vérifie que le propriétaire n'est pas présent plusieurs fois
 		if (valid) {
-			if (id!=$(object).parents("tr").find(".form_creer_groupe_proprietaire_id").val() && $(object).val()!="") {
-				// Si le champ id ne correspond pas au nom du propriétaire, on le met à jour
-				$(object).parents("tr").find(".form_creer_groupe_proprietaire_id").val(id);
-			}
+			// Récupère l'identifiant du propriétaire
+			if ($(object).val()!="") {
+				var valeurChampIdCache = $(object).parents("tr").find(".form_creer_groupe_proprietaire_id");
+				
+				if (id!=valeurChampIdCache.val()) {
+					// Si le champ id caché ne correspond pas au nom du propriétaire, on le met à jour
+					valeurChampIdCache.val(id);
+				}
 
+				// Vérifie que l'identifiant n'existe pas déjà dans la table des propriétaires sélectionnés
+				if (jQuery.inArray(valeurChampIdCache.val(), this.listeProprietairesSelectionnes)<0) {
+					// Ajoute le propriétaire dans la liste des propriétaires sélectionnés
+					this.listeProprietairesSelectionnes.push(parseFloat(valeurChampIdCache.val()));	
+				} else {
+					$(object).attr("title", "Le nom d'utilisateur que vous avez saisi est déjà présent.");
+					valid = false;
+				}
+			}
+		} else {
+			$(object).attr("title", "Le nom d'utilisateur que vous avez saisi est incorrect.");
+		}
+		
+		
+		// Modifie l'affichage
+		if (valid) {
 			// Enlève la bordure rouge
 			$(object).css("box-shadow", "transparent 0 0 10px");
 			$(object).css("border", "1px solid black");
 			$(object).attr("title", "");
-			
-			// Ajoute le proprietaire dans la liste des propriétaires sélectionnés
-			if ($(object).val()!="") {
-				this.listeProprietairesSelectionnes.push(id);
-			}
-
 		} else {
+
+			// Met à vide le champ id pour le propriétaire et remet à zéro la liste des propriétaires sélectionnés
+			$(object).parents("tr").find(".form_creer_groupe_proprietaire_id").val("");
+			this.listeProprietairesSelectionnes = new Array();
+
+			// Met une bordure rouge
 			$(object).css("box-shadow", "red 0 0 10px");
 			$(object).css("border", "1px solid red");
-			$(object).attr("title", "Le nom d'utilisateur que vous avez saisi est incorrect.");
 		}
 
 		return valid;
