@@ -297,13 +297,8 @@ public class SalleGestion {
 			int capacite, boolean sallesOccupeesNonCours, boolean createTransaction) throws DatabaseException {
 
 		String requeteString =
-		"SELECT salle.salle_id, salle.salle_batiment, salle.salle_niveau, salle.salle_nom, salle.salle_numero, salle.salle_capacite";
-		
-		if(sallesOccupeesNonCours) {
-			requeteString += ", evenement.eve_id IS NOT NULL AS salle_est_occupe";
-		}
-		
-	    requeteString += " FROM edt.salle";
+		"SELECT salle.salle_id, salle.salle_batiment, salle.salle_niveau, salle.salle_nom, salle.salle_numero, salle.salle_capacite, " +
+				"COUNT(evenement.eve_id)>0 AS salle_est_occupe FROM edt.salle";
 		
 	    // Join avec les matériels que la salle contient et qui sont nécessaires, si il y en a
 		if (!materiels.isEmpty()) {
