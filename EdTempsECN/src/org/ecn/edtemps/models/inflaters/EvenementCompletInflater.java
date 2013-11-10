@@ -34,6 +34,8 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 				matieres.add(reponseCalendriers.getString("matiere_nom"));
 				types.add(reponseCalendriers.getString("typecal_libelle"));
 			}
+			
+			reponseCalendriers.close();
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

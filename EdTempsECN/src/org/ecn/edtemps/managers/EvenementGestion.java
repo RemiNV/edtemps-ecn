@@ -44,8 +44,8 @@ public class EvenementGestion {
 	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables) throws EdtempsException {
 		
-		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idSalles.isEmpty() || idResponsables.isEmpty()) {
-			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier, une salle et un responsable");
+		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier et un responsable");
 		}
 		
 		try {		
@@ -124,8 +124,8 @@ public class EvenementGestion {
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean createTransaction) throws EdtempsException{
 		try {
 			
-			if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idSalles.isEmpty() || idResponsables.isEmpty()) {
-				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier, une salle et un responsable");
+			if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
+				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier et un responsable");
 			}
 			
 			//début d'une transaction si requis
@@ -331,8 +331,9 @@ public class EvenementGestion {
 			ResultSet reponse = req.executeQuery();
 			
 			res = new ArrayList<EvenementIdentifie>();
+			EvenementIdentifieInflater inflater = new EvenementIdentifieInflater();
 			while(reponse.next()) {
-				res.add(new EvenementIdentifieInflater().inflateEvenement(reponse, _bdd));
+				res.add(inflater.inflateEvenement(reponse, _bdd));
 			}
 			
 			reponse.close();
@@ -368,7 +369,30 @@ public class EvenementGestion {
 	}
 	
 	/**
-	 * Liste les évènements liés à une salle
+	 * Méthode générique de listing d'évènements complets ou incomplets d'une salle
+	 * 
+	 * @param idSalle identifiant de la salle dont les évènements sont à récupérer
+	 * @param dateDebut
+	 * @param dateFin
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @param inflater
+	 * @return
+	 * @throws DatabaseException
+	 */
+	protected <T extends EvenementIdentifie> ArrayList<T> listerEvenementsSalle(int idSalle, Date dateDebut, Date dateFin, 
+			boolean createTransaction, AbsEvenementInflater<T> inflater) throws DatabaseException {
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+				"FROM edt.evenement " +
+				"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
+				"WHERE alieuensalle.salle_id = " + idSalle +" "
+				+ "AND evenement.eve_datefin >= ? "
+				+ "AND evenement.eve_datedebut <= ?";
+		ArrayList<T> res = listerEvenements(request, dateDebut, dateFin, inflater, createTransaction);
+		return res;
+	}
+	
+	/**
+	 * Liste les évènements liés à une salle, sous forme d'évènement complet
 	 * @param idSalle identifiant de la salle dont les évènements sont à récupérer
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @param dateDebut
@@ -377,17 +401,26 @@ public class EvenementGestion {
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<EvenementComplet> listerEvenementsSalle(int idSalle, Date dateDebut, Date dateFin, 
+	public ArrayList<EvenementComplet> listerEvenementCompletsSalle(int idSalle, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
-				"FROM edt.evenement " +
-				"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
-				"WHERE alieuensalle.salle_id = " + idSalle +" "
-				+ "AND evenement.eve_datefin >= ? "
-				+ "AND evenement.eve_datedebut <= ?";
-		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
-		return res;
+		return listerEvenementsSalle(idSalle, dateDebut, dateFin, createTransaction, new EvenementCompletInflater());
 	}
+	
+	/**
+	 * Liste les évènements liés à une salle, sous forme d'évènement identifié
+	 * @param idSalle identifiant de la salle dont les évènements sont à récupérer
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @param dateDebut
+	 * @param dateFin
+	 * 
+	 * @return Liste d'évènements récupérés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementIdentifiesSalle(int idSalle, Date dateDebut, Date dateFin, 
+			boolean createTransaction) throws DatabaseException {
+		return listerEvenementsSalle(idSalle, dateDebut, dateFin, createTransaction, new EvenementIdentifieInflater());
+	}
+	
 	
 	/**
 	 * Liste les évènements liés à un responsable

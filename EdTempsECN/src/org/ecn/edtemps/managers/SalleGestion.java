@@ -13,6 +13,9 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.Salle;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
+import org.ecn.edtemps.models.identifie.SalleRecherche;
+import org.ecn.edtemps.models.inflaters.SalleIdentifieInflater;
+import org.ecn.edtemps.models.inflaters.SalleRechercheInflater;
 
 /**
  * Classe de gestion des salles
@@ -32,62 +35,28 @@ public class SalleGestion {
 	public SalleGestion(BddGestion bdd) {
 		_bdd = bdd;
 	}
-	
-	/**
-	 * Créé une salle à partir d'une ligne de base de données
-	 * @param row Résultat de requête placé à la ligne à lire
-	 * @return Salle créée
-	 * @throws SQLException 
-	 * @throws DatabaseException 
-	 */
-	private SalleIdentifie inflateSalleFromRow(ResultSet row) throws SQLException, DatabaseException {
-		// Informations générales
-		
-		int id = row.getInt("salle_id");
-		String batiment = row.getString("salle_batiment");
-		String nom = row.getString("salle_nom");
-		int niveau = row.getInt("salle_niveau");
-		int numero = row.getInt("salle_numero");
-		int capacite = row.getInt("salle_capacite");
-
-		// Récupérer la liste des matériels de la salle avec la quantité
-		ResultSet requeteMateriel = _bdd.executeRequest(
-				"SELECT * "
-				+ "FROM edt.contientmateriel "
-				+ "INNER JOIN edt.materiel ON materiel.materiel_id = contientmateriel.materiel_id "
-				+ "WHERE salle_id =" + id);
-		
-		ArrayList<Materiel> materiels = new ArrayList<Materiel>();
-		while (requeteMateriel.next()) {
-			materiels.add(new Materiel(requeteMateriel.getInt("materiel_id"), requeteMateriel.getString("materiel_nom"), requeteMateriel.getInt("contientmateriel_quantite")));
-		}
-		
-		requeteMateriel.close();
-		
-		SalleIdentifie res = new SalleIdentifie(id, batiment, nom, capacite, niveau, numero, materiels);
-		
-		return res;
-	}
 
 	/**
 	 * Récupérer une salle dans la base de données
 	 * 
 	 * @param identifiant
 	 *            identifiant de la salle à récupérer
+	 * @param createTransaction Indique si il faut créer une transaction (sinon appeler la méthode dans une transaction)
 	 * 
 	 * @return la salle
 	 * 
 	 * @throws EdtempsException
 	 *             en cas d'erreur de connexion avec la base de données
 	 */
-	public SalleIdentifie getSalle(int identifiant) throws EdtempsException {
+	public SalleIdentifie getSalle(int identifiant, boolean createTransaction) throws EdtempsException {
 
 		SalleIdentifie salleRecuperee = null;
 
 		try {
 
-			// Démarre une transaction
-			_bdd.startTransaction();
+			if(createTransaction) {
+				_bdd.startTransaction();
+			}
 
 			// Récupère la salle en base
 			ResultSet requeteSalle = _bdd
@@ -95,12 +64,13 @@ public class SalleGestion {
 
 			// Accède au premier élément du résultat
 			if (requeteSalle.next()) {
-				salleRecuperee = inflateSalleFromRow(requeteSalle);
+				salleRecuperee = new SalleIdentifieInflater().inflateSalle(requeteSalle, _bdd);
 				requeteSalle.close();
 			}
 
-			// Termine la transaction
-			_bdd.commit();
+			if(createTransaction) {
+				_bdd.commit();
+			}
 
 		} catch (DatabaseException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
@@ -315,17 +285,27 @@ public class SalleGestion {
 	 * @param capacite
 	 *			nombre de personne que la salle doit pouvoir accueillir
 	 *
+	 * @param sallesOccupeesNonCours Renvoyer aussi les salles occupées par des évènements autres que des cours
+	 *
+	 * @param createTransaction Nécessité de créer les transactions dans cette méthode, sinon appeler dans une transaction
+	 *
 	 * @return Liste des salles disponibles
 	 * 
 	 * @throws DatabaseException
 	 */
-	public ArrayList<SalleIdentifie> rechercherSalle(Date dateDebut, Date dateFin, ArrayList<Materiel> materiels, int capacite) throws DatabaseException {
+	public ArrayList<SalleRecherche> rechercherSalle(Date dateDebut, Date dateFin, ArrayList<Materiel> materiels, 
+			int capacite, boolean sallesOccupeesNonCours, boolean createTransaction) throws DatabaseException {
 
 		String requeteString =
-		"SELECT salle.salle_id, salle.salle_batiment, salle.salle_niveau, salle.salle_nom, salle.salle_numero, salle.salle_capacite" +
-	    " FROM edt.salle";
+		"SELECT salle.salle_id, salle.salle_batiment, salle.salle_niveau, salle.salle_nom, salle.salle_numero, salle.salle_capacite";
 		
-	    /* Join avec les matériels que la salle contient et qui sont nécessaires, si il y en a */
+		if(sallesOccupeesNonCours) {
+			requeteString += ", evenement.eve_id IS NOT NULL AS salle_est_occupe";
+		}
+		
+	    requeteString += " FROM edt.salle";
+		
+	    // Join avec les matériels que la salle contient et qui sont nécessaires, si il y en a
 		if (!materiels.isEmpty()) {
 			requeteString += " LEFT JOIN edt.contientmateriel ON salle.salle_id = contientmateriel.salle_id AND (";
 			for (int i = 0 ; i < materiels.size() ; i++) {
@@ -337,21 +317,42 @@ public class SalleGestion {
 			requeteString += ")";
 		}
 
-		requeteString += " LEFT JOIN edt.alieuensalle ON alieuensalle.salle_id = salle.salle_id" +
-	    " LEFT JOIN edt.evenement ON evenement.eve_id = alieuensalle.eve_id" +
-	    " AND (evenement.eve_datedebut < ?) AND (evenement.eve_datefin > ?)" + /* Join avec les évènements qui se passent dans la salle au créneau demandé */
-	    " WHERE evenement.eve_id IS NULL" + /* Aucun évènement qui se passe dans la salle au créneau demandé (LEFT JOIN, donc aucune correspondance -> colonnes null) */
-	    " AND salle.salle_capacite>=" + capacite + /* Vérifie la capacité de la salle */
-	    " GROUP BY salle.salle_id"; /* On somme les matériels *par salle* */
+		// Join avec les évènements qui se passent dans la salle au créneau demandé
+		requeteString += " LEFT JOIN edt.alieuensalle ON alieuensalle.salle_id = salle.salle_id "
+				+ "LEFT JOIN edt.evenement ON evenement.eve_id = alieuensalle.eve_id " 
+				+ "AND (evenement.eve_datedebut < ?) AND (evenement.eve_datefin > ?) ";
+		
+		// Lien avec les groupes de participants : repérer si l'évènement de la salle est un cours
+		if(sallesOccupeesNonCours) {
+		    requeteString += 
+			    "LEFT JOIN edt.evenementappartient ON evenement.eve_id=evenementappartient.eve_id " + 
+			    "LEFT JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
+			    "LEFT JOIN edt.groupeparticipant groupecours ON calendrierappartientgroupe.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
+			    "AND groupeparticipant.groupeparticipant_estcours = TRUE ";
+		}
+		
+		// Vérifie la capacité de la salle
+	    requeteString += "WHERE salle.salle_capacite>=" + capacite;
+	    
+	    if(sallesOccupeesNonCours) {
+	    	// Aucun évènement en cours, ou alors ce n'est pas un cours (on pourrait juste écrire groupecours.groupeparticipant_id IS NULL)
+	    	requeteString += " AND evenement.eve_id IS NULL OR groupecours.groupeparticipant_id IS NULL ";
+	    }
+	    else {
+	    	// Aucun évènement qui se passe dans la salle au créneau demandé (LEFT JOIN, donc aucune correspondance -> colonnes null)
+	    	requeteString += " AND evenement.eve_id IS NULL ";
+	    }
+	    
+	    requeteString += "GROUP BY salle.salle_id"; // On somme les matériels *par salle*
 		
 		if(!materiels.isEmpty()) {
-			/* Le nombre de types de matériels que la salle contient et qui sont nécessaires correspond avec le nombre de matériels demandés */
+			// Le nombre de types de matériels que la salle contient et qui sont nécessaires correspond avec le nombre de matériels demandés
 			requeteString += " HAVING COUNT(DISTINCT contientmateriel.materiel_id) = "+materiels.size();
 		}
 	    
 		requeteString += " ORDER BY salle.salle_capacite";
 
-		ArrayList<SalleIdentifie> resultatRecherche = new ArrayList<SalleIdentifie>();
+		ArrayList<SalleRecherche> resultatRecherche = new ArrayList<SalleRecherche>();
 		try {
 			// Prépare la requête
 			PreparedStatement requetePreparee = _bdd.getConnection().prepareStatement(requeteString);
@@ -362,8 +363,9 @@ public class SalleGestion {
 			ResultSet requete = requetePreparee.executeQuery();
 
 			// Balayage pour chaque élément retour de la requête
+			SalleRechercheInflater inflater = new SalleRechercheInflater(dateDebut, dateFin, createTransaction);
 			while(requete.next()) {
-				resultatRecherche.add(inflateSalleFromRow(requete));
+				resultatRecherche.add(inflater.inflateSalle(requete, _bdd));
 			}
 
 			// Ferme la requête
@@ -392,8 +394,9 @@ public class SalleGestion {
 		
 		ArrayList<SalleIdentifie> res = new ArrayList<SalleIdentifie>();
 		try {
+			SalleIdentifieInflater inflater = new SalleIdentifieInflater();
 			while(reponse.next()) {
-				res.add(inflateSalleFromRow(reponse));
+				res.add(inflater.inflateSalle(reponse, _bdd));
 			}
 			
 			reponse.close();

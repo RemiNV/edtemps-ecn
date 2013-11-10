@@ -15,8 +15,6 @@ public class Salle {
 	/** Capacité de la salle */
 	protected int capacite;
 
-	// TODO : cet attribut ne sert pas dans la plupart des cas d'utilisation, mais demande une requête BDD en plus.
-	// TODO : définir un objet Salle "light" pour la plupart des requêtes ?
 	/** Matériel (id, nom, quantité) qui équipe la salle */
 	protected ArrayList<Materiel> materiels;
 

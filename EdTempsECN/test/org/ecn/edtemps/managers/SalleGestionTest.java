@@ -29,12 +29,12 @@ public class SalleGestionTest {
 
 	@Test
 	public void testGetSalle() throws EdtempsException {
-		this.salleGestionnaire.getSalle(7);
+		this.salleGestionnaire.getSalle(7, true);
 	}
 
 	@Test
 	public void testModifierSalle() throws EdtempsException {
-		SalleIdentifie salle = this.salleGestionnaire.getSalle(6);
+		SalleIdentifie salle = this.salleGestionnaire.getSalle(6, true);
 		salle.setNom("test");
 		this.salleGestionnaire.modifierSalle(salle);
 	}
