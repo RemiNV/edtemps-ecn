@@ -56,7 +56,20 @@ define([ "RestManager" ], function(RestManager) {
 						me.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
 						me.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
 						me.listeProprietairesSelectionnes,
-						function() { me.jqCreationGroupeForm.dialog("close"); });
+						function() {
+							// Réinitialisation de la dialogue
+							me.jqChampNom.val("");
+							me.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(-1);
+							me.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").removeAttr("checked");
+							me.jqCreationGroupeForm.find("#form_creer_groupe_cours").removeAttr("checked");
+							me.listeProprietairesSelectionnes = new Array();
+							me.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_text").each(function(index) {
+								$(this).parents("tr").remove();
+							});
+
+							// Fermeture de la dialogue
+							me.jqCreationGroupeForm.dialog("close");
+						});
 			} else {
 				window.showToast("Veuillez vérifier et corriger les champs entourés en rouge");
 			}
