@@ -322,27 +322,26 @@ public class SalleGestion {
 		    requeteString += 
 			    "LEFT JOIN edt.evenementappartient ON evenement.eve_id=evenementappartient.eve_id " + 
 			    "LEFT JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
-			    "LEFT JOIN edt.groupeparticipant groupecours ON calendrierappartientgroupe.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
-			    "AND groupeparticipant.groupeparticipant_estcours = TRUE ";
+			    "LEFT JOIN edt.groupeparticipant groupecours ON calendrierappartientgroupe.groupeparticipant_id=groupecours.groupeparticipant_id " +
+			    "AND groupecours.groupeparticipant_estcours = TRUE ";
 		}
 		
 		// Vérifie la capacité de la salle
-	    requeteString += "WHERE salle.salle_capacite>=" + capacite;
-	    
+	    requeteString += "WHERE salle.salle_capacite>=" + capacite
+	    		+ " GROUP BY salle.salle_id "; // On somme les matériels *par salle*
+		
 	    if(sallesOccupeesNonCours) {
-	    	// Aucun évènement en cours, ou alors ce n'est pas un cours (on pourrait juste écrire groupecours.groupeparticipant_id IS NULL)
-	    	requeteString += " AND evenement.eve_id IS NULL OR groupecours.groupeparticipant_id IS NULL ";
+	    	// Aucun évènement de cours dans le créneau donné
+	    	requeteString += "HAVING COUNT(groupecours.groupeparticipant_id)=0";
 	    }
 	    else {
 	    	// Aucun évènement qui se passe dans la salle au créneau demandé (LEFT JOIN, donc aucune correspondance -> colonnes null)
-	    	requeteString += " AND evenement.eve_id IS NULL ";
+	    	requeteString += "HAVING COUNT(evenement.eve_id)=0";
 	    }
 	    
-	    requeteString += "GROUP BY salle.salle_id"; // On somme les matériels *par salle*
-		
 		if(!materiels.isEmpty()) {
 			// Le nombre de types de matériels que la salle contient et qui sont nécessaires correspond avec le nombre de matériels demandés
-			requeteString += " HAVING COUNT(DISTINCT contientmateriel.materiel_id) = "+materiels.size();
+			requeteString += " AND COUNT(DISTINCT contientmateriel.materiel_id) = "+materiels.size();
 		}
 	    
 		requeteString += " ORDER BY salle.salle_capacite";
