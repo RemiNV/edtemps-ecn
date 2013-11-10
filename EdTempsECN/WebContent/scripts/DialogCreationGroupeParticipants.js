@@ -15,11 +15,13 @@ define([ "RestManager" ], function(RestManager) {
 		this.jqChampNom = this.jqCreationGroupeForm.find("#form_creer_groupe_nom");
 		this.jqCreationGroupeTable = this.jqCreationGroupeForm.find("#form_creer_groupe_table");
 
-		// Liste des identifiants des propriétaires
-		this.listeIdProprietaires = new Array();
-
 		// Liste des propriétaires potentiels (récupérée en base de données)
 		this.listeProprietairesPotentiels = new Array();
+		this.compteurProprietaires = 0;
+		this.nomPrenomUtilisateurEnCours = "";
+
+		// Liste des propriétaires sélectionnés
+		this.listeProprietairesSelectionnes = new Array();
 
 		// Est ce que la fonction init a déjà été appelée ?
 		this.initAppele = false;
@@ -46,14 +48,17 @@ define([ "RestManager" ], function(RestManager) {
 
 		// Affectation d'une méthode au clic sur le bouton "Ajouter"
 		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").click(function() {
+			me.listeProprietairesSelectionnes = new Array();
 			if (me.validationFormulaire()) {
 				me.ajouterGroupe(
 						me.jqChampNom.val(),
 						me.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
 						me.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
 						me.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
-						me.listeIdProprietaires,
+						me.listeProprietairesSelectionnes,
 						function() { me.jqCreationGroupeForm.dialog("close"); });
+			} else {
+				window.showToast("Veuillez vérifier et corriger les champs entourés en rouge");
 			}
 		});
 
@@ -67,8 +72,14 @@ define([ "RestManager" ], function(RestManager) {
 		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
 		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement en cours ...");
 		
-		this.recupererProprietairesPotentiels(function(success) {
+		// Récupération des propriétaires potentiels
+		this.recupererProprietairesPotentiels(function(success, nbUtilisateurs) {
 			if (success) {
+				if (nbUtilisateurs>0) {
+					// Affichage d'une première zone avec l'utilisateur en cours comme propriétaire
+					me.ajouterLigneProprietaire(me.nomPrenomUtilisateurEnCours, true);
+				}
+
 				// Reactivation du bouton "Valider"
 				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
 				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
@@ -80,6 +91,7 @@ define([ "RestManager" ], function(RestManager) {
 		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
 		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement des groupes parents potentiels en cours ...");
 
+		// Récupération et écriture des groupes parents disponibles
 		this.ecritListeGroupesParentsDisponibles(this.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
 			if (success) {
 				// Reactivation du bouton "Valider"
@@ -159,7 +171,8 @@ define([ "RestManager" ], function(RestManager) {
 	 */
 	DialogCreationGroupeParticipants.prototype.validationFormulaire = function() {
 		var valid = true;
-
+		var me = this;
+		
 		// Validation du champ "Nom"
 		if (this.jqChampNom.val()=="") {
 			this.jqChampNom.css("box-shadow", "#FF0000 0 0 10px");
@@ -169,7 +182,12 @@ define([ "RestManager" ], function(RestManager) {
 			this.jqChampNom.css("box-shadow", "#60C003 0 0 10px");
 			this.jqChampNom.css("border", "1px solid #60C003");
 		}
-
+		
+		// Vérifie les champs de propriétaires
+		this.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_text").each(function(index) {
+			valid &= me.verifierValeurChampProprietaire($(this));
+		});
+		
 		return valid;
 	};
 
@@ -214,57 +232,160 @@ define([ "RestManager" ], function(RestManager) {
 		
 	};
 	
-	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function() {
-
+	/**
+	 * Remplir la liste des utilisateurs potentiellement propriétaires
+	 * 
+	 * @param callback
+	 */
+	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function(callback) {
+		var me = this;
+		
 		// Récupération de la liste des propriétaires potentiels
 		this.restManager.effectuerRequete("POST", "proprietairespotentiels", {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
-				this.listeProprietairesPotentiels = data.data.listeProprietaires;
-				callback(true);
+				
+				// Création du tableau des valeurs pour le plugin Autocomplete de Jquery UI
+				me.listeProprietairesPotentiels = data.data.listeUtilisateurs;
+				for (var i=0, maxI=data.data.listeUtilisateurs.length; i<maxI; i++) {
+					if (window.localStorage && localStorage["userId"]==data.data.listeUtilisateurs[i].id) {
+						me.nomPrenomUtilisateurEnCours = data.data.listeUtilisateurs[i].prenom+" "+data.data.listeUtilisateurs[i].nom;
+					}
+				}
+
+				// Appelle la méthode de retour
+				callback(true, data.data.listeUtilisateurs.length);
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; vérifiez votre connexion.");
-				callback(false);
+				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
+				callback(false, 0);
 			} else {
-				window.showToast(data.resultCode + " Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
-				callback(false);
+				window.showToast(data.resultCode + " Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; votre session a peut-être expiré ?");
+				callback(false, 0);
 			}
 		});
 
 	};
 	
 	
-	
-	DialogCreationGroupeParticipants.prototype.ajouterLigneProprietaire = function() {
-		var maxI = data.data.listeProprietaires.length;
+	/**
+	 * Affiche une ligne pour un propriétaire
+	 * 
+	 * @param valeur
+	 * 			Valeur à assigner au champ par défaut (peut être vide)
+	 * 
+	 * @param premierChamp
+	 * 			VRAI si c'est le premier champ de propriétaires
+	 * 			Dans ce cas, un bouton "Ajouter un propriétaire" est affiché,
+	 * 			sinon c'est un bouton "Supprimer" qui est affiché  
+	 */
+	DialogCreationGroupeParticipants.prototype.ajouterLigneProprietaire = function(valeur, premierChamp) {
+		var me = this;
+		
+		// Incrémente le compteur des propriétaires
+		this.compteurProprietaires++;
 
-		var str = "<option value='-1'>---</option>";
-		if (maxI>0) {
-			for (var i=0; i<maxI; i++) {
-				str += "<option value='"+data.data.listeProprietaires[i].id+"'>"+data.data.listeProprietaires[i].nom+"</option>";
+		// Ajoute une ligne dans le tableau du formulaire
+		this.jqCreationGroupeTable.append(
+			"<tr id='form_creer_groupe_proprietaire_"+this.compteurProprietaires+"'>" +
+				"<td>" +
+					"<label>Propriétaire"+(premierChamp ? "" : " supplémentaire")+"</label>" +
+				"</td>" +
+				"<td>" +
+					"<input type='text' class='form_creer_groupe_proprietaire_text' value='"+ (valeur ? valeur : "") +"' />" +
+					(premierChamp
+						? "<span id='form_creer_groupe_proprietaire_ajouter' title='Ajouter un propriétaire'>+</span>"
+						: "<img alt='Supression' src='img/corbeille.png' class='form_creer_groupe_proprietaire_supprimer' title='Supprimer le propriétaire' />"
+					) +
+					"<input type='hidden' class='form_creer_groupe_proprietaire_id' value='' />" +
+				"</td>" +
+			"</tr>");
+
+		// Ajoute l'autocomplete sur le champ ajouté
+		var champ = this.jqCreationGroupeTable.find("#form_creer_groupe_proprietaire_"+this.compteurProprietaires+" .form_creer_groupe_proprietaire_text");
+		champ.autocomplete({
+			source: this.listeProprietairesPotentiels,
+			focus: function (event, ui) {
+				champ.val(ui.item.prenom + " " + ui.item.nom);
+				return false;
+			},
+			select: function (event, ui) {
+				champ.val(ui.item.prenom + " " + ui.item.nom);
+				champ.parents("tr").find(".form_creer_groupe_proprietaire_id").val(ui.item.id);
+				return false;
 			}
+		}).data("ui-autocomplete")._renderItem = function (ul, item) {
+			return $("<li></li>")
+				.append("<a title='"+(item.email ? item.email : "")+"'>"+item.prenom+" "+item.nom+"</a>")
+				.appendTo(ul);
+		};
+
+		champ.focusout(function() {
+			me.verifierValeurChampProprietaire($(this));
+		});
+		
+		// Assigne une action sur le bouton d'ajout de propriétaires
+		if (premierChamp) {
+			this.jqCreationGroupeTable.find("#form_creer_groupe_proprietaire_ajouter").click(function() {
+				me.ajouterLigneProprietaire("", false);
+			});
 		} else {
-			me.jqCreationGroupeForm.find("#form_creer_groupe_parent_message").html("Aucun rattachement possible").show();
-			$(object).attr("disabled", "disabled");
+			this.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_supprimer").click(function() {
+				$(this).parents("tr").remove();
+			});
 		}
-		$(object).append(str);
-		 
-
-		str =
-			"<tr>" +
-				"<td>" +
-					"<label for='form_creer_groupe_parent'>Groupe parent</label>" +
-				"</td>" +
-				"<td>" +
-					"<select id='form_creer_groupe_parent'></select>" +
-				"</td>" +
-			"</tr>";
-
-		jqCreationGroupeTable.append(str);
 
 	};
 
+
+	/**
+	 * Vérifie qu'un champ propriétaire est correct (le nom est bien présent dans la liste des propriétaires potentiels
+	 * 
+	 * @param object
+	 * 			champ à vérifier
+	 * @returns VRAI si le champ est valide
+	 * 
+	 */
+	DialogCreationGroupeParticipants.prototype.verifierValeurChampProprietaire = function(object) {
+		var valid = false;
+		var id = null;
+
+		// Vérifie que le nom du propriétaire est correct
+		for (var i=0, maxI=this.listeProprietairesPotentiels.length; i<maxI; i++) {
+			var nom = this.listeProprietairesPotentiels[i].prenom + " " + this.listeProprietairesPotentiels[i].nom; 
+			if (nom == $(object).val() || $(object).val()=="") {
+				valid = true;
+				id = this.listeProprietairesPotentiels[i].id;
+				break;
+			}
+		}
+
+		if (valid) {
+			if (id!=$(object).parents("tr").find(".form_creer_groupe_proprietaire_id").val() && $(object).val()!="") {
+				// Si le champ id ne correspond pas au nom du propriétaire, on le met à jour
+				$(object).parents("tr").find(".form_creer_groupe_proprietaire_id").val(id);
+			}
+
+			// Enlève la bordure rouge
+			$(object).css("box-shadow", "transparent 0 0 10px");
+			$(object).css("border", "1px solid black");
+			$(object).attr("title", "");
+			
+			// Ajoute le proprietaire dans la liste des propriétaires sélectionnés
+			if ($(object).val()!="") {
+				this.listeProprietairesSelectionnes.push(id);
+			}
+
+		} else {
+			$(object).css("box-shadow", "red 0 0 10px");
+			$(object).css("border", "1px solid red");
+			$(object).attr("title", "Le nom d'utilisateur que vous avez saisi est incorrect.");
+		}
+
+		return valid;
+	};
+
+	
 	return DialogCreationGroupeParticipants;
 
 });

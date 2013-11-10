@@ -289,9 +289,43 @@ table.liste_materiel th {
 	cursor: help;
 }
 
+#form_creer_groupe_nom {
+	width: 210px;
+}
+
+.form_creer_groupe_proprietaire_text {
+	width: 210px;
+	margin-right: 3px;
+}
+	
 #form_creer_groupe_parent_message {
 	font-size: 0.8em;
 	color: gray;
+}
+
+.form_creer_groupe_proprietaire_supprimer {
+	cursor: pointer;
+	width: 10px;
+	border: solid 1px gray;
+	border-radius: 2px;
+	padding: 2px;
+	vertical-align: middle;
+}
+
+.form_creer_groupe_proprietaire_supprimer:hover {
+	background-color: white;
+}
+
+#form_creer_groupe_proprietaire_ajouter {
+	cursor: pointer;
+	border: solid 1px gray;
+	border-radius: 2px;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+#form_creer_groupe_proprietaire_ajouter:hover {
+	background-color: white;
 }
 
 

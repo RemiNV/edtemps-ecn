@@ -159,3 +159,41 @@
 	color: black;
 	border: solid 1px gray;
 }
+
+
+
+
+/**
+ * Custom combobox
+ */
+
+.ui-helper-hidden-accessible {
+	display: none;
+}
+
+.ui-autocomplete {
+	padding: 2px;
+	background-color: white;
+	border: solid 1px gray;
+	border-radius: 3px;
+	width: 200px;
+}
+
+.ui-menu .ui-menu-item {
+	list-style-type: none;
+}
+	
+.ui-menu .ui-menu-item a {
+	border: solid 1px white;
+	padding: 2px 5px 2px 5px;
+	font-size: 0.9em;
+	cursor: pointer;
+	display: block;
+}
+
+.ui-menu .ui-menu-item a.ui-state-focus,
+.ui-menu .ui-menu-item a.ui-state-active {
+	background-color: #F4F4F4;
+	border: solid 1px gray;
+	border-radius: 3px;
+}

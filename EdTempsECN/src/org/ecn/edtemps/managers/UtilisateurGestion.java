@@ -511,12 +511,12 @@ public class UtilisateurGestion {
 	/**
 	 * Récupère la liste de tous les utilisateurs qui peuvent potentiellement être propriétaires d'un groupe de participants
 	 * 
-	 * @return
+	 * @return liste des utilisateurs
 	 * @throws DatabaseException
 	 */
 	public List<UtilisateurIdentifie> getResponsablesPotentiels() throws DatabaseException {
 		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur");
-		
+
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
 
 		try {
