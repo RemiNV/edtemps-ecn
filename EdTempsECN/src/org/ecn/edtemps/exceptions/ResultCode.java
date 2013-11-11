@@ -21,8 +21,11 @@ public enum ResultCode {
 	WRONG_PARAMETERS_FOR_REQUEST(6),
 	
 	/** Un objet invalide a été fourni à une méthode d'enregistrement */
-	INVALID_OBJECT(7);
-	
+	INVALID_OBJECT(7),
+
+	/** Un objet du même nom est déjà en base de données */
+	NAME_TAKEN(8);
+
 	private int code;
 	
 	ResultCode(int code) {

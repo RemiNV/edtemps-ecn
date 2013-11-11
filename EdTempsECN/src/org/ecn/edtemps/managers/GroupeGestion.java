@@ -227,6 +227,14 @@ public class GroupeGestion {
 			// Vérification de la cohérence des valeurs
 			if (StringUtils.isNotBlank(nom)) {
 
+				// Vérifie que le nom n'est pas déjà en base de données
+				PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT groupeparticipant_id FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
+				nomDejaPris.setString(1, nom);
+				if (nomDejaPris.execute()) {
+					throw new EdtempsException(ResultCode.NAME_TAKEN,
+							"Tentative d'enregistrer un groupe en base de données avec un nom déjà utilisé.");
+				}
+				
 				// Prépare la requête
 				PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
 						"?, '"

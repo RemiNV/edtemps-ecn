@@ -15,7 +15,6 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.SalleGestion;
 import org.ecn.edtemps.models.Materiel;
-import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.SalleRecherche;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 

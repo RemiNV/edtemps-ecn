@@ -237,6 +237,8 @@ define([ "RestManager" ], function(RestManager) {
 				window.showToast("Le groupe de participant à été créé avec succès.");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
+			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
+				window.showToast("Le nom du groupe est déjà utilisé, choisissez en un autre.");
 			} else {
 				window.showToast(response.resultCode + " Erreur lors de la création du groupe de participants ; votre session a peut-être expiré ?");
 			}
