@@ -17,6 +17,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.idSallesSelectionnees = null;
 		this.sallesDisponibles = null;
 		this.callbackSelectionSalles = null;
+		this.listeSallesDejaOccupees = null;
 		
 		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
 		this.jqDate = this.jqRechercheSalleForm.find("#form_recherche_salle_date");
@@ -437,6 +438,12 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		    },
 			afterSelect: function(idSalle) {
 				me.idSallesSelectionnees[idSalle]=true;
+				for (var i=0, maxI=me.listeSallesDejaOccupees.length; i<maxI; i++) {
+					if (me.listeSallesDejaOccupees[i]==idSalle) {
+						alert("Attention, cette salle contient déjà un événement autre qu'un cours.");
+						break;
+					}
+				}
 			},
 			afterDeselect: function(idSalle) {
 				me.idSallesSelectionnees[idSalle]=false;
@@ -478,26 +485,38 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		// Calcule le nombre de salles
 		var maxI = data.sallesDisponibles.length;
 		
-		// S'il y a des salles, on les affiche dans une boîte de dialogue
+		// S'il y a des salles, on les affiche dans la boîte de dialogue des résultats
 		if (maxI>0) {
 			
 			// Variable recevant progressivement le code HTML à ajouter à l'élément MultiSelect
 			var html = "";
+			
+			this.listeSallesDejaOccupees = new Array();
+			
 			// Parcourt les salles 
 			for (var i = 0; i < maxI; i++) {
 				// Salle en cours de traitement
 				var salle = data.sallesDisponibles[i];
 				// Préparation de l'infobulle
-				var infobulle = "Capacité: "+salle.capacite;
+				var infobulle = "Capacité : "+salle.capacite;
 				for (var j=0, maxJ=salle.materiels.length ; j<maxJ ; j++) {
 					infobulle += "&#13;";
-					infobulle += salle.materiels[j].nom + ": " +salle.materiels[j].quantite; 
+					infobulle += salle.materiels[j].nom + " : " +salle.materiels[j].quantite; 
 				}
-				html += "<option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+"</option>";
+				html += "<option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+(salle.evenementsEnCours ? " &#9733;" : "")+"</option>";
+				if (salle.evenementsEnCours) {
+					this.listeSallesDejaOccupees.push(salle.id);
+				}
 			}
 			// Affichage
-			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").html(html)
-				.multiSelect("refresh");
+			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").html(html).multiSelect("refresh");
+			
+			// Affichage d'un message pour les salles avec un marqueur
+			var message = "";
+			if (this.listeSallesDejaOccupees.length>0) {
+				message = "Les salles marquées du symbole <span style='color: black;'>&#9733;</span> sont déjà occupées par un événement autre qu'un cours.";
+			}
+			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_message").html(message);
 
 			// Remise à zéro d'une liste d'identifiants de salles sélectionnées
 			// C'est un objet référencé par l'identifiant de la salle et qui porte true si la salle est sélectionnée

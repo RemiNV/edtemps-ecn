@@ -183,6 +183,12 @@ table.liste_materiel th {
 	border-color: gray;
 }
 
+#resultat_chercher_salle_message {
+	color: gray;
+	font-size: 0.8em;
+	margin-bottom: 10px;	
+}
+
 #div_filtres {
 	clear: both;
 	float: right;
