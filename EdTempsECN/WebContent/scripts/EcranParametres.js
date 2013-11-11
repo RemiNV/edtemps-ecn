@@ -3,7 +3,9 @@
  * Associé au HTML templates/page_parametres.html
  * @module EcranParametres
  */
-define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier, DialogCreationGroupeParticipants) {
+define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "lib/davis.min",
+        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
+        		DialogCreationGroupeParticipants, Davis) {
 	
 	/**
 	 * @constructor
@@ -16,13 +18,26 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager);
 	};
 	
+	var idTabs = {
+		"parametres/mes_abonnements": 0,
+		"parametres/mes_agendas": 1,
+		"parametres/mes_groupes": 2
+	};
+	
 	/**
 	 * Initialisation de l'écran
+	 * 
+	 * @param {string} tab Onglet à afficer : "mes_abonnements", "mes_agendas" ou "mes_groupes"
 	 */
-	EcranParametres.prototype.init = function() {
+	EcranParametres.prototype.init = function(tab) {
 		
 		// Initialisaion de la navigation par tabs
-		$("#tabs").tabs();
+		$("#tabs").tabs({
+			activate: function(event, ui) {
+				Davis.location.replace(ui.newPanel.get(0).id);
+			},
+			active: idTabs[tab]
+		});
 		
 		// Initialisation des dialog
 		$("#dialog_export").dialog({
@@ -166,6 +181,16 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 			});
 		});
 
+	};
+	
+	/**
+	 * Affiche l'onglet indiqué dans l'écran
+	 * 
+	 * @param {string} tab Onglet à afficher : "mes_abonnement", "mes_agendas" ou "mes_groupes" 
+	 */
+	EcranParametres.prototype.showTab = function(tab) {
+		
+		$("#tabs").tabs("option", "active", idTabs[tab]);
 	};
 	
 	/**

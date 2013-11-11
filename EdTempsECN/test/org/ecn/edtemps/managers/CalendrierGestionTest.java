@@ -60,7 +60,7 @@ public class CalendrierGestionTest {
 	public void testAjoutSuppressionCalendrier() throws Exception {
 		// Création d'un calendrier
 		HashMap<Integer, String> matieres = calendrierGestion.listerMatieres();
-		assertTrue(matieres.size() > 0); // Il doit y avoi des matières pré-rentrées dans la base de données
+		assertTrue(matieres.size() > 0); // Il doit y avoir des matières pré-rentrées dans la base de données
 		
 		HashMap<Integer, String> typesCalendrier = calendrierGestion.listerTypesCalendrier();
 		assertTrue(typesCalendrier.size() > 0); // Il doit y avoir des types de calendrier pré-rentrés dans la BDD

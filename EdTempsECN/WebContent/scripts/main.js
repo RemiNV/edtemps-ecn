@@ -70,12 +70,16 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 			this.get("agenda", routePagePrincipale);
 			
 			// Page de paramètres
-			this.get("parametres", function(req) {
+			this.get("parametres/:tab", function(req) {
+				
+				var tab = req.params["tab"];
 				if(restManager.isConnected()) { // RestManager.checkConnection() ou RestManager.connexion() appelé
-					chargerInterfaceParametres();
+					if(currentPage.nom != "parametres") {
+						chargerInterfaceParametres(tab);
+					}
 				}
 				else {
-					req.redirect("connexion/parametres");
+					req.redirect("connexion/parametres/" + tab);
 				}
 			});
 			
@@ -169,21 +173,21 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 			$("#main_interface_hook").empty().append(pageAccueilHtml);
 			
 			// Initialisation
+			currentPage.nom = "agenda";
 			currentPage.manager = new EcranAccueil(restManager);
 			currentPage.manager.setVue(vue);
 			currentPage.manager.init();
-			currentPage.nom = "agenda";
 		});
 	};
 	
-	function chargerInterfaceParametres() {
+	function chargerInterfaceParametres(tab) {
 		transitionInterface(["EcranParametres", "text!../templates/page_parametres.html"], function(EcranParametres, pageAccueilHtml) {
 			$("#main_interface_hook").empty().append($(pageAccueilHtml));
 			
 			// Initialisation
-			currentPage.manager = new EcranParametres(restManager);
-			currentPage.manager.init();
 			currentPage.nom="parametres";
+			currentPage.manager = new EcranParametres(restManager);
+			currentPage.manager.init(tab);
 		});
 	};
 	

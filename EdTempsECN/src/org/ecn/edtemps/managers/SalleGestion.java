@@ -67,6 +67,7 @@ public class SalleGestion {
 				salleRecuperee = new SalleIdentifieInflater().inflateSalle(requeteSalle, _bdd);
 				requeteSalle.close();
 			}
+					
 
 			if(createTransaction) {
 				_bdd.commit();
@@ -166,12 +167,16 @@ public class SalleGestion {
 	 * 
 	 * @param salle
 	 *            salle à enregistrer
+	 *            
+	 * @return l'identifiant de la ligne insérée
 	 * 
 	 * @throws EdtempsException
 	 *             en cas d'erreur de connexion avec la base de données
 	 */
-	public void sauverSalle(Salle salle) throws EdtempsException {
+	public int sauverSalle(Salle salle) throws EdtempsException {
 
+		int idInsertion = -1;
+		
 		if (salle != null) {
 
 			try {
@@ -210,7 +215,7 @@ public class SalleGestion {
 					
 					// Récupère l'identifiant de la ligne ajoutée
 					resultat.next();
-					int lastInsert = resultat.getInt(1);
+					idInsertion = resultat.getInt(1);
 					resultat.close();
 
 					// Ajout du lien avec les matériels
@@ -218,7 +223,7 @@ public class SalleGestion {
 						_bdd.executeRequest(
 								"INSERT INTO edt.contientmateriel " +
 								"(salle_id, materiel_id, contientmateriel_quantite) VALUES (" +
-								lastInsert + ", " +
+								idInsertion + ", " +
 								materiels.get(i).getId() + ", " +
 								materiels.get(i).getQuantite() + ")");
 					}
@@ -241,7 +246,7 @@ public class SalleGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR,
 					"Tentative d'enregistrer un objet NULL en base de données.");
 		}
-
+		return idInsertion;
 	}
 
 	/**
