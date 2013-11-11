@@ -64,7 +64,7 @@ define([ "RestManager" ], function(RestManager) {
 							me.jqCreationGroupeForm.find("#form_creer_groupe_cours").removeAttr("checked");
 							me.listeProprietairesSelectionnes = new Array();
 							me.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_text").each(function(index) {
-								$(this).parents("tr").remove();
+								if (index>0) $(this).parents("tr").remove();
 							});
 
 							// Fermeture de la dialogue
