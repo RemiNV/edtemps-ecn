@@ -20,7 +20,7 @@ public class MaterielGestionTest {
 
 	@Test
 	public void testGetSalle() throws EdtempsException {
-		assertEquals(3, this.materielGestionnaire.getListeMateriel().size());
+		assertEquals(2, this.materielGestionnaire.getListeMateriel().size());
 	}
 
 }

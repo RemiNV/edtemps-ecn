@@ -21,7 +21,6 @@ public class Materiel implements JSONAble {
 
 	/** identifiant du matériel*/
 	protected int id;
-	
 
 	/** Libellé du matériel*/
 	protected String nom;
