@@ -79,7 +79,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				var listeMateriel = me.getContenuListeMateriel(me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"));
 				
 				// Récupération de la checkbox pour la recherche des salles déjà occupées par autre chose qu'un cours
-				var inclureSallesOccupees = me.jqCreationGroupeForm.find("#form_recherche_salle_inclure_salles_occupees").is(':checked');
+				var inclureSallesOccupees = me.jqRechercheSalleForm.find("#form_recherche_salle_inclure_salles_occupees").is(':checked');
 				
 				// Message d'attente
 				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
