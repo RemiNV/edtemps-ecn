@@ -113,7 +113,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 				effectif = 0;
 			}
 			
-			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, function(succes) {
+			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, true, function(succes) {
 				if(succes) {
 					me.jqDialog.find("#btn_rechercher_salle_evenement").removeAttr("disabled");
 					me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");

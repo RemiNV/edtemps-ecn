@@ -78,13 +78,16 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				// Création de la liste des matériels nécessaires
 				var listeMateriel = me.getContenuListeMateriel(me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"));
 				
+				// Récupération de la checkbox pour la recherche des salles déjà occupées par autre chose qu'un cours
+				var inclureSallesOccupees = me.jqCreationGroupeForm.find("#form_recherche_salle_inclure_salles_occupees").is(':checked');
+				
 				// Message d'attente
 				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
 				me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "block");
 				me.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Recherche...");
 
 				// Appel de la méthode de recherche de salle
-				me.getSalle(dateDebut, dateFin, me.jqCapacite.val(), listeMateriel, function() {
+				me.getSalle(dateDebut, dateFin, me.jqCapacite.val(), listeMateriel, inclureSallesOccupees, function() {
 					// Supression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
 					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
 					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
@@ -349,6 +352,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * @param materiels
 	 * 		liste du matériel nécessaire : une liste d'objets qui possèdent deux attributs : id et quantité
 	 * 
+	 * @param inclureSallesOccupees
+	 * 		VRAI si la recherche doit inclure les salles occupées par des événements autres que des cours
+	 * 
 	 * @param callbackChargement
 	 * 		méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
 	 * 		Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
@@ -357,7 +363,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * @param callback
 	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
-	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, callbackChargement, callback) {
+	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, inclureSallesOccupees, callbackChargement, callback) {
 		var me = this;
 
 		// Création d'une chaine de caractère pour traiter la liste de matériel
@@ -374,7 +380,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		
 		// Appel de la méthode du serveur
 		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
-			debut: dateDebut.getTime(), fin: dateFin.getTime(), effectif: effectif, materiel: listeMaterielQuantite, token: this.restManager.getToken()
+			debut: dateDebut.getTime(), fin: dateFin.getTime(), effectif: effectif, materiel: listeMaterielQuantite, sallesOccupees: inclureSallesOccupees, token: this.restManager.getToken()
 		}, function(response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				callbackChargement(true);
