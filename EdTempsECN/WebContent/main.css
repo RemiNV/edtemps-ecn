@@ -399,7 +399,7 @@ table.liste_materiel th {
 	z-index: 10;
 }
 
-#tab-mes-abonnements {
+.tab_parametres {
 	width: 700px;
 	padding-right: 10px;
 	overflow: hidden;
