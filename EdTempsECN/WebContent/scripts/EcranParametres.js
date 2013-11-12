@@ -140,7 +140,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				
 				// Mise en forme des abonnements indirectes à ce groupe (=> parcours des abonnements directs)
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
-					me.afficheAbonnementsIndirectes(data.groupesAbonnements[i].id, data.groupesAbonnements[i].parentId);
+					me.afficheAbonnementsIndirectes(data.groupesAbonnements[i].id, data.groupesAbonnements[i].nom);
 				}
 			}
 			
@@ -218,8 +218,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	 *
 	 * @param : id
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id) {
-		this.afficheAbonnementsIndirectesFils(id);
+	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id, nom) {
+		this.afficheAbonnementsIndirectesFils(id, nom);
 		this.afficheAbonnementsIndirectesParent(id);
 	};
 	
@@ -242,20 +242,30 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	
 	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux fils du groupe ayant l'id "id"
+	 * et le nom "nomGroupeAbonne"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
 	 * 
-	 * @param : id
+	 * @param : id = id du groupe pour lequel on va parcourir les fils
+	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les fils)
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectesFils = function(id) {
+	EcranParametres.prototype.afficheAbonnementsIndirectesFils = function(id, nomGroupeAbonne) {
 		var me = this;
 		//On parcourt les fils de l'élément
 		if (id != 0) {
 			$( '.ms-selection li[idparent="'+id+'"]' ).each(function() {
 				//A chaque fils, on ajoute la classe "abonnementIndirect"
 				$(this).addClass("abonnement_indirect");
+				//On ajoute (ou modifie) l'info bulle du fils considéré
+				var infobulle = $(this).attr("title");
+				if (infobulle == undefined) {
+					$(this).attr("title", "Abonnement indirect via "+ nomGroupeAbonne);
+				}	
+				else {
+					$(this).attr("title", infobulle + " / " + nomGroupeAbonne);
+				}
 				//Pour chaque fils, on parcourt ses fils via un appel récursif
 				var idfils = $(this).attr("id").replace("-selection", "");
-				me.afficheAbonnementsIndirectesFils(idfils);
+				me.afficheAbonnementsIndirectesFils(idfils, nomGroupeAbonne);
 			});
 		}
 	};
