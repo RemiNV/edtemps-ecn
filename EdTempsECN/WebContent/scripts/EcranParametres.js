@@ -116,20 +116,24 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 						me.groupeGestion.seDesabonner(idgroupe, function(resultCode) {
 							// Si aucune erreur, on remet à jour les abonnements indirects 
 							// NB : le déplacement de l'élément d'une liste à l'autre est fait par la bibliothèque
-							$( '.ms-selection li' ).each(function() {
-								$(this).removeClass("abonnement_indirect");
-								$(this).removeAttr("title");
-							});		
-							$( '.ms-selectable li' ).each(function() {
-								if ( $(this).css("display")  != "none") {
-									var idGpe = $(this).attr("id").replace("-selectable", "");
-									var nomGpe = $(this).text();
-									me.afficheAbonnementsIndirectes(idGpe, nomGpe);
-									console.log(nomGpe);
-								}
-							});						
+							if(resultCode == RestManager.resultCode_Success) {
+								// On supprime les infos bulles de tous les agendas disponibles
+								$( '.ms-selection li' ).each(function() {
+									$(this).removeClass("abonnement_indirect");
+									$(this).removeAttr("title");
+								});		
+								// On ajoute les infos-bulles sur les groupes liés (parent ou fils) aux abonnements directs (= éléments <li> ayant la classe .ms-selectable, tout en étant affichés) 
+								$( '.ms-selectable li' ).each(function() {
+									if ( $(this).css("display")  != "none") {
+										var idGpe = $(this).attr("id").replace("-selectable", "");
+										var nomGpe = $(this).text();
+										me.afficheAbonnementsIndirectes(idGpe, nomGpe);
+										console.log(nomGpe);
+									}
+								});	
+							}
 							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les abonnements de l'utilisateur
-							if(resultCode != RestManager.resultCode_Success) {
+							else {
 								window.showToast("Le désabonnement a échoué ...");
 								var idElementSelectable = "#" + idgroupe + "-selectable";
 								var idElementSelection = "#" + idgroupe + "-selection";
@@ -142,10 +146,12 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 						 me.groupeGestion.sAbonner(idgroupe, function(resultCode) {
 							// Si aucune erreur, on modifie seulement les abonnements indirects 
 							// NB : le déplacement de l'élément d'une liste à l'autre est fait par la bibliothèque 
-							var nomGroupe = $("#" + idgroupe + "-selectable").text();
-							me.afficheAbonnementsIndirectes(idgroupe, nomGroupe);	
+							if(resultCode == RestManager.resultCode_Success) {
+								var nomGroupe = $("#" + idgroupe + "-selectable").text();
+								me.afficheAbonnementsIndirectes(idgroupe, nomGroupe);	
+						 	}
 							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les "Agendas disponibles"
-							if(resultCode != RestManager.resultCode_Success) {
+							else {
 								window.showToast("L'abonnement a échoué ...");
 								var idElementSelectable = "#" + idgroupe + "-selectable";
 								var idElementSelection = "#" + idgroupe + "-selection";
