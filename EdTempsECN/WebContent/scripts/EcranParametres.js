@@ -220,23 +220,38 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	 */
 	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id, nom) {
 		this.afficheAbonnementsIndirectesFils(id, nom);
-		this.afficheAbonnementsIndirectesParent(id);
+		this.afficheAbonnementsIndirectesParent(id, nom);
 	};
 	
 	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux parents du groupe ayant l'id "id"
+	 * et le "nom nomGroupeAbonne"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
 	 * 
-	 * @param : id
+	 * Fonction récursive qui effectue l'opération sur le parent direct,
+	 * puis fait appel à elle-même pour réitérer l'opération sur le parent.
+	 * 
+	 * @param : id = id du groupe pour lequel on va parcourir les parents 
+	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les parents)
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectesParent = function(id) {
+	EcranParametres.prototype.afficheAbonnementsIndirectesParent = function(id, nomGroupeAbonne) {
 		//On cherche le parent (unique) de l'élément
 		var idparent = $("#"+id+"-selection").attr("idparent");
 		//Si l'élément a bien un parent
 		if (idparent != "0") {
+			var elementParent = $( "#" + idparent + "-selection");
 			//On lui ajoute la classe "abonnement_indirect"
-			$( "#" + idparent + "-selection").addClass("abonnement_indirect");
-			this.afficheAbonnementsIndirectesParent(idparent);
+			elementParent.addClass("abonnement_indirect");
+			//On lui ajoute (ou modifie) l'infobulle
+			var infobulle = elementParent.attr("title");
+			if (infobulle == undefined) {
+				elementParent.attr("title", "Abonnement indirect via "+ nomGroupeAbonne);
+			}	
+			else {
+				elementParent.attr("title", infobulle + " / " + nomGroupeAbonne);
+			}
+			//On réitère l'opération "afficheAbonnementsIndirectesParent" sur le parent
+			this.afficheAbonnementsIndirectesParent(idparent, nomGroupeAbonne);
 		}
 	};
 	
@@ -244,6 +259,9 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	 * Permet d'ajouter l'info "abonné indirectement" aux fils du groupe ayant l'id "id"
 	 * et le nom "nomGroupeAbonne"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
+	 * 
+	 * Fonction récursive qui effectue l'opération sur les fils directs,
+	 * puis fait appel à elle-même pour réitérer l'opération sur chacun des fils.
 	 * 
 	 * @param : id = id du groupe pour lequel on va parcourir les fils
 	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les fils)
