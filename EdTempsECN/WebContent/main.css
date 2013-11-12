@@ -243,7 +243,8 @@ table.liste_materiel th {
 
 /* Mise en forme Abonnements Indirects */
 .abonnement_indirect {
-	background-color: red;
+	font-style: italic;
+	color:#C8C8C8 !important;
 }
 
 
