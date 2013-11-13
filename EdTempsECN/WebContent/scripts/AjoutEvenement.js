@@ -155,10 +155,13 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 					
 				}
 				else if(resultCode == RestManager.resultCode_NetworkError) {
-					window.showToast("Erreur d'enregistrement de l'évènement ; vérifiez votre connexion");
+					window.showToast("Erreur d'enregistrement de l'événement ; vérifiez votre connexion");
+				}
+				else if(resultCode == RestManager.resultCode_SalleOccupee) {
+					window.showToast("Erreur d'ajout de l'événement : salle(s) occupée(s) (événement créé entre-temps ?)");
 				}
 				else {
-					window.showToast("Erreur d'enregistrement de l'évènement ; code retour " + resultCode);
+					window.showToast("Erreur d'enregistrement de l'événement ; code retour " + resultCode);
 				}
 			});
 		}
