@@ -15,6 +15,11 @@ import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Classe de test de CalendrierGestion
+ * 
+ * @author Remi
+ */
 public class CalendrierGestionTest {
 
 	protected BddGestion bdd;
