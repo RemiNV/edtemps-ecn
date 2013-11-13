@@ -42,13 +42,17 @@ public class EvenementGestion {
 	 * @param evenement
 	 */
 	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
-			List<Integer> idIntervenants, List<Integer> idResponsables) throws EdtempsException {
+			List<Integer> idIntervenants, List<Integer> idResponsables, boolean startTransaction) throws EdtempsException {
 		
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier et un responsable");
 		}
 		
-		try {		
+		try {
+			
+			if(startTransaction) {
+				_bdd.startTransaction();
+			}
 			
 			// Vérification de la disponibilité de la salle
 			SalleGestion salleGestion = new SalleGestion(_bdd);
@@ -56,7 +60,6 @@ public class EvenementGestion {
 				throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
 			}
 			
-			_bdd.startTransaction();	
 			
 			// On crée l'événement dans la base de données
 			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
@@ -107,8 +110,9 @@ public class EvenementGestion {
 					+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
 			}
 			
-			// Fin transaction
-			_bdd.commit();
+			if(startTransaction) {
+				_bdd.commit();
+			}
 		}
 		catch (SQLException e) {
 			throw new DatabaseException(e);
@@ -137,6 +141,12 @@ public class EvenementGestion {
 			//début d'une transaction si requis
 			if (createTransaction){
 				_bdd.startTransaction();
+			}
+			
+			// Vérification de la disponibilité de la salle
+			SalleGestion salleGestion = new SalleGestion(_bdd);
+			if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin)) {
+				throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
 			}
 			
 			// Modifier l'évenement (nom, date début, date fin)
