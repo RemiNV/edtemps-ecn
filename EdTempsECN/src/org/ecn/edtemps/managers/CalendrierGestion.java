@@ -12,6 +12,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Calendrier;
+import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 
 /** 
@@ -413,16 +414,25 @@ public class CalendrierGestion {
 	 * @return Liste des calendriers trouvés
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	public ArrayList<CalendrierIdentifie> listerCalendriersUtilisateur(int userId) throws DatabaseException {
+	public ArrayList<CalendrierComplet> listerCalendriersUtilisateur(int userId) throws DatabaseException {
 		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle FROM edt.calendrier " +
 				"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
 				"INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
 				"INNER JOIN edt.proprietairecalendrier ON calendrier.cal_id = proprietairecalendrier.cal_id AND proprietairecalendrier.utilisateur_id = " + userId);
 		
 		try {
-			ArrayList<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
-			while(results.next()){
-				res.add(inflateCalendrierFromRow(results));
+			ArrayList<CalendrierComplet> res = new ArrayList<CalendrierComplet>();
+			while (results.next()) {
+				CalendrierIdentifie calendrier = inflateCalendrierFromRow(results);
+				
+				ResultSet resultaaaaaas = _bdd.executeRequest("SELECT COUNT(*) FROM edt.groupeparticipant " +
+				"INNER JOIN edt.calendrierappartientgroupe ON groupeparticipant.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
+				"AND groupeparticipant.groupeparticipant_estcours = 'TRUE' " +
+				"AND calendrierappartientgroupe.cal_id = " + calendrier.getId());
+				resultaaaaaas.next();
+				boolean estCours = (resultaaaaaas.getInt(1)==0) ? false : true;
+				
+				res.add(new CalendrierComplet(calendrier, estCours));
 			}
 			
 			results.close();

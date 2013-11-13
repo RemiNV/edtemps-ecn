@@ -26,6 +26,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		this.strOptionsCalendriers = null; // HTML à ajouter au select pour sélectionner les calendriers
 		this.sallesSelectionnees = new Array();
 		this.initAppele = false;
+		this.listeCalendriers = new Array(); /* Liste des calendriers récupérée en base de données */
 		
 		// Initialisation de la dialog
 		jqDialog.dialog({
@@ -113,7 +114,15 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 				effectif = 0;
 			}
 			
-			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, true, function(succes) {
+			// Vérifie si le calendrier sélectionné pour le rattachement de l'événement est un cours
+			this.inclureSallesOccupees = false;
+			for (var i=0, maxI=this.listeCalendriers.length; i<maxI; i++) {
+				if (this.listeCalendriers[i].id==this.jqDialog.find("#calendriers_evenement .select_calendriers").val()) {
+					this.inclureSallesOccupees = this.listeCalendriers[i].estCours;
+				}
+			}
+			
+			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, this.inclureSallesOccupees, function(succes) {
 				if(succes) {
 					me.jqDialog.find("#btn_rechercher_salle_evenement").removeAttr("disabled");
 					me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
@@ -353,6 +362,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 					me.strOptionsCalendriers = strRemplissageSelect;
 					me.jqDialog.find("#calendriers_evenement .select_calendriers").html(strRemplissageSelect);
 				}
+				
+				me.listeCalendriers = data;
 				
 				callback(true, data.length);
 			}
