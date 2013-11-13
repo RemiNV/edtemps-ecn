@@ -71,6 +71,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			JsonArray jsonIdSalles = jsonEvenement.getJsonArray("salles");
 			JsonArray jsonIdIntervenants = jsonEvenement.getJsonArray("intervenants");
 			JsonArray jsonIdResponsables = jsonEvenement.getJsonArray("responsables");
+			JsonArray jsonIdEvenementsSallesALiberer = jsonEvenement.getJsonArray("evenementsSallesALiberer");
 			
 			Date dateDebut = jsonDebut == null ? null : new Date(jsonDebut.longValue());
 			Date dateFin = jsonFin == null ? null : new Date(jsonFin.longValue());
@@ -78,6 +79,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			ArrayList<Integer> idSalles = jsonIdSalles == null ? null : JSONUtils.getIntegerArrayList(jsonIdSalles);
 			ArrayList<Integer> idIntervenants = jsonIdIntervenants == null ? null : JSONUtils.getIntegerArrayList(jsonIdIntervenants);
 			ArrayList<Integer> idResponsables = jsonIdResponsables == null ? null : JSONUtils.getIntegerArrayList(jsonIdResponsables);
+			ArrayList<Integer> idEvenementsSallesALiberer = jsonIdEvenementsSallesALiberer == null ? null : JSONUtils.getIntegerArrayList(jsonIdEvenementsSallesALiberer);
 			
 			
 			if(idCalendriers == null) {
@@ -89,17 +91,22 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			
 			// TODO : autoriser un administrateur à faire ceci
 			if(!droitsCalendriers.estProprietaire) {
-				throw new EdtempsException(ResultCode.IDENTIFICATION_ERROR, "Vous n'êtes pas propriétaire de tous les calendriers fournis");
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous n'êtes pas propriétaire de tous les calendriers fournis");
 			}
 			
 			bdd.startTransaction();
 			
-			// TODO : suppression de l'association des salles déjà occupées
-			EvenementGestion evenementGestion = new EvenementGestion(bdd);
-			evenementGestion.supprimerSallesEvenementsNonCours(idSalles, idEvenements);
-			
-			// TODO : avertir le propriétaire d'un évènement quand la salle qu'il a renseignée est supprimée par un nouvel évènement
-			
+			// Libération des salles déjà occupées pour un cours
+			// TODO : avertir le propriétaire d'un évènement quand la salle qu'il a renseignée est libérée par un nouvel évènement
+			if(idEvenementsSallesALiberer != null && !idEvenementsSallesALiberer.isEmpty()) {
+				
+				if(!droitsCalendriers.contientCours) {
+					throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous ne pouvez pas prendre une salle déjà occupée pour un évènement autre qu'un cours");
+				}
+				
+				EvenementGestion evenementGestion = new EvenementGestion(bdd);
+				evenementGestion.supprimerSallesEvenementsNonCours(idSalles, idEvenementsSallesALiberer);
+			}
 			
 			if(pathInfo.equals("/ajouter")) { // Requête /evenement/ajouter
 				doAjouterEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);

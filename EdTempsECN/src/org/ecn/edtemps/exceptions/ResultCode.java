@@ -24,7 +24,10 @@ public enum ResultCode {
 	INVALID_OBJECT(7),
 
 	/** Un objet du même nom est déjà en base de données */
-	NAME_TAKEN(8);
+	NAME_TAKEN(8),
+	
+	/** L'utilisateur n'est pas autorisé à effectuer cette action */
+	AUTHORIZATION_ERROR(9);
 
 	private int code;
 	
