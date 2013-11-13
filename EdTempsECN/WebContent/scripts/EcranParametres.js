@@ -114,8 +114,26 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				    },
 					afterSelect: function(idgroupe){
 						me.groupeGestion.seDesabonner(idgroupe, function(resultCode) {
+							// Si aucune erreur, on remet à jour les abonnements indirects 
+							// NB : le déplacement de l'élément d'une liste à l'autre est fait par la bibliothèque
+							if(resultCode == RestManager.resultCode_Success) {
+								// On supprime les infos bulles de tous les agendas disponibles
+								$( '.ms-selection li' ).each(function() {
+									$(this).removeClass("abonnement_indirect");
+									$(this).removeAttr("title");
+								});		
+								// On ajoute les infos-bulles sur les groupes liés (parent ou fils) aux abonnements directs (= éléments <li> ayant la classe .ms-selectable, tout en étant affichés) 
+								$( '.ms-selectable li' ).each(function() {
+									if ( $(this).css("display")  != "none") {
+										var idGpe = $(this).attr("id").replace("-selectable", "");
+										var nomGpe = $(this).text();
+										me.afficheAbonnementsIndirectes(idGpe, nomGpe);
+										console.log(nomGpe);
+									}
+								});	
+							}
 							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les abonnements de l'utilisateur
-							if(resultCode != RestManager.resultCode_Success) {
+							else {
 								window.showToast("Le désabonnement a échoué ...");
 								var idElementSelectable = "#" + idgroupe + "-selectable";
 								var idElementSelection = "#" + idgroupe + "-selection";
@@ -126,8 +144,14 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 					},
 					afterDeselect: function(idgroupe){
 						 me.groupeGestion.sAbonner(idgroupe, function(resultCode) {
+							// Si aucune erreur, on modifie seulement les abonnements indirects 
+							// NB : le déplacement de l'élément d'une liste à l'autre est fait par la bibliothèque 
+							if(resultCode == RestManager.resultCode_Success) {
+								var nomGroupe = $("#" + idgroupe + "-selectable").text();
+								me.afficheAbonnementsIndirectes(idgroupe, nomGroupe);	
+						 	}
 							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les "Agendas disponibles"
-							if(resultCode != RestManager.resultCode_Success) {
+							else {
 								window.showToast("L'abonnement a échoué ...");
 								var idElementSelectable = "#" + idgroupe + "-selectable";
 								var idElementSelection = "#" + idgroupe + "-selection";
@@ -140,7 +164,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				
 				// Mise en forme des abonnements indirectes à ce groupe (=> parcours des abonnements directs)
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
-					me.afficheAbonnementsIndirectes(data.groupesAbonnements[i].id, data.groupesAbonnements[i].parentId);
+					me.afficheAbonnementsIndirectes(data.groupesAbonnements[i].id, data.groupesAbonnements[i].nom);
 				}
 			}
 			
@@ -218,44 +242,72 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	 *
 	 * @param : id
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id) {
-		this.afficheAbonnementsIndirectesFils(id);
-		this.afficheAbonnementsIndirectesParent(id);
+	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id, nom) {
+		this.afficheAbonnementsIndirectesFils(id, nom);
+		this.afficheAbonnementsIndirectesParent(id, nom);
 	};
 	
 	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux parents du groupe ayant l'id "id"
+	 * et le "nom nomGroupeAbonne"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
 	 * 
-	 * @param : id
+	 * Fonction récursive qui effectue l'opération sur le parent direct,
+	 * puis fait appel à elle-même pour réitérer l'opération sur le parent.
+	 * 
+	 * @param : id = id du groupe pour lequel on va parcourir les parents 
+	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les parents)
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectesParent = function(id) {
+	EcranParametres.prototype.afficheAbonnementsIndirectesParent = function(id, nomGroupeAbonne) {
 		//On cherche le parent (unique) de l'élément
 		var idparent = $("#"+id+"-selection").attr("idparent");
 		//Si l'élément a bien un parent
 		if (idparent != "0") {
+			var elementParent = $( "#" + idparent + "-selection");
 			//On lui ajoute la classe "abonnement_indirect"
-			$( "#" + idparent + "-selection").addClass("abonnement_indirect");
-			this.afficheAbonnementsIndirectesParent(idparent);
+			elementParent.addClass("abonnement_indirect");
+			//On lui ajoute (ou modifie) l'infobulle
+			var infobulle = elementParent.attr("title");
+			if (infobulle == undefined) {
+				elementParent.attr("title", "Abonnement indirect via "+ nomGroupeAbonne);
+			}	
+			else {
+				elementParent.attr("title", infobulle + " / " + nomGroupeAbonne);
+			}
+			//On réitère l'opération "afficheAbonnementsIndirectesParent" sur le parent
+			this.afficheAbonnementsIndirectesParent(idparent, nomGroupeAbonne);
 		}
 	};
 	
 	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux fils du groupe ayant l'id "id"
+	 * et le nom "nomGroupeAbonne"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
 	 * 
-	 * @param : id
+	 * Fonction récursive qui effectue l'opération sur les fils directs,
+	 * puis fait appel à elle-même pour réitérer l'opération sur chacun des fils.
+	 * 
+	 * @param : id = id du groupe pour lequel on va parcourir les fils
+	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les fils)
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectesFils = function(id) {
+	EcranParametres.prototype.afficheAbonnementsIndirectesFils = function(id, nomGroupeAbonne) {
 		var me = this;
 		//On parcourt les fils de l'élément
 		if (id != 0) {
 			$( '.ms-selection li[idparent="'+id+'"]' ).each(function() {
 				//A chaque fils, on ajoute la classe "abonnementIndirect"
 				$(this).addClass("abonnement_indirect");
+				//On ajoute (ou modifie) l'info bulle du fils considéré
+				var infobulle = $(this).attr("title");
+				if (infobulle == undefined) {
+					$(this).attr("title", "Abonnement indirect via "+ nomGroupeAbonne);
+				}	
+				else {
+					$(this).attr("title", infobulle + " / " + nomGroupeAbonne);
+				}
 				//Pour chaque fils, on parcourt ses fils via un appel récursif
 				var idfils = $(this).attr("id").replace("-selection", "");
-				me.afficheAbonnementsIndirectesFils(idfils);
+				me.afficheAbonnementsIndirectesFils(idfils, nomGroupeAbonne);
 			});
 		}
 	};
