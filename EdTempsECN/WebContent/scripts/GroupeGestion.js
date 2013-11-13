@@ -56,5 +56,22 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	/**
+	 * Récupérer les groupes desquels l'utilisateur est propriétaire
+	 * @param callback
+	 */
+	GroupeGestion.prototype.queryGroupesUtilisateurProprietaire = function(callback) {
+		this.restManager.effectuerRequete("POST", "groupesutilisateurproprietaire", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback(data.resultCode, data.data);
+			}
+			else {
+				callback(data.resultCode);
+			}
+		});
+	};
+
 	return GroupeGestion;
 });

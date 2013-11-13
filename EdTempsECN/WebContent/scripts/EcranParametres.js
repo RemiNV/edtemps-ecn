@@ -4,7 +4,7 @@
  * @module EcranParametres
  */
 define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "lib/davis.min",
-        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
+        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
         		DialogCreationGroupeParticipants, Davis) {
 	
 	/**
@@ -56,6 +56,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		// A voir : est qu'on fait tout au démarrage de la page "Paramètres" ou lorsqu'on clique sur un onglet
 		// -> tout au démarrage => 1 seul requete si on veut
 		this.initMesCalendriers();
+		
+		this.initMesGroupes();
 		
 	};
 
@@ -224,16 +226,44 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		
 		// Affichage des calendriers (utiliser template ?)
 		
-		// Listeners
+		// Listener
 		var me = this;
 		$("#btn_creer_calendrier").click(function() {
 			me.dialogCreationCalendrier.init();
 		});
 
+	};
+	
+
+	/**
+	 * Initialisation de l'onglet "Mes groupes de participants"
+	 */
+	EcranParametres.prototype.initMesGroupes = function() {
+		var me = this;
+
+		// Listener
 		$("#btn_creer_groupe").click(function() {
 			me.dialogCreationGroupeParticipants.show();
 		});
 
+		// Création du template pour la liste des groupes
+		var listMesGroupesTemplate = 
+			"<% _.each(groupes, function(groupe) { %> <tr>" +
+				"<td><%= groupe.nom %></td>" +
+				"<td class='tbl_mes_groupes_boutons'><input type='button' class='button' value='Gérer' /><input type='button' class='button' value='Supprimer' /></td>" +
+			"</tr> <% }); %>";
+		
+		// Récupération des groupes de l'utilisateur
+		me.groupeGestion.queryGroupesUtilisateurProprietaire(function (resultCode, data) {
+			if(resultCode == RestManager.resultCode_Success) {
+				// Ecriture du tableau dans la page
+				$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
+		 	} else {
+				// En cas d'erreur, on affiche un message
+				window.showToast("La récupération des groupes a échoué ; vérifier votre connexion.");
+			}
+		});
+		
 	};
 	
 	/**

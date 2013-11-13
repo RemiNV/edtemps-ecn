@@ -568,6 +568,35 @@ public class GroupeGestion {
 		return res;
 	}
 	
+
+	/**
+	 * Listing des groupes pour lesquels l'utilisateur fait parti des propriétaires (sans remonter ni descendre les parents/enfants)
+	 * @param idUtilisateur Utilisateur dont les groupes sont à lister
+	 * @return Liste des groupes trouvés
+	 * @throws DatabaseException Erreur d'accès à la base de données
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupesProprietaire(int idProprietaire) throws DatabaseException {
+		
+		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
+				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
+					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant " +
+					"INNER JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id " +
+					"AND proprietairegroupeparticipant.utilisateur_id = " + idProprietaire);
+		
+		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+
+		try {
+			while(resGroupes.next()) {
+				res.add(inflateGroupeFromRow(resGroupes));
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return res;
+	}
+	
 	/**
 	 * Fonction permettant à un utilisateur de s'abonner à un groupe de participants
 	 * @param idUtilisateur

@@ -96,6 +96,11 @@
       <servlet-class>org.ecn.edtemps.servlets.impl.ProprietairesPotentielsServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>ListeGroupesUtilisateurProprietaire</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.GroupesProprietaireServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -184,6 +189,11 @@
   <servlet-mapping>
     <servlet-name>GetListeProprietairesPotentiels</servlet-name>
     <url-pattern>/proprietairespotentiels</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ListeGroupesUtilisateurProprietaire</servlet-name>
+    <url-pattern>/groupesutilisateurproprietaire</url-pattern>
   </servlet-mapping>
 
 </web-app>
