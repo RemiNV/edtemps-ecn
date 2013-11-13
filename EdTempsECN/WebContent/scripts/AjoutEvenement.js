@@ -140,7 +140,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
 			
 			this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
-					formData.intervenants, formData.responsables, 
+					formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer,
 					function(resultCode) {
 				
 				// Masquage du message d'attente
@@ -194,6 +194,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @property {Date} dateFin - Date de fin de l'évènement
 	 * @property {Materiel[]} materiels - Matériels sélectionnés pour l'évènement
 	 * @property {number[]} salles - Tableau d'IDs des salles sélectionnées
+	 * @property {number[]} idEvenementsSallesALiberer - Tableau d'IDs des évènements dont les salles sont à libérer
 	 */
 	
 	/**
@@ -321,6 +322,17 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			}
 		}
 		
+		// Remplissage de res.idEvenementsSallesALiberer
+		res.idEvenementsSallesALiberer = new Array();
+		
+		for(var i=0, maxI=res.salles.length; i<maxI; i++) {
+			if(res.salles[i].evenementsEnCours != null) {
+				for(var j=0, maxJ=res.salles[i].evenementsEnCours.length; j<maxJ; j++) {
+					res.idEvenementsSallesALiberer.push(res.salles[i].evenementsEnCours[j].id);
+				}
+			}
+		}
+		
 		return res;
 	};
 	
@@ -372,6 +384,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @typedef {Object} SalleRemplissageAjoutEvenement
 	 * @property {number} id - ID de la salle
 	 * @property {string} nom - Nom de la salle
+	 * @property {Evenement[]} evenementsEnCours - Evènements prévus dans la salle au moment de la recherche
 	 */
 	
 	/**
@@ -387,6 +400,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		if(!this.initAppele) {
 			this.init();
 		}
+		
+		console.log("params : ", dateDebut, dateFin, salles);
 		
 		this.jqDialog.find("#txt_nom_evenement").val("");
 		this.jqDialog.find("#tbl_materiel td.quantite input").val("0");

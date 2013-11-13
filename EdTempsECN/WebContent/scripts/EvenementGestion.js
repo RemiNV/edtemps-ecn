@@ -416,9 +416,11 @@ define(["RestManager"], function(RestManager) {
 	 * @param {number[]} idSalles tableau d'IDs des salles de l'évènement
 	 * @param {number[]} idIntervenants tableau d'IDs des intervenants
 	 * @param {number[]} idResponsables tableau d'IDs des responsables
+	 * @param {number[]} idEvenementsSallesALiberer tableau d'IDs des évènements dont les salles sont à libérer pour cet évènement
 	 * @param {function} callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
 	 */
-	EvenementGestion.prototype.ajouterEvenement = function(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, callback) {
+	EvenementGestion.prototype.ajouterEvenement = function(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, 
+			idResponsables, idEvenementsSallesALiberer, callback) {
 		var me = this;
 		this.restManager.effectuerRequete("POST", "evenement/ajouter", {
 			token: me.restManager.getToken(),
@@ -429,7 +431,8 @@ define(["RestManager"], function(RestManager) {
 				calendriers: idCalendriers,
 				salles: idSalles,
 				intervenants: idIntervenants,
-				responsables: idResponsables
+				responsables: idResponsables,
+				evenementsSallesALiberer: idEvenementsSallesALiberer
 			})
 		}, function(response) {
 			
@@ -457,8 +460,10 @@ define(["RestManager"], function(RestManager) {
 	 * @param {number[]} idSalles Nouveau tableau d'IDs des salles de l'évènement
 	 * @param {number[]} idIntervenants Nouveau tableau d'IDs des intervenants
 	 * @param {number[]} idResponsables Nouveau tableau d'IDs des responsables
+	 * @param {number[]} idEvenementsSallesALiberer tableau d'IDs des évènements dont les salles sont à libérer pour cet évènement
 	 */
-	EvenementGestion.prototype.modifierEvenement = function(id, callback, dateDebut, dateFin, nom, idCalendriers, idSalles, idIntervenants, idResponsables) {
+	EvenementGestion.prototype.modifierEvenement = function(id, callback, dateDebut, dateFin, nom, idCalendriers, 
+			idSalles, idIntervenants, idResponsables, idEvenementsSallesALiberer) {
 		
 		var me = this;
 		this.restManager.effectuerRequete("POST", "evenement/modifier", {
@@ -471,7 +476,8 @@ define(["RestManager"], function(RestManager) {
 				calendriers: idCalendriers,
 				salles: idSalles,
 				intervenants: idIntervenants,
-				responsables: idResponsables
+				responsables: idResponsables,
+				evenementsSallesALiberer: idEvenementsSallesALiberer
 			})
 		}, function(response) {
 			

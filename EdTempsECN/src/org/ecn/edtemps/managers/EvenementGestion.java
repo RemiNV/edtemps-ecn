@@ -467,6 +467,32 @@ public class EvenementGestion {
 	}
 	
 	/**
+	 * Suppression de l'association d'un évènement "non cours" à une salle.
+	 * Utile pour ajouter des évènements de cours dans une salle déjà occupée par autre chose (les cours sont prioritaires)
+	 * 
+	 * @param idSalles ID des salles à libérer (peut contenir plus de salles que celles occupées)
+	 * @param idEvenements ID des évènements concernés
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	public void supprimerSallesEvenementsNonCours(List<Integer> idSalles, List<Integer> idEvenements) throws DatabaseException {
+		
+		if(idSalles.isEmpty() || idEvenements.isEmpty()) {
+			return;
+		}
+		
+		String strIdSalles = StringUtils.join(idSalles, ",");
+		String strIdEvenements = StringUtils.join(idEvenements, ",");
+		
+		_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE (alieuensalle.eve_id, alieuensalle.salle_id) IN " +
+				"SELECT DISTINCT (alieuensalle.eve_id, alieuensalle.salle_id) FROM edt.alieuensalle " +
+				"INNER JOIN edt.evenementappartient ON evenementappartient.eve_id=alieuensalle.eve_id " +
+				"INNER JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
+				"INNER JOIN edt.groupeparticipant ON groupeparticipant.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
+					"AND groupeparticipant.groupeparticipant_estcours=FALSE " +
+				"WHERE alieuensalle.eve_id IN (" + strIdEvenements + ") AND alieuensalle.salle_id IN (" + strIdSalles + ")");
+	}
+	
+	/**
 	 * Liste les évènements correspondant à une requête préparée (pour obtenir les événements liés à un groupe, à une salle, à un calendrier, à un responsable)
 	 * @param request requêre SQL pour obtenir les événements souhaités
 	 * @param dateDebut
