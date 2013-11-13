@@ -25,6 +25,7 @@ import org.ecn.edtemps.models.inflaters.SalleRechercheInflater;
  */
 public class SalleGestion {
 
+	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 
 	/**

@@ -7,6 +7,11 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Classe de test de MaterielGestion
+ * 
+ * @author Joffrey
+ */
 public class MaterielGestionTest {
 
 	BddGestion bddGestion;

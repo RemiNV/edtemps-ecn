@@ -12,6 +12,8 @@ import org.ecn.edtemps.managers.UtilisateurGestion;
  */
 public abstract class RequiresConnectionServlet extends TokenServlet {
 
+	private static final long serialVersionUID = -115726731815825551L;
+
 	@Override
 	protected final int verifierToken(BddGestion bdd, String token) throws IdentificationException, DatabaseException {
 		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);

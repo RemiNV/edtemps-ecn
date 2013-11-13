@@ -12,7 +12,6 @@ import javax.json.JsonException;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.json.JsonValue;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,15 +27,20 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.CalendrierGestion.DroitsCalendriers;
 import org.ecn.edtemps.managers.EvenementGestion;
-import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
+/**
+ * Servlet de gestion des événements
+ * 
+ * @author Joffrey
+ */
 public class EvenementServlet extends RequiresConnectionServlet {
 
+	private static final long serialVersionUID = 85479515540354619L;
 	private static Logger logger = LogManager.getLogger(EvenementServlet.class.getName());
 	
 	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

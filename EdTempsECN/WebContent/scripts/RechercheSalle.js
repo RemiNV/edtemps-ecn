@@ -500,9 +500,10 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				// Préparation de l'infobulle
 				var infobulle = "Capacité : "+salle.capacite;
 				for (var j=0, maxJ=salle.materiels.length ; j<maxJ ; j++) {
-					infobulle += "&#13;";
+					infobulle += "<br/>";
 					infobulle += salle.materiels[j].nom + " : " +salle.materiels[j].quantite; 
 				}
+				infobulle += (salle.evenementsEnCours ? "<br/><span style=&apos;color: red;&apos;>Cette salle est déjà occupée par un événement autre qu&apos;un cours</span>" : "");
 				html += "<option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+(salle.evenementsEnCours ? " &#9733;" : "")+"</option>";
 				if (salle.evenementsEnCours) {
 					this.listeSallesDejaOccupees.push(salle.id);

@@ -14,8 +14,14 @@ import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
+/**
+ * Servlet de vérification de l'état de la connexion
+ * 
+ * @author Remi
+ */
 public class CheckConnectionServlet extends RequiresConnectionServlet {
 
+	private static final long serialVersionUID = 3604157101345479831L;
 	private static Logger logger = LogManager.getLogger(CheckConnectionServlet.class.getName());
 	
 	@Override

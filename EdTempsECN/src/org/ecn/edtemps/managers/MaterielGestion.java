@@ -19,6 +19,7 @@ import org.ecn.edtemps.models.Materiel;
  */
 public class MaterielGestion {
 
+	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 
 	private static Logger logger = LogManager.getLogger(MaterielGestion.class.getName());

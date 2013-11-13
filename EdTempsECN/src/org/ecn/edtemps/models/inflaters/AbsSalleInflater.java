@@ -26,6 +26,14 @@ import org.ecn.edtemps.models.identifie.SalleIdentifie;
  */
 public abstract class AbsSalleInflater<T extends SalleIdentifie> {
 
+	/**
+	 * Méthode de génération de la salle à partir d'une ligne de la base de données
+	 * 
+	 * @param reponse Ligne de la base de données
+	 * @param bdd Gestionnaire de la base de données
+	 * @return l'objet salle
+	 * @throws DatabaseException
+	 */
 	public T inflateSalle(ResultSet reponse, BddGestion bdd) throws DatabaseException {
 		
 		try {

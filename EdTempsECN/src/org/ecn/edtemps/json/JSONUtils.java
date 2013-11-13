@@ -8,15 +8,20 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonNumber;
 import javax.json.JsonValue;
 
+/**
+ * Classe d'utilitaires pour la génération d'objets JSON
+ * 
+ * @author Remi
+ */
 public class JSONUtils {
 
+	
 	/**
 	 * Créé un JsonArray à partir d'une collection itérable (List par exemple) de JSONAble
 	 * @param jsonAbles Collection itérable de JSONAble
 	 * @return Array généré
 	 */
 	public static <T extends JSONAble, U extends Iterable<T>> JsonArray getJsonArray(U jsonAbles) {
-		
 		JsonArrayBuilder builder = Json.createArrayBuilder();
 		
 		for(T jsonAble : jsonAbles) {
@@ -26,6 +31,13 @@ public class JSONUtils {
 		return builder.build();
 	}
 	
+	
+	/**
+	 * Créé un JsonArray à partir d'une collection itérable (List par exemple) d'entiers
+	 * 
+	 * @param Collection itérable d'entiers
+	 * @return Array généré
+	 */
 	public static JsonArray getJsonIntArray(Iterable<Integer> integers) {
 		JsonArrayBuilder builder = Json.createArrayBuilder();
 		
@@ -36,6 +48,13 @@ public class JSONUtils {
 		return builder.build();
 	}
 	
+	
+	/**
+	 * Créé un JsonArray à partir d'une collection itérable (List par exemple) de string
+	 * 
+	 * @param Collection itérable de string
+	 * @return Array généré
+	 */
 	public static JsonArray getJsonStringArray(Iterable<String> strings) {
 		JsonArrayBuilder builder = Json.createArrayBuilder();
 		
@@ -45,6 +64,7 @@ public class JSONUtils {
 		
 		return builder.build();
 	}
+	
 	
 	/**
 	 * Récupère une liste d'entiers à partir d'un JsonArray.

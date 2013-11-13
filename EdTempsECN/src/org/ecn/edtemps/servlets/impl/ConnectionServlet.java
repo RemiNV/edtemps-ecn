@@ -19,8 +19,14 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion.ObjetRetourMethodeConnexion;
 
+/**
+ * Servlet de connexion
+ * 
+ * @author Joffrey
+ */
 public class ConnectionServlet extends HttpServlet {
 
+	private static final long serialVersionUID = -4108350698688202053L;
 	private static Logger logger = LogManager.getLogger(ConnectionServlet.class.getName());
 	
 	/**

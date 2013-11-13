@@ -22,12 +22,10 @@ import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
  * Servlet pour rechercher une salle libre
  * 
  * @author Joffrey Terrade
- * 
  */
 public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 
 	private static final long serialVersionUID = 2839852111716382792L;
-
 	private static Logger logger = LogManager.getLogger(RechercheSalleLibreServlet.class.getName());
 
 	@Override

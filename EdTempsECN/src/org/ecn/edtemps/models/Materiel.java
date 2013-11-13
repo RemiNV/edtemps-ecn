@@ -1,8 +1,3 @@
-/**
- * Project: EdTempsECN
- * Creation date: 25 oct. 2013
- * Author: Audrey
- */
 package org.ecn.edtemps.models;
 
 import javax.json.Json;
@@ -14,8 +9,9 @@ import javax.json.JsonValue;
 import org.ecn.edtemps.json.JSONAble;
 
 /**
+ * Classe modèle d'un matériel
+ * 
  * @author Audrey
- *
  */
 public class Materiel implements JSONAble {
 
@@ -47,24 +43,15 @@ public class Materiel implements JSONAble {
 		this.nom = nom;
 		this.quantite = quantite;
 	}
-	
-	/**
-	 * @return the id
-	 */
+
 	public int getId() {
 		return id;
 	}
 
-	/**
-	 * @return the nom
-	 */
 	public String getNom() {
 		return nom;
 	}
 
-	/**
-	 * @return the quantite
-	 */
 	public int getQuantite() {
 		return quantite;
 	}

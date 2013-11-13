@@ -1,24 +1,14 @@
 package org.ecn.edtemps.servlets.impl;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
-import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
-import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
@@ -28,8 +18,15 @@ import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
+/**
+ * Servlet pour s'abonner à un groupe de participants
+ * 
+ * @author Joffrey
+ */
 public class AbonnementsServlet extends QueryWithIntervalServlet {
 	
+	private static final long serialVersionUID = -4716249286511792115L;
+
 	/**
 	 * Traite une requête d'obtention des évènements d'abonnement (à une période définie)
 	 */
