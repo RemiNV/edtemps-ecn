@@ -6,7 +6,6 @@ import java.sql.SQLException;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,11 +21,12 @@ import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
  * Servlet permettant la récupération des matieres et types (qui qualifient un calendrier)
+ * 
  * @author Maxime Terrade
- *
  */
 public class MatieresEtTypesServlet extends RequiresConnectionServlet {
 	
+	private static final long serialVersionUID = -1335896967484393294L;
 	private static Logger logger = LogManager.getLogger(MatieresEtTypesServlet.class.getName());
 	
 	@Override

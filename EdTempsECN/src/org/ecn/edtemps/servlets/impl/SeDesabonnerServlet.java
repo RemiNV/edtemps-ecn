@@ -16,11 +16,12 @@ import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
  * Servlet permettant le désabonnement d'un utilisateur à un groupeDeParcipants
+ * 
  * @author Maxime Terrade
- *
  */
 public class SeDesabonnerServlet extends RequiresConnectionServlet {
 	
+	private static final long serialVersionUID = 3955469309083323863L;
 	private static Logger logger = LogManager.getLogger(SeDesabonnerServlet.class.getName());
 	
 	@Override

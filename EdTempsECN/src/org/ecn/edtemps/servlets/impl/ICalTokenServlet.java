@@ -18,11 +18,12 @@ import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
  * Servlet de récupération de l'URL ICal de l'utilisateur
+ * 
  * @author Remi
- *
  */
 public class ICalTokenServlet extends RequiresConnectionServlet {
 
+	private static final long serialVersionUID = 6164664713958944036L;
 	private static Logger logger = LogManager.getLogger(ICalTokenServlet.class.getName());
 	
 	@Override

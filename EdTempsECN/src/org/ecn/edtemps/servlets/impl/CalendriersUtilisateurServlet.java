@@ -21,8 +21,8 @@ import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
  * Servlet de récupération des calendriers dont l'utilisateur est propriétaire
+ * 
  * @author Remi
- *
  */
 public class CalendriersUtilisateurServlet extends RequiresConnectionServlet {
 

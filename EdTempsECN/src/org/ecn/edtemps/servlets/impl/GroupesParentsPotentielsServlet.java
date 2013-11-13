@@ -27,7 +27,6 @@ import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 public class GroupesParentsPotentielsServlet extends RequiresConnectionServlet {
 
 	private static final long serialVersionUID = -5759790330513965044L;
-
 	private static Logger logger = LogManager.getLogger(GroupesParentsPotentielsServlet.class.getName());
 
 	@Override
