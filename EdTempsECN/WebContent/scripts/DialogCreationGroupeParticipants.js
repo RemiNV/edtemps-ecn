@@ -1,14 +1,15 @@
 /**
  * @module DialogCreationGroupeParticipants
  */
-define([ "RestManager" ], function(RestManager) {
+define([ "RestManager", "EcranParametres" ], function(RestManager) {
 
 	/**
 	 * @constructor
 	 * @alias module:DialogCreationGroupeParticipants
 	 */
-	var DialogCreationGroupeParticipants = function(restManager) {
+	var DialogCreationGroupeParticipants = function(restManager, ecranParametres) {
 		this.restManager = restManager;
+		this.ecranParametres = ecranParametres;
 		
 		// Des liens vers les objets javascript
 		this.jqCreationGroupeForm = $("#form_creer_groupe");
@@ -222,6 +223,7 @@ define([ "RestManager" ], function(RestManager) {
 	 * 			méthode à effectuer en retour
 	 */
 	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, callback) {
+		var me = this;
 		
 		this.restManager.effectuerRequete("POST", "groupeparticipants/ajouter", {
 			token: this.restManager.getToken(),
@@ -235,6 +237,7 @@ define([ "RestManager" ], function(RestManager) {
 		}, function (response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				window.showToast("Le groupe de participant à été créé avec succès.");
+				me.ecranParametres.initMesGroupes();
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
