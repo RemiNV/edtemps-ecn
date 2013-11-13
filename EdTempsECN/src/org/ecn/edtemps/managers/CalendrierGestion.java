@@ -469,7 +469,7 @@ public class CalendrierGestion {
 		}
 		
 		String strIds = StringUtils.join(calendriersIds, ",");
-		
+		// TODO : gérer le cas cours mais pas proprio
 		ResultSet results = _bdd.executeRequest("SELECT COUNT(DISTINCT proprietairecalendrier.cal_id) AS nb_calendriers_proprietaire, " +
 					"COUNT(groupecours.groupeparticipant_id) AS nb_groupe_cours " +
 				"FROM edt.proprietairecalendrier " +
@@ -478,6 +478,7 @@ public class CalendrierGestion {
 				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
 					"AND groupecours.groupeparticipant_estcours=TRUE " +
 				"WHERE proprietairecalendrier.utilisateur_id=" + userId + " AND proprietairecalendrier.cal_id IN (" + strIds + ")");
+		// TODO : un calendrier peut être de cours si un de ses parents l'est
 		
 		try {
 			results.next();

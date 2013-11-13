@@ -506,6 +506,8 @@ public class EvenementGestion {
 				"INNER JOIN edt.groupeparticipant ON groupeparticipant.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
 					"AND groupeparticipant.groupeparticipant_estcours=FALSE " +
 				"WHERE alieuensalle.eve_id IN (" + strIdEvenements + ") AND alieuensalle.salle_id IN (" + strIdSalles + ")");
+		
+		// TODO : un calendrier peut être de cours si un des parents l'est !
 	}
 	
 	/**

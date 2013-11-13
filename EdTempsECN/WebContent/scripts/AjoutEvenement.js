@@ -328,10 +328,10 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		// Remplissage de res.idEvenementsSallesALiberer
 		res.idEvenementsSallesALiberer = new Array();
 		
-		for(var i=0, maxI=res.salles.length; i<maxI; i++) {
-			if(res.salles[i].evenementsEnCours != null) {
-				for(var j=0, maxJ=res.salles[i].evenementsEnCours.length; j<maxJ; j++) {
-					res.idEvenementsSallesALiberer.push(res.salles[i].evenementsEnCours[j].id);
+		for(var i=0, maxI=this.sallesSelectionnees.length; i<maxI; i++) {
+			if(this.sallesSelectionnees[i].evenementsEnCours != null) {
+				for(var j=0, maxJ=this.sallesSelectionnees[i].evenementsEnCours.length; j<maxJ; j++) {
+					res.idEvenementsSallesALiberer.push(this.sallesSelectionnees[i].evenementsEnCours[j].id);
 				}
 			}
 		}
