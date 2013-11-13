@@ -15,7 +15,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		this.restManager = restManager;
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
- 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager);
+ 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
 	};
 	
 	var idTabs = {
@@ -241,7 +241,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	EcranParametres.prototype.initMesGroupes = function() {
 		var me = this;
 
-		// Listener
+		// Listener pour le bouton d'ajout
 		$("#btn_creer_groupe").click(function() {
 			me.dialogCreationGroupeParticipants.show();
 		});
@@ -249,18 +249,42 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		// Création du template pour la liste des groupes
 		var listMesGroupesTemplate = 
 			"<% _.each(groupes, function(groupe) { %> <tr>" +
-				"<td><%= groupe.nom %></td>" +
-				"<td class='tbl_mes_groupes_boutons'><input type='button' class='button' value='Gérer' /><input type='button' class='button' value='Supprimer' /></td>" +
+				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %></td>" +
+				"<td class='tbl_mes_groupes_boutons'><input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' /><input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' /></td>" +
 			"</tr> <% }); %>";
+		
+		// Affichage d'un message de chargement
+		$("#tbl_mes_groupes_chargement").css("display", "block");
+		$("#tbl_mes_groupes_chargement_message").html("Récupération de mes groupes de participants ...");
 		
 		// Récupération des groupes de l'utilisateur
 		me.groupeGestion.queryGroupesUtilisateurProprietaire(function (resultCode, data) {
+			// Suppression du message de chargement
+			$("#tbl_mes_groupes_chargement").css("display", "none");
+
 			if(resultCode == RestManager.resultCode_Success) {
 				// Ecriture du tableau dans la page
 				$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
+				// Listeners pour les boutons gérer
+				$(".tbl_mes_groupes_boutons_gerer").click(function() {
+					alert($(this).attr("data-id"));
+				});
+				// Listeners pour les boutons supprimer
+				$(".tbl_mes_groupes_boutons_supprimer").click(function() {
+					if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
+						me.groupeGestion.querySupprimerGroupes($(this).attr("attr-id"), function () {
+							if (resultCode == RestManager.resultCode_Success) {
+								window.showToast("Le groupe a été supprimé avec succès.");
+								me.initMesGroupes();
+							} else {
+								window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
+							}
+						});
+					}
+				});
 		 	} else {
 				// En cas d'erreur, on affiche un message
-				window.showToast("La récupération des groupes a échoué ; vérifier votre connexion.");
+				window.showToast("La récupération des groupes a échoué ; vérifiez votre connexion.");
 			}
 		});
 		

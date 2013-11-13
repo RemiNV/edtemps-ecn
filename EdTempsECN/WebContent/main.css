@@ -465,20 +465,26 @@ input.valide {
 }
 
 #tbl_mes_groupes {
+	margin-top: 20px;
 	border-collapse: collapse;
 	width: 100%;
 }
 
-#tbl_mes_groupes td {
-	padding-top: 20px;
+#tbl_mes_groupes tr {
+	border: solid 1px gray;
+	cursor: pointer;
 }
 
-#tbl_mes_groupes tr {
-	border-bottom: solid 1px gray;
+#tbl_mes_groupes tr:hover {
+	background-color: #DDDDDD;
+}
+
+#tbl_mes_groupes .tbl_mes_groupes_groupe {
+	padding-left: 10px;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons {
-	float: right;
+	text-align: right;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons input {

@@ -66,10 +66,25 @@ define(["RestManager"], function(RestManager) {
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback(data.resultCode, data.data);
-			}
-			else {
+			} else {
 				callback(data.resultCode);
 			}
+		});
+	};
+
+
+	/**
+	 * Supprimer un groupe de participants
+	 * @param callback
+	 */
+	GroupeGestion.prototype.querySupprimerGroupes = function(groupeId, callback) {
+		this.restManager.effectuerRequete("POST", "groupeparticipants/supprimer", {
+			token: this.restManager.getToken(),
+			groupe: JSON.stringify({
+				groupeId: groupeId
+			})
+		}, function(data) {
+			callback(data.resultCode);
 		});
 	};
 
