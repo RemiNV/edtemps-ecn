@@ -27,7 +27,10 @@ public enum ResultCode {
 	NAME_TAKEN(8),
 	
 	/** L'utilisateur n'est pas autorisé à effectuer cette action */
-	AUTHORIZATION_ERROR(9);
+	AUTHORIZATION_ERROR(9),
+	
+	/** Une salle demandée est occupée pendant le créneau donné */
+	SALLE_OCCUPEE(10);
 
 	private int code;
 	

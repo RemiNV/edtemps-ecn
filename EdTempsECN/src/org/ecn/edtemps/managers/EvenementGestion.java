@@ -49,8 +49,14 @@ public class EvenementGestion {
 		}
 		
 		try {		
-			// Début transaction
-			_bdd.startTransaction();			
+			
+			// Vérification de la disponibilité de la salle
+			SalleGestion salleGestion = new SalleGestion(_bdd);
+			if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin)) {
+				throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
+			}
+			
+			_bdd.startTransaction();	
 			
 			// On crée l'événement dans la base de données
 			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
