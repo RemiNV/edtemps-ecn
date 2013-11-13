@@ -53,85 +53,44 @@ public class Groupe {
 	public Groupe(String nom, int parentId) {
 		this.nom = nom;
 		this.parentId = parentId;
-	}	
+	}
 
-	/**
-	 * @return idCalendriers
-	 */
 	public List<Integer> getIdCalendriers() {
 		return idCalendriers;
 	}
 
-	/**
-	 * @return idProprietaires
-	 */
 	public List<Integer> getIdProprietaires() {
 		return idProprietaires;
 	}
 
-	/**
-	 * @return nom
-	 */
 	public String getNom() {
 		return nom;
 	}
 
-	/**
-	 * Récupération du parent du groupe
-	 * @return parentId ID du parent, 0 si aucun parent
-	 */
 	public int getParentId() {
 		return parentId;
 	}
 
-	/**
-	 * @return rattachementAutorise
-	 */
 	public boolean getRattachementAutorise() {
 		return rattachementAutorise;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut idCalendriers
-	 * 
-	 * @param idCalendriers
-	 */
 	public void setIdCalendriers(List<Integer> idCalendriers) {
 		this.idCalendriers = idCalendriers;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut idProprietaires
-	 * 
-	 * @param idProprietaires
-	 */
 	public void setIdProprietaires(List<Integer> idProprietaires) {
 		this.idProprietaires = idProprietaires;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut nom
-	 * 
-	 * @param nom
-	 */
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut parentId
-	 * 
-	 * @param parentId ID du parent, 0 si aucun
-	 */
 	public void setParentId(Integer parentId) {
 		this.parentId = parentId;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut rattachementAutorise
-	 * 
-	 * @param rattachementAutorise
-	 */
 	public void setRattachementAutorise(boolean rattachementAutorise) {
 		this.rattachementAutorise = rattachementAutorise;
 	}

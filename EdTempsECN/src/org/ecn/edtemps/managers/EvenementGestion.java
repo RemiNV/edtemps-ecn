@@ -18,13 +18,13 @@ import org.ecn.edtemps.models.inflaters.EvenementCompletInflater;
 import org.ecn.edtemps.models.inflaters.EvenementIdentifieInflater;
 
 /** 
- * Classe de gestion des evenements
+ * Classe de gestion des événements
  * 
  * @author Maxime TERRADE
- *
  */
 public class EvenementGestion {
 
+	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 	
 	/**

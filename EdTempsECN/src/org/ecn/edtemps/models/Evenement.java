@@ -101,17 +101,10 @@ public class Evenement {
 		this.intervenants = intervenants;
 	}
 	
-	/**
-	 * @return the responsables
-	 */
 	public List<UtilisateurIdentifie> getResponsables() {
 		return responsables;
 	}
 
-
-	/**
-	 * @param responsables the responsables to set
-	 */
 	public void setResponsables(List<UtilisateurIdentifie> responsables) {
 		this.responsables = responsables;
 	}

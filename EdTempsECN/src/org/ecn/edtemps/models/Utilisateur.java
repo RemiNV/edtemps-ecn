@@ -1,11 +1,15 @@
 package org.ecn.edtemps.models;
 
+/**
+ * Classe modèle d'un utiliateur
+ * 
+ * @author Rémi
+ */
 public class Utilisateur {
 
 	protected String nom;
 	protected String prenom;
 	protected String email;
-	
 	
 	/**
 	 * Constructeur utilisant les paramètres indispensables

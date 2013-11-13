@@ -16,13 +16,13 @@ import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 
 /** 
- * Classe de gestion des calendriers 
+ * Classe de gestion des calendriers
  * 
  * @author Maxime TERRADE
- *
  */
 public class CalendrierGestion {
 	
+	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 	
 	/**
