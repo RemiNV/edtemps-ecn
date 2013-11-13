@@ -1,9 +1,9 @@
 package org.ecn.edtemps.exceptions;
 
 /**
- * Codes de retour des requêtes 
+ * Codes de retour des requêtes
+ * 
  * @author Remi
- *
  */
 public enum ResultCode {
 
