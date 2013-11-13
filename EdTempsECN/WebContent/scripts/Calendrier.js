@@ -128,6 +128,10 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 						window.showToast("Erreur de mise à jour de l'évènement ; vérifiez votre connexion");
 						revertFunc();
 					}
+					else if(resultCode == RestManager.resultCode_SalleOccupee) {
+						window.showToast("Erreur de mise à jour de l'évènement : salle(s) occupée(s) pendant ce créneau");
+						revertFunc();
+					}
 					else {
 						window.showToast("Erreur de mise à jour de l'évènement ; code retour " + resultCode);
 						revertFunc();

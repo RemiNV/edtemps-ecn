@@ -149,7 +149,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
 			
 			this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
-					formData.intervenants, formData.responsables, 
+					formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer,
 					function(resultCode) {
 				
 				// Masquage du message d'attente
@@ -164,10 +164,13 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 					
 				}
 				else if(resultCode == RestManager.resultCode_NetworkError) {
-					window.showToast("Erreur d'enregistrement de l'évènement ; vérifiez votre connexion");
+					window.showToast("Erreur d'enregistrement de l'événement ; vérifiez votre connexion");
+				}
+				else if(resultCode == RestManager.resultCode_SalleOccupee) {
+					window.showToast("Erreur d'ajout de l'événement : salle(s) occupée(s) (événement créé entre-temps ?)");
 				}
 				else {
-					window.showToast("Erreur d'enregistrement de l'évènement ; code retour " + resultCode);
+					window.showToast("Erreur d'enregistrement de l'événement ; code retour " + resultCode);
 				}
 			});
 		}
@@ -203,6 +206,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @property {Date} dateFin - Date de fin de l'évènement
 	 * @property {Materiel[]} materiels - Matériels sélectionnés pour l'évènement
 	 * @property {number[]} salles - Tableau d'IDs des salles sélectionnées
+	 * @property {number[]} idEvenementsSallesALiberer - Tableau d'IDs des évènements dont les salles sont à libérer
 	 */
 	
 	/**
@@ -330,6 +334,17 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			}
 		}
 		
+		// Remplissage de res.idEvenementsSallesALiberer
+		res.idEvenementsSallesALiberer = new Array();
+		
+		for(var i=0, maxI=this.sallesSelectionnees.length; i<maxI; i++) {
+			if(this.sallesSelectionnees[i].evenementsEnCours != null) {
+				for(var j=0, maxJ=this.sallesSelectionnees[i].evenementsEnCours.length; j<maxJ; j++) {
+					res.idEvenementsSallesALiberer.push(this.sallesSelectionnees[i].evenementsEnCours[j].id);
+				}
+			}
+		}
+		
 		return res;
 	};
 	
@@ -383,6 +398,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @typedef {Object} SalleRemplissageAjoutEvenement
 	 * @property {number} id - ID de la salle
 	 * @property {string} nom - Nom de la salle
+	 * @property {Evenement[]} evenementsEnCours - Evènements prévus dans la salle au moment de la recherche
 	 */
 	
 	/**
@@ -398,6 +414,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		if(!this.initAppele) {
 			this.init();
 		}
+		
+		console.log("params : ", dateDebut, dateFin, salles);
 		
 		this.jqDialog.find("#txt_nom_evenement").val("");
 		this.jqDialog.find("#tbl_materiel td.quantite input").val("0");

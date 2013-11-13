@@ -25,6 +25,7 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.CalendrierGestion;
+import org.ecn.edtemps.managers.CalendrierGestion.DroitsCalendriers;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
@@ -74,6 +75,8 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			JsonArray jsonIdSalles = jsonEvenement.getJsonArray("salles");
 			JsonArray jsonIdIntervenants = jsonEvenement.getJsonArray("intervenants");
 			JsonArray jsonIdResponsables = jsonEvenement.getJsonArray("responsables");
+			JsonArray jsonIdEvenementsSallesALiberer = jsonEvenement.getJsonArray("evenementsSallesALiberer");
+			JsonNumber jsonIdEvenement = jsonEvenement.getJsonNumber("id"); // Uniquement pour la modification
 			
 			Date dateDebut = jsonDebut == null ? null : new Date(jsonDebut.longValue());
 			Date dateFin = jsonFin == null ? null : new Date(jsonFin.longValue());
@@ -81,24 +84,65 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			ArrayList<Integer> idSalles = jsonIdSalles == null ? null : JSONUtils.getIntegerArrayList(jsonIdSalles);
 			ArrayList<Integer> idIntervenants = jsonIdIntervenants == null ? null : JSONUtils.getIntegerArrayList(jsonIdIntervenants);
 			ArrayList<Integer> idResponsables = jsonIdResponsables == null ? null : JSONUtils.getIntegerArrayList(jsonIdResponsables);
+			ArrayList<Integer> idEvenementsSallesALiberer = jsonIdEvenementsSallesALiberer == null ? null : JSONUtils.getIntegerArrayList(jsonIdEvenementsSallesALiberer);
+			
+			EvenementGestion evenementGestion = new EvenementGestion(bdd);
+			
+			// Récupération de l'ancien évènement (pour les modifications)
+			EvenementIdentifie oldEven = null;
+			if(jsonIdEvenement != null) {
+				oldEven = evenementGestion.getEvenement(jsonIdEvenement.intValue());
+			}
+			
+			DroitsCalendriers droitsCalendriers = null;
+			CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
+			
+			if(idCalendriers == null && oldEven == null) {
+				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Vous devez préciser des calendriers pour ajouter un évènement");
+			}
+			
+			// Utilisation des nouveaux calendriers (ajout ou modification des calendriers) ou des anciens (si aucune modification)
+			List<Integer> idCalendriersDroits = idCalendriers != null ? idCalendriers : oldEven.getIdCalendriers();
+			
+			// Récupération des droits des calendriers donnés
+			droitsCalendriers = calendrierGestion.getDroitsCalendriers(userId, idCalendriersDroits);
+			
+			// TODO : autoriser un administrateur à faire ceci
+			if(!droitsCalendriers.estProprietaire) {
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous n'êtes pas propriétaire de tous les calendriers de l'évènement");
+			}
+			
+			bdd.startTransaction();
+			
+			// Libération des salles déjà occupées pour un cours
+			// TODO : avertir le propriétaire d'un évènement quand la salle qu'il a renseignée est libérée par un nouvel évènement
+			if(idEvenementsSallesALiberer != null && !idEvenementsSallesALiberer.isEmpty()) {
+				
+				if(!droitsCalendriers.contientCours) {
+					bdd.rollback();
+					throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous ne pouvez pas prendre une salle déjà occupée pour un évènement autre qu'un cours");
+				}
+				
+				evenementGestion.supprimerSallesEvenementsNonCours(idSalles, idEvenementsSallesALiberer);
+			}
 			
 			if(pathInfo.equals("/ajouter")) { // Requête /evenement/ajouter
 				doAjouterEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);
 			}
 			else if(pathInfo.equals("/modifier")) { // Requête /evenement/modifier
 				
-				JsonNumber jsonIdEvenement = jsonEvenement.getJsonNumber("id");
-				if(jsonIdEvenement == null) {
+				if(oldEven == null) {
 					resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, 
 							"Objet evenenement incomplet : paramètre id manquant pour requête de modification", null));
-					bdd.close();
+					
+					logger.warn("ID d'évènement inexistant fourni pour l'ajout d'un évènement");
 					return;
 				}
 				
-				int idEvenement = jsonIdEvenement.intValue();
-				
-				doModifierEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, idEvenement);
+				doModifierEvenement(userId, bdd, resp, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, oldEven);
 			}
+			
+			bdd.commit();
 			
 			bdd.close();
 		}
@@ -113,22 +157,25 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		}
 	}
 	
-	
+	/**
+	 * Ajout d'un évènement. Doit être appelé à l'intérieur d'une transaction.
+	 * 
+	 * @param userId ID de l'utilisateur
+	 * @param bdd Base de données à utiliser, avec une transaction commencée
+	 * @param resp Servlet à utiliser pour envoyer une réponse
+	 * @param nom
+	 * @param dateDebut
+	 * @param dateFin
+	 * @param idCalendriers
+	 * @param idSalles
+	 * @param idIntervenants
+	 * @param idResponsables
+	 * @throws EdtempsException
+	 * @throws IOException
+	 */
 	protected void doAjouterEvenement(int userId, BddGestion bdd, HttpServletResponse resp, String nom, Date dateDebut, Date dateFin, 
 			ArrayList<Integer> idCalendriers, ArrayList<Integer> idSalles, ArrayList<Integer> idIntervenants, 
 			ArrayList<Integer> idResponsables) throws EdtempsException, IOException {
-		
-		// TODO : autoriser un administrateur à faire ceci
-		// Vérification que l'utilisateur peut ajouter des évènements dans les calendriers
-		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
-		for(int idCalendrier : idCalendriers) {
-			CalendrierIdentifie cal = calendrierGestion.getCalendrier(idCalendrier);
-			
-			if(!cal.getIdProprietaires().contains(userId)) {
-				throw new EdtempsException(ResultCode.IDENTIFICATION_ERROR, "Vous n'êtes pas autorisé à ajouter des évènements dans le calendrier " + idCalendrier);
-			}
-		}
-		
 		
 		// Vérification des paramètres
 		if(nom == null || StringUtils.isBlank(nom) || dateDebut == null || dateFin == null || idCalendriers == null || idSalles == null 
@@ -140,31 +187,36 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
-		evenementGestion.sauverEvenement(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);
+		evenementGestion.sauverEvenement(nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables, false);
 
 		// Succès
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Evènement ajouté", null));
 	}
 	
-	
+	/**
+	 * Modification d'un évènement. Doit être appelé à l'intérieur d'une transaction.
+	 * 
+	 * @param userId ID de l'utilisateur
+	 * @param bdd Base de données à utiliser, avec une transaction commencée
+	 * @param resp Servlet à utiliser pour envoyer une réponse
+	 * @param nom
+	 * @param dateDebut
+	 * @param dateFin
+	 * @param idCalendriers
+	 * @param idSalles
+	 * @param idIntervenants
+	 * @param idResponsables
+	 * @param oldEven
+	 * @throws IOException
+	 * @throws EdtempsException
+	 */
 	protected void doModifierEvenement(int userId, BddGestion bdd, HttpServletResponse resp, String nom, Date dateDebut, Date dateFin, 
 			ArrayList<Integer> idCalendriers, ArrayList<Integer> idSalles, ArrayList<Integer> idIntervenants, 
-			ArrayList<Integer> idResponsables, int idEvenement) throws IOException, EdtempsException {
+			ArrayList<Integer> idResponsables, EvenementIdentifie oldEven) throws IOException, EdtempsException {
 		
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
-		bdd.startTransaction();
-		
-		// Récupération de l'ancien évènement
-		EvenementIdentifie even = evenementGestion.getEvenement(idEvenement);
-		
-		if(even == null) {
-			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Evènement d'ID " + idEvenement + " inexistant", null));
-			logger.warn("ID d'évènement inexistant fourni pour l'ajout d'un évènement");
-			return;
-		}
-		
-		ArrayList<Integer> oldIdsResponsables = getUserIds(even.getResponsables());
+		ArrayList<Integer> oldIdsResponsables = getUserIds(oldEven.getResponsables());
 		
 		// TODO : autoriser un administrateur à faire ceci
 		// Vérification que l'utilisateur est autorisé à modifier cet évènement
@@ -174,17 +226,15 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		}
 		
 		// Génération des nouveaux paramètres
-		String nvNom = nom == null ? even.getNom() : nom;
-		Date nvDateDebut = dateDebut == null ? even.getDateDebut() : dateDebut;
-		Date nvDateFin = dateFin == null ? even.getDateFin() : dateFin;
-		List<Integer> nvIdCalendriers = idCalendriers == null ? even.getIdCalendriers() : idCalendriers;
-		ArrayList<Integer> nvIdSalles = idSalles == null ? getIdSalles(even.getSalles()) : idSalles;
-		ArrayList<Integer> nvIdIntervenants = idIntervenants == null ? getUserIds(even.getIntervenants()) : idIntervenants;
-		ArrayList<Integer> nvIdResponsables = idResponsables == null ? getUserIds(even.getResponsables()) : idResponsables;
+		String nvNom = nom == null ? oldEven.getNom() : nom;
+		Date nvDateDebut = dateDebut == null ? oldEven.getDateDebut() : dateDebut;
+		Date nvDateFin = dateFin == null ? oldEven.getDateFin() : dateFin;
+		List<Integer> nvIdCalendriers = idCalendriers == null ? oldEven.getIdCalendriers() : idCalendriers;
+		ArrayList<Integer> nvIdSalles = idSalles == null ? getIdSalles(oldEven.getSalles()) : idSalles;
+		ArrayList<Integer> nvIdIntervenants = idIntervenants == null ? getUserIds(oldEven.getIntervenants()) : idIntervenants;
+		ArrayList<Integer> nvIdResponsables = idResponsables == null ? getUserIds(oldEven.getResponsables()) : idResponsables;
 		
-		evenementGestion.modifierEvenement(idEvenement, nvNom, nvDateDebut, nvDateFin, nvIdCalendriers, nvIdSalles, nvIdIntervenants, nvIdResponsables, false);
-		
-		bdd.commit();
+		evenementGestion.modifierEvenement(oldEven.getId(), nvNom, nvDateDebut, nvDateFin, nvIdCalendriers, nvIdSalles, nvIdIntervenants, nvIdResponsables, false);
 		
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Evènement modifié", null));
 	}
