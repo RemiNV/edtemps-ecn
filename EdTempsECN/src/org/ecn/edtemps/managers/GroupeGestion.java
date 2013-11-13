@@ -392,11 +392,11 @@ public class GroupeGestion {
 	/**
 	 * Listing de l'ensemble des groupes de participants existants en base
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon (false), elle DOIT être appelée à l'intérieur d'une transaction.
-	 * 
+	 * @param rattachementAutorise indique s'il faut uniquement lister les groupes dont le rattachement est autorisé
 	 * @return Liste de groupes de participants trouvés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction) throws DatabaseException {
+	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction, boolean rattachementAutorise) throws DatabaseException {
 		
 		try {
 			if(createTransaction){
@@ -407,7 +407,8 @@ public class GroupeGestion {
 			ResultSet resGroupes = _bdd.executeRequest(
 					"SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, "
 					+ "groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique "
-					+ "FROM edt.groupeparticipant");
+					+ "FROM edt.groupeparticipant"
+					+ (rattachementAutorise ? " WHERE groupeparticipant_rattachementautorise = TRUE" : ""));
 			
 			// Création d'objets "groupes identifiés" pour les groupes rencontrés dans la table
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
@@ -597,45 +598,6 @@ public class GroupeGestion {
 			  s += " AND abonnementgroupeparticipant_obligatoire = FALSE" ;
 		}
 		_bdd.executeRequest(s);
-	}
-	
-	/**
-	 * Récupérer la liste des groupes de participants auxquels un ajout de groupe peut être rattaché
-	 * 
-	 * @param userId
-	 * 			identiiant de l'utilisateur en cours pour trier la liste des résultats
-	 * 
-	 * @return liste des groupes parents potentiels
-	 * 
-	 * @throws DatabaseException
-	 */
-	public ArrayList<GroupeIdentifie> getGroupesParentsPotentiels(int userId) throws DatabaseException {
-		
-		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
-				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
-					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
-					"FROM edt.groupeparticipant " +
-					"WHERE groupeparticipant.groupeparticipant_rattachementautorise = TRUE");
-
-		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
-
-		try {
-			while(resGroupes.next()) {
-				GroupeIdentifie grp = inflateGroupeFromRow(resGroupes);
-				if (grp.getIdProprietaires().contains(userId)) {
-					// Si l'utilisateur est dans la liste des propiétaires, on l'ajoute au début de la liste
-					res.add(0, grp);
-				} else {
-					// Sinon, on le range à la suite de la liste
-					res.add(grp);
-				}
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
-		
-		return res;
 	}
 	
 }
