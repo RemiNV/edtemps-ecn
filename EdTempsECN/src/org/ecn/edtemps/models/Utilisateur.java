@@ -3,7 +3,7 @@ package org.ecn.edtemps.models;
 /**
  * Classe modèle d'un utiliateur
  * 
- * @author Rémi
+ * @author Remi
  */
 public class Utilisateur {
 

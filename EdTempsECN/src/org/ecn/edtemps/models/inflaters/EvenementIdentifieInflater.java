@@ -10,6 +10,11 @@ import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
+/**
+ * Génération d'un événement identifié à partir d'une ligne de base de données
+ * 
+ * @author Remi
+ */
 public class EvenementIdentifieInflater extends AbsEvenementInflater<EvenementIdentifie> {
 
 	@Override

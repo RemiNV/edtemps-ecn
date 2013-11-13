@@ -33,7 +33,7 @@ import com.unboundid.ldap.sdk.SearchScope;
 /**
  * Classe de gestion des utilisateurs
  * 
- * @author Rémi
+ * @author Remi
  */
 public class UtilisateurGestion {
 	

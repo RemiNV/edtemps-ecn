@@ -11,7 +11,7 @@ import javax.json.JsonValue;
 /**
  * Classe d'utilitaires pour la génération d'objets JSON
  * 
- * @author Rémi
+ * @author Remi
  */
 public class JSONUtils {
 

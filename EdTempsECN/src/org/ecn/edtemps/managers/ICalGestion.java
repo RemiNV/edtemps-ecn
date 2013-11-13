@@ -17,7 +17,7 @@ import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 /**
  * Classe de gestion de l'export ICal
  * 
- * @author Rémi
+ * @author Remi
  */
 public class ICalGestion {
 

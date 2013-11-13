@@ -5,7 +5,6 @@ import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
 
-
 /**
  * Classe modèle d'un groupe de participants identifié
  * auquel on rajoute l'information "abonnementObligatoire" (booléen) [valable pour un utilisateur donnée].
