@@ -48,98 +48,50 @@ public class Salle {
 		this.materiels = materiels;
 	}
 
-	/**
-	 * @return batiment
-	 */
 	public String getBatiment() {
 		return batiment;
 	}
 
-	/**
-	 * @return capacite
-	 */
 	public int getCapacite() {
 		return capacite;
 	}
 
-	/**
-	 * @return materiels
-	 */
 	public ArrayList<Materiel> getMateriels() {
 		return materiels;
 	}
 
-	/**
-	 * @return niveau
-	 */
 	public int getNiveau() {
 		return niveau;
 	}
 
-	/**
-	 * @return nom
-	 */
 	public String getNom() {
 		return nom;
 	}
 
-	/**
-	 * @return numero
-	 */
 	public int getNumero() {
 		return numero;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut batiment
-	 * 
-	 * @param batiment
-	 */
 	public void setBatiment(String batiment) {
 		this.batiment = batiment;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut capacite
-	 * 
-	 * @param capacite
-	 */
 	public void setCapacite(int capacite) {
 		this.capacite = capacite;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut materiels
-	 * 
-	 * @param materiels
-	 */
 	public void setMateriels(ArrayList<Materiel> materiels) {
 		this.materiels = materiels;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut niveau
-	 * 
-	 * @param niveau
-	 */
 	public void setNiveau(int niveau) {
 		this.niveau = niveau;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut nom
-	 * 
-	 * @param nom
-	 */
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut numero
-	 * 
-	 * @param numero
-	 */
 	public void setNumero(int numero) {
 		this.numero = numero;
 	}

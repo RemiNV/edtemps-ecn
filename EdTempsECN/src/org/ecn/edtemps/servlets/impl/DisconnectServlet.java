@@ -15,8 +15,14 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
+/**
+ * Servlet de déconnexion
+ * 
+ * @author Joffrey
+ */
 public class DisconnectServlet extends RequiresConnectionServlet {
 
+	private static final long serialVersionUID = 5457172146861925749L;
 	private static Logger logger = LogManager.getLogger(DisconnectServlet.class.getName());
 	
 	@Override

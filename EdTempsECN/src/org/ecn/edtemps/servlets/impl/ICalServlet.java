@@ -14,8 +14,14 @@ import org.ecn.edtemps.managers.ICalGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.servlets.TokenServlet;
 
+/**
+ * Servlet pour l'export ICal
+ * 
+ * @author Remi
+ */
 public class ICalServlet extends TokenServlet {
 
+	private static final long serialVersionUID = 8276900152894529829L;
 	private static Logger logger = LogManager.getLogger(ICalServlet.class.getName());
 	
 	

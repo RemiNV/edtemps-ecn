@@ -20,6 +20,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
  */
 public class BddGestion {
 	
+	/** Interface de connexion à la base de données */
 	private Connection _connection;
 	
 	private static Logger logger = LogManager.getLogger(BddGestion.class.getName());
@@ -37,13 +38,16 @@ public class BddGestion {
 		Connection connection;
 		try {
 
+			// Chargement du driver
 			Class.forName("org.postgresql.Driver");
 			logger.debug("Driver postgres chargé");
 
+			// Création de l'url de connexion
 			String url = "jdbc:postgresql://localhost:5432/edtemps-ecn";
 			String user = "edtemps-ecn";
 			String passwd = "passwordEdtemps";
 
+			// Connexion à la base de données
 			connection = DriverManager.getConnection(url, user, passwd);
 			logger.debug("Connexion à la base de données réalisée");
 

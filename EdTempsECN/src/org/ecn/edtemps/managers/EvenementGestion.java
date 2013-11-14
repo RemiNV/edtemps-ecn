@@ -18,13 +18,13 @@ import org.ecn.edtemps.models.inflaters.EvenementCompletInflater;
 import org.ecn.edtemps.models.inflaters.EvenementIdentifieInflater;
 
 /** 
- * Classe de gestion des evenements
+ * Classe de gestion des événements
  * 
  * @author Maxime TERRADE
- *
  */
 public class EvenementGestion {
 
+	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 	
 	/**
@@ -42,15 +42,24 @@ public class EvenementGestion {
 	 * @param evenement
 	 */
 	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
-			List<Integer> idIntervenants, List<Integer> idResponsables) throws EdtempsException {
+			List<Integer> idIntervenants, List<Integer> idResponsables, boolean startTransaction) throws EdtempsException {
 		
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier et un responsable");
 		}
 		
-		try {		
-			// Début transaction
-			_bdd.startTransaction();			
+		try {
+			
+			if(startTransaction) {
+				_bdd.startTransaction();
+			}
+			
+			// Vérification de la disponibilité de la salle
+			SalleGestion salleGestion = new SalleGestion(_bdd);
+			if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin)) {
+				throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
+			}
+			
 			
 			// On crée l'événement dans la base de données
 			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
@@ -101,8 +110,9 @@ public class EvenementGestion {
 					+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
 			}
 			
-			// Fin transaction
-			_bdd.commit();
+			if(startTransaction) {
+				_bdd.commit();
+			}
 		}
 		catch (SQLException e) {
 			throw new DatabaseException(e);
@@ -131,6 +141,12 @@ public class EvenementGestion {
 			//début d'une transaction si requis
 			if (createTransaction){
 				_bdd.startTransaction();
+			}
+			
+			// Vérification de la disponibilité de la salle
+			SalleGestion salleGestion = new SalleGestion(_bdd);
+			if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin)) {
+				throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
 			}
 			
 			// Modifier l'évenement (nom, date début, date fin)
@@ -464,6 +480,34 @@ public class EvenementGestion {
 				+ "AND evenement.eve_datedebut <= ?";
 		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, new EvenementIdentifieInflater(), createTransaction);
 		return res;
+	}
+	
+	/**
+	 * Suppression de l'association d'un évènement "non cours" à une salle.
+	 * Utile pour ajouter des évènements de cours dans une salle déjà occupée par autre chose (les cours sont prioritaires)
+	 * 
+	 * @param idSalles ID des salles à libérer (peut contenir plus de salles que celles occupées)
+	 * @param idEvenements ID des évènements concernés
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	public void supprimerSallesEvenementsNonCours(List<Integer> idSalles, List<Integer> idEvenements) throws DatabaseException {
+		
+		if(idSalles.isEmpty() || idEvenements.isEmpty()) {
+			return;
+		}
+		
+		String strIdSalles = StringUtils.join(idSalles, ",");
+		String strIdEvenements = StringUtils.join(idEvenements, ",");
+		
+		_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE (alieuensalle.eve_id, alieuensalle.salle_id) IN " +
+				"SELECT DISTINCT (alieuensalle.eve_id, alieuensalle.salle_id) FROM edt.alieuensalle " +
+				"INNER JOIN edt.evenementappartient ON evenementappartient.eve_id=alieuensalle.eve_id " +
+				"INNER JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
+				"INNER JOIN edt.groupeparticipant ON groupeparticipant.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
+					"AND groupeparticipant.groupeparticipant_estcours=FALSE " +
+				"WHERE alieuensalle.eve_id IN (" + strIdEvenements + ") AND alieuensalle.salle_id IN (" + strIdSalles + ")");
+		
+		// TODO : un calendrier peut être de cours si un des parents l'est !
 	}
 	
 	/**

@@ -9,8 +9,8 @@ import org.ecn.edtemps.exceptions.ResultCode;
 
 /**
  * Classe permettant de générer des réponses JSON à partir d'objets à transmettre
+ * 
  * @author Remi
- *
  */
 public class ResponseManager {
 

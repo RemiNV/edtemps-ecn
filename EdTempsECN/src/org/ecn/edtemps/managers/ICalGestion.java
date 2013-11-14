@@ -14,10 +14,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 
+/**
+ * Classe de gestion de l'export ICal
+ * 
+ * @author Remi
+ */
 public class ICalGestion {
 
+	/** Gestionnaire de base de données */
 	private BddGestion bdd;
 	
+	/**
+	 * Initialise un gestionnaire d'export ICal
+	 * @param bdd Gestionnaire de base de données à utiliser
+	 */
 	public ICalGestion(BddGestion bdd) {
 		this.bdd = bdd;
 	}

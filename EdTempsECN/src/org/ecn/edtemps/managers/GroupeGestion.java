@@ -15,21 +15,20 @@ import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
 
 /**
- * Classe de gestion des groupes de gestion
+ * Classe de gestion des groupes de participants
  * 
  * @author Joffrey
  */
 public class GroupeGestion {
 	
-	public static final String NOM_TEMPTABLE_ABONNEMENTS = "tmp_requete_abonnements_groupe";
-
+	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
+
+	public static final String NOM_TEMPTABLE_ABONNEMENTS = "tmp_requete_abonnements_groupe";
 
 	/**
 	 * Initialise un gestionnaire de groupes de participants
-	 * 
-	 * @param bdd
-	 *            Gestionnaire de base de données à utiliser
+	 * @param bdd Gestionnaire de base de données à utiliser
 	 */
 	public GroupeGestion(BddGestion bdd) {
 		_bdd = bdd;

@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
@@ -24,6 +25,7 @@ import org.ecn.edtemps.models.inflaters.SalleRechercheInflater;
  */
 public class SalleGestion {
 
+	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 
 	/**
@@ -404,5 +406,38 @@ public class SalleGestion {
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
+	}
+	
+	
+	/**
+	 * Indique si des salles sont libres pendant un créneau donné
+	 * @param idSalles ID des salles à vérifier
+	 * @param dateDebut Début du créneau
+	 * @param dateFin Fin du créneau
+	 * @return true si toutes les salles sont libres ; false sinon
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	public boolean sallesLibres(List<Integer> idSalles, Date dateDebut, Date dateFin) throws DatabaseException {
+		try {
+			
+			String strIdSalles = StringUtils.join(idSalles, ",");
+			
+			PreparedStatement statement = _bdd.getConnection().prepareStatement(
+					"SELECT COUNT(evenement.eve_id) FROM edt.evenement " +
+					"INNER JOIN edt.alieuensalle ON alieuensalle.eve_id=evenement.eve_id AND alieuensalle.salle_id IN (" + strIdSalles + ") " +
+					"WHERE evenement.eve_datedebut < ? AND evenement.eve_datefin > ?");
+			
+			statement.setTimestamp(1, new java.sql.Timestamp(dateFin.getTime()));
+			statement.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
+			
+			ResultSet response = statement.executeQuery();
+			
+			response.next();
+			
+			return response.getInt(1) == 0;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}	
 	}
 }

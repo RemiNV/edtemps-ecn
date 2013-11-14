@@ -9,6 +9,12 @@ DROP SEQUENCE edt.utilisateur_utilisateur_id_seq CASCADE;
 DROP SEQUENCE edt.typeutilisateur_type_id_seq CASCADE;
 DROP SEQUENCE edt.droits_droits_id_seq CASCADE;
 
+DROP TRIGGER trigger_update_groupeparticipant_aparentcours ON edt.groupeparticipant;
+DROP TRIGGER trigger_set_groupeparticipant_aparentcours ON edt.groupeparticipant;
+
+DROP FUNCTION edt.update_groupeparticipant_aparentcours();
+DROP FUNCTION edt.set_groupeparticipant_aparentcours();
+
 DROP TABLE edt.salle CASCADE;
 DROP TABLE edt.materiel CASCADE;
 DROP TABLE edt.contientmateriel CASCADE;
@@ -16,7 +22,7 @@ DROP TABLE edt.typecalendrier CASCADE;
 DROP TABLE edt.groupeparticipant CASCADE;
 DROP TABLE edt.evenement CASCADE;
 DROP TABLE edt.alieuensalle CASCADE;
-DROP TABLE edt.necessitemateriel CASCADE;
+DROP TABLE IF EXISTS edt.necessitemateriel CASCADE; -- Table supprimée plus tard du schéma
 DROP TABLE edt.matiere CASCADE;
 DROP TABLE edt.calendrier CASCADE;
 DROP TABLE edt.calendrierappartientgroupe CASCADE;

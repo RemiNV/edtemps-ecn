@@ -18,6 +18,7 @@ define([], function() {
 	 * @property {string} type - Type du calendrier (TD, TP...)
 	 * @property {string} matiere - Matière du calendrier
 	 * @property {number[]} proprietaires - IDs des propriétaires du calendrier 
+	 * @property {boolean} estCours - VRAI si le calendrier est lié à au moins un groupe qui est un cours 
 	 */
 	
 	/**

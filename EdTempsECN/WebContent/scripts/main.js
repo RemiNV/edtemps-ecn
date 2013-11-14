@@ -15,6 +15,11 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 	
 	var restManager = new RestManager();
 	
+	/** Remplace toutes les infobulles par celle de jQuery UI */
+	$(document).tooltip({
+	    content: function() { return $(this).attr('title'); } /* permet d'insérer du html dans le title */
+	});
+	
 	/**
 	 * Affichage de messages de notification dans l'application
 	 * Paramètre text : texte à afficher

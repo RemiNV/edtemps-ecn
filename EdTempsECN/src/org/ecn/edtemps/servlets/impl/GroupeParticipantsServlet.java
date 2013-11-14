@@ -32,7 +32,6 @@ import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 	private static final long serialVersionUID = -61618228879909663L;
-
 	private static Logger logger = LogManager.getLogger(GroupeParticipantsServlet.class.getName());
 
 	/**

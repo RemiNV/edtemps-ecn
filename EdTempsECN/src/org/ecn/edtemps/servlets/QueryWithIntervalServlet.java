@@ -2,7 +2,6 @@ package org.ecn.edtemps.servlets;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +14,6 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 
 /**
  * Servlet générique de récupération d'évènements
@@ -25,6 +23,7 @@ import org.ecn.edtemps.models.identifie.EvenementIdentifie;
  */
 public abstract class QueryWithIntervalServlet extends RequiresConnectionServlet {
 
+	private static final long serialVersionUID = 5599328695024804780L;
 	private static Logger logger = LogManager.getLogger(RequiresConnectionServlet.class.getName());
 	
 	@Override

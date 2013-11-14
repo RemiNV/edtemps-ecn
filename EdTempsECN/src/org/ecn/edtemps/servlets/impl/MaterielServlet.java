@@ -23,12 +23,10 @@ import org.ecn.edtemps.servlets.RequiresConnectionServlet;
  * Servlet pour récupérer la liste de tous les matériels
  * 
  * @author Joffrey Terrade
- *
  */
 public class MaterielServlet extends RequiresConnectionServlet {
 
 	private static final long serialVersionUID = 7246893098272381772L;
-	
 	private static Logger logger = LogManager.getLogger(MaterielServlet.class.getName());
 	
 	@Override

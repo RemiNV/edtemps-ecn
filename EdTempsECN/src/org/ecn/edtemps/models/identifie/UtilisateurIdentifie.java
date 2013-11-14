@@ -7,8 +7,20 @@ import javax.json.JsonValue;
 import org.ecn.edtemps.json.JSONAble;
 import org.ecn.edtemps.models.Utilisateur;
 
+/**
+ * Classe d'un utilisateur identifié (dans la base de données)
+ * 
+ * @author Joffrey
+ */
 public class UtilisateurIdentifie extends Utilisateur implements JSONAble {
 
+	/**
+	 * Constructeur
+	 * @param id identifiant de l'utilisateur
+	 * @param nom nom de l'utilisateur
+	 * @param prenom prénom de l'utilisateur
+	 * @param email email de l'utilisateur
+	 */
 	public UtilisateurIdentifie(int id, String nom, String prenom, String email) {
 		super(nom, prenom, email);
 		this.id = id;
