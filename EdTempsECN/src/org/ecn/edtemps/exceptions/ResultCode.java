@@ -1,9 +1,9 @@
 package org.ecn.edtemps.exceptions;
 
 /**
- * Codes de retour des requêtes 
+ * Codes de retour des requêtes
+ * 
  * @author Remi
- *
  */
 public enum ResultCode {
 
@@ -21,8 +21,17 @@ public enum ResultCode {
 	WRONG_PARAMETERS_FOR_REQUEST(6),
 	
 	/** Un objet invalide a été fourni à une méthode d'enregistrement */
-	INVALID_OBJECT(7);
+	INVALID_OBJECT(7),
+
+	/** Un objet du même nom est déjà en base de données */
+	NAME_TAKEN(8),
 	
+	/** L'utilisateur n'est pas autorisé à effectuer cette action */
+	AUTHORIZATION_ERROR(9),
+	
+	/** Une salle demandée est occupée pendant le créneau donné */
+	SALLE_OCCUPEE(10);
+
 	private int code;
 	
 	ResultCode(int code) {

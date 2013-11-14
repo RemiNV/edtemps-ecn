@@ -30,16 +30,22 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 
+/**
+ * Classe de gestion des utilisateurs
+ * 
+ * @author Remi
+ */
 public class UtilisateurGestion {
 	
+	/** Gestionnaire de base de données */
+	protected BddGestion bdd;
+
 	private static final String KEY_TOKENS = "F.Lecuyer,R.NguyenVan,A.Pouchoulin,J.Terrade,M.Terrade,R.Traineau,OnCrypteToutAvecNosNomsYeah";
 	
 	// Configuration pour accéder à LDAP depuis l'extérieur
 	private static final String ADRESSE_LDAP = "ldaps.nomade.ec-nantes.fr";
 	private static final int PORT_LDAP = 636;
 	private static final boolean USE_SSL_LDAP = true;
-	
-	protected BddGestion bdd;
 	
 	private static Logger logger = LogManager.getLogger(UtilisateurGestion.class.getName());
 	
@@ -505,6 +511,30 @@ public class UtilisateurGestion {
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
+	}
+	
+	
+	/**
+	 * Récupère la liste de tous les utilisateurs qui peuvent potentiellement être propriétaires d'un groupe de participants
+	 * 
+	 * @return liste des utilisateurs
+	 * @throws DatabaseException
+	 */
+	public List<UtilisateurIdentifie> getResponsablesPotentiels() throws DatabaseException {
+		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur");
+
+		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+
+		try {
+			while(reponse.next()) {
+				res.add(inflateUtilisateurFromRow(reponse));
+			}
+			reponse.close();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return res;
 	}
 	
 }

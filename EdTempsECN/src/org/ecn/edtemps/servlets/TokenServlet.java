@@ -15,7 +15,6 @@ import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.managers.UtilisateurGestion;
 
 /**
  * Servlet de base permettant l'identification de l'utilisateur par un token quelconque (typiquement : d'identification ou iCal)
@@ -24,6 +23,7 @@ import org.ecn.edtemps.managers.UtilisateurGestion;
  */
 public abstract class TokenServlet extends HttpServlet {
 
+	private static final long serialVersionUID = 4516265930296858166L;
 	Logger logger = LogManager.getLogger(TokenServlet.class.getName());
 	
 	public static enum SupportedMethods {

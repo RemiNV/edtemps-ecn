@@ -15,19 +15,17 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.SalleGestion;
 import org.ecn.edtemps.models.Materiel;
-import org.ecn.edtemps.models.identifie.SalleIdentifie;
+import org.ecn.edtemps.models.identifie.SalleRecherche;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
 /**
  * Servlet pour rechercher une salle libre
  * 
  * @author Joffrey Terrade
- * 
  */
 public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 
 	private static final long serialVersionUID = 2839852111716382792L;
-
 	private static Logger logger = LogManager.getLogger(RechercheSalleLibreServlet.class.getName());
 
 	@Override
@@ -35,10 +33,12 @@ public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 		// Récupération des paramètres supplémentaires
 		String paramEffectif = req.getParameter("effectif");
 		String paramMateriel = req.getParameter("materiel");
+		String paramSallesOccupees = req.getParameter("sallesOccupees");
 
 		// Transformation de ces paramètres pour appeler la fonction de recherche
 		Integer capacite = null;
-		ArrayList<Materiel> listeMateriel = new ArrayList<Materiel>();;
+		ArrayList<Materiel> listeMateriel = new ArrayList<Materiel>();
+		boolean sallesOccupees = Boolean.valueOf(paramSallesOccupees);
 		try {
 			// Capacité de la salle
 			capacite = Integer.valueOf(paramEffectif);
@@ -61,7 +61,7 @@ public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 		JsonValue data;
 
 		// Appel de la méthode de recherche
-		ArrayList<SalleIdentifie> listeSalles = salleGestion.rechercherSalle(dateDebut, dateFin, listeMateriel, capacite);
+		ArrayList<SalleRecherche> listeSalles = salleGestion.rechercherSalle(dateDebut, dateFin, listeMateriel, capacite, sallesOccupees, true);
 
 		// Création de la réponse
 		data = Json.createObjectBuilder()

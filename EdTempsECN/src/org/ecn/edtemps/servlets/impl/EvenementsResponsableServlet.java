@@ -5,20 +5,22 @@ import java.util.List;
 
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
+
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
-import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
 /**
  * Servlet de récupération des évènements dont l'utilisateur est responsable
+ * 
  * @author Remi
- *
  */
 public class EvenementsResponsableServlet extends QueryWithIntervalServlet {
+
+	private static final long serialVersionUID = -5366981082475128273L;
 
 	@Override
 	protected JsonValue doQuery(int userId, BddGestion bdd, Date dateDebut, Date dateFin, HttpServletRequest req) throws EdtempsException {

@@ -1,4 +1,4 @@
-package org.ecn.edtemps.model.inflaters;
+package org.ecn.edtemps.models.inflaters;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,11 +7,15 @@ import java.util.Date;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
+/**
+ * Génération d'une salle complète à partir d'une ligne de base de données
+ * 
+ * @author Remi
+ */
 public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComplet> {
 
 	@Override
@@ -34,6 +38,8 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 				matieres.add(reponseCalendriers.getString("matiere_nom"));
 				types.add(reponseCalendriers.getString("typecal_libelle"));
 			}
+			
+			reponseCalendriers.close();
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

@@ -33,10 +33,6 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		var me = this;
 		
 		// Initialisation des listeners
-		$("#btn_gerer_agendas").click(function(e) {
-			Davis.location.assign("parametres");
-		});
-		
 		$("#btn_chercher_salle").click(function(e) {
 			me.rechercheSalle.show(me.ajoutEvenement);
 		});

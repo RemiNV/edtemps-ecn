@@ -15,33 +15,33 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.managers.MaterielGestion;
-import org.ecn.edtemps.models.Materiel;
+import org.ecn.edtemps.managers.GroupeGestion;
+import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet pour récupérer la liste de tous les matériels
+ * Servlet pour récupérer la liste des groupes dont un utilisateur est propriétaire (fait parti des propriétaire)
  * 
  * @author Joffrey Terrade
  */
-public class MaterielServlet extends RequiresConnectionServlet {
+public class GroupesProprietaireServlet extends RequiresConnectionServlet {
 
-	private static final long serialVersionUID = 7246893098272381772L;
-	private static Logger logger = LogManager.getLogger(MaterielServlet.class.getName());
-	
+	private static final long serialVersionUID = 8063278276185502702L;
+	private static Logger logger = LogManager.getLogger(GroupesProprietaireServlet.class.getName());
+
 	@Override
-	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-		MaterielGestion materielGestion = new MaterielGestion(bdd);
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		JsonValue data;
 		
 		try {
-			// Récupération de la liste de tous les matériels
-			List<Materiel> listeMateriels = materielGestion.getListeMateriel();
-
+			// Récupération de la liste des groupes desquels l'utilisateur est propriétaire
+			List<GroupeIdentifie> listeGroupes = groupeGestion.listerGroupesProprietaire(userId);
+			
 			// Création de la réponse
 			data = Json.createObjectBuilder()
-					.add("listeMateriels", JSONUtils.getJsonArray(listeMateriels))
+					.add("listeGroupes", JSONUtils.getJsonArray(listeGroupes))
 					.build();
 			
 			// Génération de la réponse
@@ -49,7 +49,7 @@ public class MaterielServlet extends RequiresConnectionServlet {
 
 		} catch (EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
-			logger.error("Erreur d'accès à la base de données lors de la récupération de la liste des matériels", e);
+			logger.error("Erreur d'accès à la base de données lors de la récupération de la liste des groupes desquels l'utilisateur est propriétaire", e);
 		}
 
 		bdd.close();

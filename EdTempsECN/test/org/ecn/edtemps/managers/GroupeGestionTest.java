@@ -74,10 +74,12 @@ public class GroupeGestionTest {
 		
 		// Création d'un groupe bidon à ajouter
 		Groupe groupe1 = new Groupe("groupe de \"test\" 123' haha", lstProprietaire, false, false, false);
-		Groupe groupe2 = new Groupe("groupe de \"test\" 345' haha", lstProprietaire, true, true, true);
+		groupe1.setIdCalendriers(new ArrayList<Integer>());
+		Groupe groupe2 = new Groupe("groupe de \"test\" 345' haha", lstProprietaire, true, true, false);
+		groupe2.setIdCalendriers(new ArrayList<Integer>());
 		
-		int idGroupe1 = this.groupeGestionnaire.sauverGroupe(groupe1);
-		int idGroupe2 = this.groupeGestionnaire.sauverGroupe(groupe2);
+		int idGroupe1 = this.groupeGestionnaire.sauverGroupe("groupe de \"test\" 123' haha", null, false, false, lstProprietaire);
+		int idGroupe2 = this.groupeGestionnaire.sauverGroupe("groupe de \"test\" 345' haha", null, true, true, lstProprietaire);
 		
 		GroupeIdentifie groupe1Recup = this.groupeGestionnaire.getGroupe(idGroupe1);
 		GroupeIdentifie groupe2Recup = this.groupeGestionnaire.getGroupe(idGroupe2);

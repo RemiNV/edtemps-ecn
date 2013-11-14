@@ -86,6 +86,26 @@
       <servlet-class>org.ecn.edtemps.servlets.impl.EvenementServlet</servlet-class>
   </servlet>
 
+  <servlet>
+      <servlet-name>GroupeParticipants</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.GroupeParticipantsServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+      <servlet-name>GetListeProprietairesPotentiels</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.ProprietairesPotentielsServlet</servlet-class>
+  </servlet>
+	
+  <servlet>
+      <servlet-name>ParametresCalendrier</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.ParametresCalendrierServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>ListeGroupesUtilisateurProprietaire</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.GroupesProprietaireServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -156,15 +176,35 @@
       <url-pattern>/mesevenements</url-pattern>
   </servlet-mapping>
   
-	<servlet-mapping>
-      <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
-      <url-pattern>/groupesparentspotentiels</url-pattern>
+  <servlet-mapping>
+    <servlet-name>GetListeGroupesParentsPotentiels</servlet-name>
+    <url-pattern>/groupesparentspotentiels</url-pattern>
   </servlet-mapping>
-  
-	
-	<servlet-mapping>
-	    <servlet-name>Evenement</servlet-name>
-	    <url-pattern>/evenement/*</url-pattern>
-	</servlet-mapping>
+
+  <servlet-mapping>
+	<servlet-name>Evenement</servlet-name>
+	<url-pattern>/evenement/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+	<servlet-name>GroupeParticipants</servlet-name>
+	<url-pattern>/groupeparticipants/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>GetListeProprietairesPotentiels</servlet-name>
+    <url-pattern>/proprietairespotentiels</url-pattern>
+  </servlet-mapping>
+    
+  <servlet-mapping>
+      <servlet-name>ParametresCalendrier</servlet-name>
+      <url-pattern>/calendrier/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ListeGroupesUtilisateurProprietaire</servlet-name>
+    <url-pattern>/groupesutilisateurproprietaire</url-pattern>
+  </servlet-mapping>
+
 </web-app>
 

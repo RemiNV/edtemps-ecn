@@ -38,6 +38,17 @@ h1, h2, h3, h4, h5, h6 {
 	color: red;
 }
 
+.ui-tooltip {
+	padding: 5px 10px;
+	color: black;
+	border-radius: 5px;
+	font-size: 1em;
+	box-shadow: 0 0 7px black;
+	position: absolute;
+	z-index: 1000;
+	background-color: #FFE5BF;
+}
+
 .button {
 	background-image: linear-gradient(to bottom, white, #e6e6e6);
 	border: 1px solid #bfc2bf;
@@ -183,6 +194,12 @@ table.liste_materiel th {
 	border-color: gray;
 }
 
+#resultat_chercher_salle_message {
+	color: gray;
+	font-size: 0.8em;
+	margin-bottom: 10px;	
+}
+
 #div_filtres {
 	clear: both;
 	float: right;
@@ -237,7 +254,8 @@ table.liste_materiel th {
 
 /* Mise en forme Abonnements Indirects */
 .abonnement_indirect {
-	background-color: red;
+	font-style: italic;
+	color:#C8C8C8 !important;
 }
 
 
@@ -289,9 +307,43 @@ table.liste_materiel th {
 	cursor: help;
 }
 
+#form_creer_groupe_nom {
+	width: 210px;
+}
+
+.form_creer_groupe_proprietaire_text {
+	width: 210px;
+	margin-right: 3px;
+}
+	
 #form_creer_groupe_parent_message {
 	font-size: 0.8em;
 	color: gray;
+}
+
+.form_creer_groupe_proprietaire_supprimer {
+	cursor: pointer;
+	width: 10px;
+	border: solid 1px gray;
+	border-radius: 2px;
+	padding: 2px;
+	vertical-align: middle;
+}
+
+.form_creer_groupe_proprietaire_supprimer:hover {
+	background-color: white;
+}
+
+#form_creer_groupe_proprietaire_ajouter {
+	cursor: pointer;
+	border: solid 1px gray;
+	border-radius: 2px;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+#form_creer_groupe_proprietaire_ajouter:hover {
+	background-color: white;
 }
 
 
@@ -365,7 +417,7 @@ table.liste_materiel th {
 	z-index: 10;
 }
 
-#tab-mes-abonnements {
+.tab_parametres {
 	width: 700px;
 	padding-right: 10px;
 	overflow: hidden;
@@ -402,4 +454,39 @@ input.valide {
 	position: absolute;
 	top: 3px;
 	right: 3px;
+}
+
+/* 
+ * Onglet "Mes groupes de participants" de la page de paramétrage
+ */
+ 
+#btn_creer_groupe {
+	margin-top: 20px;
+}
+
+#tbl_mes_groupes {
+	margin-top: 20px;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#tbl_mes_groupes tr {
+	border: solid 1px gray;
+	cursor: pointer;
+}
+
+#tbl_mes_groupes tr:hover {
+	background-color: #DDDDDD;
+}
+
+#tbl_mes_groupes .tbl_mes_groupes_groupe {
+	padding-left: 10px;
+}
+
+#tbl_mes_groupes .tbl_mes_groupes_boutons {
+	text-align: right;
+}
+
+#tbl_mes_groupes .tbl_mes_groupes_boutons input {
+	margin-left: 10px;
 }

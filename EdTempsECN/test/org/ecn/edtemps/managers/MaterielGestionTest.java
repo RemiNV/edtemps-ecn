@@ -7,6 +7,11 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Classe de test de MaterielGestion
+ * 
+ * @author Joffrey
+ */
 public class MaterielGestionTest {
 
 	BddGestion bddGestion;
@@ -20,7 +25,7 @@ public class MaterielGestionTest {
 
 	@Test
 	public void testGetSalle() throws EdtempsException {
-		assertEquals(3, this.materielGestionnaire.getListeMateriel().size());
+		assertEquals(2, this.materielGestionnaire.getListeMateriel().size());
 	}
 
 }

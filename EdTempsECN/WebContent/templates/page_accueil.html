@@ -6,7 +6,7 @@
 	<span class="button" id="btn_ajout_evenement">+ Evènement</span>
 	
 	<div id="bloc_vos_agendas">
-		Vos agendas : <span id="btn_gerer_agendas" class="button">Gérer</span>
+		Vos agendas : <a href="#parametres/mes_abonnements" id="btn_gerer_agendas" class="button">Gérer</a>
 		<div id="liste_groupes">
 		</div>
 	</div>
@@ -44,6 +44,10 @@
 						<td><label for="form_recherche_salle_capacite">Capacité</label></td>
 						<td><input type="text" name="form_recherche_salle_capacite" id="form_recherche_salle_capacite" value="20" /></td>
 					</tr>
+					<tr>
+						<td><label for="form_recherche_salle_inclure_salles_occupees">Inclure les salles occupées <img alt="Aide" title="Si vous cochez la case, les salles occupées par des évènements autres que des cours seront inclues dans la recherche." src="img/help.png" class="help_icon" /></label></td>
+						<td><input type="checkbox" name="form_recherche_salle_inclure_salles_occupees" id="form_recherche_salle_inclure_salles_occupees" /></td>
+					</tr>
 				</table>
 
 				<div id="form_chercher_salle_liste_materiel">
@@ -65,6 +69,7 @@
 		</div>
 		<div id="resultat_chercher_salle" title="Résultat de la recherche">
 			<select multiple="multiple" id="resultat_chercher_salle_select"></select>
+			<div id="resultat_chercher_salle_message"></div>
 			<div id="resultat_chercher_salle_boutons" class="boutons_valider">
 				<input type="button" id="resultat_chercher_salle_fermer" class="button" value="Fermer" />
 				<input type="button" id="resultat_chercher_salle_creer" class="button" value="Créer un événement" />

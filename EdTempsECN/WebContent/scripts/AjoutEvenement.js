@@ -26,6 +26,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		this.strOptionsCalendriers = null; // HTML à ajouter au select pour sélectionner les calendriers
 		this.sallesSelectionnees = new Array();
 		this.initAppele = false;
+		this.listeCalendriers = new Array(); /* Liste des calendriers récupérée en base de données */
 		
 		// Initialisation de la dialog
 		jqDialog.dialog({
@@ -113,7 +114,15 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 				effectif = 0;
 			}
 			
-			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, function(succes) {
+			// Vérifie si le calendrier sélectionné pour le rattachement de l'événement est un cours
+			this.inclureSallesOccupees = false;
+			for (var i=0, maxI=this.listeCalendriers.length; i<maxI; i++) {
+				if (this.listeCalendriers[i].id==this.jqDialog.find("#calendriers_evenement .select_calendriers").val()) {
+					this.inclureSallesOccupees = this.listeCalendriers[i].estCours;
+				}
+			}
+			
+			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, this.inclureSallesOccupees, function(succes) {
 				if(succes) {
 					me.jqDialog.find("#btn_rechercher_salle_evenement").removeAttr("disabled");
 					me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
@@ -140,7 +149,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
 			
 			this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
-					formData.intervenants, formData.responsables, 
+					formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer,
 					function(resultCode) {
 				
 				// Masquage du message d'attente
@@ -155,10 +164,13 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 					
 				}
 				else if(resultCode == RestManager.resultCode_NetworkError) {
-					window.showToast("Erreur d'enregistrement de l'évènement ; vérifiez votre connexion");
+					window.showToast("Erreur d'enregistrement de l'événement ; vérifiez votre connexion");
+				}
+				else if(resultCode == RestManager.resultCode_SalleOccupee) {
+					window.showToast("Erreur d'ajout de l'événement : salle(s) occupée(s) (événement créé entre-temps ?)");
 				}
 				else {
-					window.showToast("Erreur d'enregistrement de l'évènement ; code retour " + resultCode);
+					window.showToast("Erreur d'enregistrement de l'événement ; code retour " + resultCode);
 				}
 			});
 		}
@@ -194,6 +206,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @property {Date} dateFin - Date de fin de l'évènement
 	 * @property {Materiel[]} materiels - Matériels sélectionnés pour l'évènement
 	 * @property {number[]} salles - Tableau d'IDs des salles sélectionnées
+	 * @property {number[]} idEvenementsSallesALiberer - Tableau d'IDs des évènements dont les salles sont à libérer
 	 */
 	
 	/**
@@ -236,42 +249,63 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		});
 		
 		// Validation du jour
-		var strDate = false;
+		var jour = false;
+		var year = null;
+		var month = null;
+		var day = null;
 		
 		try {
-			var date = $.datepicker.parseDate("dd/mm/yy", jqDate.val());
+			jour = $.datepicker.parseDate("dd/mm/yy", jqDate.val());
+			
+			year = jour.getFullYear();
+			month = jour.getMonth();
+			day = jour.getDate();
 			
 			if(jqDate.val() != "") {
-				strDate = $.datepicker.formatDate("yy-mm-dd", date);
 				jqDate.addClass("valide").removeClass("invalide");
 			}
 		}
 		catch(parseError) {
-			// Rien ici : strDate sera à false en cas d'erreur de parsing de la date
+			// Rien ici : date sera à false en cas d'erreur de parsing de la date
 		}
 		
-		if(!strDate) {
+		if(!jour) {
 			jqDate.addClass("invalide").removeClass("valide");
 		}
 		
 		// Validation des dates de début et fin
-		var heureDebut = validateNotEmpty(jqHeureDebut);
-		var heureFin = validateNotEmpty(jqHeureFin);
+		var strHeureDebut = jqHeureDebut.val();
+		var strHeureFin = jqHeureFin.val();
+		
+		var heureDebut = parseInt(strHeureDebut.substring(0, 2));
+		var minutesDebut = parseInt(strHeureDebut.substring(3));
+		
+		var heureFin = parseInt(strHeureFin.substring(0, 2));
+		var minutesFin = parseInt(strHeureFin.substring(3));
 		
 		
-		if(strDate && heureDebut !== "") {
-			// Chaîne au format ISO8601
-			res.dateDebut = new Date(strDate + "T" + heureDebut);
+		if(strHeureDebut !== "" && heureDebut < 24 && minutesDebut < 60) {
+			jqHeureDebut.addClass("valide").removeClass("invalide");
+			
+			if(jour) {
+				res.dateDebut = new Date(year, month, day, heureDebut, minutesDebut, 0);
+			}
 		}
 		else {
 			res.dateDebut = null;
+			jqHeureDebut.addClass("invalide").removeClass("valide");
 		}
 		
-		if(strDate && heureFin !== "") {
-			res.dateFin = new Date(strDate + "T" + heureFin);
+		if(strHeureFin !== "" && heureFin < 24 && minutesFin < 60) {
+			
+			if(jour) {
+				res.dateFin = new Date(year, month, day, heureFin, minutesFin, 0);
+			}
+			jqHeureFin.addClass("valide").removeClass("invalide");
 		}
 		else {
 			res.dateFin = null;
+			jqHeureFin.addClass("invalide").removeClass("valide");
 		}
 		
 		// Récupération des matériels et salles
@@ -297,6 +331,17 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			
 			if(res.nom !== "" && res.calendriers.length > 0 && res.salles.length > 0) {
 				res.valide = true;
+			}
+		}
+		
+		// Remplissage de res.idEvenementsSallesALiberer
+		res.idEvenementsSallesALiberer = new Array();
+		
+		for(var i=0, maxI=this.sallesSelectionnees.length; i<maxI; i++) {
+			if(this.sallesSelectionnees[i].evenementsEnCours != null) {
+				for(var j=0, maxJ=this.sallesSelectionnees[i].evenementsEnCours.length; j<maxJ; j++) {
+					res.idEvenementsSallesALiberer.push(this.sallesSelectionnees[i].evenementsEnCours[j].id);
+				}
 			}
 		}
 		
@@ -333,6 +378,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 					me.jqDialog.find("#calendriers_evenement .select_calendriers").html(strRemplissageSelect);
 				}
 				
+				me.listeCalendriers = data;
+				
 				callback(true, data.length);
 			}
 			else if(resultCode === RestManager.resultCode_NetworkError) {
@@ -351,6 +398,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @typedef {Object} SalleRemplissageAjoutEvenement
 	 * @property {number} id - ID de la salle
 	 * @property {string} nom - Nom de la salle
+	 * @property {Evenement[]} evenementsEnCours - Evènements prévus dans la salle au moment de la recherche
 	 */
 	
 	/**
@@ -366,6 +414,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		if(!this.initAppele) {
 			this.init();
 		}
+		
+		console.log("params : ", dateDebut, dateFin, salles);
 		
 		this.jqDialog.find("#txt_nom_evenement").val("");
 		this.jqDialog.find("#tbl_materiel td.quantite input").val("0");

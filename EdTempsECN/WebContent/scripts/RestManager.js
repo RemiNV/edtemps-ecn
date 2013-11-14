@@ -37,7 +37,9 @@ define(["jquery"], function() {
 	 * - RestManager.resultCode_NetworkError<br>
 	 * - RestManager.resultCode_Success<br>
 	 * - RestManager.resultCode_IdentificationError<br>
-	 * - RestManager.resultCode_LdapError
+	 * - RestManager.resultCode_LdapError<br>
+	 * - RestManager.resultCode_NameTaken<br>
+	 * - RestManager.resultCode_SalleOccupee
 	 * @typedef ResultCode
 	 * @type {number}
 	 */
@@ -45,6 +47,8 @@ define(["jquery"], function() {
 	RestManager.resultCode_Success = 0;
 	RestManager.resultCode_IdentificationError = 1;
 	RestManager.resultCode_LdapError = 3;
+	RestManager.resultCode_NameTaken = 8;
+	RestManager.resultCode_SalleOccupee = 10;
 	
 	RestManager.prototype.setToken = function(token) {
 		this._token = token;

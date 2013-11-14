@@ -1,6 +1,5 @@
 package org.ecn.edtemps.models.identifie;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import javax.json.JsonValue;
 import org.ecn.edtemps.json.JSONAble;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.Evenement;
-import org.ecn.edtemps.models.Materiel;
 
 /**
  * Classe modèle d'un événement identifié = défini dans la base de données

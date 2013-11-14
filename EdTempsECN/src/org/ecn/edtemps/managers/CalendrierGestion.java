@@ -8,20 +8,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Calendrier;
+import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 
 /** 
- * Classe de gestion des calendriers 
+ * Classe de gestion des calendriers
  * 
  * @author Maxime TERRADE
- *
  */
 public class CalendrierGestion {
 	
+	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 	
 	/**
@@ -413,22 +415,85 @@ public class CalendrierGestion {
 	 * @return Liste des calendriers trouvés
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	public ArrayList<CalendrierIdentifie> listerCalendriersUtilisateur(int userId) throws DatabaseException {
+	public ArrayList<CalendrierComplet> listerCalendriersUtilisateur(int userId) throws DatabaseException {
 		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle FROM edt.calendrier " +
 				"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
 				"INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
 				"INNER JOIN edt.proprietairecalendrier ON calendrier.cal_id = proprietairecalendrier.cal_id AND proprietairecalendrier.utilisateur_id = " + userId);
 		
 		try {
-			ArrayList<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
-			while(results.next()){
-				res.add(inflateCalendrierFromRow(results));
+			ArrayList<CalendrierComplet> res = new ArrayList<CalendrierComplet>();
+			while (results.next()) {
+				CalendrierIdentifie calendrier = inflateCalendrierFromRow(results);
+				
+				ResultSet resultaaaaaas = _bdd.executeRequest("SELECT COUNT(*) FROM edt.groupeparticipant " +
+				"INNER JOIN edt.calendrierappartientgroupe ON groupeparticipant.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
+				"AND groupeparticipant.groupeparticipant_estcours = 'TRUE' " +
+				"AND calendrierappartientgroupe.cal_id = " + calendrier.getId());
+				resultaaaaaas.next();
+				boolean estCours = (resultaaaaaas.getInt(1)==0) ? false : true;
+				
+				res.add(new CalendrierComplet(calendrier, estCours));
 			}
 			
 			results.close();
 			
 			return res;
 			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	/**
+	 * Résumé des droits d'un utilisateur sur un ensemble de calendriers fourni
+	 */
+	public static class DroitsCalendriers {
+		/**
+		 * Indique que l'utilisateur est propriétaire de tous les calendriers
+		 */
+		public final boolean estProprietaire;
+		
+		/**
+		 * Indique qu'un des calendriers est associé à un groupe de cours
+		 */
+		public final boolean contientCours;
+		
+		public DroitsCalendriers(boolean estProprietaire, boolean contientCours) {
+			this.estProprietaire = estProprietaire;
+			this.contientCours = contientCours;
+		}
+	}
+	
+	/**
+	 * Récupère les informations de droits sur les calendriers indiqués
+	 * 
+	 * @param userId ID de l'utilisateur
+	 * @param calendriersIds IDs des calendriers à vérifier
+	 * @return résumé des droits des calendriers indiqués
+	 */
+	public DroitsCalendriers getDroitsCalendriers(int userId, List<Integer> calendriersIds) throws DatabaseException {
+		
+		if(calendriersIds.size() == 0) {
+			return new DroitsCalendriers(true, false);
+		}
+		
+		String strIds = StringUtils.join(calendriersIds, ",");
+		// TODO : gérer le cas cours mais pas proprio
+		ResultSet results = _bdd.executeRequest("SELECT COUNT(DISTINCT proprietairecalendrier.cal_id) AS nb_calendriers_proprietaire, " +
+					"COUNT(groupecours.groupeparticipant_id) AS nb_groupe_cours " +
+				"FROM edt.proprietairecalendrier " +
+				"INNER JOIN edt.calendrier ON proprietairecalendrier.cal_id=calendrier.cal_id " +
+				"LEFT JOIN edt.calendrierappartientgroupe ON calendrier.cal_id=calendrierappartientgroupe.cal_id " +
+				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
+					"AND groupecours.groupeparticipant_estcours=TRUE " +
+				"WHERE proprietairecalendrier.utilisateur_id=" + userId + " AND proprietairecalendrier.cal_id IN (" + strIds + ")");
+		// TODO : un calendrier peut être de cours si un de ses parents l'est
+		
+		try {
+			results.next();
+			
+			return new DroitsCalendriers(results.getInt(1) == calendriersIds.size(), results.getInt(2) > 0);
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

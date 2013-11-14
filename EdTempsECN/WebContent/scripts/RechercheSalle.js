@@ -17,6 +17,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.idSallesSelectionnees = null;
 		this.sallesDisponibles = null;
 		this.callbackSelectionSalles = null;
+		this.listeSallesDejaOccupees = null;
 		
 		// Variable qui permettent d'accéder facilement aux différents champs du formulaire
 		this.jqDate = this.jqRechercheSalleForm.find("#form_recherche_salle_date");
@@ -42,7 +43,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * Doit être appelé uniquement une fois.
 	 * Est automatiquement appelé par show() si nécessaire.
 	 */
-	RechercheSalle.prototype.init = function() {
+	RechercheSalle.prototype.init = function(ajoutEvenement) {
 		var me = this;
 		this.ajoutEvenement = ajoutEvenement;
 
@@ -58,16 +59,28 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			if (me.validationFormulaire()) {
 
 				// Traitement des dates et heures au format "yyyy-MM-ddTHH:mm:ss" (ISO8601)
-				var strJour = $.datepicker.formatDate("yy-mm-dd", $.datepicker.parseDate("dd/mm/yy", me.jqDate.val()));
+				var dateJour = $.datepicker.parseDate("dd/mm/yy", me.jqDate.val());
+				var year = dateJour.getFullYear();
+				var month = dateJour.getMonth();
+				var day = dateJour.getDate();
 				
-				var param_dateDebut = strJour + "T" + me.jqHeureDebut.val() + ":00";
-				var param_dateFin = strJour + "T" + me.jqHeureFin.val() + ":00";
+				var strHeureDebut = me.jqHeureDebut.val();
+				var strHeureFin = me.jqHeureFin.val();
 				
-				var dateDebut = new Date(param_dateDebut);
-				var dateFin = new Date(param_dateFin);
+				var heureDebut = parseInt(strHeureDebut.substring(0, 2));
+				var minutesDebut = parseInt(strHeureDebut.substring(3));
+				
+				var heureFin = parseInt(strHeureFin.substring(0, 2));
+				var minutesFin = parseInt(strHeureFin.substring(3));
+				
+				var dateDebut = new Date(year, month, day, heureDebut, minutesDebut, 0);
+				var dateFin = new Date(year, month, day, heureFin, minutesFin, 0);
 
 				// Création de la liste des matériels nécessaires
 				var listeMateriel = me.getContenuListeMateriel(me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel table"));
+				
+				// Récupération de la checkbox pour la recherche des salles déjà occupées par autre chose qu'un cours
+				var inclureSallesOccupees = me.jqRechercheSalleForm.find("#form_recherche_salle_inclure_salles_occupees").is(':checked');
 				
 				// Message d'attente
 				me.jqRechercheSalleForm.find("#form_chercher_salle_valid").attr("disabled", "disabled");
@@ -75,7 +88,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				me.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Recherche...");
 
 				// Appel de la méthode de recherche de salle
-				me.getSalle(dateDebut, dateFin, me.jqCapacite.val(), listeMateriel, function() {
+				me.getSalle(dateDebut, dateFin, me.jqCapacite.val(), listeMateriel, inclureSallesOccupees, function() {
 					// Supression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
 					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
 					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
@@ -340,6 +353,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * @param materiels
 	 * 		liste du matériel nécessaire : une liste d'objets qui possèdent deux attributs : id et quantité
 	 * 
+	 * @param inclureSallesOccupees
+	 * 		VRAI si la recherche doit inclure les salles occupées par des événements autres que des cours
+	 * 
 	 * @param callbackChargement
 	 * 		méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
 	 * 		Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
@@ -348,7 +364,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * @param callback
 	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
-	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, callbackChargement, callback) {
+	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, inclureSallesOccupees, callbackChargement, callback) {
 		var me = this;
 
 		// Création d'une chaine de caractère pour traiter la liste de matériel
@@ -365,7 +381,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		
 		// Appel de la méthode du serveur
 		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
-			debut: dateDebut.getTime(), fin: dateFin.getTime(), effectif: effectif, materiel: listeMaterielQuantite, token: this.restManager.getToken()
+			debut: dateDebut.getTime(), fin: dateFin.getTime(), effectif: effectif, materiel: listeMaterielQuantite, sallesOccupees: inclureSallesOccupees, token: this.restManager.getToken()
 		}, function(response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				callbackChargement(true);
@@ -422,6 +438,12 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		    },
 			afterSelect: function(idSalle) {
 				me.idSallesSelectionnees[idSalle]=true;
+				for (var i=0, maxI=me.listeSallesDejaOccupees.length; i<maxI; i++) {
+					if (me.listeSallesDejaOccupees[i]==idSalle) {
+						alert("Attention, cette salle contient déjà un événement autre qu'un cours.");
+						break;
+					}
+				}
 			},
 			afterDeselect: function(idSalle) {
 				me.idSallesSelectionnees[idSalle]=false;
@@ -463,26 +485,39 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		// Calcule le nombre de salles
 		var maxI = data.sallesDisponibles.length;
 		
-		// S'il y a des salles, on les affiche dans une boîte de dialogue
+		// S'il y a des salles, on les affiche dans la boîte de dialogue des résultats
 		if (maxI>0) {
 			
 			// Variable recevant progressivement le code HTML à ajouter à l'élément MultiSelect
 			var html = "";
+			
+			this.listeSallesDejaOccupees = new Array();
+			
 			// Parcourt les salles 
 			for (var i = 0; i < maxI; i++) {
 				// Salle en cours de traitement
 				var salle = data.sallesDisponibles[i];
 				// Préparation de l'infobulle
-				var infobulle = "Capacité: "+salle.capacite;
+				var infobulle = "Capacité : "+salle.capacite;
 				for (var j=0, maxJ=salle.materiels.length ; j<maxJ ; j++) {
-					infobulle += "&#13;";
-					infobulle += salle.materiels[j].nom + ": " +salle.materiels[j].quantite; 
+					infobulle += "<br/>";
+					infobulle += salle.materiels[j].nom + " : " +salle.materiels[j].quantite; 
 				}
-				html += "<option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+"</option>";
+				infobulle += (salle.evenementsEnCours ? "<br/><span style=&apos;color: red;&apos;>Cette salle est déjà occupée par un événement autre qu&apos;un cours</span>" : "");
+				html += "<option value='"+salle.id+"' title='"+infobulle+"'>"+salle.nom+(salle.evenementsEnCours ? " &#9733;" : "")+"</option>";
+				if (salle.evenementsEnCours) {
+					this.listeSallesDejaOccupees.push(salle.id);
+				}
 			}
 			// Affichage
-			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").html(html)
-				.multiSelect("refresh");
+			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_select").html(html).multiSelect("refresh");
+			
+			// Affichage d'un message pour les salles avec un marqueur
+			var message = "";
+			if (this.listeSallesDejaOccupees.length>0) {
+				message = "Les salles marquées du symbole <span style='color: black;'>&#9733;</span> sont déjà occupées par un événement autre qu'un cours.";
+			}
+			this.jqRechercheSalleResultat.find("#resultat_chercher_salle_message").html(message);
 
 			// Remise à zéro d'une liste d'identifiants de salles sélectionnées
 			// C'est un objet référencé par l'identifiant de la salle et qui porte true si la salle est sélectionnée

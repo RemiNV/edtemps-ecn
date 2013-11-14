@@ -3,7 +3,9 @@
  * Associé au HTML templates/page_parametres.html
  * @module EcranParametres
  */
-define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier, DialogCreationGroupeParticipants) {
+define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "lib/davis.min",
+        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
+        		DialogCreationGroupeParticipants, Davis) {
 	
 	/**
 	 * @constructor
@@ -13,16 +15,29 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		this.restManager = restManager;
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
- 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager);
+ 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
+	};
+	
+	var idTabs = {
+		"parametres/mes_abonnements": 0,
+		"parametres/mes_agendas": 1,
+		"parametres/mes_groupes": 2
 	};
 	
 	/**
 	 * Initialisation de l'écran
+	 * 
+	 * @param {string} tab Onglet à afficer : "mes_abonnements", "mes_agendas" ou "mes_groupes"
 	 */
-	EcranParametres.prototype.init = function() {
+	EcranParametres.prototype.init = function(tab) {
 		
 		// Initialisaion de la navigation par tabs
-		$("#tabs").tabs();
+		$("#tabs").tabs({
+			activate: function(event, ui) {
+				Davis.location.replace(ui.newPanel.get(0).id);
+			},
+			active: idTabs[tab]
+		});
 		
 		// Initialisation des dialog
 		$("#dialog_export").dialog({
@@ -41,6 +56,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		// A voir : est qu'on fait tout au démarrage de la page "Paramètres" ou lorsqu'on clique sur un onglet
 		// -> tout au démarrage => 1 seul requete si on veut
 		this.initMesCalendriers();
+		
+		this.initMesGroupes();
 		
 	};
 
@@ -99,8 +116,26 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				    },
 					afterSelect: function(idgroupe){
 						me.groupeGestion.seDesabonner(idgroupe, function(resultCode) {
+							// Si aucune erreur, on remet à jour les abonnements indirects 
+							// NB : le déplacement de l'élément d'une liste à l'autre est fait par la bibliothèque
+							if(resultCode == RestManager.resultCode_Success) {
+								// On supprime les infos bulles de tous les agendas disponibles
+								$( '.ms-selection li' ).each(function() {
+									$(this).removeClass("abonnement_indirect");
+									$(this).removeAttr("title");
+								});		
+								// On ajoute les infos-bulles sur les groupes liés (parent ou fils) aux abonnements directs (= éléments <li> ayant la classe .ms-selectable, tout en étant affichés) 
+								$( '.ms-selectable li' ).each(function() {
+									if ( $(this).css("display")  != "none") {
+										var idGpe = $(this).attr("id").replace("-selectable", "");
+										var nomGpe = $(this).text();
+										me.afficheAbonnementsIndirectes(idGpe, nomGpe);
+										console.log(nomGpe);
+									}
+								});	
+							}
 							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les abonnements de l'utilisateur
-							if(resultCode != RestManager.resultCode_Success) {
+							else {
 								window.showToast("Le désabonnement a échoué ...");
 								var idElementSelectable = "#" + idgroupe + "-selectable";
 								var idElementSelection = "#" + idgroupe + "-selection";
@@ -111,8 +146,14 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 					},
 					afterDeselect: function(idgroupe){
 						 me.groupeGestion.sAbonner(idgroupe, function(resultCode) {
+							// Si aucune erreur, on modifie seulement les abonnements indirects 
+							// NB : le déplacement de l'élément d'une liste à l'autre est fait par la bibliothèque 
+							if(resultCode == RestManager.resultCode_Success) {
+								var nomGroupe = $("#" + idgroupe + "-selectable").text();
+								me.afficheAbonnementsIndirectes(idgroupe, nomGroupe);	
+						 	}
 							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les "Agendas disponibles"
-							if(resultCode != RestManager.resultCode_Success) {
+							else {
 								window.showToast("L'abonnement a échoué ...");
 								var idElementSelectable = "#" + idgroupe + "-selectable";
 								var idElementSelection = "#" + idgroupe + "-selection";
@@ -125,7 +166,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				
 				// Mise en forme des abonnements indirectes à ce groupe (=> parcours des abonnements directs)
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
-					me.afficheAbonnementsIndirectes(data.groupesAbonnements[i].id, data.groupesAbonnements[i].parentId);
+					me.afficheAbonnementsIndirectes(data.groupesAbonnements[i].id, data.groupesAbonnements[i].nom);
 				}
 			}
 			
@@ -169,22 +210,98 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	};
 	
 	/**
+	 * Affiche l'onglet indiqué dans l'écran
+	 * 
+	 * @param {string} tab Onglet à afficher : "mes_abonnement", "mes_agendas" ou "mes_groupes" 
+	 */
+	EcranParametres.prototype.showTab = function(tab) {
+		
+		$("#tabs").tabs("option", "active", idTabs[tab]);
+	};
+	
+	/**
 	 * Initialisation de l'onglet "mes calendriers"
 	 */
 	EcranParametres.prototype.initMesCalendriers = function() {
 		
 		// Affichage des calendriers (utiliser template ?)
 		
-		// Listeners
+		// Listener
 		var me = this;
 		$("#btn_creer_calendrier").click(function() {
 			me.dialogCreationCalendrier.init();
 		});
 
+	};
+	
+
+	/**
+	 * Initialisation de l'onglet "Mes groupes de participants"
+	 */
+	EcranParametres.prototype.initMesGroupes = function() {
+		var me = this;
+
+		// Listener pour le bouton d'ajout
 		$("#btn_creer_groupe").click(function() {
 			me.dialogCreationGroupeParticipants.show();
 		});
 
+		// Création du template pour la liste des groupes
+		var listMesGroupesTemplate = 
+			"<% _.each(groupes, function(groupe) { %> <tr>" +
+				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %></td>" +
+				"<td class='tbl_mes_groupes_boutons'>" +
+					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
+					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' " +
+					"<% if (groupe.estCalendrierUnique) { %>title='Ce groupe ne peut pas être supprimé car c&apos;est le groupe unique rattaché à son calendrier. Supprimer ce calendrier supprimera également ce groupe.' disabled='disabled' <% } %>" +
+					"/>" +
+				"</td>" +
+			"</tr> <% }); %>";
+		
+		// Affichage d'un message de chargement
+		$("#tbl_mes_groupes_chargement").css("display", "block");
+		$("#tbl_mes_groupes_chargement_message").html("Récupération de mes groupes de participants ...");
+		
+		// Récupération des groupes de l'utilisateur
+		me.groupeGestion.queryGroupesUtilisateurProprietaire(function (resultCode, data) {
+			
+			// Suppression du message de chargement
+			$("#tbl_mes_groupes_chargement").css("display", "none");
+
+			if(resultCode == RestManager.resultCode_Success) {
+
+				if (data.listeGroupes.length>0) {
+					// Ecriture du tableau dans la page
+					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
+					// Listeners pour les boutons gérer
+					$(".tbl_mes_groupes_boutons_gerer").click(function() {
+						alert($(this).attr("data-id"));
+						me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
+					});
+					// Listeners pour les boutons supprimer
+					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
+						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
+							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
+								if (resultCode == RestManager.resultCode_Success) {
+									window.showToast("Le groupe a été supprimé avec succès.");
+									me.initMesGroupes();
+									me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
+								} else {
+									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
+								}
+							});
+						}
+					});					
+				} else {
+					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
+				}
+
+		 	} else {
+				// En cas d'erreur, on affiche un message
+				window.showToast("La récupération des groupes a échoué ; vérifiez votre connexion.");
+			}
+		});
+		
 	};
 	
 	/**
@@ -193,44 +310,72 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	 *
 	 * @param : id
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id) {
-		this.afficheAbonnementsIndirectesFils(id);
-		this.afficheAbonnementsIndirectesParent(id);
+	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id, nom) {
+		this.afficheAbonnementsIndirectesFils(id, nom);
+		this.afficheAbonnementsIndirectesParent(id, nom);
 	};
 	
 	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux parents du groupe ayant l'id "id"
+	 * et le "nom nomGroupeAbonne"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
 	 * 
-	 * @param : id
+	 * Fonction récursive qui effectue l'opération sur le parent direct,
+	 * puis fait appel à elle-même pour réitérer l'opération sur le parent.
+	 * 
+	 * @param : id = id du groupe pour lequel on va parcourir les parents 
+	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les parents)
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectesParent = function(id) {
+	EcranParametres.prototype.afficheAbonnementsIndirectesParent = function(id, nomGroupeAbonne) {
 		//On cherche le parent (unique) de l'élément
 		var idparent = $("#"+id+"-selection").attr("idparent");
 		//Si l'élément a bien un parent
 		if (idparent != "0") {
+			var elementParent = $( "#" + idparent + "-selection");
 			//On lui ajoute la classe "abonnement_indirect"
-			$( "#" + idparent + "-selection").addClass("abonnement_indirect");
-			this.afficheAbonnementsIndirectesParent(idparent);
+			elementParent.addClass("abonnement_indirect");
+			//On lui ajoute (ou modifie) l'infobulle
+			var infobulle = elementParent.attr("title");
+			if (infobulle == undefined) {
+				elementParent.attr("title", "Abonnement indirect via "+ nomGroupeAbonne);
+			}	
+			else {
+				elementParent.attr("title", infobulle + " / " + nomGroupeAbonne);
+			}
+			//On réitère l'opération "afficheAbonnementsIndirectesParent" sur le parent
+			this.afficheAbonnementsIndirectesParent(idparent, nomGroupeAbonne);
 		}
 	};
 	
 	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux fils du groupe ayant l'id "id"
+	 * et le nom "nomGroupeAbonne"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
 	 * 
-	 * @param : id
+	 * Fonction récursive qui effectue l'opération sur les fils directs,
+	 * puis fait appel à elle-même pour réitérer l'opération sur chacun des fils.
+	 * 
+	 * @param : id = id du groupe pour lequel on va parcourir les fils
+	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les fils)
 	 */
-	EcranParametres.prototype.afficheAbonnementsIndirectesFils = function(id) {
+	EcranParametres.prototype.afficheAbonnementsIndirectesFils = function(id, nomGroupeAbonne) {
 		var me = this;
 		//On parcourt les fils de l'élément
 		if (id != 0) {
 			$( '.ms-selection li[idparent="'+id+'"]' ).each(function() {
 				//A chaque fils, on ajoute la classe "abonnementIndirect"
 				$(this).addClass("abonnement_indirect");
+				//On ajoute (ou modifie) l'info bulle du fils considéré
+				var infobulle = $(this).attr("title");
+				if (infobulle == undefined) {
+					$(this).attr("title", "Abonnement indirect via "+ nomGroupeAbonne);
+				}	
+				else {
+					$(this).attr("title", infobulle + " / " + nomGroupeAbonne);
+				}
 				//Pour chaque fils, on parcourt ses fils via un appel récursif
 				var idfils = $(this).attr("id").replace("-selection", "");
-				me.afficheAbonnementsIndirectesFils(idfils);
+				me.afficheAbonnementsIndirectesFils(idfils, nomGroupeAbonne);
 			});
 		}
 	};

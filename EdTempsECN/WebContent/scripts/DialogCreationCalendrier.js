@@ -1,7 +1,7 @@
 /**
  * @module DialogCreationCalendrier
  */
-define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
+define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(RestManager, CalendrierGestion) {
 
 	/**
 	 * @constructor
@@ -9,6 +9,7 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 	 */
 	var DialogCreationCalendrier = function(restManager) {
 		this.restManager = restManager;
+		this.calendrierGestion = new CalendrierGestion(this.restManager);
 		// Accès direct aux champs du formulaire
 		this.nom = $("#form_creer_calendrier_nom");
 		this.type = $("#form_creer_calendrier_type");
@@ -142,7 +143,7 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 	DialogCreationCalendrier.prototype.validationFormulaire = function() {
 		var valid = true;
 
-		// Nom du calendrier non nul ?
+		// Nom du calendrier non nul
 		if (this.nom.val()=="") {
 			this.nom.css({border: "1px solid red"});
 			valid = false;
@@ -159,17 +160,30 @@ define([ "RestManager", "jquerymaskedinput" ], function(RestManager) {
 	 * Méthode qui effectue la requête de création du calendrier
 	 */
 	DialogCreationCalendrier.prototype.effectuerRequete = function() {
-		/*
-		this.nom
-		this.matiere
-		this.type
-		*/
-		// Parcourir les proprio
-		$("#form_creer_calendrier_proprietaires input").each(function() {
-			alert($(this).val());
+		
+		//Récupérer nom, matiere et type
+		var nom = this.nom.val();
+		var matiere = this.matiere.val();
+		var type = this.type.val();
+		
+		// Parcourt des id des proprio (qu'on place dans un tableau, qui sera transformé en JSON)
+		var idProprietaires = [];
+		$(".form_creer_calendrier_proprietaire").each(function() {
+			var idCourant = $(this).val();
+			if (idCourant != 'Vous-même') { // L'utilisateur est obligatoirement propriétaire
+				idProprietaires.push(idCourant);
+			}
 		});
-		alert('REQUETE A FAIRE => appel à une méthode sauverCalendrier dans CalendrierGestion?');
-		window.showToast("L'agenda a bien été créé");
+		var idProprietairesJson = JSON.stringify(idProprietaires);
+			
+		this.calendrierGestion.creerCalendrier(nom, matiere, type, idProprietairesJson, function(resultCode) {
+			if(resultCode == RestManager.resultCode_Success) {
+				window.showToast("Le calendrier a bien été créé");
+			}
+			else {
+				window.showToast("Erreur lors de la création du calendrier");
+			}
+		});	
 		// Pensez à recharger la page, sur laquelle un nouveau calendrier est apparu
 		// Peut etre fermer la dialog aussi 
 	};

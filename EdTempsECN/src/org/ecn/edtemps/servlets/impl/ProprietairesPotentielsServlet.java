@@ -15,33 +15,33 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.managers.MaterielGestion;
-import org.ecn.edtemps.models.Materiel;
+import org.ecn.edtemps.managers.UtilisateurGestion;
+import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet pour récupérer la liste de tous les matériels
+ * Servlet pour récupérer la liste des utilisateurs qui peuvent potentiellement être propriétaires
  * 
  * @author Joffrey Terrade
  */
-public class MaterielServlet extends RequiresConnectionServlet {
+public class ProprietairesPotentielsServlet extends RequiresConnectionServlet {
 
-	private static final long serialVersionUID = 7246893098272381772L;
-	private static Logger logger = LogManager.getLogger(MaterielServlet.class.getName());
-	
+	private static final long serialVersionUID = 5254458280034416445L;
+	private static Logger logger = LogManager.getLogger(ProprietairesPotentielsServlet.class.getName());
+
 	@Override
-	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-		MaterielGestion materielGestion = new MaterielGestion(bdd);
+		UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
 		JsonValue data;
 		
 		try {
-			// Récupération de la liste de tous les matériels
-			List<Materiel> listeMateriels = materielGestion.getListeMateriel();
+			// Récupération de la liste des utilisateurs potentiellement proprietaires
+			List<UtilisateurIdentifie> listeUtilisateurs = utilisateurGestion.getResponsablesPotentiels();
 
 			// Création de la réponse
 			data = Json.createObjectBuilder()
-					.add("listeMateriels", JSONUtils.getJsonArray(listeMateriels))
+					.add("listeUtilisateurs", JSONUtils.getJsonArray(listeUtilisateurs))
 					.build();
 			
 			// Génération de la réponse
@@ -49,7 +49,7 @@ public class MaterielServlet extends RequiresConnectionServlet {
 
 		} catch (EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
-			logger.error("Erreur d'accès à la base de données lors de la récupération de la liste des matériels", e);
+			logger.error("Erreur d'accès à la base de données lors de la récupération de la liste des propriétaires potentiels", e);
 		}
 
 		bdd.close();
