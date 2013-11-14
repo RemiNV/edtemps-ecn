@@ -268,6 +268,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				// Listeners pour les boutons gérer
 				$(".tbl_mes_groupes_boutons_gerer").click(function() {
 					alert($(this).attr("data-id"));
+					me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
 				});
 				// Listeners pour les boutons supprimer
 				$(".tbl_mes_groupes_boutons_supprimer").click(function() {
@@ -276,6 +277,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 							if (resultCode == RestManager.resultCode_Success) {
 								window.showToast("Le groupe a été supprimé avec succès.");
 								me.initMesGroupes();
+								me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
 							} else {
 								window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
 							}

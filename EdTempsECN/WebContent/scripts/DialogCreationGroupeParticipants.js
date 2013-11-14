@@ -100,19 +100,8 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 			}
 		});
 		
-		// Blocage du bouton de validation avant le chargement des groupes parents disponibles
-		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
-		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
-		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement des groupes parents potentiels en cours ...");
-
-		// Récupération et écriture des groupes parents disponibles
-		this.ecritListeGroupesParentsDisponibles(this.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
-			if (success) {
-				// Reactivation du bouton "Valider"
-				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
-				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
-			}
-		});
+		// Charge la liste des groupes parents disponibles
+		this.chargementListeGroupesParents();
 		
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		this.jqCreationGroupeForm.dialog({
@@ -132,6 +121,28 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		this.initAppele = true;
 	};
 
+	
+	/**
+	 * Met à jour la liste des groupes parents potentiels dans le select dédié
+	 */
+	DialogCreationGroupeParticipants.prototype.chargementListeGroupesParents = function() {
+		var me = this;
+		
+		// Blocage du bouton de validation avant le chargement des groupes parents disponibles
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement des groupes parents potentiels en cours ...");
+
+		// Récupération et écriture des groupes parents disponibles
+		this.ecritListeGroupesParentsDisponibles(this.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
+			if (success) {
+				// Reactivation du bouton "Valider"
+				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
+				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
+			}
+		});
+	};
+	
 
 	/**
 	 * Ecrit la liste des groupes parents potentiels dans le select dédié
@@ -152,6 +163,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 
 				var maxI = data.data.listeGroupes.length;
 
+				$(object).html("");
 				if (maxI>0) {
 					var str = "<option value='-1'>---</option>";
 					for (var i=0; i<maxI; i++) {
@@ -238,6 +250,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				window.showToast("Le groupe de participant à été créé avec succès.");
 				me.ecranParametres.initMesGroupes();
+				me.chargementListeGroupesParents();
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
