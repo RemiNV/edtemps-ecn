@@ -306,11 +306,14 @@ public class GroupeGestion {
 		_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Supprime les liens avec les calendriers
-		_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeRequest("DELETE FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id=" + idGroupe);
 
 		// Supprime les abonnements
-		_bdd.executeRequest("DELETE FROM edt.AbonneGroupeParticipant WHERE groupeParticipant_id=" + idGroupe);
+		_bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
+		// Pour tous les fils, suppression du parent ID
+		_bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent=NULL WHERE groupeparticipant_id_parent=" + idGroupe);
+		
 		// Supprime le groupe
 		_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
