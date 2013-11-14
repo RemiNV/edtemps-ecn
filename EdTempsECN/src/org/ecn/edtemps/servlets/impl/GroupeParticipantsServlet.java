@@ -122,6 +122,9 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		// Récupération des informations sur le groupe
 		String nom = jsonGroupe.getString("nom");
 		Integer idGroupeParent = Integer.valueOf(jsonGroupe.getString("idGroupeParent"));
+		if (idGroupeParent==-1) {
+			idGroupeParent=null;
+		}
 		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
 		Boolean estCours = jsonGroupe.getBoolean("estCours");
 		JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
@@ -136,7 +139,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 		// Ajout
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		groupeGestion.sauverGroupe(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires);
+		groupeGestion.sauverGroupe(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, userId);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe ajouté", null));
 	}
 

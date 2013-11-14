@@ -78,8 +78,8 @@ public class GroupeGestionTest {
 		Groupe groupe2 = new Groupe("groupe de \"test\" 345' haha", lstProprietaire, true, true, false);
 		groupe2.setIdCalendriers(new ArrayList<Integer>());
 		
-		int idGroupe1 = this.groupeGestionnaire.sauverGroupe("groupe de \"test\" 123' haha", null, false, false, lstProprietaire);
-		int idGroupe2 = this.groupeGestionnaire.sauverGroupe("groupe de \"test\" 345' haha", null, true, true, lstProprietaire);
+		int idGroupe1 = this.groupeGestionnaire.sauverGroupe("groupe de \"test\" 123' haha", null, false, false, lstProprietaire, 1);
+		int idGroupe2 = this.groupeGestionnaire.sauverGroupe("groupe de \"test\" 345' haha", null, true, true, lstProprietaire, 1);
 		
 		GroupeIdentifie groupe1Recup = this.groupeGestionnaire.getGroupe(idGroupe1);
 		GroupeIdentifie groupe2Recup = this.groupeGestionnaire.getGroupe(idGroupe2);

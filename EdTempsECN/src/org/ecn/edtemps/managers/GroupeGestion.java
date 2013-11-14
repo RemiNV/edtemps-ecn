@@ -214,7 +214,7 @@ public class GroupeGestion {
 	 * @throws EdtempsException
 	 *             en cas d'erreur
 	 */
-	public int sauverGroupe(String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires) throws EdtempsException {
+	public int sauverGroupe(String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
 
 		int idInsertion = -1;
 
@@ -222,7 +222,7 @@ public class GroupeGestion {
 
 			// Démarre une transaction
 			_bdd.startTransaction();
-
+			
 			// Vérification de la cohérence des valeurs
 			if (StringUtils.isNotBlank(nom)) {
 
@@ -236,13 +236,22 @@ public class GroupeGestion {
 							"Tentative d'enregistrer un groupe en base de données avec un nom déjà utilisé.");
 				}
 				
-				// Prépare la requête
-				PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
-						"?, '"
-						+ rattachementAutorise
-						+ "', " + (idGroupeParent == -1 ? "null" : idGroupeParent)
-						+ ", 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id ");
-				req.setString(1, nom);
+				// Prépare la requête avec un traitement différent si un groupe parent a été indiqué (else) 
+				PreparedStatement req = null;
+				if (idGroupeParent == null) {
+					req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
+							"?, '" + rattachementAutorise + "', 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id ");
+					req.setString(1, nom);
+				} else {
+					// Requête pour récupérer le propriétaire du groupe parent 
+					ResultSet idProprietaireGroupeParent = _bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+idGroupeParent).executeQuery();
+					idProprietaireGroupeParent.next();
+					
+					// Préparation de la requête avec un idParent temporaire si le propriétaire du groupe parent n'est pas l'utilisateur en cours 
+					req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, "+(idProprietaireGroupeParent.getInt(1)==userId ? "groupeparticipant_id_parent" : "groupeparticipant_id_parent_tmp")+", groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
+							"?, '"	+ rattachementAutorise + "', " + idGroupeParent + ", 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id");
+					req.setString(1, nom);
+				}
 
 				// Exécute la requête
 				ResultSet resultat = req.executeQuery(); 
