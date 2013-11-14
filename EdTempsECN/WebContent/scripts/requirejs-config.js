@@ -12,6 +12,7 @@ var require = {
 		jquerymaskedinput: "lib/jquery.maskedinput.min",
 		text: "lib/text",
 		jqueryquicksearch: "lib/jquery.quicksearch",
+		underscore: "lib/underscore-min"
 	},
 
 	/* Configuration des bibliothèques non AMD (non compatibles avec 

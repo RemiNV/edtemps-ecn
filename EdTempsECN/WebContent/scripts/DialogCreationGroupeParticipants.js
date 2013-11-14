@@ -1,14 +1,15 @@
 /**
  * @module DialogCreationGroupeParticipants
  */
-define([ "RestManager" ], function(RestManager) {
+define([ "RestManager", "EcranParametres" ], function(RestManager) {
 
 	/**
 	 * @constructor
 	 * @alias module:DialogCreationGroupeParticipants
 	 */
-	var DialogCreationGroupeParticipants = function(restManager) {
+	var DialogCreationGroupeParticipants = function(restManager, ecranParametres) {
 		this.restManager = restManager;
+		this.ecranParametres = ecranParametres;
 		
 		// Des liens vers les objets javascript
 		this.jqCreationGroupeForm = $("#form_creer_groupe");
@@ -99,19 +100,8 @@ define([ "RestManager" ], function(RestManager) {
 			}
 		});
 		
-		// Blocage du bouton de validation avant le chargement des groupes parents disponibles
-		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
-		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
-		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement des groupes parents potentiels en cours ...");
-
-		// Récupération et écriture des groupes parents disponibles
-		this.ecritListeGroupesParentsDisponibles(this.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
-			if (success) {
-				// Reactivation du bouton "Valider"
-				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
-				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
-			}
-		});
+		// Charge la liste des groupes parents disponibles
+		this.chargementListeGroupesParents();
 		
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		this.jqCreationGroupeForm.dialog({
@@ -131,6 +121,28 @@ define([ "RestManager" ], function(RestManager) {
 		this.initAppele = true;
 	};
 
+	
+	/**
+	 * Met à jour la liste des groupes parents potentiels dans le select dédié
+	 */
+	DialogCreationGroupeParticipants.prototype.chargementListeGroupesParents = function() {
+		var me = this;
+		
+		// Blocage du bouton de validation avant le chargement des groupes parents disponibles
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement des groupes parents potentiels en cours ...");
+
+		// Récupération et écriture des groupes parents disponibles
+		this.ecritListeGroupesParentsDisponibles(this.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
+			if (success) {
+				// Reactivation du bouton "Valider"
+				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
+				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
+			}
+		});
+	};
+	
 
 	/**
 	 * Ecrit la liste des groupes parents potentiels dans le select dédié
@@ -151,6 +163,7 @@ define([ "RestManager" ], function(RestManager) {
 
 				var maxI = data.data.listeGroupes.length;
 
+				$(object).html("");
 				if (maxI>0) {
 					var str = "<option value='-1'>---</option>";
 					for (var i=0; i<maxI; i++) {
@@ -222,6 +235,7 @@ define([ "RestManager" ], function(RestManager) {
 	 * 			méthode à effectuer en retour
 	 */
 	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, callback) {
+		var me = this;
 		
 		this.restManager.effectuerRequete("POST", "groupeparticipants/ajouter", {
 			token: this.restManager.getToken(),
@@ -235,6 +249,8 @@ define([ "RestManager" ], function(RestManager) {
 		}, function (response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				window.showToast("Le groupe de participant à été créé avec succès.");
+				me.ecranParametres.initMesGroupes();
+				me.chargementListeGroupesParents();
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {

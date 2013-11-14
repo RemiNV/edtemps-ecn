@@ -455,3 +455,38 @@ input.valide {
 	top: 3px;
 	right: 3px;
 }
+
+/* 
+ * Onglet "Mes groupes de participants" de la page de paramétrage
+ */
+ 
+#btn_creer_groupe {
+	margin-top: 20px;
+}
+
+#tbl_mes_groupes {
+	margin-top: 20px;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#tbl_mes_groupes tr {
+	border: solid 1px gray;
+	cursor: pointer;
+}
+
+#tbl_mes_groupes tr:hover {
+	background-color: #DDDDDD;
+}
+
+#tbl_mes_groupes .tbl_mes_groupes_groupe {
+	padding-left: 10px;
+}
+
+#tbl_mes_groupes .tbl_mes_groupes_boutons {
+	text-align: right;
+}
+
+#tbl_mes_groupes .tbl_mes_groupes_boutons input {
+	margin-left: 10px;
+}

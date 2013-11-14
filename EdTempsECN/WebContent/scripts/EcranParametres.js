@@ -4,7 +4,7 @@
  * @module EcranParametres
  */
 define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "lib/davis.min",
-        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
+        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
         		DialogCreationGroupeParticipants, Davis) {
 	
 	/**
@@ -15,7 +15,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		this.restManager = restManager;
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
- 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager);
+ 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
 	};
 	
 	var idTabs = {
@@ -56,6 +56,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		// A voir : est qu'on fait tout au démarrage de la page "Paramètres" ou lorsqu'on clique sur un onglet
 		// -> tout au démarrage => 1 seul requete si on veut
 		this.initMesCalendriers();
+		
+		this.initMesGroupes();
 		
 	};
 
@@ -224,16 +226,82 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		
 		// Affichage des calendriers (utiliser template ?)
 		
-		// Listeners
+		// Listener
 		var me = this;
 		$("#btn_creer_calendrier").click(function() {
 			me.dialogCreationCalendrier.init();
 		});
 
+	};
+	
+
+	/**
+	 * Initialisation de l'onglet "Mes groupes de participants"
+	 */
+	EcranParametres.prototype.initMesGroupes = function() {
+		var me = this;
+
+		// Listener pour le bouton d'ajout
 		$("#btn_creer_groupe").click(function() {
 			me.dialogCreationGroupeParticipants.show();
 		});
 
+		// Création du template pour la liste des groupes
+		var listMesGroupesTemplate = 
+			"<% _.each(groupes, function(groupe) { %> <tr>" +
+				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %></td>" +
+				"<td class='tbl_mes_groupes_boutons'>" +
+					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
+					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' " +
+					"<% if (groupe.estCalendrierUnique) { %>title='Ce groupe ne peut pas être supprimé car c&apos;est le groupe unique rattaché à son calendrier. Supprimer ce calendrier supprimera également ce groupe.' disabled='disabled' <% } %>" +
+					"/>" +
+				"</td>" +
+			"</tr> <% }); %>";
+		
+		// Affichage d'un message de chargement
+		$("#tbl_mes_groupes_chargement").css("display", "block");
+		$("#tbl_mes_groupes_chargement_message").html("Récupération de mes groupes de participants ...");
+		
+		// Récupération des groupes de l'utilisateur
+		me.groupeGestion.queryGroupesUtilisateurProprietaire(function (resultCode, data) {
+			
+			// Suppression du message de chargement
+			$("#tbl_mes_groupes_chargement").css("display", "none");
+
+			if(resultCode == RestManager.resultCode_Success) {
+
+				if (data.listeGroupes.length>0) {
+					// Ecriture du tableau dans la page
+					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
+					// Listeners pour les boutons gérer
+					$(".tbl_mes_groupes_boutons_gerer").click(function() {
+						alert($(this).attr("data-id"));
+						me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
+					});
+					// Listeners pour les boutons supprimer
+					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
+						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
+							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
+								if (resultCode == RestManager.resultCode_Success) {
+									window.showToast("Le groupe a été supprimé avec succès.");
+									me.initMesGroupes();
+									me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
+								} else {
+									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
+								}
+							});
+						}
+					});					
+				} else {
+					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
+				}
+
+		 	} else {
+				// En cas d'erreur, on affiche un message
+				window.showToast("La récupération des groupes a échoué ; vérifiez votre connexion.");
+			}
+		});
+		
 	};
 	
 	/**

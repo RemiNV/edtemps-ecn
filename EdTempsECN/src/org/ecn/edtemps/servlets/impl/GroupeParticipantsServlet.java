@@ -58,44 +58,21 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 			return;
 		}
 
-		// Récupération des infos de l'objet groupe
-		String strGroupe = req.getParameter("groupe");
-		if (strGroupe == null) {
-			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe manquant", null));
-			bdd.close();
-			return;
-		}
-
-		JsonReader reader = Json.createReader(new StringReader(strGroupe));
-		JsonObject jsonGroupe;
-
 		try {
-			jsonGroupe = reader.readObject();
-
-			String nom = jsonGroupe.getString("nom");
-			Integer idGroupeParent = Integer.valueOf(jsonGroupe.getString("idGroupeParent"));
-			Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
-			Boolean estCours = jsonGroupe.getBoolean("estCours");
-			JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
-			List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayList(jsonIdProprietaires);
-			
-			// Vérification que l'objet est bien complet
-			if (StringUtils.isBlank(nom) || rattachementAutorise == null || estCours == null || CollectionUtils.isEmpty(listeIdProprietaires)) {
-				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe incomplet : paramètres manquants", null));
-				bdd.close();
-				return;
-			}
 
 			// Renvoies vers les trois fonctionnalités possibles : ajout, modification et suppression 
 			switch (pathInfo) {
 				case "/ajouter":
-					doAjouterGroupeParticipants(userId, bdd, resp, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires);
+					// Lance la méthode d'ajout
+					doAjouterGroupeParticipants(userId, bdd, req, resp);
 					break;
 				case "/modifier":
+					
 					doModifierGroupeParticipants();
 					break;
 				case "/supprimer":
-					doSupprimerGroupeParticipants(bdd, idGroupeParent, resp);
+					// Lance la méthode de suppression
+					doSupprimerGroupeParticipants(bdd, req, resp);
 					break;
 			}
 
@@ -123,21 +100,41 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	 * 			gestionnaire de la base de données
 	 * @param resp
 	 * 			réponse à compléter
-	 * @param nom
-	 * 			nom du groupe à créer
-	 * @param idGroupeParent
-	 * 			identifiant du groupe parent du groupe à créer
-	 * @param rattachementAutorise
-	 * 			VRAI si le rattachement au groupe est autorisé
-	 * @param estCours
-	 * 			VRAI si le groupe est un cours
-	 * @param listeIdProprietaires
-	 * 			liste des identifiants des propriétaires
+	 * @param requete
+	 * 			requête
 	 * 
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */
-	protected void doAjouterGroupeParticipants(int userId, BddGestion bdd, HttpServletResponse resp, String nom, Integer idGroupeParent, Boolean rattachementAutorise, Boolean estCours, List<Integer> listeIdProprietaires) throws EdtempsException, IOException {
+	protected void doAjouterGroupeParticipants(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+
+		// Récupération des infos de l'objet groupe
+		String strGroupe = req.getParameter("groupe");
+		if (strGroupe == null) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe manquant", null));
+			bdd.close();
+			return;
+		}
+
+		JsonReader reader = Json.createReader(new StringReader(strGroupe));
+		JsonObject jsonGroupe = reader.readObject();
+		
+		// Récupération des informations sur le groupe
+		String nom = jsonGroupe.getString("nom");
+		Integer idGroupeParent = Integer.valueOf(jsonGroupe.getString("idGroupeParent"));
+		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
+		Boolean estCours = jsonGroupe.getBoolean("estCours");
+		JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
+		List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayList(jsonIdProprietaires);
+		
+		// Vérification que l'objet est bien complet
+		if (StringUtils.isBlank(nom) || rattachementAutorise == null || estCours == null || CollectionUtils.isEmpty(listeIdProprietaires)) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe incomplet : paramètres manquants", null));
+			bdd.close();
+			return;
+		}
+
+		// Ajout
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		groupeGestion.sauverGroupe(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe ajouté", null));
@@ -153,17 +150,17 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	 * 
 	 * @param bdd
 	 * 		gestionnaire de la base de données
-	 * @param idGroupe
-	 * 		identifiant du groupe à supprimer
+	 * @param req
+	 * 		requête
 	 * @param resp
 	 * 		réponse à compléter
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */
-	protected void doSupprimerGroupeParticipants(BddGestion bdd, Integer idGroupe, HttpServletResponse resp) throws EdtempsException, IOException {
+	protected void doSupprimerGroupeParticipants(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		groupeGestion.supprimerGroupe(idGroupe);
-		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe ajouté", null));
+		groupeGestion.supprimerGroupe(Integer.valueOf(req.getParameter("id")));
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe supprimé", null));
 	}
 
 }

@@ -18,8 +18,7 @@
 			</select>
 			
 			<div class="boutons_valider">
-				<div class="button" id="btn_export">Export</div>
-				<div class="button" id="btn_enregistrer_abonnements">Enregistrer</div>
+				<div class="button" id="btn_export">Export ICAL</div>
 			</div>			
 			
 			
@@ -164,9 +163,14 @@
 			</div>
 			
 			<table id="tbl_mes_groupes">
-				<!-- TODO : Utiliser un template pour remplir la liste -->
-			
+				<!-- Liste remplie par le JavaScript -->
 			</table>
+			
+			<div id="tbl_mes_groupes_chargement" style="display: none;">
+				<img src="img/spinner_chargement.gif" width="30" alt="chargement" />
+				<span id="tbl_mes_groupes_chargement_message"></span>
+			</div>
+			
 		</div>
 	</div>
 	

@@ -227,9 +227,11 @@ public class GroupeGestion {
 			if (StringUtils.isNotBlank(nom)) {
 
 				// Vérifie que le nom n'est pas déjà en base de données
-				PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT groupeparticipant_id FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
+				PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
 				nomDejaPris.setString(1, nom);
-				if (nomDejaPris.execute()) {
+				ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+				nomDejaPrisResult.next();
+				if (nomDejaPrisResult.getInt(1)>0) {
 					throw new EdtempsException(ResultCode.NAME_TAKEN,
 							"Tentative d'enregistrer un groupe en base de données avec un nom déjà utilisé.");
 				}
@@ -296,7 +298,7 @@ public class GroupeGestion {
 		if (this.getGroupe(idGroupe).estCalendrierUnique()) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, "Impossible de supprimer le groupe unique lié à un calendrier.");
 		}
-		
+
 		// Démarre une transaction
 		_bdd.startTransaction();
 
@@ -304,11 +306,14 @@ public class GroupeGestion {
 		_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Supprime les liens avec les calendriers
-		_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeRequest("DELETE FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id=" + idGroupe);
 
 		// Supprime les abonnements
-		_bdd.executeRequest("DELETE FROM edt.AbonneGroupeParticipant WHERE groupeParticipant_id=" + idGroupe);
+		_bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
+		// Pour tous les fils, suppression du parent ID
+		_bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent=NULL WHERE groupeparticipant_id_parent=" + idGroupe);
+		
 		// Supprime le groupe
 		_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
@@ -392,11 +397,11 @@ public class GroupeGestion {
 	/**
 	 * Listing de l'ensemble des groupes de participants existants en base
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon (false), elle DOIT être appelée à l'intérieur d'une transaction.
-	 * 
+	 * @param rattachementAutorise indique s'il faut uniquement lister les groupes dont le rattachement est autorisé
 	 * @return Liste de groupes de participants trouvés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction) throws DatabaseException {
+	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction, boolean rattachementAutorise) throws DatabaseException {
 		
 		try {
 			if(createTransaction){
@@ -407,7 +412,8 @@ public class GroupeGestion {
 			ResultSet resGroupes = _bdd.executeRequest(
 					"SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, "
 					+ "groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique "
-					+ "FROM edt.groupeparticipant");
+					+ "FROM edt.groupeparticipant"
+					+ (rattachementAutorise ? " WHERE groupeparticipant_rattachementautorise = TRUE" : ""));
 			
 			// Création d'objets "groupes identifiés" pour les groupes rencontrés dans la table
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
@@ -567,6 +573,35 @@ public class GroupeGestion {
 		return res;
 	}
 	
+
+	/**
+	 * Listing des groupes pour lesquels l'utilisateur fait parti des propriétaires (sans remonter ni descendre les parents/enfants)
+	 * @param idUtilisateur Utilisateur dont les groupes sont à lister
+	 * @return Liste des groupes trouvés
+	 * @throws DatabaseException Erreur d'accès à la base de données
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupesProprietaire(int idProprietaire) throws DatabaseException {
+		
+		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
+				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
+					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant " +
+					"INNER JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id " +
+					"AND proprietairegroupeparticipant.utilisateur_id = " + idProprietaire);
+		
+		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
+
+		try {
+			while(resGroupes.next()) {
+				res.add(inflateGroupeFromRow(resGroupes));
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		return res;
+	}
+	
 	/**
 	 * Fonction permettant à un utilisateur de s'abonner à un groupe de participants
 	 * @param idUtilisateur
@@ -597,45 +632,6 @@ public class GroupeGestion {
 			  s += " AND abonnementgroupeparticipant_obligatoire = FALSE" ;
 		}
 		_bdd.executeRequest(s);
-	}
-	
-	/**
-	 * Récupérer la liste des groupes de participants auxquels un ajout de groupe peut être rattaché
-	 * 
-	 * @param userId
-	 * 			identiiant de l'utilisateur en cours pour trier la liste des résultats
-	 * 
-	 * @return liste des groupes parents potentiels
-	 * 
-	 * @throws DatabaseException
-	 */
-	public ArrayList<GroupeIdentifie> getGroupesParentsPotentiels(int userId) throws DatabaseException {
-		
-		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
-				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
-					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
-					"FROM edt.groupeparticipant " +
-					"WHERE groupeparticipant.groupeparticipant_rattachementautorise = TRUE");
-
-		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
-
-		try {
-			while(resGroupes.next()) {
-				GroupeIdentifie grp = inflateGroupeFromRow(resGroupes);
-				if (grp.getIdProprietaires().contains(userId)) {
-					// Si l'utilisateur est dans la liste des propiétaires, on l'ajoute au début de la liste
-					res.add(0, grp);
-				} else {
-					// Sinon, on le range à la suite de la liste
-					res.add(grp);
-				}
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
-		
-		return res;
 	}
 	
 }
