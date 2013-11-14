@@ -50,7 +50,7 @@ CREATE TABLE edt.GroupeParticipant (
                 groupeParticipant_nom VARCHAR,
                 groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
                 groupeParticipant_id_parent INTEGER,
-		groupeParticipant_estCours BOOLEAN,
+		groupeParticipant_estCours BOOLEAN NOT NULL DEFAULT FALSE,
 		groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
 		groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
@@ -71,8 +71,8 @@ CREATE TRIGGER trigger_update_groupeparticipant_aparentcours
 
 CREATE FUNCTION edt.set_groupeparticipant_aparentcours() RETURNS TRIGGER AS $$
 	BEGIN
-		NEW.groupeparticipant_aparentcours := aparentcours FROM (SELECT (groupeparticipant_estcours OR groupeparticipant_aparentcours) AS aparentcours FROM edt.groupeparticipant
-			WHERE groupeparticipant.groupeparticipant_id=NEW.groupeparticipant_id_parent) req;
+		NEW.groupeparticipant_aparentcours := TRUE = ANY (SELECT (groupeparticipant_estcours OR groupeparticipant_aparentcours) FROM edt.groupeparticipant
+			WHERE groupeparticipant.groupeparticipant_id=NEW.groupeparticipant_id_parent);
 		RETURN NEW; -- a mettre en place avant une insertion
 	END;
 $$ LANGUAGE plpgsql;
