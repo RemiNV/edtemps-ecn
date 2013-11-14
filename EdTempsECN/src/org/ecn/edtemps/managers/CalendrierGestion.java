@@ -486,9 +486,8 @@ public class CalendrierGestion {
 				"INNER JOIN edt.calendrier ON proprietairecalendrier.cal_id=calendrier.cal_id " +
 				"LEFT JOIN edt.calendrierappartientgroupe ON calendrier.cal_id=calendrierappartientgroupe.cal_id " +
 				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
-					"AND groupecours.groupeparticipant_estcours=TRUE " +
+					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours) " +
 				"WHERE proprietairecalendrier.utilisateur_id=" + userId + " AND proprietairecalendrier.cal_id IN (" + strIds + ")");
-		// TODO : un calendrier peut être de cours si un de ses parents l'est
 		
 		try {
 			results.next();

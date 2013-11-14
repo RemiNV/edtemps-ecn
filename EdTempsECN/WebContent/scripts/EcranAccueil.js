@@ -132,7 +132,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			if(this.listeGroupesParticipants) {
 				this.listeGroupesParticipants.clear();
 			}
-			// TODO : gérer
+			// TODO : gérer les autres modes d'affichage
 			callback(new Array());
 		
 		}
