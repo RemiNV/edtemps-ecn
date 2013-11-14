@@ -1,6 +1,7 @@
 package org.ecn.edtemps.models.identifie;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONUtils;
@@ -28,17 +29,13 @@ public class CalendrierComplet extends CalendrierIdentifie {
 		super(calendrier.getNom(), calendrier.getType(), calendrier.getMatiere(), calendrier.getIdProprietaires(), calendrier.getId());
 		this.estCours = estCours;
 	}
-
+	
 	@Override
-	public JsonValue toJson() {
-		return Json.createObjectBuilder()
-				.add("id", this.id)
-				.add("nom", this.nom)
-				.add("type", this.type)
-				.add("matiere", this.matiere)
-				.add("estCours", this.estCours)
-				.add("proprietaires", JSONUtils.getJsonIntArray(this.idProprietaires))
-				.build();
+	public JsonObjectBuilder makeObjectBuilder() {
+		JsonObjectBuilder builder = super.makeObjectBuilder();
+		
+		return builder.add("estCours", this.estCours)
+			.add("proprietaires", JSONUtils.getJsonIntArray(this.idProprietaires));
 	}
 
 }

@@ -43,9 +43,8 @@ public class CalendrierIdentifie extends Calendrier implements JSONAble {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	@Override
-	public JsonValue toJson() {
+	
+	protected JsonObjectBuilder makeObjectBuilder() {
 		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("id", id)
 				.add("nom", nom)
@@ -64,6 +63,13 @@ public class CalendrierIdentifie extends Calendrier implements JSONAble {
 		else {
 			builder.addNull("type");
 		}
+		
+		return builder;
+	}
+
+	@Override
+	public final JsonValue toJson() {
+		JsonObjectBuilder builder = makeObjectBuilder();
 		
 		return builder.build();
 	}
