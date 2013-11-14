@@ -75,14 +75,12 @@ define(["RestManager"], function(RestManager) {
 
 	/**
 	 * Supprimer un groupe de participants
+	 * @param groupeId
 	 * @param callback
 	 */
 	GroupeGestion.prototype.querySupprimerGroupes = function(groupeId, callback) {
 		this.restManager.effectuerRequete("POST", "groupeparticipants/supprimer", {
-			token: this.restManager.getToken(),
-			groupe: JSON.stringify({
-				groupeId: groupeId
-			})
+			token: this.restManager.getToken(), id: groupeId
 		}, function(data) {
 			callback(data.resultCode);
 		});

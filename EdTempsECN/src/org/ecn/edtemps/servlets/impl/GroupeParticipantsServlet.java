@@ -58,21 +58,21 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 			return;
 		}
 
-		// Récupération des infos de l'objet groupe
-		String strGroupe = req.getParameter("groupe");
-		if (strGroupe == null) {
-			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe manquant", null));
-			bdd.close();
-			return;
-		}
-
 		try {
-			JsonReader reader = Json.createReader(new StringReader(strGroupe));
-			JsonObject jsonGroupe = reader.readObject();
 
 			// Renvoies vers les trois fonctionnalités possibles : ajout, modification et suppression 
 			switch (pathInfo) {
 				case "/ajouter":
+					// Récupération des infos de l'objet groupe
+					String strGroupe = req.getParameter("groupe");
+					if (strGroupe == null) {
+						resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe manquant", null));
+						bdd.close();
+						return;
+					}
+
+					JsonReader reader = Json.createReader(new StringReader(strGroupe));
+					JsonObject jsonGroupe = reader.readObject();
 					
 					// Récupération des informations sur le groupe
 					String nom = jsonGroupe.getString("nom");
@@ -91,18 +91,14 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 					// Lance la méthode d'ajout
 					doAjouterGroupeParticipants(userId, bdd, resp, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires);
-					
 					break;
 				case "/modifier":
 					
 					doModifierGroupeParticipants();
-					
 					break;
-					
 				case "/supprimer":
 					// Lance la méthode de suppression
-					Integer a = jsonGroupe.getInt("groupeId");
-					doSupprimerGroupeParticipants(bdd, a, resp);
+					doSupprimerGroupeParticipants(bdd, Integer.valueOf(req.getParameter("id")), resp);
 					break;
 			}
 

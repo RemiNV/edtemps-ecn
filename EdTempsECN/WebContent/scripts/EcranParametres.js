@@ -272,7 +272,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				// Listeners pour les boutons supprimer
 				$(".tbl_mes_groupes_boutons_supprimer").click(function() {
 					if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
-						me.groupeGestion.querySupprimerGroupes($(this).attr("attr-id"), function () {
+						me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
 							if (resultCode == RestManager.resultCode_Success) {
 								window.showToast("Le groupe a été supprimé avec succès.");
 								me.initMesGroupes();
