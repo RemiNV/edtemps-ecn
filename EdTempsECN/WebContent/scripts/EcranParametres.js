@@ -248,8 +248,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 
 		// Création du template pour la liste des groupes
 		var listMesGroupesTemplate = 
-			"<% _.each(groupes, function(groupe) { %> <tr>" +
-				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %></td>" +
+			"<% _.each(groupes, function(groupe) { %> <tr<% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante'<% } %>>" +
+				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %><% if (groupe.parentIdTmp>0) { %> - <i>En attente de validation pour le rattachement</i><% } %></td>" +
 				"<td class='tbl_mes_groupes_boutons'>" +
 					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
 					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' " +

@@ -19,6 +19,9 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 	/** Identifiant du groupe */
 	protected int id;
 
+	/** Identifiant du groupe parent temporaire : en attente de validation du groupe parent */
+	protected int parentIdTmp;
+
 	/**
 	 * Constructeur utilisant les informations indispensables
 	 * @param id
@@ -59,6 +62,14 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	public int getParentIdTmp() {
+		return parentIdTmp;
+	}
+
+	public void setParentIdTmp(int parentIdTmp) {
+		this.parentIdTmp = parentIdTmp;
+	}
 
 	@Override
 	public JsonValue toJson() {
@@ -66,6 +77,7 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 				.add("id", id)
 				.add("nom", nom)
 				.add("parentId", parentId)
+				.add("parentIdTmp", parentIdTmp)
 				.add("rattachementAutorise", rattachementAutorise)
 				.add("estCours", estCours)
 				.add("estCalendrierUnique", estCalendrierUnique)

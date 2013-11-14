@@ -52,6 +52,8 @@ public class GroupeGestion {
 		
 		int parentId = row.getInt("groupeparticipant_id_parent");
 		
+		int parentIdTmp = row.getInt("groupeparticipant_id_parent_tmp");
+
 		boolean estCours = row.getBoolean("groupeparticipant_estcours");
 		
 		boolean estCalendrierUnique = row.getBoolean("groupeparticipant_estcalendrierunique");
@@ -69,6 +71,7 @@ public class GroupeGestion {
 		
 		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
 		groupeRecupere.setParentId(parentId); // Eventuellement 0
+		groupeRecupere.setParentIdTmp(parentIdTmp);
 
 		// Récupérer la liste des identifiants des calendriers */
 		ResultSet requeteCalendriers = _bdd
@@ -109,7 +112,7 @@ public class GroupeGestion {
 			// Récupère le groupe en base
 			ResultSet requeteGroupe = _bdd
 
-					.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent," +
+					.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp," +
 							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM edt.groupeparticipant WHERE groupeparticipant_id="
 							+ identifiant);
 
@@ -420,7 +423,7 @@ public class GroupeGestion {
 			// Lecture des groupes de la table
 			ResultSet resGroupes = _bdd.executeRequest(
 					"SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, "
-					+ "groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique "
+					+ "groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique "
 					+ "FROM edt.groupeparticipant"
 					+ (rattachementAutorise ? " WHERE groupeparticipant_rattachementautorise = TRUE" : ""));
 			
@@ -464,7 +467,7 @@ public class GroupeGestion {
 			
 			// Lecture des groupes de la table
 			ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent," +
-					"groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM " + NOM_TEMPTABLE_ABONNEMENTS);
+					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM " + NOM_TEMPTABLE_ABONNEMENTS);
 
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
 			
@@ -563,7 +566,7 @@ public class GroupeGestion {
 	 */
 	public ArrayList<GroupeIdentifie> listerGroupesAssocies(int idUtilisateur) throws DatabaseException {
 		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
-				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
+				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent,groupeparticipant.groupeparticipant_id_parent_tmp," +
 					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
 					"FROM edt.groupeparticipant " +
 					"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id " +
@@ -592,7 +595,7 @@ public class GroupeGestion {
 	public ArrayList<GroupeIdentifie> listerGroupesProprietaire(int idProprietaire) throws DatabaseException {
 		
 		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
-				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent," +
+				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent,groupeparticipant.groupeparticipant_id_parent_tmp," +
 					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
 					"FROM edt.groupeparticipant " +
 					"INNER JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id " +

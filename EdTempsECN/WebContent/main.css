@@ -475,6 +475,10 @@ input.valide {
 	cursor: pointer;
 }
 
+#tbl_mes_groupes .tbl_mes_groupes_ligne_importante {
+	background-color: #FFDBDB;
+}
+
 #tbl_mes_groupes tr:hover {
 	background-color: #DDDDDD;
 }
