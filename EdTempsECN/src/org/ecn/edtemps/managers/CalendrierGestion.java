@@ -170,8 +170,8 @@ public class CalendrierGestion {
 			// Récupération du calendrier (nom, matiere, type) cherché sous forme de ResultSet
 			ResultSet rs_calendrier = _bdd.executeRequest(
 					"SELECT * FROM edt.calendrier "
-					+ "INNER JOIN edt.matiere ON calendrier.matiere_id = matiere.matiere_id "
-					+ "INNER JOIN edt.typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
+					+ "LEFT JOIN edt.matiere ON calendrier.matiere_id = matiere.matiere_id "
+					+ "LEFT JOIN edt.typecalendrier ON typecalendrier.typeCal_id = calendrier.typeCal_id "
 					+ "WHERE cal_id = " + idCalendrier );
 
 			if(rs_calendrier.next()){
@@ -213,13 +213,13 @@ public class CalendrierGestion {
 			try {
 				// Récupération de l'id de la matière
 				PreparedStatement matiere_id_prepare = _bdd.getConnection().prepareStatement(
-						"SELECT * FROM edt.matiere WHERE matiere_nom LIKE ?");
+						"SELECT * FROM edt.matiere WHERE matiere_nom = ?");
 				matiere_id_prepare.setString(1, calId.getMatiere());
 				matiere_id = _bdd.recupererId(matiere_id_prepare, "matiere_id");
 
 				// Récupération de l'id du type
 				PreparedStatement type_id_prepare = _bdd.getConnection().prepareStatement(
-						"SELECT * FROM edt.typecalendrier WHERE typecal_libelle LIKE ?");
+						"SELECT * FROM edt.typecalendrier WHERE typecal_libelle = ?");
 				type_id_prepare.setString(1, calId.getType());
 				type_id = _bdd.recupererId(type_id_prepare, "typecal_id");
 			} catch (SQLException e){
@@ -387,8 +387,8 @@ public class CalendrierGestion {
 			
 			// Récupération des calendriers des collections abonnement
 			ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle FROM edt.calendrier " +
-					"INNER JOIN edt.matiere ON calendrier.matiere_id = matiere.matiere_id " +
-					"INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
+					"LEFT JOIN edt.matiere ON calendrier.matiere_id = matiere.matiere_id " +
+					"LEFT JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
 					"INNER JOIN edt.calendrierappartientgroupe appartenance ON appartenance.cal_id=calendrier.cal_id " +
 					"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_ABONNEMENTS + " tmpAbonnements ON tmpAbonnements.groupeparticipant_id=appartenance.groupeparticipant_id");
 			
@@ -416,22 +416,23 @@ public class CalendrierGestion {
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
 	public ArrayList<CalendrierComplet> listerCalendriersUtilisateur(int userId) throws DatabaseException {
-		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle FROM edt.calendrier " +
-				"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
-				"INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
-				"INNER JOIN edt.proprietairecalendrier ON calendrier.cal_id = proprietairecalendrier.cal_id AND proprietairecalendrier.utilisateur_id = " + userId);
+		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle, " +
+				"COUNT(groupecours.groupeparticipant_id) > 0 AS estcours " + // Nombre de groupes "cours" auquel le calendrier est rattaché > 0
+				"FROM edt.calendrier " +
+				"LEFT JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
+				"LEFT JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
+				"INNER JOIN edt.proprietairecalendrier ON calendrier.cal_id = proprietairecalendrier.cal_id AND proprietairecalendrier.utilisateur_id = " + userId + 
+				"LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = calendrier.cal_id " +
+				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
+					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours)" +
+				"GROUP BY calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle");
 		
 		try {
 			ArrayList<CalendrierComplet> res = new ArrayList<CalendrierComplet>();
 			while (results.next()) {
 				CalendrierIdentifie calendrier = inflateCalendrierFromRow(results);
 				
-				ResultSet resultaaaaaas = _bdd.executeRequest("SELECT COUNT(*) FROM edt.groupeparticipant " +
-				"INNER JOIN edt.calendrierappartientgroupe ON groupeparticipant.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
-				"AND groupeparticipant.groupeparticipant_estcours = 'TRUE' " +
-				"AND calendrierappartientgroupe.cal_id = " + calendrier.getId());
-				resultaaaaaas.next();
-				boolean estCours = (resultaaaaaas.getInt(1)==0) ? false : true;
+				boolean estCours = results.getBoolean("estcours");
 				
 				res.add(new CalendrierComplet(calendrier, estCours));
 			}
