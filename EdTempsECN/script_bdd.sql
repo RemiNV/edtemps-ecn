@@ -1,4 +1,4 @@
-CREATE SEQUENCE edt.salle_salle_id_seq;
+﻿CREATE SEQUENCE edt.salle_salle_id_seq;
 
 CREATE TABLE edt.Salle (
                 salle_id INTEGER NOT NULL DEFAULT nextval('edt.salle_salle_id_seq'),
@@ -50,10 +50,37 @@ CREATE TABLE edt.GroupeParticipant (
                 groupeParticipant_nom VARCHAR,
                 groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
                 groupeParticipant_id_parent INTEGER,
-				groupeParticipant_estCours BOOLEAN,
-				groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
+		groupeParticipant_estCours BOOLEAN NOT NULL DEFAULT FALSE,
+		groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
+		groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
+
+-- Triggers sur groupeParticipant_aParentCours
+CREATE FUNCTION edt.update_groupeparticipant_aparentcours() RETURNS TRIGGER AS $$
+	BEGIN
+		UPDATE edt.groupeparticipant SET groupeparticipant_aparentcours=(NEW.groupeparticipant_estcours OR NEW.groupeparticipant_aparentcours)
+			WHERE groupeparticipant_id_parent=NEW.groupeparticipant_id;
+		RETURN NULL; -- A mettre en place après un update
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_groupeparticipant_aparentcours
+	AFTER UPDATE OF groupeparticipant_estcours, groupeparticipant_aparentcours ON edt.groupeparticipant
+	FOR EACH ROW EXECUTE PROCEDURE edt.update_groupeparticipant_aparentcours();
+
+CREATE FUNCTION edt.set_groupeparticipant_aparentcours() RETURNS TRIGGER AS $$
+	BEGIN
+		NEW.groupeparticipant_aparentcours := TRUE = ANY (SELECT (groupeparticipant_estcours OR groupeparticipant_aparentcours) FROM edt.groupeparticipant
+			WHERE groupeparticipant.groupeparticipant_id=NEW.groupeparticipant_id_parent);
+		RETURN NEW; -- a mettre en place avant une insertion ou mise à jour de groupeparticipant_id_parent
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_set_groupeparticipant_aparentcours
+	BEFORE INSERT OR UPDATE OF groupeparticipant_id_parent
+	ON edt.groupeparticipant
+	FOR EACH ROW EXECUTE PROCEDURE edt.set_groupeparticipant_aparentcours();
 
 
 ALTER SEQUENCE edt.groupeparticipant_groupeparticipant_id_seq OWNER TO "edtemps-ecn";

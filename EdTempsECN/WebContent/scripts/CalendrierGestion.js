@@ -38,6 +38,32 @@ define([], function() {
 		});
 	};
 
+	/**
+	 * Création d'un calendrier ayant les informations fournies en paramètre
+	 * 
+	 * @param nom : String
+	 * @param matiere : String
+	 * @param type : String
+	 * @param idProprietaires : liste d'ID
+	 * @param callback : Fonction appelée une fois la requete de création effectuée
+	 *
+	 */
+	CalendrierGestion.prototype.creerCalendrier = function(nom_arg, matiere_arg, type_arg, idProprietaires_arg, callback) {
+		var me = this;
+		this.restManager.effectuerRequete(
+			"POST",
+			"calendrier/creation", 
+			{ 
+			  token: me.restManager.getToken(),
+			  matiere: matiere_arg,
+			  nom: nom_arg,
+			  type: type_arg, 
+			  idProprietaires: idProprietaires_arg
+			},
+			function(data){callback(data.resultCode);}
+		);
+	};
+
 	
 	return CalendrierGestion;
 });
