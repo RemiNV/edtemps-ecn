@@ -59,8 +59,8 @@ CREATE TABLE edt.GroupeParticipant (
 -- Triggers sur groupeParticipant_aParentCours
 CREATE FUNCTION edt.update_groupeparticipant_aparentcours() RETURNS TRIGGER AS $$
 	BEGIN
-		UPDATE edt.groupeparticipant SET groupeparticipant.groupeparticipant_aparentcours=(NEW.groupeparticipant_estcours OR NEW.groupeparticipant_aparentcours)
-			WHERE groupeparticipant.groupeparticipant_id_parent=NEW.groupeparticipant_id;
+		UPDATE edt.groupeparticipant SET groupeparticipant_aparentcours=(NEW.groupeparticipant_estcours OR NEW.groupeparticipant_aparentcours)
+			WHERE groupeparticipant_id_parent=NEW.groupeparticipant_id;
 		RETURN NULL; -- A mettre en place après un update
 	END;
 $$ LANGUAGE plpgsql;
@@ -73,12 +73,13 @@ CREATE FUNCTION edt.set_groupeparticipant_aparentcours() RETURNS TRIGGER AS $$
 	BEGIN
 		NEW.groupeparticipant_aparentcours := TRUE = ANY (SELECT (groupeparticipant_estcours OR groupeparticipant_aparentcours) FROM edt.groupeparticipant
 			WHERE groupeparticipant.groupeparticipant_id=NEW.groupeparticipant_id_parent);
-		RETURN NEW; -- a mettre en place avant une insertion
+		RETURN NEW; -- a mettre en place avant une insertion ou mise à jour de groupeparticipant_id_parent
 	END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_set_groupeparticipant_aparentcours
-	BEFORE INSERT ON edt.groupeparticipant
+	BEFORE INSERT OR UPDATE OF groupeparticipant_id_parent
+	ON edt.groupeparticipant
 	FOR EACH ROW EXECUTE PROCEDURE edt.set_groupeparticipant_aparentcours();
 
 
