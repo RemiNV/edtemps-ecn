@@ -17,6 +17,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
  		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
+ 		
+ 		this.listeGroupesEnAttenteDeValidation = new Array();
 	};
 	
 	var idTabs = {
@@ -249,7 +251,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 
 		// Création du template pour la liste des groupes
 		var listMesGroupesTemplate = 
-			"<% _.each(groupes, function(groupe) { %> <tr<% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
+			"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>'><% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
 				"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
 				"<td class='tbl_mes_groupes_boutons'>" +
 					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
@@ -299,6 +301,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 						}
 					});
 					
+					// Mise en valeur des groupes qui ont des demandes de rattachement en attente de validation
+					me.miseEnValeurGroupesEnAttenteRattachement();
 
 				} else {
 					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
@@ -387,6 +391,28 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 			});
 		}
 	};
+	
+	
+	/**
+	 * Met en valeur les demande de rattachement qui sont en attente de validation
+	 */
+	EcranParametres.prototype.miseEnValeurGroupesEnAttenteRattachement = function() {
+		var me=this;
+		
+		this.groupeGestion.queryGroupesEnAttenteRattachement(function(resultCode, data) {
+			me.listeGroupesEnAttenteDeValidation = data;
+			var nbGroupes = me.listeGroupesEnAttenteDeValidation.length;
+			
+			if (nbGroupes > 0) {
+				for (var i=0; i<me.listeGroupesEnAttenteDeValidation.length; i++) {
+					$("#tbl_mes_groupes_ligne_"+me.listeGroupesEnAttenteDeValidation[i].parentIdTmp).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+				}
+			}
+			
+		});
+
+	};
+
 	
 	return EcranParametres;
 });
