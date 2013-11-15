@@ -1,17 +1,25 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 
+import javax.json.Json;
 import javax.json.JsonException;
+import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
+import org.ecn.edtemps.managers.GroupeGestion;
+import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
@@ -70,13 +78,16 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format de l'objet JSON incorrect", null));
 			bdd.close();
 		} catch(EdtempsException e) {
-			logger.error("Erreur lors de avec le servlet de rattachement à un groupe de participants (listerDemandes ou accepter ou refuser)", e);
+			logger.error("Erreur avec le servlet de rattachement à un groupe de participants (listerDemandes ou accepter ou refuser)", e);
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			bdd.close();
+		} catch(SQLException e) {
+			logger.error("Erreur avec le servlet de rattachement à un groupe de participants (listerDemandes ou accepter ou refuser)", e);
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.DATABASE_ERROR, e.getMessage(), null));
 			bdd.close();
 		}
 
 	}
-
 	
 	/**
 	 * Lister les demandes de rattachements d'un utilisateur
@@ -84,13 +95,16 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	 * @param bdd Gestionnaire de la base de données
 	 * @param resp Réponse à compléter
 	 * @param requete Requête
-	 * @throws EdtempsException
-	 * @throws IOException
+	 * @throws SQLException 
+	 * @throws DatabaseException 
+	 * @throws IOException 
 	 */
-	protected void doListerMesDemandesDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		
+	protected void doListerMesDemandesDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws SQLException, DatabaseException, IOException {
+		GroupeGestion gestionnaireGroupes = new GroupeGestion(bdd);
+		List<GroupeComplet> listeGroupes = gestionnaireGroupes.listerDemandesDeRattachement(userId);
+		JsonObject data = Json.createObjectBuilder().add("listeMateriels", JSONUtils.getJsonArray(listeGroupes)).build();
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Liste des groupes en attente de rattachement récupérée", data));
 	}
-
 	
 	/**
 	 * Accepter une demande de rattachement
@@ -105,7 +119,6 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 		
 	}
 
-	
 	/**
 	 * Refuser une demande de rattachement
 	 * @param userId Identifiant de l'utilisateur qui fait la requête
@@ -118,6 +131,5 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	protected void doRefuserDemandeDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
 		
 	}
-
 
 }

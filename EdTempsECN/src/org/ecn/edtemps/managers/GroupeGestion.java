@@ -635,4 +635,34 @@ public class GroupeGestion {
 		_bdd.executeRequest(s);
 	}
 	
+	
+	/**
+	 * Lister les groupes qui sont en attente de rattachement, pour un utilisateur
+	 * @param userId Identifiant de l'utilisateur
+	 * @return la liste des groupes
+	 * @throws DatabaseException
+	 * @throws SQLException
+	 */
+	public List<GroupeComplet> listerDemandesDeRattachement(int userId) throws DatabaseException, SQLException {
+		
+		List<GroupeComplet> groupesEnAttenteDeValidation = new ArrayList<GroupeComplet>();
+
+		// Démarre une transaction
+		_bdd.startTransaction();
+
+		// Récupère les groupes qui sont en attente de rattachement
+		ResultSet requeteGroupe = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, groupeparticipant.groupeparticipant_rattachementautorise, groupeparticipant.groupeparticipant_id_parent, groupeparticipant.groupeparticipant_id_parent_tmp," +
+						" groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique" +
+						" FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_id IN" +
+						" (SELECT proprietairegroupeparticipant.groupeparticipant_id FROM edt.proprietairegroupeparticipant WHERE" +
+						" proprietairegroupeparticipant.utilisateur_id="+userId+")");
+
+		// Récupère et traite le résultat
+		while (requeteGroupe.next()) {
+			groupesEnAttenteDeValidation.add(new GroupeCompletInflater().inflateGroupe(requeteGroupe, _bdd));
+		}
+		requeteGroupe.close();
+		
+		return groupesEnAttenteDeValidation;
+	}
 }
