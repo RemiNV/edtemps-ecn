@@ -71,25 +71,19 @@ public class GroupeComplet extends GroupeIdentifie implements JSONAble {
 		this.parent = parent;
 	}
 
-
-	/**
-	 * Génération et remplissage du JsonObjectBuilder de cet objet pour la conversion en JsonValue.
-	 * Peut être surclassé pour ajouter des champs supplémentaires
-	 * 
-	 * @return Le builder créé et initialisé
-	 */
-	protected JsonValue makeJsonObjectBuilder() {
+	@Override
+	public JsonValue toJson() {
 		return Json.createObjectBuilder()
-				.add("id", id)
-				.add("nom", nom)
-				.add("parentId", parentId)
-				.add("parentIdTmp", parentIdTmp)
-				.add("rattachementAutorise", rattachementAutorise)
-				.add("estCours", estCours)
-				.add("estCalendrierUnique", estCalendrierUnique)
-				.add("calendriers", JSONUtils.getJsonArray(calendriers))
-				.add("proprietaires", JSONUtils.getJsonArray(proprietaires))
-				.add("parent", parent.toJson())
-				.build();
+			.add("id", id)
+			.add("nom", nom)
+			.add("parentId", parentId)
+			.add("parentIdTmp", parentIdTmp)
+			.add("rattachementAutorise", rattachementAutorise)
+			.add("estCours", estCours)
+			.add("estCalendrierUnique", estCalendrierUnique)
+			.add("calendriers", JSONUtils.getJsonArray(calendriers))
+			.add("proprietaires", JSONUtils.getJsonArray(proprietaires))
+			.add("parent", parent.toJson())
+			.build();
 	}
 }
