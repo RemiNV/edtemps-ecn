@@ -19,8 +19,7 @@
 			
 			<div class="boutons_valider">
 				<div class="button" id="btn_export">Export ICAL</div>
-			</div>			
-			
+			</div>
 			
 			<div id="dialog_export" title="Export">
 				URL de l'agenda ICal : <textarea id="txt_url_agenda_ical"></textarea><br/>
@@ -30,7 +29,6 @@
 				<a class="button" id="lien_export_gmail" href="#" target="_blank">Ouvrir avec GMail</a>
 				
 			</div>
-			
 			
 		</div>
 		
@@ -111,7 +109,12 @@
 		<div id="parametres/mes_groupes" class="tab_parametres">
 			<div class="button" id="btn_creer_groupe">Ajouter un groupe de participants</div>
 
-			<div id="dialog_detail_groupe" title="Détail d'un groupe de participants" style="display: none;"></div>
+			<div id="dialog_detail_groupe" title="Détail sur un groupe de participants" style="display: none;"></div>
+
+			<div id="dialog_gerer_groupe" title="Gérer un groupe de participants" style="display: none;">
+				<p>Liste de(s) groupe(s) qui demande(nt) le rattachement à ce groupe :</p>
+				<table></table>
+			</div>
 			
 			<div id="form_creer_groupe" title="Formulaire de création d'un groupe de participants">
 				<form>

@@ -50,7 +50,7 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	 */
 	DialogDetailGroupeParticipants.prototype.init = function() {
 
-		// Affiche la boîte dialogue de recherche d'une salle libre
+		// Affiche la boîte dialogue de détail d'un groupe de participants
 		this.jqDetailGroupeParticipants.dialog({
 			autoOpen: false,
 			width: 500,

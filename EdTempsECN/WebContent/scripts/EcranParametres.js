@@ -3,9 +3,9 @@
  * Associé au HTML templates/page_parametres.html
  * @module EcranParametres
  */
-define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "DialogDetailGroupeParticipants", "lib/davis.min",
+define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "DialogDetailGroupeParticipants", "DialogGererGroupeParticipants", "lib/davis.min",
         "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
-        		DialogCreationGroupeParticipants, DialogDetailGroupeParticipants, Davis) {
+        		DialogCreationGroupeParticipants, DialogDetailGroupeParticipants, DialogGererGroupeParticipants, Davis) {
 	
 	/**
 	 * @constructor
@@ -17,8 +17,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
  		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
- 		
- 		this.listeGroupesEnAttenteDeValidation = new Array();
+ 		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager);
 	};
 	
 	var idTabs = {
@@ -254,7 +253,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 			"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>'><% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
 				"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
 				"<td class='tbl_mes_groupes_boutons'>" +
-					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
+					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_modifier' value='Modifier' />" +
 					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' />" +
 				"</td>" +
 			"</tr> <% }); %>";
@@ -275,12 +274,6 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 					// Ecriture du tableau dans la page
 					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
 					
-					// Listeners pour les boutons gérer
-					$(".tbl_mes_groupes_boutons_gerer").click(function() {
-						alert($(this).attr("data-id"));
-						me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
-					});
-
 					// Listeners pour les lignes
 					$(".tbl_mes_groupes_groupe").click(function() {
 						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
@@ -400,14 +393,27 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 		var me=this;
 		
 		this.groupeGestion.queryGroupesEnAttenteRattachement(function(resultCode, data) {
-			me.listeGroupesEnAttenteDeValidation = data;
-			var nbGroupes = me.listeGroupesEnAttenteDeValidation.length;
+			var nbGroupes = data.length;
 			
 			if (nbGroupes > 0) {
-				for (var i=0; i<me.listeGroupesEnAttenteDeValidation.length; i++) {
-					$("#tbl_mes_groupes_ligne_"+me.listeGroupesEnAttenteDeValidation[i].parentIdTmp).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+				for (var i=0; i<nbGroupes; i++) {
+					$("#tbl_mes_groupes_ligne_"+data[i].parentIdTmp).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+					$("#tbl_mes_groupes_ligne_"+data[i].parentIdTmp+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+data[i].parentIdTmp+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
 				}
 			}
+
+			// Listeners pour les boutons gérer
+			$(".tbl_mes_groupes_boutons_gerer").click(function() {
+				var listeRattachementAttenteValidation = new Array();
+				for (var i=0, maxI=data.length; i<maxI; i++) {
+					if (data[i].parentIdTmp==$(this).attr("data-id")) {
+						listeRattachementAttenteValidation.push(data[i]);
+					}
+				}
+				me.dialogGererGroupeParticipants.show($(this).attr("data-id"), listeRattachementAttenteValidation);
+			});
+
+
 			
 		});
 

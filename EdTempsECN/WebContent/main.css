@@ -538,11 +538,11 @@ input.valide {
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons {
 	text-align: right;
-	width: 160px;
+	width: 250px;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons input {
-	margin-left: 10px;
+	margin-left: 5px;
 }
 
 
@@ -556,4 +556,21 @@ input.valide {
 
 #dialog_detail_groupe_boutons {
 	text-align: right;
+}
+
+/* 
+ * Boîte de dialogue de gestion d'un groupe de participants
+ */
+
+#dialog_gerer_groupe table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#dialog_gerer_groupe table tr {
+	border: solid 1px black;
+}
+
+#dialog_gerer_groupe table td {
+	padding-left: 5px;
 }
