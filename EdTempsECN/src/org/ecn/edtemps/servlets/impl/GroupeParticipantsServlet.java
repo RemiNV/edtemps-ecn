@@ -38,7 +38,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 	/**
 	 * Méthode générale du servlet appelée par la requête POST
-	 * Elle redirige vers les trois méthodes possibles : ajout, modification et suppression
+	 * Elle redirige vers les différentes fonctionnalités possibles
 	 * 
 	 * @param userId
 	 * 			identifiant de l'utilisateur qui a fait la requête
@@ -62,7 +62,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 		try {
 
-			// Renvoies vers les différentes fonctionnalités possibles :
+			// Renvoies vers les différentes fonctionnalités
 			switch (pathInfo) {
 				case "/ajouter":
 					doAjouterGroupeParticipants(userId, bdd, req, resp);
@@ -85,7 +85,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format de l'objet JSON 'groupe de participants' incorrect", null));
 			bdd.close();
 		} catch(EdtempsException e) {
-			logger.error("Erreur lors de l'ajout/modification/suppression d'un groupe de participants", e);
+			logger.error("Erreur lors de l'ajout/modification/suppression/récupération d'un groupe de participants", e);
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 			bdd.close();
 		}
@@ -94,7 +94,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 	
 	/**
-	 * Ajoutter un groupe de participants
+	 * Ajouter un groupe de participants
 	 * 
 	 * @param userId
 	 * 			identifiant de l'utilisateur qui fait la demande d'ajout
