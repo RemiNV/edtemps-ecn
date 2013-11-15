@@ -499,4 +499,32 @@ public class CalendrierGestion {
 		}
 	}
 	
+	
+	/**
+	 * Récupère la liste des calendriers d'un groupe de participants
+	 * @param groupeId Identifiant du groupe à traiter
+	 * @return la liste des calendriers du groupe
+	 * @throws DatabaseException
+	 */
+	public List<CalendrierIdentifie> listerCalendriersGroupeParticipants(int groupeId) throws DatabaseException {
+		ResultSet reponse = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.matiere_id, calendrier.cal_nom, calendrier.typecal_id" +
+				" FROM edt.calendrier" +
+				" INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id=calendrier.cal_id" +
+				" AND calendrierappartientgroupe.groupeparticipant_id="+groupeId);
+		
+		try {
+			List<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateCalendrierFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			return res;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+
 }
