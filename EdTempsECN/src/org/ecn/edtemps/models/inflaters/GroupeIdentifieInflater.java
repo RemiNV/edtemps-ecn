@@ -2,53 +2,48 @@ package org.ecn.edtemps.models.inflaters;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
-import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.managers.CalendrierGestion;
-import org.ecn.edtemps.managers.GroupeGestion;
-import org.ecn.edtemps.managers.UtilisateurGestion;
-import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
-import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
-import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 /**
- * Classe de création d'un GroupeComplet à partir de lignes de base de données.
+ * Classe de création d'un GroupeIdentifie à partir de lignes de base de données.
  * 
  * @author Joffrey
  */
-public class GroupeIdentifieInflater extends AbsGroupeInflater<GroupeComplet> {
+public class GroupeIdentifieInflater extends AbsGroupeInflater<GroupeIdentifie> {
 
 	@Override
-	protected GroupeComplet inflate(int id, String nom, int idParent, int idParentTmp, boolean rattachementAutorise,
+	protected GroupeIdentifie inflate(int id, String nom, int idParent, int idParentTmp, boolean rattachementAutorise,
 			boolean estCours, boolean estCalendrierUnique, ResultSet reponse, BddGestion bdd)
 					throws DatabaseException, SQLException {
-
-		// Récupérer la liste des propriétaires
-		UtilisateurGestion getionnaireUtilisateurs = new UtilisateurGestion(bdd);
-		List<UtilisateurIdentifie> proprietaires =  getionnaireUtilisateurs.getResponsablesGroupe(id);
 		
-		// Récupérer la liste des calendriers
-		CalendrierGestion getionnaireCalendriers = new CalendrierGestion(bdd);
-		List<CalendrierIdentifie> calendriers = getionnaireCalendriers.listerCalendriersGroupeParticipants(id);
+		// Récupérer la liste des identifiants des propriétaires */
+		ResultSet requeteProprietaires = bdd.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+id);
 		
-		// Récupérer le groupe parent s'il y en a un
-		GroupeGestion getionnaireGroupes = new GroupeGestion(bdd);
-		GroupeIdentifie parent = null;
-		try {
-			if (idParent>0) {
-				parent = getionnaireGroupes.getGroupe(idParent);
-			} else if (idParentTmp>0) {
-				parent = getionnaireGroupes.getGroupe(idParentTmp);
-			}
-		} catch (EdtempsException e) {
-			throw new DatabaseException(e);
+		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
+		while (requeteProprietaires.next()) {
+			idProprietaires.add(requeteProprietaires.getInt("utilisateur_id"));
 		}
+		requeteProprietaires.close();
+		
+		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
+		groupeRecupere.setParentId(idParent); // Eventuellement 0
+		groupeRecupere.setParentIdTmp(idParentTmp);
 
-		return new GroupeComplet(id, nom, rattachementAutorise, estCours, estCalendrierUnique, idParentTmp, idParent, calendriers, proprietaires, parent);
+		// Récupérer la liste des identifiants des calendriers */
+		ResultSet requeteCalendriers = bdd.executeRequest("SELECT * FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id="+id);
+		
+		ArrayList<Integer> idCalendriers = new ArrayList<Integer>();
+		while (requeteCalendriers.next()) {
+			idCalendriers.add(requeteCalendriers.getInt("cal_id"));
+		}
+		requeteCalendriers.close();
+		groupeRecupere.setIdCalendriers(idCalendriers);
+		
+		return groupeRecupere;
 		
 	}
 
