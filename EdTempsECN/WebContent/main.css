@@ -417,6 +417,55 @@ table.liste_materiel th {
 	z-index: 10;
 }
 
+
+/*
+ * Bulle d'information
+ */
+
+#bulle_information {
+	display: none;
+	position: fixed;
+	width: 200px;
+	background-color: red;
+	border-radius: 3px;
+	padding: 10px;
+	color: white;
+	box-shadow: 3px 5px 7px #888888;
+	z-index: 10;
+	cursor: move;
+}
+
+#bulle_information a {
+	text-decoration: none;
+	font-weight: bold;
+	color: white;
+}
+
+#bulle_information a:hover {
+	text-decoration: underline;
+	color: black;
+}
+
+#bulle_information #bulle_information_fermer {
+	float: right;
+	margin-right: -5px;
+	margin-top: -5px;
+	border: solid 1px black;
+	width: 8px;
+	padding: 2px;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+#bulle_information #bulle_information_fermer:hover {
+	background-color: white;
+}
+
+#bulle_information #bulle_information_clique:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
 .tab_parametres {
 	width: 700px;
 	padding-right: 10px;
