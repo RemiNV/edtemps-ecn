@@ -562,6 +562,11 @@ input.valide {
  * Boîte de dialogue de gestion d'un groupe de participants
  */
 
+#dialog_gerer_groupe #dialog_gerer_groupe_boutons {
+	text-align: right;
+	margin-top: 10px;	
+}
+
 #dialog_gerer_groupe table {
 	border-collapse: collapse;
 	width: 100%;
@@ -574,3 +579,7 @@ input.valide {
 #dialog_gerer_groupe table td {
 	padding-left: 5px;
 }
+
+#dialog_gerer_groupe table .dialog_gerer_groupe_table_boutons {
+	width: 160px;
+	text-align: right;

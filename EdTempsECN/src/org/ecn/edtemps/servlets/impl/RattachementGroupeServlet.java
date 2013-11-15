@@ -50,7 +50,7 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 
 		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/listermesdemandes") && !pathInfo.equals("/accepter") && !pathInfo.equals("/refuser") ) {
+		if (!pathInfo.equals("/listermesdemandes") && !pathInfo.equals("/decider") ) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			bdd.close();
 			return;
@@ -63,11 +63,8 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 				case "/listermesdemandes":
 					doListerMesDemandesDeRattachement(userId, bdd, req, resp);
 					break;
-				case "/accepter":
-					doAccepterDemandeDeRattachement(userId, bdd, req, resp);
-					break;
-				case "/refuser":
-					doRefuserDemandeDeRattachement(userId, bdd, req, resp);
+				case "/decider":
+					doDeciderDemandeDeRattachement(userId, bdd, req, resp);
 					break;
 			}
 
@@ -107,7 +104,7 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	}
 	
 	/**
-	 * Accepter une demande de rattachement
+	 * Décider une demande de rattachement
 	 * @param userId Identifiant de l'utilisateur qui fait la requête
 	 * @param bdd Gestionnaire de la base de données
 	 * @param resp Réponse à compléter
@@ -115,21 +112,13 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */
-	protected void doAccepterDemandeDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		
-	}
+	protected void doDeciderDemandeDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		Boolean choix = Boolean.valueOf(req.getParameter("etat"));
+		Integer groupeId = Integer.valueOf(req.getParameter("id"));
+		groupeGestion.deciderRattachement(choix, groupeId);
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement "+(choix ? "accepté" : "refusé"), null));
 
-	/**
-	 * Refuser une demande de rattachement
-	 * @param userId Identifiant de l'utilisateur qui fait la requête
-	 * @param bdd Gestionnaire de la base de données
-	 * @param resp Réponse à compléter
-	 * @param requete Requête
-	 * @throws EdtempsException
-	 * @throws IOException
-	 */
-	protected void doRefuserDemandeDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		
 	}
 
 }

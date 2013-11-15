@@ -1,16 +1,17 @@
 /**
  * @module DialogGererGroupeParticipants
  */
-define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) {
+define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManager, GroupeGestion) {
 
 	/**
 	 * @constructor
 	 * @alias DialogGererGroupeParticipants
 	 */
-	var DialogGererGroupeParticipants = function(restManager) {
+	var DialogGererGroupeParticipants = function(restManager, ecranParametres) {
 		this.restManager = restManager;
 		this.groupeGestion = new GroupeGestion(this.restManager);
-		
+		this.ecranParametres = ecranParametres;
+
 		this.initAppele = false; /* Permet de ne lancer l'initialisation de la dialogue une seule fois */
 		this.jqGererGroupeParticipants = $("#dialog_gerer_groupe"); /* Pointeur jQuery vers la dialogue */
 	};
@@ -50,7 +51,8 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	 * Initialise la boîte de dialogue de gestion d'un groupe de participants
 	 */
 	DialogGererGroupeParticipants.prototype.init = function() {
-
+		var me=this;
+		
 		// Affiche la boîte dialogue de gestion d'un groupe de participants
 		this.jqGererGroupeParticipants.dialog({
 			autoOpen: false,
@@ -65,6 +67,11 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 				duration: 200
 			}
 		});
+		
+		// Listener du bouton "Fermer"
+		this.jqGererGroupeParticipants.find("#dialog_gerer_groupe_fermer").click(function() {
+			me.jqGererGroupeParticipants.dialog("close");
+		});
 
 		this.initAppele = true;
 	};
@@ -74,15 +81,53 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	 * @param listeGroupesEnAttenteDeValidation Liste des groupes en attente de validation du groupe à gérer
 	 */
 	DialogGererGroupeParticipants.prototype.chargerContenu = function(groupe, listeGroupesEnAttenteDeValidation) {
+		var me=this;
 		
+		// Préparation du template de remplissage
 		var listRattachementTemplate = 
-			"<% _.each(groupes, function(groupe) { %> <tr>" +
+			"<% _.each(groupes, function(groupe) { %> <tr id='dialog_gerer_groupe_table_ligne_<%= groupe.id %>'>" +
 				"<td><%= groupe.nom %></td>" +
-				"<td width='160'><input type='button' class='button' value='Accepter' title='Accepter' /><input type='button' class='button' value='Refuser' title='Refuser' /></td>" +
+				"<td class='dialog_gerer_groupe_table_boutons'><input type='button' data-id='<%= groupe.id %>' class='button dialog_gerer_groupe_accepter' value='Accepter' /><input type='button' data-id='<%= groupe.id %>' class='button dialog_gerer_groupe_refuser' value='Refuser' /></td>" +
 			"</tr> <% }); %>";
 
+		// Ecriture du contenu de la dialogue
 		this.jqGererGroupeParticipants.find("table").html(_.template(listRattachementTemplate, {groupes: listeGroupesEnAttenteDeValidation}));
+		
+		// Listeners
+		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_accepter").click(function (){
+			me.deciderRattachement(true, $(this).attr("data-id"));
+		});
+		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_refuser").click(function (){
+			me.deciderRattachement(false, $(this).attr("data-id"));
+		});
 
+	};
+	
+	/**
+	 * Fait le lien avec le serveur et met à jour la boite de dialogue
+	 * @param choix Choix pour le rattachement
+	 * @param groupeId Identifiant du groupe à traiter
+	 */
+	DialogGererGroupeParticipants.prototype.deciderRattachement = function(choix, groupeId) {
+		var me=this;
+		
+		this.groupeGestion.queryDeciderRattachement(choix, groupeId, function (resultCode) {
+			if (resultCode == RestManager.resultCode_Success) {
+				window.showToast("Votre choix a été enregistré");
+				me.ecranParametres.initMesGroupes();
+				me.ecranParametres.dialogCreationGroupeParticipants.chargementListeGroupesParents();
+				
+				// Suppression de la ligne dans le tableau
+				me.jqGererGroupeParticipants.find("#dialog_gerer_groupe_table_ligne_"+groupeId).remove();
+				
+				// S'il n'y a plus de ligne, fermeture de la boîte de dialogue
+				if ($('#dialog_gerer_groupe table > *').length==0) {
+					me.jqGererGroupeParticipants.dialog("close");
+				}
+			} else {
+				window.showToast("L'enregistrement de votre choix a échoué ; vérifiez votre connexion.");
+			}
+		});
 	};
 
 	return DialogGererGroupeParticipants;

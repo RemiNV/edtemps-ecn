@@ -666,4 +666,28 @@ public class GroupeGestion {
 		
 		return groupesEnAttenteDeValidation;
 	}
+	
+	
+	/**
+	 * Décide du rattachement (accepté ou refusé) à un groupe de participant
+	 * @param accepte VRAI si le rattachement est accepté
+	 * @param groupeId Identifiant du groupe dont le rattachement a été décidé
+	 * @throws DatabaseException 
+	 */
+	public void deciderRattachement(boolean accepte, int groupeId) throws DatabaseException {
+		
+		// Démarre une transaction
+		_bdd.startTransaction();
+
+		// Décide le rattachement
+		if (accepte) {
+			_bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent=groupeparticipant_id_parent_tmp, groupeparticipant_id_parent_tmp=NULL WHERE groupeparticipant_id="+groupeId);
+		} else {
+			_bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent_tmp=NULL WHERE groupeparticipant_id="+groupeId);
+		}
+
+		// Termine la transaction
+		_bdd.commit();
+
+	}
 }
