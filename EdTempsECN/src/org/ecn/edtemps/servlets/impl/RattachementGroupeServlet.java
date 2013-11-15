@@ -102,7 +102,7 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	protected void doListerMesDemandesDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws SQLException, DatabaseException, IOException {
 		GroupeGestion gestionnaireGroupes = new GroupeGestion(bdd);
 		List<GroupeComplet> listeGroupes = gestionnaireGroupes.listerDemandesDeRattachement(userId);
-		JsonObject data = Json.createObjectBuilder().add("listeMateriels", JSONUtils.getJsonArray(listeGroupes)).build();
+		JsonObject data = Json.createObjectBuilder().add("listeGroupes", JSONUtils.getJsonArray(listeGroupes)).build();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Liste des groupes en attente de rattachement récupérée", data));
 	}
 	

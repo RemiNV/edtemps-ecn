@@ -92,12 +92,29 @@ define(["RestManager"], function(RestManager) {
 	 * @param groupeId
 	 * @param callback
 	 */
-	GroupeGestion.prototype.querySupprimerGroupes = function(groupeId, callback) {
+	GroupeGestion.prototype.queryGetGroupeComplet = function(groupeId, callback) {
 		this.restManager.effectuerRequete("POST", "groupeparticipants/get", {
 			token: this.restManager.getToken(), id: groupeId
 		}, function(data) {
-			if(data.resultCode == RestManager.resultCode_Success) {
+			if (data.resultCode == RestManager.resultCode_Success) {
 				callback(data.resultCode, data.data);
+			} else {
+				callback(data.resultCode);
+			}
+		});
+	};
+
+	
+	/**
+	 * Récupérer les groupes en attente de rattachement pour l'utilisateur en cours
+	 * @param callback
+	 */
+	GroupeGestion.prototype.queryGroupesEnAttenteRattachement = function(callback) {
+		this.restManager.effectuerRequete("POST", "rattachementgroupe/listermesdemandes", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				callback(data.resultCode, data.data.listeGroupes);
 			} else {
 				callback(data.resultCode);
 			}

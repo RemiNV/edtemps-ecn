@@ -28,7 +28,7 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 		var me=this;
 		
 		// Récupération des données sur le groupe à afficher
-		this.groupeGestion.querySupprimerGroupes(idGroupe, function(resultCode, data) {
+		this.groupeGestion.queryGetGroupeComplet(idGroupe, function(resultCode, data) {
 
 			if (resultCode == RestManager.resultCode_Success) {
 				// Ecrit le contenu de la boîte de dialogue
