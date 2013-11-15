@@ -11,8 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
+import org.ecn.edtemps.models.inflaters.GroupeCompletInflater;
 import org.ecn.edtemps.models.inflaters.GroupeIdentifieInflater;
 
 /**
@@ -37,12 +39,12 @@ public class GroupeGestion {
 	
 
 	/**
-	 * Récupérer un groupe de participants dans la base de données
+	 * Récupérer un groupe identifié de participants dans la base de données
 	 * 
 	 * @param identifiant
 	 *            identifiant du groupe à récupérer
 	 * 
-	 * @return le groupe
+	 * @return le groupe identifié (standard)
 	 * 
 	 * @throws EdtempsException
 	 *             en cas d'erreur de connexion avec la base de données
@@ -57,11 +59,9 @@ public class GroupeGestion {
 			_bdd.startTransaction();
 
 			// Récupère le groupe en base
-			ResultSet requeteGroupe = _bdd
-
-					.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp," +
-							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM edt.groupeparticipant WHERE groupeparticipant_id="
-							+ identifiant);
+			ResultSet requeteGroupe = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp," +
+							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique" +
+							" FROM edt.groupeparticipant WHERE groupeparticipant_id="+identifiant);
 
 			// Accède au premier élément du résultat
 			if(requeteGroupe.next()) {
@@ -80,6 +80,47 @@ public class GroupeGestion {
 	}
 	
 
+	/**
+	 * Récupérer un groupe complet de participants dans la base de données
+	 * 
+	 * @param identifiant
+	 *            identifiant du groupe à récupérer
+	 * 
+	 * @return le groupe complet
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur de connexion avec la base de données
+	 */
+	public GroupeComplet getGroupeComplet(int identifiant) throws EdtempsException {
+
+		GroupeComplet groupeRecupere = null;
+
+		try {
+
+			// Démarre une transaction
+			_bdd.startTransaction();
+
+			// Récupère le groupe en base
+			ResultSet requeteGroupe = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp," +
+							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique" +
+							" FROM edt.groupeparticipant WHERE groupeparticipant_id="+identifiant);
+
+			// Accède au premier élément du résultat
+			if(requeteGroupe.next()) {
+				groupeRecupere = new GroupeCompletInflater().inflateGroupe(requeteGroupe, _bdd);
+				requeteGroupe.close();
+			}
+
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+
+		return groupeRecupere;
+	}
+	
+	
 	/**
 	 * Modifie un groupe en base de données
 	 * 

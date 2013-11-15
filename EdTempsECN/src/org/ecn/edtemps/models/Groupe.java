@@ -1,6 +1,9 @@
 package org.ecn.edtemps.models;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * Classe modèle d'un groupe de participants
@@ -39,10 +42,15 @@ public class Groupe {
 	 */
 	public Groupe(String nom, List<Integer> idProprietaires, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique) {
 		this.nom = nom;
-		this.idProprietaires = idProprietaires;
 		this.rattachementAutorise = rattachementAutorise;
 		this.estCours = estCours;
 		this.estCalendrierUnique = estCalendrierUnique;
+		this.idCalendriers = new ArrayList<Integer>();
+		if (CollectionUtils.isNotEmpty(idProprietaires)) {
+			this.idProprietaires = idProprietaires;
+		} else {
+			this.idProprietaires = new ArrayList<Integer>();
+		}
 	}
 	
 	/**

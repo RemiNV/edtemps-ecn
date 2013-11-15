@@ -2,11 +2,9 @@ package org.ecn.edtemps.models.inflaters;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
 /**

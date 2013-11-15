@@ -29,7 +29,7 @@ public class GroupeCompletInflater extends AbsGroupeInflater<GroupeComplet> {
 
 		// Récupérer la liste des propriétaires
 		UtilisateurGestion getionnaireUtilisateurs = new UtilisateurGestion(bdd);
-		List<UtilisateurIdentifie> proprietaires =  getionnaireUtilisateurs.getResponsablesGroupe(id);
+		List<UtilisateurIdentifie> proprietaires = getionnaireUtilisateurs.getResponsablesGroupe(id);
 		
 		// Récupérer la liste des calendriers
 		CalendrierGestion getionnaireCalendriers = new CalendrierGestion(bdd);

@@ -23,7 +23,7 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
-import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
@@ -182,7 +182,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	 */
 	protected void doGetGroupeParticipants(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		GroupeIdentifie groupe = groupeGestion.getGroupe(Integer.valueOf(req.getParameter("id")));
+		GroupeComplet groupe = groupeGestion.getGroupeComplet(Integer.valueOf(req.getParameter("id")));
 		JsonValue data = Json.createObjectBuilder().add("groupe", groupe.toJson()).build();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe récupéré", data));
 	}

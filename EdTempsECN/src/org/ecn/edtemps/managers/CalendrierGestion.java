@@ -507,11 +507,13 @@ public class CalendrierGestion {
 	 * @throws DatabaseException
 	 */
 	public List<CalendrierIdentifie> listerCalendriersGroupeParticipants(int groupeId) throws DatabaseException {
-		ResultSet reponse = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.matiere_id, calendrier.cal_nom, calendrier.typecal_id" +
+		ResultSet reponse = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.matiere_id, calendrier.cal_nom, calendrier.typecal_id, matiere.matiere_nom, typecalendrier.typecal_libelle" +
 				" FROM edt.calendrier" +
 				" INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id=calendrier.cal_id" +
-				" AND calendrierappartientgroupe.groupeparticipant_id="+groupeId);
-		
+				" AND calendrierappartientgroupe.groupeparticipant_id=" + groupeId +
+				" INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id" +
+				" INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id=calendrier.typecal_id");
+
 		try {
 			List<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
 			while(reponse.next()) {
