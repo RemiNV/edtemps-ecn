@@ -13,6 +13,7 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
+import org.ecn.edtemps.models.inflaters.GroupeIdentifieInflater;
 
 /**
  * Classe de gestion des groupes de participants
@@ -34,60 +35,6 @@ public class GroupeGestion {
 		_bdd = bdd;
 	}
 	
-	
-	/**
-	 * Créé un GroupeIdentifie à partir d'une ligne de base de données.
-	 * @param row ResultSet à lire, déjà placé sur la ligne à utiliser.
-	 * @return Le groupe généré
-	 * @throws DatabaseException 
-	 * @throws SQLException 
-	 */
-	private GroupeIdentifie inflateGroupeFromRow(ResultSet row) throws DatabaseException, SQLException {
-		// Informations générales
-		int id = row.getInt("groupeparticipant_id");
-		
-		String nom = row.getString("groupeparticipant_nom");
-		
-		boolean rattachementAutorise = row.getBoolean("groupeparticipant_rattachementautorise");
-		
-		int parentId = row.getInt("groupeparticipant_id_parent");
-		
-		int parentIdTmp = row.getInt("groupeparticipant_id_parent_tmp");
-
-		boolean estCours = row.getBoolean("groupeparticipant_estcours");
-		
-		boolean estCalendrierUnique = row.getBoolean("groupeparticipant_estcalendrierunique");
-		
-		// Récupérer la liste des identifiants des propriétaires */
-		ResultSet requeteProprietaires = _bdd
-				.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="
-						+ id);
-		
-		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
-		while (requeteProprietaires.next()) {
-			idProprietaires.add(requeteProprietaires.getInt("utilisateur_id"));
-		}
-		requeteProprietaires.close();
-		
-		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
-		groupeRecupere.setParentId(parentId); // Eventuellement 0
-		groupeRecupere.setParentIdTmp(parentIdTmp);
-
-		// Récupérer la liste des identifiants des calendriers */
-		ResultSet requeteCalendriers = _bdd
-				.executeRequest("SELECT * FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id="
-						+ id);
-		
-		ArrayList<Integer> idCalendriers = new ArrayList<Integer>();
-		while (requeteCalendriers.next()) {
-			idCalendriers.add(requeteCalendriers.getInt("cal_id"));
-		}
-		requeteCalendriers.close();
-		groupeRecupere.setIdCalendriers(idCalendriers);
-		
-		return groupeRecupere;
-	}
-
 
 	/**
 	 * Récupérer un groupe de participants dans la base de données
@@ -118,7 +65,7 @@ public class GroupeGestion {
 
 			// Accède au premier élément du résultat
 			if(requeteGroupe.next()) {
-				groupeRecupere = inflateGroupeFromRow(requeteGroupe);
+				groupeRecupere = new GroupeIdentifieInflater().inflateGroupe(requeteGroupe, _bdd);
 				
 				requeteGroupe.close();
 			}
@@ -346,16 +293,16 @@ public class GroupeGestion {
 	public static void makeTempTableListeGroupesAbonnement(BddGestion bdd, int idUtilisateur) throws DatabaseException {
 		// Création d'une table temporaire pour les résultats
 		bdd.executeRequest("CREATE TEMP TABLE " + NOM_TEMPTABLE_ABONNEMENTS + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
-				"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_estcours BOOLEAN, " +
+				"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_id_parent_tmp INTEGER, groupeparticipant_estcours BOOLEAN, " +
 				"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL) ON COMMIT DROP");
 		
 		// Ajout des abonnements directs
 		bdd.executeRequest("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
 				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 				"SELECT groupeparticipant.groupeparticipant_id," +
 				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
+				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
 				"FROM edt.groupeparticipant " +
 				"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
 				"AND abonnegroupeparticipant.utilisateur_id=" + idUtilisateur);
@@ -430,7 +377,7 @@ public class GroupeGestion {
 			// Création d'objets "groupes identifiés" pour les groupes rencontrés dans la table
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
 			while(resGroupes.next()) {
-				res.add(inflateGroupeFromRow(resGroupes));
+				res.add(new GroupeIdentifieInflater().inflateGroupe(resGroupes, _bdd));
 			}
 
 			if(createTransaction){
@@ -466,13 +413,13 @@ public class GroupeGestion {
 				makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
 			
 			// Lecture des groupes de la table
-			ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent," +
-					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM " + NOM_TEMPTABLE_ABONNEMENTS);
+			ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, " +
+					"groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM " + NOM_TEMPTABLE_ABONNEMENTS);
 
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
 			
 			while(resGroupes.next()) {
-				res.add(inflateGroupeFromRow(resGroupes));
+				res.add(new GroupeIdentifieInflater().inflateGroupe(resGroupes, _bdd));
 			}
 			
 			// Supprime aussi la table temporaire
@@ -576,7 +523,7 @@ public class GroupeGestion {
 
 		try {
 			while(resGroupes.next()) {
-				res.add(inflateGroupeFromRow(resGroupes));
+				res.add(new GroupeIdentifieInflater().inflateGroupe(resGroupes, _bdd));
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
@@ -605,7 +552,7 @@ public class GroupeGestion {
 
 		try {
 			while(resGroupes.next()) {
-				res.add(inflateGroupeFromRow(resGroupes));
+				res.add(new GroupeIdentifieInflater().inflateGroupe(resGroupes, _bdd));
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
