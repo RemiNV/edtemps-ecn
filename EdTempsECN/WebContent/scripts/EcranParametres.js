@@ -253,9 +253,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
 				"<td class='tbl_mes_groupes_boutons'>" +
 					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
-					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' " +
-					"<% if (groupe.estCalendrierUnique) { %>title='Ce groupe ne peut pas être supprimé car c&apos;est le groupe unique rattaché à son calendrier. Supprimer ce calendrier supprimera également ce groupe.' disabled='disabled' <% } %>" +
-					"/>" +
+					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' />" +
 				"</td>" +
 			"</tr> <% }); %>";
 		

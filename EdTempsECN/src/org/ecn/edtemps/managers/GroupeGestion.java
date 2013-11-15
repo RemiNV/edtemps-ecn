@@ -584,10 +584,11 @@ public class GroupeGestion {
 		
 		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
 				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent,groupeparticipant.groupeparticipant_id_parent_tmp," +
-					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
-					"FROM edt.groupeparticipant " +
-					"INNER JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id " +
-					"AND proprietairegroupeparticipant.utilisateur_id = " + idProprietaire);
+					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique" +
+					" FROM edt.groupeparticipant" +
+					" INNER JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id" +
+					" AND groupeparticipant.groupeparticipant_estcalendrierunique=FALSE " +
+					" AND proprietairegroupeparticipant.utilisateur_id="+idProprietaire);
 		
 		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
 
