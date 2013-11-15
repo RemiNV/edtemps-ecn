@@ -3,6 +3,7 @@ package org.ecn.edtemps.models.identifie;
 import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
@@ -73,7 +74,7 @@ public class GroupeComplet extends GroupeIdentifie implements JSONAble {
 
 	@Override
 	public JsonValue toJson() {
-		return Json.createObjectBuilder()
+		JsonObjectBuilder builder = Json.createObjectBuilder()
 			.add("id", id)
 			.add("nom", nom)
 			.add("parentId", parentId)
@@ -82,8 +83,12 @@ public class GroupeComplet extends GroupeIdentifie implements JSONAble {
 			.add("estCours", estCours)
 			.add("estCalendrierUnique", estCalendrierUnique)
 			.add("calendriers", JSONUtils.getJsonArray(calendriers))
-			.add("proprietaires", JSONUtils.getJsonArray(proprietaires))
-			.add("parent", parent.toJson())
-			.build();
+			.add("proprietaires", JSONUtils.getJsonArray(proprietaires));
+		
+		if (parent!=null) {
+			builder.add("parent", parent.toJson());
+		}
+			
+		return builder.build();
 	}
 }
