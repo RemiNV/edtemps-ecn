@@ -298,13 +298,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 					
 					// Listeners pour les lignes
 					$("#tbl_mes_groupes tr").click(function() {
-						// Récupération des informations sur le groupe de participants
-						for (var i=0, maxI=data.listeGroupes.length; i<maxI; i++) {
-							if (data.listeGroupes[i].id == $(this).attr("data-id")) {
-								me.dialogDetailGroupeParticipants.show(data.listeGroupes[i]);
-								break;
-							} 
-						}
+						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
 					});
 
 				} else {

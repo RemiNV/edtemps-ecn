@@ -500,22 +500,8 @@ input.valide {
  * Boîte de dialogue pour afficher les détail d'un groupe de participants
  */
 
-#dialog_detail_groupe table {
-	border-collapse: collapse;
-	width: 100%;
-}
-
-#dialog_detail_groupe table td {
-	padding: 10px 2px 2px 10px;
-}
-
-
-#dialog_detail_groupe table .dialog_detail_groupe_label {
-	width: 160px;
+#dialog_detail_groupe .dialog_detail_groupe_label {
 	text-decoration: underline;
-}
-
-#dialog_detail_groupe table .dialog_detail_groupe_value {
 }
 
 #dialog_detail_groupe_boutons {

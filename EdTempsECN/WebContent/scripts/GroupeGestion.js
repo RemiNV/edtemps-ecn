@@ -85,6 +85,25 @@ define(["RestManager"], function(RestManager) {
 			callback(data.resultCode);
 		});
 	};
+	
+	
+	/**
+	 * Récupérer un groupe de participants avec toutes les données complètes
+	 * @param groupeId
+	 * @param callback
+	 */
+	GroupeGestion.prototype.querySupprimerGroupes = function(groupeId, callback) {
+		this.restManager.effectuerRequete("POST", "groupeparticipants/get", {
+			token: this.restManager.getToken(), id: groupeId
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback(data.resultCode, data.data);
+			} else {
+				callback(data.resultCode);
+			}
+		});
+	};
+
 
 	return GroupeGestion;
 });

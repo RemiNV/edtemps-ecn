@@ -1,7 +1,7 @@
 /**
  * @module DialogDetailGroupeParticipants
  */
-define([ "RestManager" ], function(RestManager) {
+define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) {
 
 	/**
 	 * @constructor
@@ -9,24 +9,38 @@ define([ "RestManager" ], function(RestManager) {
 	 */
 	var DialogDetailGroupeParticipants = function(restManager) {
 		this.restManager = restManager;
-		this.initAppele = false;
+		this.groupeGestion = new GroupeGestion(this.restManager);
 		
-		this.jqDetailGroupeParticipants = $("#dialog_detail_groupe");
+		this.initAppele = false; /* Permet de ne lancer l'initialisation de la dialogue une seule fois */
+		this.jqDetailGroupeParticipants = $("#dialog_detail_groupe"); /* Pointeur jQuery vers la dialogue */
 	};
 
 	/**
 	 * Affiche la boîte de dialogue de détail d'un groupe de participants
-	 * @param groupe Groupe à afficher
+	 * @param idGroupe Identifiant du groupe à afficher
 	 */
-	DialogDetailGroupeParticipants.prototype.show = function(groupe) {
+	DialogDetailGroupeParticipants.prototype.show = function(idGroupe) {
 		if(!this.initAppele) {
 			this.init();
 			this.initAppele = true;
 		}
 		
-		this.chargerContenu(groupe);
+		var me=this;
 		
-		this.jqDetailGroupeParticipants.dialog("open");
+		// Récupération des données sur le groupe à afficher
+		this.groupeGestion.querySupprimerGroupes(idGroupe, function(resultCode, data) {
+
+			if (resultCode == RestManager.resultCode_Success) {
+				// Ecrit le contenu de la boîte de dialogue
+				me.chargerContenu(data.groupe);
+				
+				// Ouvre la boîte de dialogue
+				me.jqDetailGroupeParticipants.dialog("open");
+			} else {
+				window.showToast("La récupération des informations sur le groupe a échoué ; vérifiez votre connexion.");
+			}
+			
+		});
 		
 	};
 	
@@ -62,27 +76,30 @@ define([ "RestManager" ], function(RestManager) {
 		var me = this;
 		
 		// Prépare le contenu de la fenêtre
-		var contenuHtml =
-			"<table>" +
-				"<tr><td class='dialog_detail_groupe_label'>Nom du groupe</td><td class='dialog_detail_groupe_value'>"+groupe.nom+"</td></tr>";
+		// Nom du groupe
+		var contenuHtml = "<p><span class='dialog_detail_groupe_label'>Nom du groupe :</span> "+groupe.nom+"</p>";
 
+		// Groupe parent
 		if (groupe.parentId>0) {
-			contenuHtml +=
-				"<tr><td class='dialog_detail_groupe_label'>Groupe parent</td><td class='dialog_detail_groupe_value'>"+groupe.parentId+"</td></tr>";
+			contenuHtml += "<p><span class='dialog_detail_groupe_label'>Groupe parent :</span> "+groupe.parentId+"</p>";
 		} else {
 			if (groupe.parentIdTmp>0) {
-				contenuHtml +=
-					"<tr><td class='dialog_detail_groupe_label'>Groupe parent</td><td class='dialog_detail_groupe_value'>"+groupe.parentIdTmp+" (rattachement non validé !)</td></tr>";
+				contenuHtml += "<p><span class='dialog_detail_groupe_label'>Groupe parent :</span> "+groupe.parentIdTmp+" <span style='color: red; font-size: 0.9em;'>(en attente de validation)</span></p>";
 			} else {
-				contenuHtml +=
-					"<tr><td class='dialog_detail_groupe_label'>Groupe parent</td><td class='dialog_detail_groupe_value'>Aucun</td></tr>";
+				contenuHtml += "<p><span class='dialog_detail_groupe_label'>Groupe parent :</span> Aucun</p>";
 			}
 		}
+
+		// Propriétaires
 		
+		
+		// Calendriers
+		
+		
+		//Finalisation
 		contenuHtml +=
-				"<tr><td class='dialog_detail_groupe_label'>Rattachement autorisé</td><td class='dialog_detail_groupe_value'>"+(groupe.rattachementAutorise ? "Oui" : "Non")+"</td></tr>" +
-				"<tr><td class='dialog_detail_groupe_label'>Groupe de cours</td><td class='dialog_detail_groupe_value'>"+(groupe.estCours ? "Oui" : "Non")+"</td></tr>" +
-			"</table>" +
+			"<p><span class='dialog_detail_groupe_label'>Rattachement autorisé :</span> "+(groupe.rattachementAutorise ? "Oui" : "Non")+"</p>" +
+			"<p><span class='dialog_detail_groupe_label'>Groupe de cours :</span> "+(groupe.estCours ? "Oui" : "Non")+"</p>" +
 			"<div id='dialog_detail_groupe_boutons'><input class='button' type='button' value='Fermer' id='dialog_detail_groupe_fermer' /></div>";
 
 		// Ecrit le contenu dans la fenêtre
