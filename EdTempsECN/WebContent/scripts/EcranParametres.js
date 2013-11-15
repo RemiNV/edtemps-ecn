@@ -3,9 +3,9 @@
  * Associé au HTML templates/page_parametres.html
  * @module EcranParametres
  */
-define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "lib/davis.min",
+define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "DialogDetailGroupeParticipants", "lib/davis.min",
         "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
-        		DialogCreationGroupeParticipants, Davis) {
+        		DialogCreationGroupeParticipants, DialogDetailGroupeParticipants, Davis) {
 	
 	/**
 	 * @constructor
@@ -16,6 +16,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
+ 		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
 	};
 	
 	var idTabs = {
@@ -248,7 +249,7 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 
 		// Création du template pour la liste des groupes
 		var listMesGroupesTemplate = 
-			"<% _.each(groupes, function(groupe) { %> <tr<% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante'<% } %>>" +
+			"<% _.each(groupes, function(groupe) { %> <tr data-id='<%= groupe.id %>'<% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante'<% } %>>" +
 				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %><% if (groupe.parentIdTmp>0) { %> - <i>En attente de validation pour le rattachement</i><% } %></td>" +
 				"<td class='tbl_mes_groupes_boutons'>" +
 					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
@@ -273,11 +274,13 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				if (data.listeGroupes.length>0) {
 					// Ecriture du tableau dans la page
 					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
+					
 					// Listeners pour les boutons gérer
 					$(".tbl_mes_groupes_boutons_gerer").click(function() {
 						alert($(this).attr("data-id"));
 						me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
 					});
+					
 					// Listeners pour les boutons supprimer
 					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
 						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
@@ -291,7 +294,19 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 								}
 							});
 						}
-					});					
+					});
+					
+					// Listeners pour les lignes
+					$("#tbl_mes_groupes tr").click(function() {
+						// Récupération des informations sur le groupe de participants
+						for (var i=0, maxI=data.listeGroupes.length; i<maxI; i++) {
+							if (data.listeGroupes[i].id == $(this).attr("data-id")) {
+								me.dialogDetailGroupeParticipants.show(data.listeGroupes[i]);
+								break;
+							} 
+						}
+					});
+
 				} else {
 					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
 				}
