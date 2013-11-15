@@ -249,8 +249,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 
 		// Création du template pour la liste des groupes
 		var listMesGroupesTemplate = 
-			"<% _.each(groupes, function(groupe) { %> <tr data-id='<%= groupe.id %>'<% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante'<% } %>>" +
-				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %><% if (groupe.parentIdTmp>0) { %> - <i>En attente de validation pour le rattachement</i><% } %></td>" +
+			"<% _.each(groupes, function(groupe) { %> <tr<% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
+				"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
 				"<td class='tbl_mes_groupes_boutons'>" +
 					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
 					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' " +
@@ -280,7 +280,12 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 						alert($(this).attr("data-id"));
 						me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
 					});
-					
+
+					// Listeners pour les lignes
+					$(".tbl_mes_groupes_groupe").click(function() {
+						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
+					});
+
 					// Listeners pour les boutons supprimer
 					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
 						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
@@ -296,10 +301,6 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 						}
 					});
 					
-					// Listeners pour les lignes
-					$("#tbl_mes_groupes tr").click(function() {
-						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
-					});
 
 				} else {
 					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
