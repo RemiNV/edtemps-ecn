@@ -214,39 +214,65 @@ public class CalendrierGestion {
 	 * @param calId : CalendrierIdentifie
 	 * @throws EdtempsException
 	 */
-	public void modifierCalendrier(CalendrierIdentifie calId) 
-			throws EdtempsException {
+	public void modifierCalendrier(CalendrierIdentifie calId) throws EdtempsException {
 		
 		try {
-			
-			// Commencer une transaction
+			// Début transaction
 			_bdd.startTransaction();
 			
-			// Récupération de l'id de la matiere et du type
-			int matiere_id;
-			int type_id;
-			try {
+			// Requete préparée pour la modification du calendrier
+			PreparedStatement requete = _bdd.getConnection().prepareStatement(
+					"UPDATE edtcalendrier SET (cal_nom, matiere_id, typeCal_id) = "
+					+ "(?, ?, ?) "
+					+ "WHERE cal_id = " + calId.getId() );
+			
+			// Ajout du nom du calendrier à la requete préparée
+			requete.setString(1, calId.getNom());
+			
+			// Ajout de la matiere du calendrier à la requete préparée (NULL si pas de matiere)
+			String matiere = calId.getMatiere();
+			if (matiere == "") { 
+				requete.setNull(2, java.sql.Types.INTEGER);
+			}
+			else {
 				// Récupération de l'id de la matière
 				PreparedStatement matiere_id_prepare = _bdd.getConnection().prepareStatement(
-						"SELECT * FROM edt.matiere WHERE matiere_nom = ?");
-				matiere_id_prepare.setString(1, calId.getMatiere());
-				matiere_id = _bdd.recupererId(matiere_id_prepare, "matiere_id");
-
-				// Récupération de l'id du type
-				PreparedStatement type_id_prepare = _bdd.getConnection().prepareStatement(
-						"SELECT * FROM edt.typecalendrier WHERE typecal_libelle = ?");
-				type_id_prepare.setString(1, calId.getType());
-				type_id = _bdd.recupererId(type_id_prepare, "typecal_id");
-			} catch (SQLException e){
-				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+						"SELECT * FROM edt.matiere WHERE matiere_nom=?");
+				matiere_id_prepare.setString(1, matiere);
+				int matiere_id = _bdd.recupererId(matiere_id_prepare, "matiere_id");
+				if (matiere_id == -1) { //le nom de la matiere match aucun/plusieurs id -> ERREUR
+					throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID matiere non existant ou non unique");
+				}
+				else {
+					// Ajout à la requete préparée
+					requete.setInt(2, matiere_id);
+				}
+				
 			}
 			
-			// Modifier matiere, nom, type du calendrier
-			PreparedStatement requete = _bdd.getConnection().prepareStatement(
-					"UPDATE edtcalendrier SET (matiere_id, cal_nom, typeCal_id) = "
-					+ "(" + matiere_id + ", ?, " + type_id + ") "
-					+ "WHERE cal_id = " + calId.getId() );
-			requete.setString(1, calId.getNom());
+			// Ajout du type du calendrier à la requete préparée (NULL si pas de type)
+			String type = calId.getType();
+			if (type == "") { 
+				requete.setNull(3, java.sql.Types.INTEGER);
+			}
+			else {
+				// Récupération de l'id du type
+				PreparedStatement type_id_prepare = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.typecalendrier WHERE typecal_libelle=?");
+				type_id_prepare.setString(1, type);
+				int type_id = _bdd.recupererId(type_id_prepare, "typecal_id");
+				if (type_id == -1) { //le nom du type match aucun/plusieurs id -> ERREUR
+					throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID type non existant ou non unique");
+				}
+				else {
+					// Ajout à la requete préparée
+					requete.setInt(3, type_id);
+				}
+				
+				
+			}
+			
+			// Executer la requete
 			requete.execute();
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
