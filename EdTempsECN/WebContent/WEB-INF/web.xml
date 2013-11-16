@@ -110,6 +110,11 @@
     <servlet-name>RattachementGroupe</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.RattachementGroupeServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+    <servlet-name>Disponibilite</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.DisponibiliteServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
@@ -214,6 +219,11 @@
   <servlet-mapping>
     <servlet-name>RattachementGroupe</servlet-name>
     <url-pattern>/rattachementgroupe/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>Disponibilite</servlet-name>
+      <url-pattern>/disponibilitesalle</url-pattern>
   </servlet-mapping>
 
 </web-app>
