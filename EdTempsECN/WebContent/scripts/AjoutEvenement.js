@@ -33,6 +33,8 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			numeroRecherche: 0 // Incrémenté à chaque recherche pour ignorer les résultats des recherches en cours en en lançant une nouvelle
 		};
 		
+		var me = this;
+		
 		// Initialisation de la dialog
 		jqDialog.dialog({
 			autoOpen: false,
@@ -63,11 +65,13 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
                 prevText: "Précédent",
                 nextText: "Suivant",
                 constrainInput: true,
-                firstDay: 1
+                firstDay: 1,
+                onSelect: function() {
+                	me.verifierDisponibiliteSalles();
+                }
         });
 		
 		// Listeners
-		var me = this;
 		jqDialog.find("#btn_rechercher_salle_evenement").click(function() {
 			me.lancerRechercheSalle();
 		});
@@ -75,6 +79,15 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		jqDialog.find("#btn_valider_ajout_evenement").click(function() {
 			me.validationDialog();
 		});
+		
+		var handlerChangementHeure = function(e) {
+			if($(this).val().length == 5) {
+				me.verifierDisponibiliteSalles();
+			}
+		};
+		
+		jqDialog.find("#heure_debut_evenement").change(handlerChangementHeure);
+		jqDialog.find("#heure_fin_evenement").change(handlerChangementHeure);
 	};
 	
 	var SALLE_LIBRE = "salle_libre";
@@ -125,6 +138,17 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	
 	AjoutEvenement.prototype.verifierDisponibiliteSalles = function() {
 		
+		if(this.sallesSelectionnees.length == 0) {
+			return;
+		}
+		
+		// Récupération des dates du formulaire
+		var formData = this.getDonneesFormulaire(true);
+		
+		if(!formData.valideRechercheSalle) {
+			return;
+		}
+		
 		var me = this;
 		this.rechercheDisponibiliteSalles.numeroRecherche++;
 		var numeroRecherche = this.rechercheDisponibiliteSalles.numeroRecherche;
@@ -136,13 +160,6 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Vérification de la disponibilité des salles...");
-		
-		// Récupération des dates du formulaire
-		var formData = this.getDonneesFormulaire(true);
-		
-		if(!formData.valideRechercheSalle) {
-			return;
-		}
 		
 		for(var i=0, maxI=this.sallesSelectionnees.length; i<maxI; i++) {
 			this.rechercheDisponibiliteSallesEnCours++;
