@@ -280,25 +280,39 @@ table.liste_materiel th {
 	margin-bottom: 5px;
 }
 
-.form_creer_calendrier_proprietaire {
-	width: 250px;
+.form_creer_calendrier_proprietaire_utilisateurencours {
+	width: 225px;
 	margin-bottom: 2px;
+	margin-right: 2px;
 }
 
-#form_creer_calendrier_ajouter_proprietaire {
-	width: 250px;
-	text-align: right;
-	font-style: italic;
-	font-size: 0.8em;
-	margin-top: -4px;
-	text-decoration: underline;
+.form_creer_calendrier_proprietaire {
+	width: 225px;
+	margin-bottom: 2px;
+	margin-right: 2px;
 }
 
-#form_creer_calendrier_ajouter_proprietaire:hover {
-	color:white;
+#form_creer_calendrier_ajouter_proprietaire, .form_creer_calendrier_supprimer_proprietaire {
 	cursor: pointer;
+	height: 12px;
+    width: 12px;
+	border: solid 1px gray;
+	border-radius: 2px;
+	padding: 2px;
+	vertical-align: middle;	
 }
 
+.form_creer_calendrier_supprimer_proprietaire {
+	margin-left:5px;
+}
+
+#form_creer_calendrier_ajouter_proprietaire:hover, .form_creer_calendrier_supprimer_proprietaire:hover {
+	background-color: white;
+}
+
+#form_creer_calendrier_proprietaires {
+	width: 300px;
+}
 
 /* Formulaire CreationGroupeParticipants */
 

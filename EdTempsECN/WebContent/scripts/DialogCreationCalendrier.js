@@ -14,6 +14,8 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 		this.nom = $("#form_creer_calendrier_nom");
 		this.type = $("#form_creer_calendrier_type");
 		this.matiere = $("#form_creer_calendrier_matiere");
+		// Liste des propriétaires potentiels = de tous les utilisateurs
+		this.listeProprietairesPotentiels = new Array();
 	};
 
 	/**
@@ -25,14 +27,19 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 		// Remplir les combobox matieres et types
 		me.remplirComboboxes();
 		
-		// Listener bouton "Valider"
-		$("#form_creer_calendrier_valider").click(function() {
-			// Si le formulaire est valide, la requête est effectuée
-			if (me.validationFormulaire()) {
-				me.effectuerRequete();
+		// Récupérer propriétaires potentiels
+		me.recupererProprietairesPotentiels(function(success, nbUtilisateurs) {
+			if (success) {
+				// On active le bouton "Valider"
+				$("#form_creer_calendrier_valider").click(function() {
+					// Si le formulaire est valide, la requête est effectuée
+					if (me.validationFormulaire()) {
+						me.effectuerRequete();
+					}
+				});
 			}
 		});
-
+		
 		// Listener bouton "Annuler"
 		$("#form_creer_calendrier_annuler").click(function() {
 			$("#form_creer_calendrier").dialog("close");
@@ -42,8 +49,7 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 		$("#form_creer_calendrier_ajouter_proprietaire").click(function() {
 			me.ajouterProprietaire();
 		});
-
-
+		
 		// Affiche dialog de création d'un calendrier
 		$("#form_creer_calendrier").dialog({
 			width: 440,
@@ -118,10 +124,25 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 	 * Méthode qui permet l'ajout d'un proprietaire
 	 */
 	DialogCreationCalendrier.prototype.ajouterProprietaire = function() {
-		var html = '<input type="text" class="form_creer_calendrier_proprietaire" />';
+		var me = this;
+		
+		var html = '<input type="text" class="form_creer_calendrier_proprietaire" />'
+			     + "<img alt='Supression' src='img/corbeille.png' " 
+			     +		"class='form_creer_calendrier_supprimer_proprietaire' " 
+			     +		     "title='Supprimer le propriétaire' />";
 		$("#form_creer_calendrier_proprietaires").append(html);
-		// Requeter les personnes en base et mettre un filtre dans la zone de texte
-		// TO-DO
+		
+		// Listener pour le nouveau bouton "Supprimer"
+		$(".form_creer_calendrier_supprimer_proprietaire").last().click(function() {
+			$(this).prev().remove();
+			$(this).remove();
+		});
+		// Autocomplete
+		var champAjoute = $(".form_creer_calendrier_proprietaire").last();
+		champAjoute.autocomplete({
+			source: me.listeProprietairesPotentiels,
+			select: function (event, ui) { champAjoute.attr( "value", ui.item.id ); }
+		});
 	};
 	
 	
@@ -129,8 +150,11 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 	 * Méthode qui reinitialise la cellule "proprietaires" (auquel on a pu ajouter des champs de texte)
 	 */
 	DialogCreationCalendrier.prototype.reinitialiserProprietaires = function() {
-		var html = '<input class="form_creer_calendrier_proprietaire"' 
-			     + 'type="text" value="Vous-même" disabled="disabled" />';
+		var html = '<input class="form_creer_calendrier_proprietaire_utilisateurencours"' 
+			     + 'type="text" value="Vous-même" disabled="disabled" />'
+			     + '<img alt="Ajout" src="img/ajout.png"' 
+			     +  'id="form_creer_calendrier_ajouter_proprietaire"'
+		     	 +  'title="Ajout un propriétaire" />';
 		$("#form_creer_calendrier_proprietaires").html(html);
 	};
 	
@@ -141,15 +165,37 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 	 * @return VRAI si le formulaire est valide et FAUX sinon
 	 */
 	DialogCreationCalendrier.prototype.validationFormulaire = function() {
+		var me = this;
 		var valid = true;
 
-		// Nom du calendrier non nul
+		// Nom du calendrier non nul ?
 		if (this.nom.val()=="") {
 			this.nom.css({border: "1px solid red"});
 			valid = false;
 		} else {
 			this.nom.css({border: "1px solid black"});
 		}
+		
+		/* Propriétaires valides ?
+		   => vérifier si le nom de l'utilisateur n'a pas été modifié manuellement 
+		      et si l'ID correspond bien
+		*/
+		$(".form_creer_calendrier_proprietaire").each(function() {
+			var estUnVraiUtilisateurPotentiel = false;
+			for (var i=0, maxI=me.listeProprietairesPotentiels.length; i<maxI; i++) {
+				if ($(this).attr("value") == me.listeProprietairesPotentiels[i].id && $(this).val() == me.listeProprietairesPotentiels[i].label) {
+					estUnVraiUtilisateurPotentiel = true;
+					break;
+				}
+			}
+			if (estUnVraiUtilisateurPotentiel) {
+				$(this).css({border: "1px solid black"});
+			}
+			else {
+				$(this).css({border: "1px solid red"});
+				valid = false;
+			}
+		});
 
 		return valid;
 		
@@ -167,12 +213,14 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 		var type = this.type.val();
 		
 		// Parcourt des id des proprio (qu'on place dans un tableau, qui sera transformé en JSON)
+		// NOTE : L'utilisateur est obligatoirement propriétaire du calendrier qu'il crée
 		var idProprietaires = [];
+		if (window.localStorage) {
+			idProprietaires.push(localStorage["userId"]);
+		}
 		$(".form_creer_calendrier_proprietaire").each(function() {
-			var idCourant = $(this).val();
-			if (idCourant != 'Vous-même') { // L'utilisateur est obligatoirement propriétaire
-				idProprietaires.push(idCourant);
-			}
+			var idUtilisateurCourant = $(this).attr("value");
+			idProprietaires.push(idUtilisateurCourant);
 		});
 		var idProprietairesJson = JSON.stringify(idProprietaires);
 			
@@ -186,6 +234,43 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 		});	
 		// Pensez à recharger la page, sur laquelle un nouveau calendrier est apparu
 		// Peut etre fermer la dialog aussi 
+	};
+
+
+	/**
+	 * Remplir la liste des utilisateurs potentiellement propriétaires
+	 * 
+	 * @param callback
+	 */
+	DialogCreationCalendrier.prototype.recupererProprietairesPotentiels = function(callback) {
+		var me = this;
+		
+		// Récupération de la liste des propriétaires potentiels
+		this.restManager.effectuerRequete("POST", "proprietairespotentiels", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				
+				// Création du tableau des valeurs pour le plugin Autocomplete de Jquery UI
+				var utilisateurs = data.data.listeUtilisateurs;
+				for (var i=0, maxI=utilisateurs.length; i<maxI; i++) {
+					var label_value = new Object();
+					label_value.label = utilisateurs[i].prenom + " " + utilisateurs[i].nom;
+					label_value.id = utilisateurs[i].id;
+					me.listeProprietairesPotentiels.push(label_value);
+				}
+				
+				// Appelle la méthode de retour
+				callback(true, utilisateurs.length);	
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
+				callback(false, 0);
+			} else {
+				window.showToast(data.resultCode + " Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; votre session a peut-être expiré ?");
+				callback(false, 0);
+			}
+		});
+
 	};
 
 	return DialogCreationCalendrier;

@@ -39,7 +39,6 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 		else if(pathInfo.equals("/creation")) { // page /calendrier/creation
-			logger.debug("Pret à créer le calendrier");
 			try {
 				creationCalendrier(userId, bdd, req);
 				// Génération réponse si aucune exception
@@ -65,13 +64,17 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		
 		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 		
+		// Récupération Nom du calendrier
 		String nom = req.getParameter("nom");
+		
+		// Récupération Matiere du calendrier
 		String matiere = req.getParameter("matiere");
+
+		// Récupération Type du calendrier
 		String type = req.getParameter("type");
 		
+		// Récupération des ID des propriétaires (via parsing manuel du JSON)
 		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
-		idProprietaires.add(userId);
-		
 		String stringIdProprietaires = req.getParameter("idProprietaires");
 		//Parsing manuel de la chaine JSON. Ex de chaine : "["1","2","33"]"
 		stringIdProprietaires = stringIdProprietaires.replace("[", "");
@@ -83,8 +86,10 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		  idProprietaires.add(Integer.parseInt(s)); 
 		}
 		
+		// Création d'un calendrier contenant les informations récupérées
 		Calendrier cal = new Calendrier(nom, type, matiere, idProprietaires);
 		
+		// Création du calendrier = ajout du calendrier dans la BDD
 		calendrierGestion.sauverCalendrier(cal);
 
 		bdd.close();
