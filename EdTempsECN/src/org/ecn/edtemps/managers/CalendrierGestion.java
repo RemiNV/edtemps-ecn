@@ -50,70 +50,85 @@ public class CalendrierGestion {
 		String nom = calendrier.getNom();
 		String type = calendrier.getType();
 		List<Integer> idProprietaires = calendrier.getIdProprietaires(); 
-				
-		// Récupération de l'id de la matiere et du type
-		int matiere_id;
-		int type_id;
-		try {
-			// Récupération de l'id de la matière
-			PreparedStatement matiere_id_prepare = _bdd.getConnection().prepareStatement(
-					"SELECT * FROM edt.matiere WHERE matiere_nom=?");
-			matiere_id_prepare.setString(1, matiere);
-			matiere_id = _bdd.recupererId(matiere_id_prepare, "matiere_id");
-
-			// Récupération de l'id du type
-			PreparedStatement type_id_prepare = _bdd.getConnection().prepareStatement(
-					"SELECT * FROM edt.typecalendrier WHERE typecal_libelle=?");
-			type_id_prepare.setString(1, type);
-			type_id = _bdd.recupererId(type_id_prepare, "typecal_id");
-		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		}
 		
-		// Vérification unicité/existence des id récupérés 
-		if ((matiere_id != -1) && (type_id != -1)) { 			
+		try {
+			// Début transaction
+			_bdd.startTransaction();
 			
-			try {
-				// Début transaction
-				_bdd.startTransaction();
-				
-				// On crée le calendrier dans la base de données
-				PreparedStatement rs_ligneCreee_prepare = _bdd.getConnection().prepareStatement(
-						"INSERT INTO edt.calendrier (matiere_id, cal_nom, typeCal_id)" +
-						" VALUES (" + matiere_id + ", ?, " + type_id + ") RETURNING cal_id");
-				rs_ligneCreee_prepare.setString(1, nom);
-				ResultSet rs_ligneCreee = rs_ligneCreee_prepare.executeQuery();
-				
-				// On récupère l'id du calendrier créé
-				rs_ligneCreee.next();
-				int id_calendrier = rs_ligneCreee.getInt(1);
-	
-				// On définit les utilisateurs idProprietaires comme proprietaires du calendrier créé
-				Iterator<Integer> itr = idProprietaires.iterator();
-				while (itr.hasNext()){
-					int id_utilisateur = itr.next();
-					_bdd.executeRequest(
-							"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
-							+ "VALUES (" + id_utilisateur + ", " + id_calendrier + ")"
-							);
+			// Requete préparée pour la création du calendrier dans la base de données
+			PreparedStatement rs_ligneCreee_prepare = _bdd.getConnection().prepareStatement(
+					"INSERT INTO edt.calendrier (cal_nom, matiere_id, typeCal_id)" +
+					" VALUES (?, ?, ?) RETURNING cal_id");
+			
+			// Ajout du nom du calendrier à la requete préparée
+			rs_ligneCreee_prepare.setString(1, nom);
+			
+			// Ajout de la matiere du calendrier à la requete préparée (NULL si pas de matiere)
+			if (matiere == "") { 
+				rs_ligneCreee_prepare.setNull(2, java.sql.Types.INTEGER);
+			}
+			else {
+				// Récupération de l'id de la matière
+				PreparedStatement matiere_id_prepare = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.matiere WHERE matiere_nom=?");
+				matiere_id_prepare.setString(1, matiere);
+				int matiere_id = _bdd.recupererId(matiere_id_prepare, "matiere_id");
+				if (matiere_id == -1) { //le nom de la matiere match aucun/plusieurs id -> ERREUR
+					throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID matiere non existant ou non unique");
+				}
+				else {
+					// Ajout à la requete préparée
+					rs_ligneCreee_prepare.setInt(2, matiere_id);
 				}
 				
-				// Fin transaction
-				_bdd.commit();
-				return id_calendrier;
-			} 
-			catch (DatabaseException e) {
-				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-			}
-			catch (SQLException e) {
-				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 			}
 			
-		}
-		else {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID matiere ou type non existant ou non unique");
-		}
+			// Ajout du type du calendrier à la requete préparée (NULL si pas de type)
+			if (type == "") { 
+				rs_ligneCreee_prepare.setNull(3, java.sql.Types.INTEGER);
+			}
+			else {
+				// Récupération de l'id du type
+				PreparedStatement type_id_prepare = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.typecalendrier WHERE typecal_libelle=?");
+				type_id_prepare.setString(1, type);
+				int type_id = _bdd.recupererId(type_id_prepare, "typecal_id");
+				if (type_id == -1) { //le nom du type match aucun/plusieurs id -> ERREUR
+					throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID type non existant ou non unique");
+				}
+				else {
+					// Ajout à la requete préparée
+					rs_ligneCreee_prepare.setInt(3, type_id);
+				}
+				
+				
+			}
 			
+			ResultSet rs_ligneCreee = rs_ligneCreee_prepare.executeQuery();
+			
+			// On récupère l'id du calendrier créé
+			rs_ligneCreee.next();
+			int id_calendrier = rs_ligneCreee.getInt(1);
+
+			// On définit les utilisateurs idProprietaires comme proprietaires du calendrier créé
+			Iterator<Integer> itr = idProprietaires.iterator();
+			while (itr.hasNext()){
+				int id_utilisateur = itr.next();
+				_bdd.executeRequest(
+						"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
+						+ "VALUES (" + id_utilisateur + ", " + id_calendrier + ")"
+						);
+			}
+			
+			// Fin transaction
+			_bdd.commit();
+			return id_calendrier;
+
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} 	
 	}
 	
 	/**
