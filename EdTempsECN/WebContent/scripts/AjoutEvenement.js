@@ -110,7 +110,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		this.affichageSalles();
 		
 		// Suppression des notes sur les salles occupées
-		me.jqDialog.find("#notes_salles_occupees").css("display", "none");
+		this.jqDialog.find("#notes_salles_occupees").css("display", "none");
 	};
 	
 	/**

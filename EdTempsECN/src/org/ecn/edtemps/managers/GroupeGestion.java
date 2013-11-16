@@ -356,10 +356,10 @@ public class GroupeGestion {
 		try {
 			statementParents = bdd.getConnection().prepareStatement("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 					"SELECT DISTINCT parent.groupeparticipant_id," +
 					"parent.groupeparticipant_nom, parent.groupeparticipant_rattachementautorise," +
-					"parent.groupeparticipant_id_parent, parent.groupeparticipant_estcours, parent.groupeparticipant_estcalendrierunique " +
+					"parent.groupeparticipant_id_parent, parent.groupeparticipant_id_parent_tmp, parent.groupeparticipant_estcours, parent.groupeparticipant_estcalendrierunique " +
 					"FROM edt.groupeparticipant parent " +
 					"INNER JOIN tmp_requete_abonnements_groupe enfant " +
 					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
@@ -375,10 +375,10 @@ public class GroupeGestion {
 			nbInsertions = -1;
 			PreparedStatement statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-					"groupeparticipant_id_parent, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 					"SELECT DISTINCT enfant.groupeparticipant_id," +
 					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
-					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
+					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
 					"FROM edt.groupeparticipant enfant " +
 					"INNER JOIN tmp_requete_abonnements_groupe parent " +
 					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
