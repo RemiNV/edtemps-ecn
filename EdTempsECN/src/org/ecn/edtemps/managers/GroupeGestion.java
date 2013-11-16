@@ -323,7 +323,7 @@ public class GroupeGestion {
 
 	
 	/**
-	 * Créé une table temporaire de groupes d'utilisateur contant les abonnements de l'utilisateur fourni.
+	 * Créé une table temporaire de groupes d'utilisateur contenant les abonnements de l'utilisateur fourni.
 	 * Les abonnements listés dans cette table comprennent les abonnements directs, mais aussi les parents et enfants dans l'arbre.
 	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
 	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.

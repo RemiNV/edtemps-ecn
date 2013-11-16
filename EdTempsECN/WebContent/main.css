@@ -505,6 +505,14 @@ input.valide {
 	right: 3px;
 }
 
+.salle_occupee {
+	color: red;
+}
+
+.salle_occupee_noncours {
+	color: #fb863a;
+}
+
 /* 
  * Onglet "Mes groupes de participants" de la page de paramétrage
  */
@@ -583,3 +591,9 @@ input.valide {
 #dialog_gerer_groupe table .dialog_gerer_groupe_table_boutons {
 	width: 160px;
 	text-align: right;
+}
+
+
+
+
+

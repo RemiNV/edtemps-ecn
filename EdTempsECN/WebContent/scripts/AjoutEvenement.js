@@ -81,13 +81,17 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		});
 		
 		var handlerChangementHeure = function(e) {
-			if($(this).val().length == 5) {
+			// Vérification que la saisie est complète (pas le masque "_" à compléter)
+			if($(this).val().charAt(4) != "_") {
 				me.verifierDisponibiliteSalles();
 			}
 		};
 		
-		jqDialog.find("#heure_debut_evenement").change(handlerChangementHeure);
-		jqDialog.find("#heure_fin_evenement").change(handlerChangementHeure);
+		jqDialog.find("#heure_debut").on("paste keyup", handlerChangementHeure);
+		jqDialog.find("#heure_fin").on("paste keyup", handlerChangementHeure);
+		jqDialog.find("#calendriers_evenement").change(function() {
+			me.verifierDisponibiliteSalles();
+		});
 	};
 	
 	var SALLE_LIBRE = "salle_libre";
@@ -97,20 +101,33 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	/**
 	 * Définit les salles à afficher en les marquant toutes comme libres
 	 * @param salles
+	 * @param calendrierCours Indique si l'évènement à ajouter est rattaché à un calendrier de cours
 	 */
 	AjoutEvenement.prototype.setSalles = function(salles) {
 		this.rechercheDisponibiliteSalles.versionSalles++;
 		this.sallesSelectionnees = salles;
 		this.sallesLibres = new Array();
+		
+		// Suppression des notes sur les salles occupées
+		this.jqDialog.find("#notes_salles_occupees_non_cours").css("display", "none");
+		this.jqDialog.find("#lst_evenements_salles_occupees_non_cours").children().remove();
+		this.jqDialog.find("#notes_salles_occupees").css("display", "none");
+		this.jqDialog.find("#lst_evenements_salles_occupees").children().remove();
+		
 		for(var i = 0, maxI = salles.length; i<maxI; i++) {
-			this.sallesLibres[i] = SALLE_LIBRE;
+			if(salles[i].evenementsEnCours == null || salles[i].evenementsEnCours.length == 0) {
+				this.sallesLibres[i] = SALLE_LIBRE;
+			}
+			else {
+				this.sallesLibres[i] = SALLE_OCCUPEE_NONCOURS;
+				
+				// Si les salles retournées par la recherche sont occupées, c'est qu'on est en train de définir un cours
+				this.afficherEvenementsSalleOccupee(null, salles[i].evenementsEnCours, true, salles[i].nom);
+			}
 		}
 		
 		// Affichage des salles dans la zone de texte
 		this.affichageSalles();
-		
-		// Suppression des notes sur les salles occupées
-		this.jqDialog.find("#notes_salles_occupees").css("display", "none");
 	};
 	
 	/**
@@ -121,12 +138,12 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		var strSalles;
 		if(this.sallesSelectionnees.length > 0) {
 			strSalles = "";
-			for(var i=0, maxI = salles.length; i<maxI; i++) {
+			for(var i=0, maxI = this.sallesSelectionnees.length; i<maxI; i++) {
 				if(i != 0) {
 					strSalles += ", ";
 				}
 				
-				strSalles += "<span class='" + this.sallesLibres[i] + "'>" + salles[i].nom + "</span>";
+				strSalles += "<span class='" + this.sallesLibres[i] + "'>" + this.sallesSelectionnees[i].nom + "</span>";
 			}
 		}
 		else {
@@ -134,6 +151,52 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		}
 		
 		this.jqDialog.find("#salles_evenement").html(strSalles);
+	};
+	
+	
+	/**
+	 * Fonction utilitaire permettant d'ajouter un évènement à une des listes d'évènements
+	 * des salles occupées
+	 */
+	function ajouterEvenListeSalleOccupee(jqListe, even, nomSalle) {
+		jqListe.append("<li>" + 
+				$.fullCalendar.formatDate(new Date(even.dateDebut), "HH:mm") + " - " + $.fullCalendar.formatDate(new Date(even.dateFin), "HH:mm") + " " +
+				even.nom + " (" + nomSalle + ")" + 
+				"</li>");
+	}
+	
+	/**
+	 * Affichage des événements déjà prévus dans une salle à l'heure sélectionnée
+	 *  
+	 * @param evenementsCours Evénements de cours (peut être null)
+	 * @param evenementsNonCours Evénements non cours (peut être null)
+	 * @param calendrierCours L'évènement en cours de sélection est un cours
+	 */
+	AjoutEvenement.prototype.afficherEvenementsSalleOccupee = function(evenementsCours, evenementsNonCours, calendrierCours, nomSalle) {
+		var lstEvenementsSallesOccupeesNonCours = this.jqDialog.find(
+				calendrierCours ? "#lst_evenements_salles_occupees_non_cours" : "#lst_evenements_salles_occupees");
+		
+		var divSallesOccupeesNonCours = this.jqDialog.find(
+				calendrierCours ? "#notes_salles_occupees_non_cours" : "#notes_salles_occupees");
+		
+		if(evenementsNonCours != null && evenementsNonCours.length > 0) {
+			divSallesOccupeesNonCours.css("display", "block");
+		
+			for(var j=0, maxJ=evenementsNonCours.length; j<maxJ; j++) {
+				ajouterEvenListeSalleOccupee(lstEvenementsSallesOccupeesNonCours, 
+						evenementsNonCours[j], nomSalle);
+			}
+		}
+		
+		if(evenementsCours != null && evenementsCours.length > 0) {
+			this.jqDialog.find("#notes_salles_occupees").css("display", "block");
+		
+			var lstEvenementsSallesOccupees = this.jqDialog.find("#lst_evenements_salles_occupees");
+			for(var j=0, maxJ=evenementsCours.length; j<maxJ; j++) {
+				ajouterEvenListeSalleOccupee(lstEvenementsSallesOccupees, 
+						evenementsCours[j], nomSalle);
+			}
+		}
 	};
 	
 	AjoutEvenement.prototype.verifierDisponibiliteSalles = function() {
@@ -155,7 +218,10 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		var versionSalles = this.rechercheDisponibiliteSalles.versionSalles;
 		var nbVerificationsRestantes = this.sallesSelectionnees.length;
 		
-		me.jqDialog.find("#notes_salles_occupees").css("display", "none");
+		this.jqDialog.find("#notes_salles_occupees_non_cours").css("display", "none");
+		this.jqDialog.find("#lst_evenements_salles_occupees_non_cours").children().remove();
+		this.jqDialog.find("#notes_salles_occupees").css("display", "none");
+		this.jqDialog.find("#lst_evenements_salles_occupees").children().remove();
 		
 		this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
@@ -165,51 +231,47 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			this.rechercheDisponibiliteSallesEnCours++;
 			
 			this.restManager.effectuerRequete("GET", "disponibilitesalle", {
+				token: this.restManager.getToken(),
 				debut: formData.dateDebut.getTime(),
 				fin: formData.dateFin.getTime(),
-				idSalle: this.sallesSelectionnees.id
+				idSalle: this.sallesSelectionnees[i].id
 			}, (function(i) { // Closure pour prendre la valeur de i au moment de l'appel à effectuerRequete, et pas après la requête
 				return function(data) {
 					
-					nbVerificationsRestantes--;
-					if(nbVerificationsRestantes == 0) {
-						this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
-						this.jqDialog.find("#btn_valider_ajout_evenement").removeAttr("disabled");
-					}
-					
 					// On ignore le résultat de la recherche si une nouvelle est en cours, ou si les salles ont été changées
 					if(numeroRecherche != me.rechercheDisponibiliteSalles.numeroRecherche 
-							|| versionSalles != this.rechercheDisponibiliteSalles.versionSalles) {
+							|| versionSalles != me.rechercheDisponibiliteSalles.versionSalles) {
 						return;
 					}
 					
 					if(data.resultCode == RestManager.resultCode_Success) {
 						
+						// Affichage des évènements qui occupent les salles
+						me.afficherEvenementsSalleOccupee(data.data.evenementsCours, data.data.evenementsNonCours, 
+								formData.calendrierCours, me.sallesSelectionnees[i].nom);
+						
+						// Marquage de la salle comme disponible ou non
 						if(data.data.disponibleNonCours) {
 							me.sallesLibres[i] = SALLE_LIBRE;
 						}
 						else if(data.data.disponibleCours && formData.calendrierCours) {
 							me.sallesLibres[i] = SALLE_OCCUPEE_NONCOURS;
-							
-							me.jqDialog.find("#notes_salles_occupees").css("display", "block");
-							var jqListeEvens = me.jqDialog.find("#lst_evenements_salles_occupees");
-							
-							for(var j=0, maxJ=data.data.evenementsNonCours.length; j<maxJ; j++) {
-								var even = data.data.evenementsNonCours[j];
-								
-								jqListeEvens.append("<li>" + 
-										$.fullCalendar.formatDate(even.dateDebut, "HH:mm") + " - " + $.fullCalendar.formatDate(even.dateFin, "HH:mm") + " " +
-										even.nom + " (" + me.sallesSelectionnees[i].nom + ")" + 
-										"</li>");
-							}
 						}
 						else {
 							me.sallesLibres[i] = SALLE_OCCUPEE;
 						}
-						
 					}
 					else {
 						window.showToast("Echec de vérification de la disponibilité d'une salle");
+					}
+					
+					nbVerificationsRestantes--;
+					if(nbVerificationsRestantes == 0) {
+						me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
+						me.jqDialog.find("#btn_valider_ajout_evenement").removeAttr("disabled");
+						
+						// Mise à jour de l'affichage des salles
+						me.affichageSalles();
 					}
 				};
 			})(i));
@@ -450,11 +512,11 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 		// TODO : gérer plusieurs calendriers
 		// Vérifie si les calendriers sélectionnés pour le rattachement de l'événement contiennent des cours
-		formData.calendrierCours = false;
+		res.calendrierCours = false;
 		var idCalendrierSelectionne = this.jqDialog.find("#calendriers_evenement .select_calendriers").val();
 		for (var i=0, maxI=this.listeCalendriers.length; i<maxI; i++) {
 			if (this.listeCalendriers[i].id==idCalendrierSelectionne && this.listeCalendriers[i].estCours) {
-				formData.calendrierCours = true;
+				res.calendrierCours = true;
 				break;
 			}
 		}
@@ -540,7 +602,12 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			this.init();
 		}
 		
-		this.setSalles(new Array());
+		if(salles) {
+			this.setSalles(salles);
+		}
+		else {
+			this.setSalles(new Array());
+		}
 		
 		this.jqDialog.find("#txt_nom_evenement").val("");
 		this.jqDialog.find("#tbl_materiel td.quantite input").val("0");
@@ -559,10 +626,6 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 		if(dateFin) {
 			jqHeureFin.val($.fullCalendar.formatDate(dateFin, "HH:mm"));
-		}
-		
-		if(salles) {
-			this.setSalles(salles);
 		}
 		
 		this.jqDialog.dialog("open");
