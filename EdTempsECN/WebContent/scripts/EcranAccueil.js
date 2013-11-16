@@ -238,21 +238,27 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	EcranAccueil.prototype.verifieGroupeEnAttenteRattachement = function() {
 
 		this.groupeGestion.queryGroupesEnAttenteRattachement(function(resultCode, data) {
-			if (data.length>0) {
-				$("#bulle_information")
-					.html("<img id='bulle_information_fermer' src='img/fermer.png' title='Fermer' />")
-					.append("Vous avez des demandes de rattachement.<br/><span id='bulle_information_clique'>Cliquez pour les gérer.</span>")
-					.draggable({opacity: 0.5})
-					.fadeTo(300, 0.9);
-				
-				// Listeners
-				$("#bulle_information_fermer").click(function() {
-					$("#bulle_information").fadeOut(300);
-				});
-				$("#bulle_information_clique").click(function() {
-					Davis.location.assign("parametres/mes_groupes");
-					$("#bulle_information").fadeOut(300);
-				});
+			
+			if(resultCode == RestManager.resultCode_Success) {
+				if (data.length>0) {
+					$("#bulle_information")
+						.html("<img id='bulle_information_fermer' src='img/fermer.png' title='Fermer' />")
+						.append("Vous avez des demandes de rattachement.<br/><span id='bulle_information_clique'>Cliquez pour les gérer.</span>")
+						.draggable({opacity: 0.5})
+						.fadeTo(300, 0.9);
+					
+					// Listeners
+					$("#bulle_information_fermer").click(function() {
+						$("#bulle_information").fadeOut(300);
+					});
+					$("#bulle_information_clique").click(function() {
+						Davis.location.assign("parametres/mes_groupes");
+						$("#bulle_information").fadeOut(300);
+					});
+				}
+			}
+			else {
+				window.showToast("Erreur de récupération des groupes en attente de rattachement. Code d'erreur " + resultCode);
 			}
 		});
 	};
