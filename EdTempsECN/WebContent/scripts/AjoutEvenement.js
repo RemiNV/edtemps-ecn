@@ -246,6 +246,11 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 					
 					if(data.resultCode == RestManager.resultCode_Success) {
 						
+						// Modification des évènements dans la salle pour le nouvel intervalle sélectionné
+						if(formData.calendrierCours) {
+							me.sallesSelectionnees[i].evenementsEnCours = data.data.evenementsNonCours;
+						}
+						
 						// Affichage des évènements qui occupent les salles
 						me.afficherEvenementsSalleOccupee(data.data.evenementsCours, data.data.evenementsNonCours, 
 								formData.calendrierCours, me.sallesSelectionnees[i].nom);

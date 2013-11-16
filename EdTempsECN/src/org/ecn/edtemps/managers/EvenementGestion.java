@@ -527,13 +527,16 @@ public class EvenementGestion {
 		String strIdSalles = StringUtils.join(idSalles, ",");
 		String strIdEvenements = StringUtils.join(idEvenements, ",");
 		
-		_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE (alieuensalle.eve_id, alieuensalle.salle_id) IN " +
-				"SELECT DISTINCT (alieuensalle.eve_id, alieuensalle.salle_id) FROM edt.alieuensalle " +
-				"INNER JOIN edt.evenementappartient ON evenementappartient.eve_id=alieuensalle.eve_id " +
-				"INNER JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
-				"INNER JOIN edt.groupeparticipant ON groupeparticipant.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
-					"AND NOT (groupeparticipant.groupeparticipant_estcours OR groupeparticipant.groupeparticipant_aparentcours) " +
-				"WHERE alieuensalle.eve_id IN (" + strIdEvenements + ") AND alieuensalle.salle_id IN (" + strIdSalles + ")");
+		_bdd.executeRequest("DELETE FROM edt.alieuensalle tablesuppr WHERE EXISTS (" +
+				"SELECT 1 FROM edt.alieuensalle " +
+				"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id=alieuensalle.eve_id " +
+				"LEFT JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
+				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
+					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours) " +
+				"WHERE alieuensalle.eve_id IN (" + strIdEvenements + ") AND alieuensalle.salle_id IN (" + strIdSalles + ") " +
+					"AND alieuensalle.eve_id = tablesuppr.eve_id AND alieuensalle.salle_id = tablesuppr.salle_id " +
+				"GROUP BY alieuensalle.eve_id, alieuensalle.salle_id " +
+				"HAVING COUNT(groupecours.groupeparticipant_id) = 0)");
 	}
 	
 	/**
