@@ -501,7 +501,8 @@ public class GroupeGestion {
 				String nom = resGroupes.getString("groupeparticipant_nom");
 				int parentId = resGroupes.getInt("groupeparticipant_id_parent");
 				boolean abonnementObligatoire = resGroupes.getBoolean("abonnementgroupeparticipant_obligatoire");
-				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, abonnementObligatoire));
+				boolean estCalendrierUnique = resGroupes.getBoolean("groupeparticipant_estcalendrierunique");
+				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, estCalendrierUnique, abonnementObligatoire));
 			}
 			
 			return res;
@@ -536,7 +537,8 @@ public class GroupeGestion {
 				String nom = resGroupes.getString("groupeparticipant_nom");
 				int parentId = resGroupes.getInt("groupeparticipant_id_parent");
 				boolean abonnementObligatoire = resGroupes.getBoolean("abonnementgroupeparticipant_obligatoire");
-				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, abonnementObligatoire));
+				boolean estCalendrierUnique = resGroupes.getBoolean("groupeparticipant_estcalendrierunique");
+				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, estCalendrierUnique, abonnementObligatoire));
 			}
 			
 			return res;

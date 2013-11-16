@@ -87,7 +87,15 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					html += '<option value="' + gpe.id + '"'
 						+ ' idparent="' + gpe.parentId + '"'
 						+ ' selected="selected">' 
-						+ gpe.nom + '</option>';
+						+ gpe.nom ;
+					// Information groupeUnique
+					if (gpe.estCalendrierUnique) {
+						html += " (Calendrier)";
+					}						
+					else {
+						html += " (Groupe)";
+					}
+					html += '</option>';
 				}
 				// Parcourt des groupes auxquels l'utilisateur est abonné 
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
@@ -99,7 +107,15 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 						html += ' disabled="disabled"';
 					}
 					html += ' idparent="' + gpe.parentId + '"';
-					html += '>' + gpe.nom + '</option>';
+					html += '>' + gpe.nom ;
+					// Information GroupeUnique
+					if (gpe.estCalendrierUnique) {
+						html += " (Calendrier)";
+					}						
+					else {
+						html += " (Groupe)";
+					}
+					html += '</option>';
 				}
 			
 				// Affichage	 
