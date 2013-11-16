@@ -7,8 +7,9 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 	 * @constructor
 	 * @alias module:DialogCreationCalendrier
 	 */
-	var DialogCreationCalendrier = function(restManager) {
+	var DialogCreationCalendrier = function(restManager, ecranParametres) {
 		this.restManager = restManager;
+		this.ecranParametres = ecranParametres;
 		this.calendrierGestion = new CalendrierGestion(this.restManager);
 		// Accès direct aux champs du formulaire
 		this.nom = $("#form_creer_calendrier_nom");
@@ -206,6 +207,7 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 	 * Méthode qui effectue la requête de création du calendrier
 	 */
 	DialogCreationCalendrier.prototype.effectuerRequete = function() {
+		var me = this;
 		
 		//Récupérer nom, matiere et type
 		var nom = this.nom.val();
@@ -226,14 +228,19 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 			
 		this.calendrierGestion.creerCalendrier(nom, matiere, type, idProprietairesJson, function(resultCode) {
 			if(resultCode == RestManager.resultCode_Success) {
+				// afficher message
 				window.showToast("Le calendrier a bien été créé");
+				// recharger les calendriers de l'utilisateur
+				me.ecranParametres.initMesCalendriers();
+				// fermer la dialog  
+				$("#form_creer_calendrier").dialog("close");
 			}
 			else {
+				// afficher message
 				window.showToast("Erreur lors de la création du calendrier");
 			}
 		});	
-		// Pensez à recharger la page, sur laquelle un nouveau calendrier est apparu
-		// Peut etre fermer la dialog aussi 
+		
 	};
 
 

@@ -314,6 +314,34 @@ table.liste_materiel th {
 	width: 300px;
 }
 
+#btn_creer_calendrier {
+	margin-top: 20px;
+}
+
+/* Tableau d'affichage des calendriers de l'utilisateur (= dont il est propriétaire) */
+#tbl_mes_calendriers {
+	margin-top: 20px;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#tbl_mes_calendriers tr {
+    border-bottom: 1px solid gray;
+    border: 1px solid gray;
+}
+
+#tbl_mes_calendriers td {
+    padding-left: 5px;
+}
+
+.tbl_mes_calendriers_boutons {
+    text-align: right;
+}
+
+.tbl_mes_calendriers_boutons_modifier {
+    margin-right: 5px;
+}
+
 /* Formulaire CreationGroupeParticipants */
 
 .help_icon {
@@ -531,7 +559,7 @@ input.valide {
  * Onglet "Mes groupes de participants" de la page de paramétrage
  */
  
-#btn_creer_groupe {
+#btn_creer_groupe, #btn_creer_calendrier {
 	margin-top: 20px;
 }
 
