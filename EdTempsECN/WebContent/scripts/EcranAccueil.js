@@ -3,9 +3,9 @@
  * Associé au HTML templates/page_accueil.html
  * @module EcranAccueil
  */
-define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", 
+define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "GroupeGestion", 
         "AjoutEvenement", "RestManager", "jquery", "jqueryui"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
-        		RechercheSalle, AjoutEvenement, RestManager) {
+        		RechercheSalle, GroupeGestion, AjoutEvenement, RestManager) {
 	
 	/**
 	 * @constructor
@@ -16,6 +16,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.restManager = restManager;
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
+		this.groupeGestion = new GroupeGestion(this.restManager);
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
 		
 		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
@@ -48,6 +49,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement, this.evenementGestion);
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
+		
+		this.verifieGroupeEnAttenteRattachement();
 	};
 	
 	EcranAccueil.prototype.rafraichirCalendrier = function() {
@@ -224,6 +227,32 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 
 			else {
 				window.showToast("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
+			}
+		});
+	};
+	
+	
+	/**
+	 * Vérifie s'il y a des groupes en attente de rattachement et s'il y en a l'information est affiché
+	 */
+	EcranAccueil.prototype.verifieGroupeEnAttenteRattachement = function() {
+
+		this.groupeGestion.queryGroupesEnAttenteRattachement(function(resultCode, data) {
+			if (data.length>0) {
+				$("#bulle_information")
+					.html("<img id='bulle_information_fermer' src='img/fermer.png' title='Fermer' />")
+					.append("Vous avez des demandes de rattachement.<br/><span id='bulle_information_clique'>Cliquez pour les gérer.</span>")
+					.draggable({opacity: 0.5})
+					.fadeTo(300, 0.9);
+				
+				// Listeners
+				$("#bulle_information_fermer").click(function() {
+					$("#bulle_information").fadeOut(300);
+				});
+				$("#bulle_information_clique").click(function() {
+					Davis.location.assign("parametres/mes_groupes");
+					$("#bulle_information").fadeOut(300);
+				});
 			}
 		});
 	};

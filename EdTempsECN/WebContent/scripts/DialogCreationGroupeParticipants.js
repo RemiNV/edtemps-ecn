@@ -323,7 +323,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 					"<label>Propriétaire"+(premierChamp ? "" : " supplémentaire")+"</label>" +
 				"</td>" +
 				"<td>" +
-					"<input type='text' class='form_creer_groupe_proprietaire_text' value='"+ (valeur ? valeur : "") +"' />" +
+					"<input type='text' class='form_creer_groupe_proprietaire_text' value='"+(valeur ? valeur : "")+"' "+(valeur ? "disabled='disabled'" : "")+" />" +
 					(premierChamp
 						? "<span id='form_creer_groupe_proprietaire_ajouter' title='Ajouter un propriétaire'>+</span>"
 						: "<img alt='Supression' src='img/corbeille.png' class='form_creer_groupe_proprietaire_supprimer' title='Supprimer le propriétaire' />"

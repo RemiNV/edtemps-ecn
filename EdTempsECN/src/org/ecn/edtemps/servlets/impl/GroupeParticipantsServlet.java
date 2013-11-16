@@ -9,6 +9,7 @@ import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,6 +23,7 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
+import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
@@ -36,7 +38,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 	/**
 	 * Méthode générale du servlet appelée par la requête POST
-	 * Elle redirige vers les trois méthodes possibles : ajout, modification et suppression
+	 * Elle redirige vers les différentes fonctionnalités possibles
 	 * 
 	 * @param userId
 	 * 			identifiant de l'utilisateur qui a fait la requête
@@ -52,7 +54,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/ajouter") && !pathInfo.equals("/modifier") && !pathInfo.equals("/supprimer")) {
+		if (!pathInfo.equals("/ajouter") && !pathInfo.equals("/modifier") && !pathInfo.equals("/supprimer") && !pathInfo.equals("/get") ) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			bdd.close();
 			return;
@@ -60,19 +62,19 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 		try {
 
-			// Renvoies vers les trois fonctionnalités possibles : ajout, modification et suppression 
+			// Renvoies vers les différentes fonctionnalités
 			switch (pathInfo) {
 				case "/ajouter":
-					// Lance la méthode d'ajout
 					doAjouterGroupeParticipants(userId, bdd, req, resp);
 					break;
 				case "/modifier":
-					
 					doModifierGroupeParticipants();
 					break;
 				case "/supprimer":
-					// Lance la méthode de suppression
 					doSupprimerGroupeParticipants(bdd, req, resp);
+					break;
+				case "/get":
+					doGetGroupeParticipants(bdd, req, resp);
 					break;
 			}
 
@@ -83,7 +85,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format de l'objet JSON 'groupe de participants' incorrect", null));
 			bdd.close();
 		} catch(EdtempsException e) {
-			logger.error("Erreur lors de l'ajout/modification/suppression d'un groupe de participants", e);
+			logger.error("Erreur lors de l'ajout/modification/suppression/récupération d'un groupe de participants", e);
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 			bdd.close();
 		}
@@ -92,7 +94,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 	
 	/**
-	 * Ajoutter un groupe de participants
+	 * Ajouter un groupe de participants
 	 * 
 	 * @param userId
 	 * 			identifiant de l'utilisateur qui fait la demande d'ajout
@@ -164,6 +166,25 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		groupeGestion.supprimerGroupe(Integer.valueOf(req.getParameter("id")));
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe supprimé", null));
+	}
+
+	/**
+	 * Récupérer un groupe de participants
+	 * 
+	 * @param bdd
+	 * 		gestionnaire de la base de données
+	 * @param req
+	 * 		requête
+	 * @param resp
+	 * 		réponse à compléter
+	 * @throws EdtempsException
+	 * @throws IOException
+	 */
+	protected void doGetGroupeParticipants(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		GroupeComplet groupe = groupeGestion.getGroupeComplet(Integer.valueOf(req.getParameter("id")));
+		JsonValue data = Json.createObjectBuilder().add("groupe", groupe.toJson()).build();
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe récupéré", data));
 	}
 
 }

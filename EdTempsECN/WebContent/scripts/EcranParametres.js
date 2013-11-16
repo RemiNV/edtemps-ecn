@@ -3,9 +3,9 @@
  * Associé au HTML templates/page_parametres.html
  * @module EcranParametres
  */
-define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "lib/davis.min",
+define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "DialogDetailGroupeParticipants", "DialogGererGroupeParticipants", "lib/davis.min",
         "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
-        		DialogCreationGroupeParticipants, Davis) {
+        		DialogCreationGroupeParticipants, DialogDetailGroupeParticipants, DialogGererGroupeParticipants, Davis) {
 	
 	/**
 	 * @constructor
@@ -16,6 +16,8 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
+ 		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
+ 		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager, this);
 	};
 	
 	var idTabs = {
@@ -248,13 +250,11 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 
 		// Création du template pour la liste des groupes
 		var listMesGroupesTemplate = 
-			"<% _.each(groupes, function(groupe) { %> <tr<% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante'<% } %>>" +
-				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %><% if (groupe.parentIdTmp>0) { %> - <i>En attente de validation pour le rattachement</i><% } %></td>" +
+			"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>'><% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
+				"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
 				"<td class='tbl_mes_groupes_boutons'>" +
-					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
-					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' " +
-					"<% if (groupe.estCalendrierUnique) { %>title='Ce groupe ne peut pas être supprimé car c&apos;est le groupe unique rattaché à son calendrier. Supprimer ce calendrier supprimera également ce groupe.' disabled='disabled' <% } %>" +
-					"/>" +
+					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_modifier' value='Modifier' />" +
+					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' />" +
 				"</td>" +
 			"</tr> <% }); %>";
 		
@@ -273,11 +273,12 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				if (data.listeGroupes.length>0) {
 					// Ecriture du tableau dans la page
 					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
-					// Listeners pour les boutons gérer
-					$(".tbl_mes_groupes_boutons_gerer").click(function() {
-						alert($(this).attr("data-id"));
-						me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
+					
+					// Listeners pour les lignes
+					$(".tbl_mes_groupes_groupe").click(function() {
+						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
 					});
+
 					// Listeners pour les boutons supprimer
 					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
 						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
@@ -291,7 +292,11 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 								}
 							});
 						}
-					});					
+					});
+					
+					// Mise en valeur des groupes qui ont des demandes de rattachement en attente de validation
+					me.miseEnValeurGroupesEnAttenteRattachement();
+
 				} else {
 					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
 				}
@@ -379,6 +384,47 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 			});
 		}
 	};
+	
+	
+	/**
+	 * Met en valeur les demande de rattachement qui sont en attente de validation
+	 */
+	EcranParametres.prototype.miseEnValeurGroupesEnAttenteRattachement = function() {
+		var me=this;
+
+		// Cacher la bulle d'information
+		$("#bulle_information").html("").hide();
+		
+		this.groupeGestion.queryGroupesEnAttenteRattachement(function(resultCode, data) {
+			var nbGroupes = data.length;
+
+			// Ajout des boutons "Gérer" et mise en surbrillance les lignes
+			var dejaMisEnValeur = new Object();
+			if (nbGroupes > 0) {
+				for (var i=0; i<nbGroupes; i++) {
+					if (!dejaMisEnValeur[data[i].parentIdTmp]) {
+						$("#tbl_mes_groupes_ligne_"+data[i].parentIdTmp).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+						$("#tbl_mes_groupes_ligne_"+data[i].parentIdTmp+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+data[i].parentIdTmp+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
+						dejaMisEnValeur[data[i].parentIdTmp] = true;
+					}
+				}
+			}
+			
+			// Listeners pour les boutons gérer
+			$(".tbl_mes_groupes_boutons_gerer").click(function() {
+				var listeRattachementAttenteValidation = new Array();
+				for (var i=0, maxI=data.length; i<maxI; i++) {
+					if (data[i].parentIdTmp==$(this).attr("data-id")) {
+						listeRattachementAttenteValidation.push(data[i]);
+					}
+				}
+				me.dialogGererGroupeParticipants.show($(this).attr("data-id"), listeRattachementAttenteValidation);
+			});
+
+		});
+
+	};
+
 	
 	return EcranParametres;
 });

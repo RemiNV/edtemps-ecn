@@ -431,6 +431,55 @@ table.liste_materiel th {
 	z-index: 10;
 }
 
+
+/*
+ * Bulle d'information
+ */
+
+#bulle_information {
+	display: none;
+	position: fixed;
+	width: 200px;
+	background-color: red;
+	border-radius: 3px;
+	padding: 10px;
+	color: white;
+	box-shadow: 3px 5px 7px #888888;
+	z-index: 10;
+	cursor: move;
+}
+
+#bulle_information a {
+	text-decoration: none;
+	font-weight: bold;
+	color: white;
+}
+
+#bulle_information a:hover {
+	text-decoration: underline;
+	color: black;
+}
+
+#bulle_information #bulle_information_fermer {
+	float: right;
+	margin-right: -5px;
+	margin-top: -5px;
+	border: solid 1px black;
+	width: 8px;
+	padding: 2px;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+#bulle_information #bulle_information_fermer:hover {
+	background-color: white;
+}
+
+#bulle_information #bulle_information_clique:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
 .tab_parametres {
 	width: 700px;
 	padding-right: 10px;
@@ -503,8 +552,48 @@ input.valide {
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons {
 	text-align: right;
+	width: 250px;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons input {
-	margin-left: 10px;
+	margin-left: 5px;
 }
+
+
+/* 
+ * Boîte de dialogue pour afficher les détail d'un groupe de participants
+ */
+
+#dialog_detail_groupe .dialog_detail_groupe_label {
+	text-decoration: underline;
+}
+
+#dialog_detail_groupe_boutons {
+	text-align: right;
+}
+
+/* 
+ * Boîte de dialogue de gestion d'un groupe de participants
+ */
+
+#dialog_gerer_groupe #dialog_gerer_groupe_boutons {
+	text-align: right;
+	margin-top: 10px;	
+}
+
+#dialog_gerer_groupe table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#dialog_gerer_groupe table tr {
+	border: solid 1px black;
+}
+
+#dialog_gerer_groupe table td {
+	padding-left: 5px;
+}
+
+#dialog_gerer_groupe table .dialog_gerer_groupe_table_boutons {
+	width: 160px;
+	text-align: right;

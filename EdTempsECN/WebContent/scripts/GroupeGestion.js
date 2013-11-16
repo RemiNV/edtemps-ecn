@@ -85,6 +85,57 @@ define(["RestManager"], function(RestManager) {
 			callback(data.resultCode);
 		});
 	};
+	
+	
+	/**
+	 * Récupérer un groupe de participants avec toutes les données complètes
+	 * @param groupeId
+	 * @param callback
+	 */
+	GroupeGestion.prototype.queryGetGroupeComplet = function(groupeId, callback) {
+		this.restManager.effectuerRequete("POST", "groupeparticipants/get", {
+			token: this.restManager.getToken(), id: groupeId
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				callback(data.resultCode, data.data);
+			} else {
+				callback(data.resultCode);
+			}
+		});
+	};
 
+	
+	/**
+	 * Récupérer les groupes en attente de rattachement pour l'utilisateur en cours
+	 * @param callback
+	 */
+	GroupeGestion.prototype.queryGroupesEnAttenteRattachement = function(callback) {
+		this.restManager.effectuerRequete("POST", "rattachementgroupe/listermesdemandes", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				callback(data.resultCode, data.data.listeGroupes);
+			} else {
+				callback(data.resultCode);
+			}
+		});
+	};
+
+
+	/**
+	 * Décider du sort d'un rattachement de groupe (accepté ou refusé)
+	 * @param etat VRAI si le rattachement est accepté, FAUX sinon
+	 * @param groupeId identifiant du groupe pour lequel le rattachement a été accepté
+	 * @param callback
+	 */
+	GroupeGestion.prototype.queryDeciderRattachement = function(etat, groupeId, callback) {
+		this.restManager.effectuerRequete("POST", "rattachementgroupe/decider", {
+			token: this.restManager.getToken(), id: groupeId, etat: etat
+		}, function(data) {
+			callback(data.resultCode);
+		});
+	};
+	
+	
 	return GroupeGestion;
 });
