@@ -113,6 +113,7 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 			event.pendingUpdates = 1;
 		}
 		
+		// Attente que l'utilisateur fasse d'autres modifications (éventuellement) avant d'envoyer au serveur
 		setTimeout(function() {
 			event.pendingUpdates--;
 			
@@ -143,7 +144,7 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 					
 				}, event.start, event.end);
 			}
-		}, 1500);
+		}, 1000);
 	}
 	
 
