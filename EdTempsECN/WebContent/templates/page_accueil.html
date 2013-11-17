@@ -127,15 +127,15 @@
 			<td><input type="text" id="date_evenement" /></td>
 		</tr>
 		<tr>
-			<td><label for="heure_debut_evenement">Heure de début : </label></td>
+			<td><label for="heure_debut">Heure de début : </label></td>
 			<td><input type="text" id="heure_debut" /></td>
 		</tr>
 		<tr>
-			<td><label for="heure_fin_evenement">Heure de fin : </label></td>
+			<td><label for="heure_fin">Heure de fin : </label></td>
 			<td><input type="text" id="heure_fin" /></td>
 		</tr>
 		<tr>
-			<td>Matériel <em>par salle</em> : </td>
+			<td>Matériel <em>par salle</em> : <br/>(pour la recherche)</td>
 			<td>
 				<table id="tbl_materiel">
 				</table>
@@ -149,6 +149,18 @@
 			</td>
 		</tr>
 	</table>
+	
+	<div id="notes_salles_occupees_non_cours" class="salle_occupee_noncours" style="display: none">
+		Vous allez prendre les salles des évènements :<br/> 
+		<ul id="lst_evenements_salles_occupees_non_cours">
+		</ul>
+	</div>
+	
+	<div id="notes_salles_occupees" class="salle_occupee" style="display: none">
+		Les salles sélectionnées sont occupées par :<br/> 
+		<ul id="lst_evenements_salles_occupees">
+		</ul>
+	</div>
 
 	<div class="boutons_valider">
 		<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Valider" />
