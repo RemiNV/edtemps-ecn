@@ -24,85 +24,90 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		// Liste des propriétaires sélectionnés
 		this.listeProprietairesSelectionnes = new Array();
 
-		// Est ce que la fonction init a déjà été appelée ?
+		// Est-ce que la fonction init a déjà été appelée ?
 		this.initAppele = false;
+		
+		// Méthode appelée à l'appui sur le bouton principal de la dialogue (créer / modifier)
+		this.callback = null;
+		
+		// Identifiantdu groupe en cours de modification (-1 si c'est un ajout)
+		this.idGroupeModification = -1;
 	};
 
 	/**
 	 * Affiche la boîte de dialogue de création d'un groupe de participants
+	 * @param titre : le titre de la boîte de dialogue
+	 * @param texteBouton : le texte du bouton de validation de la boîte de dialogue
+	 * @param groupe : groupe de participants dans le cas de la modification, null sinon
+	 * @param callback : méthode à exécuter lorsque du clique sur le bouton de validation de la boîte de dialogue
 	 */
-	DialogCreationGroupeParticipants.prototype.show = function() {
+	DialogCreationGroupeParticipants.prototype.show = function(titre, texteBouton, groupe, callback) {
 		if(!this.initAppele) {
 			this.init();
-			this.initAppele = true;
 		}
 		
-		this.jqCreationGroupeForm.dialog("open");
-	};
-	
-	
-	/**
-	 * Initialise et affiche la boîte de dialogue de création d'un groupe de participants
-	 */
-	DialogCreationGroupeParticipants.prototype.init = function() {
-		var me = this;
-
-		// Affectation d'une méthode au clic sur le bouton "Ajouter"
-		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").click(function() {
-			me.listeProprietairesSelectionnes = new Array();
-			if (me.validationFormulaire()) {
-				me.ajouterGroupe(
-						me.jqChampNom.val(),
-						me.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
-						me.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
-						me.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
-						me.listeProprietairesSelectionnes,
-						function() {
-							// Réinitialisation de la dialogue
-							me.jqChampNom.val("");
-							me.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(-1);
-							me.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").removeAttr("checked");
-							me.jqCreationGroupeForm.find("#form_creer_groupe_cours").removeAttr("checked");
-							me.listeProprietairesSelectionnes = new Array();
-							me.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_text").each(function(index) {
-								if (index>0) $(this).parents("tr").remove();
-							});
-
-							// Fermeture de la dialogue
-							me.jqCreationGroupeForm.dialog("close");
-						});
-			} else {
-				window.showToast("Veuillez vérifier et corriger les champs entourés en rouge");
-			}
-		});
-
-		// Affectation d'une méthode au clic sur le bouton "Annuler"
-		this.jqCreationGroupeForm.find("#form_creer_groupe_annuler").click(function() {
-			me.jqCreationGroupeForm.dialog("close");
-		});
-
-		// Blocage du bouton de validation avant le chargement des propriétaires potentiels
+		var me=this;
+		
+		// Blocage du bouton de validation pendant le chargement de la boîte de dialogue
 		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
 		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
 		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement en cours ...");
+		
+		// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
+		this.jqCreationGroupeForm.dialog("option", "title", titre);
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("value", texteBouton);
 		
 		// Récupération des propriétaires potentiels
 		this.recupererProprietairesPotentiels(function(success, nbUtilisateurs) {
 			if (success) {
 				if (nbUtilisateurs>0) {
-					// Affichage d'une première zone avec l'utilisateur en cours comme propriétaire
+					// Affichage d'une première zone propriétaire avec l'utilisateur en cours
 					me.ajouterLigneProprietaire(me.nomPrenomUtilisateurEnCours, true);
 				}
 
-				// Reactivation du bouton "Valider"
+				// Charge la liste des groupes parents disponibles
+				me.chargementListeGroupesParents(function() {
+					// Si un objet est passé en paramètre, la fenêtre est pré-remplie avec les informations
+					if (groupe) {
+						me.preRemplirDialog(groupe);
+					}
+				});
+
+				// Reactivation du bouton "Ajouter"/"Modifier"
 				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
 				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
 			}
 		});
 		
-		// Charge la liste des groupes parents disponibles
-		this.chargementListeGroupesParents();
+		// Récupère la méthode de callback de la dialogue
+		this.callback = callback;
 		
+		// Ouvre la boîte dialogue
+		this.jqCreationGroupeForm.dialog("open");
+	};
+	
+	
+	/**
+	 * Initialise la boîte de dialogue de création d'un groupe de participants
+	 */
+	DialogCreationGroupeParticipants.prototype.init = function() {
+		var me = this;
+
+		// Affectation d'une méthode au clic sur le bouton "Annuler"
+		this.jqCreationGroupeForm.find("#form_creer_groupe_annuler").click(function() {
+			me.jqCreationGroupeForm.dialog("close");
+		});
+		
+		// Affectation d'une méthode au clic sur le bouton d'action principale
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").click(function() {
+			me.listeProprietairesSelectionnes = new Array();
+			if (me.validationFormulaire()) {
+				me.callback();
+			} else {
+				window.showToast("Veuillez vérifier et corriger les champs entourés en rouge");
+			}
+		});
+
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		this.jqCreationGroupeForm.dialog({
 			autoOpen: false,
@@ -115,6 +120,9 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 			hide: {
 				effect: "explode",
 				duration: 200
+			},
+			beforeClose: function(event, ui) {
+				me.reinitialiserDialog();
 			}
 		});
 
@@ -125,7 +133,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 	/**
 	 * Met à jour la liste des groupes parents potentiels dans le select dédié
 	 */
-	DialogCreationGroupeParticipants.prototype.chargementListeGroupesParents = function() {
+	DialogCreationGroupeParticipants.prototype.chargementListeGroupesParents = function(callback) {
 		var me = this;
 		
 		// Blocage du bouton de validation avant le chargement des groupes parents disponibles
@@ -139,6 +147,8 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 				// Reactivation du bouton "Valider"
 				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
 				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
+				
+				callback();
 			}
 		});
 	};
@@ -231,12 +241,15 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 	 * 			booleen qui indique si le groupe est un cours
 	 * @param listeIdProprietaires
 	 * 			liste des identifiants des propriétaires
-	 * @param callback
-	 * 			méthode à effectuer en retour
 	 */
-	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, callback) {
+	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires) {
 		var me = this;
-		
+
+		// Bloque le bouton d'ajout et affiche un message de chargement
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Traitement en cours ...");
+
 		this.restManager.effectuerRequete("POST", "groupeparticipants/ajouter", {
 			token: this.restManager.getToken(),
 			groupe: JSON.stringify({
@@ -247,21 +260,78 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 				proprietaires: listeIdProprietaires
 			})
 		}, function (response) {
+			me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
+			me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
+			
 			if (response.resultCode == RestManager.resultCode_Success) {
 				window.showToast("Le groupe de participant à été créé avec succès.");
-				me.ecranParametres.initMesGroupes();
-				me.chargementListeGroupesParents();
+				me.ecranParametres.afficheListeMesGroupes();
+				me.jqCreationGroupeForm.dialog("close");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
-				window.showToast("Le nom du groupe est déjà utilisé, choisissez en un autre.");
+				window.showToast("Le nom du groupe est déjà utilisé, veuillez en choisir un autre.");
 			} else {
 				window.showToast(response.resultCode + " Erreur lors de la création du groupe de participants ; votre session a peut-être expiré ?");
 			}
-			callback();
 		});
 		
 	};
+	
+	
+	/**
+	 * Méthode qui modifie un groupe en base de données
+	 * 
+	 * @param id
+	 * 			idenfitiant du groupe à modifier
+	 * @param nom
+	 * 			nom du groupe
+	 * @param idGroupe
+	 * 			identifiant du groupe parent
+	 * @param rattachementAutorise
+	 * 			booleen qui indique si un rattachement est autorisé
+	 * @param estCours
+	 * 			booleen qui indique si le groupe est un cours
+	 * @param listeIdProprietaires
+	 * 			liste des identifiants des propriétaires
+	 */
+	DialogCreationGroupeParticipants.prototype.modifierGroupe = function(id, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires) {
+		var me = this;
+
+		// Bloque le bouton de modification et affiche un message de chargement
+		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Traitement en cours ...");
+
+		this.restManager.effectuerRequete("POST", "groupeparticipants/modifier", {
+			token: this.restManager.getToken(),
+			groupe: JSON.stringify({
+				id: id,
+				nom: nom,
+				idGroupeParent: idGroupeParent,
+				rattachementAutorise: rattachementAutorise,
+				estCours: estCours,
+				proprietaires: listeIdProprietaires
+			})
+		}, function (response) {
+			me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
+			me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
+			
+			if (response.resultCode == RestManager.resultCode_Success) {
+				window.showToast("Le groupe de participant à été modifié avec succès.");
+				me.ecranParametres.afficheListeMesGroupes();
+				me.jqCreationGroupeForm.dialog("close");
+			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur lors de la modification du groupe de participants ; vérifiez votre connexion.");
+			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
+				window.showToast("Le nom du groupe est déjà utilisé, veuillez en choisir en un autre.");
+			} else {
+				window.showToast(response.resultCode + " Erreur lors de la modification du groupe de participants ; votre session a peut-être expiré ?");
+			}
+		});
+		
+	};
+	
 	
 	/**
 	 * Remplir la liste des utilisateurs potentiellement propriétaires
@@ -323,7 +393,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 					"<label>Propriétaire"+(premierChamp ? "" : " supplémentaire")+"</label>" +
 				"</td>" +
 				"<td>" +
-					"<input type='text' class='form_creer_groupe_proprietaire_text' value='"+ (valeur ? valeur : "") +"' />" +
+					"<input type='text' class='form_creer_groupe_proprietaire_text' value='"+(valeur ? valeur : "")+"' "+(premierChamp ? "disabled='disabled'" : "")+" />" +
 					(premierChamp
 						? "<span id='form_creer_groupe_proprietaire_ajouter' title='Ajouter un propriétaire'>+</span>"
 						: "<img alt='Supression' src='img/corbeille.png' class='form_creer_groupe_proprietaire_supprimer' title='Supprimer le propriétaire' />"
@@ -436,7 +506,61 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		return valid;
 	};
 
+
+	/**
+	 * Réinitialiser la boîte de dialogue
+	 */
+	DialogCreationGroupeParticipants.prototype.reinitialiserDialog = function() {
+
+		// Vide les champs
+		this.jqChampNom.val("");
+		this.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(-1);
+		this.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").prop("checked", false);
+		this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", false);
+		this.listeProprietairesSelectionnes = new Array();
+		this.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_text").each(function(index) {
+			$(this).parents("tr").remove();
+		});
+		
+		// Enlève les bordures sur le champ nom
+		this.jqChampNom.css("box-shadow", "transparent 0 0 10px");
+		this.jqChampNom.css("border", "1px solid black");
+		
+	};
 	
+	
+	/**
+	 * Pré-remplie la boîte de dialogue avec le groupe 
+	 * @param groupe
+	 */
+	DialogCreationGroupeParticipants.prototype.preRemplirDialog = function(groupe) {
+		
+		// Identifiant du groupe
+		this.idGroupeModification = groupe.id;
+
+		// Nom du groupe
+		this.jqChampNom.val(groupe.nom);
+		
+		// Sélection du groupe parent (s'il y en a un)
+		if (groupe.parent) {
+			this.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(groupe.parent.id);
+		}
+		
+		// Checkbox pour l'autorisation du rattachement
+		this.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").prop("checked", groupe.rattachementAutorise);
+
+		// Checkbox pour les groupes de cours
+		this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", groupe.estCours);
+		
+		// Sélection des propriétaires
+		for (var i=0, maxI=groupe.proprietaires.length; i<maxI; i++) {
+			if (groupe.proprietaires[i].id!=window.localStorage["userId"]) {
+				this.ajouterLigneProprietaire(groupe.proprietaires[i].prenom+" "+groupe.proprietaires[i].nom, false);
+			}
+		}
+	};
+	
+
 	return DialogCreationGroupeParticipants;
 
 });

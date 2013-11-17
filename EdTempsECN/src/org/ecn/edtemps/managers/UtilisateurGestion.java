@@ -472,7 +472,14 @@ public class UtilisateurGestion {
 			throw new DatabaseException(e);
 		}
 	}
+
 	
+	/**
+	 * Récupère la liste des intervenants d'un événement
+	 * @param evenementId Identifiant de l'événement à traiter
+	 * @return la liste des intervenants de l'événement
+	 * @throws DatabaseException
+	 */
 	public ArrayList<UtilisateurIdentifie> getIntervenantsEvenement(int evenementId) throws DatabaseException {
 		ResultSet reponse = bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, " +
 				"utilisateur.utilisateur_prenom, utilisateur.utilisateur_email FROM edt.utilisateur INNER JOIN edt.intervenantevenement " +
@@ -493,6 +500,12 @@ public class UtilisateurGestion {
 		}
 	}
 	
+	/**
+	 * Récupère la liste des responsables d'un événement
+	 * @param evenementId Identifiant de l'événement à traiter
+	 * @return la liste des responsables de l'évenement
+	 * @throws DatabaseException
+	 */
 	public ArrayList<UtilisateurIdentifie> getResponsablesEvenement(int evenementId) throws DatabaseException {
 		ResultSet reponse = bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, " +
 				"utilisateur.utilisateur_prenom, utilisateur.utilisateur_email FROM edt.utilisateur INNER JOIN edt.responsableevenement " +
@@ -512,6 +525,35 @@ public class UtilisateurGestion {
 			throw new DatabaseException(e);
 		}
 	}
+	
+
+	/**
+	 * Récupère la liste des responsables d'un groupe
+	 * @param groupeId Identifiant du groupe à traiter
+	 * @return la liste des responsables du groupe
+	 * @throws DatabaseException
+	 */
+	public List<UtilisateurIdentifie> getResponsablesGroupe(int groupeId) throws DatabaseException {
+		ResultSet reponse = bdd.executeRequest("SELECT utilisateur.utilisateur_id, utilisateur.utilisateur_nom, utilisateur.utilisateur_prenom, utilisateur.utilisateur_email" +
+				" FROM edt.utilisateur" +
+				" INNER JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.utilisateur_id=utilisateur.utilisateur_id" +
+				" AND proprietairegroupeparticipant.groupeparticipant_id="+groupeId);
+		
+		try {
+			List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+			while(reponse.next()) {
+				res.add(inflateUtilisateurFromRow(reponse));
+			}
+			
+			reponse.close();
+			
+			return res;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+
 	
 	
 	/**

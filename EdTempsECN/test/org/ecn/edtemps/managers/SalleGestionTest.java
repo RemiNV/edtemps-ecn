@@ -1,7 +1,8 @@
 package org.ecn.edtemps.managers;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.text.DateFormat;
@@ -135,7 +136,7 @@ public class SalleGestionTest {
 		assertTrue(salleSauvegardeMateriel.getNom().equals("test de sauvegarde de salle avec matériel"));
 		assertTrue(salleSauvegardeMateriel.getMateriels().get(0).getNom().equals("Ordinateur"));
 		assertTrue(salleSauvegardeMateriel.getMateriels().get(0).getQuantite()==10);
-		assertTrue(salleSauvegardeMateriel.getMateriels().get(1).getNom().equals("Vidéoprojecteur"));
+		assertTrue(salleSauvegardeMateriel.getMateriels().get(1).getNom().equals("Vidéo-projecteur"));
 		assertTrue(salleSauvegardeMateriel.getMateriels().get(1).getQuantite()==1);
 	}
 
@@ -144,7 +145,7 @@ public class SalleGestionTest {
 	public void testSupprimerSalle() throws EdtempsException {
 		this.salleGestionnaire.supprimerSalle(7);
 		SalleIdentifie salleSupprimee = salleGestionnaire.getSalle(7, true);
-		assertTrue(salleSupprimee.equals(null));
+		assertNull(salleSupprimee);
 	}
 	
 	@Test

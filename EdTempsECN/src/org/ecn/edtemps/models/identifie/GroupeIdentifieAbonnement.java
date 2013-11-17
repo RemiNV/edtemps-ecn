@@ -25,10 +25,11 @@ public class GroupeIdentifieAbonnement extends GroupeIdentifie implements JSONAb
 	 * @param id
 	 * @param nom
 	 * @param idParent
+	 * @param estCalendrierUnique
 	 * @param abonnementObligatoire
 	 */
-	public GroupeIdentifieAbonnement(int id, String nom, int idParent, boolean abonnementObligatoire) {
-		super(id, nom, idParent);
+	public GroupeIdentifieAbonnement(int id, String nom, int idParent, boolean estCalendrierUnique, boolean abonnementObligatoire) {
+		super(id, nom, idParent, estCalendrierUnique);
 		this.abonnementObligatoire = abonnementObligatoire;
 	}
 
@@ -39,6 +40,7 @@ public class GroupeIdentifieAbonnement extends GroupeIdentifie implements JSONAb
 				.add("nom", nom)
 				.add("parentId", parentId)
 				.add("abonnementObligatoire", abonnementObligatoire)
+				.add("estCalendrierUnique", estCalendrierUnique)
 				.build();
 	}
 

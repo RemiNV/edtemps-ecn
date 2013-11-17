@@ -11,7 +11,6 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 	var Calendrier = function(eventsSource, ajoutEvenement, evenementGestion) {
 		var me = this;
 		
-		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
 
@@ -113,6 +112,7 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 			event.pendingUpdates = 1;
 		}
 		
+		// Attente que l'utilisateur fasse d'autres modifications (éventuellement) avant d'envoyer au serveur
 		setTimeout(function() {
 			event.pendingUpdates--;
 			
@@ -143,7 +143,7 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 					
 				}, event.start, event.end);
 			}
-		}, 1500);
+		}, 1000);
 	}
 	
 

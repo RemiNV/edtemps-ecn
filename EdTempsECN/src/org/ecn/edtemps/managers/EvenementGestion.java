@@ -385,6 +385,34 @@ public class EvenementGestion {
 	}
 	
 	/**
+	 * Méthode de listing des évènements de cours ou pas de cours (exclusivement l'un ou l'autre) d'une salle
+	 * 
+	 * @param idSalle ID de la salle en question
+	 * @param dateDebut Date de début de la fenêtre de recherche d'évènements
+	 * @param dateFin Date de fin de la fenêtre de recherche d'évènements
+	 * @param estCours Lister uniquement les évènements qui sont des cours (true) ou uniquement ceux qui n'en sont pas (false)
+	 * @param createTransaction Indique si il faut créer une transaction dans cette méthode, ou si elle sera déjà appelée dans une transaction
+	 * @return Liste des évènements trouvés
+	 * @throws DatabaseException  Erreur de communication avec la base de données
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementsSalleCoursOuPas(int idSalle, Date dateDebut, Date dateFin, boolean estCours, boolean createTransaction) throws DatabaseException {
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+				"FROM edt.evenement " +
+				"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
+				"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id = evenement.eve_id " +
+				"LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
+				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
+					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours)" +
+				"WHERE alieuensalle.salle_id = " + idSalle +" "
+				+ "AND evenement.eve_datefin >= ? "
+				+ "AND evenement.eve_datedebut <= ? " +
+				"GROUP BY evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+				"HAVING COUNT(groupecours.groupeparticipant_id)" + (estCours ? " > 0" : " = 0");
+		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, new EvenementIdentifieInflater(), createTransaction);
+		return res;
+	}
+	
+	/**
 	 * Méthode générique de listing d'évènements complets ou incomplets d'une salle
 	 * 
 	 * @param idSalle identifiant de la salle dont les évènements sont à récupérer
@@ -499,15 +527,16 @@ public class EvenementGestion {
 		String strIdSalles = StringUtils.join(idSalles, ",");
 		String strIdEvenements = StringUtils.join(idEvenements, ",");
 		
-		_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE (alieuensalle.eve_id, alieuensalle.salle_id) IN " +
-				"SELECT DISTINCT (alieuensalle.eve_id, alieuensalle.salle_id) FROM edt.alieuensalle " +
-				"INNER JOIN edt.evenementappartient ON evenementappartient.eve_id=alieuensalle.eve_id " +
-				"INNER JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
-				"INNER JOIN edt.groupeparticipant ON groupeparticipant.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
-					"AND groupeparticipant.groupeparticipant_estcours=FALSE " +
-				"WHERE alieuensalle.eve_id IN (" + strIdEvenements + ") AND alieuensalle.salle_id IN (" + strIdSalles + ")");
-		
-		// TODO : un calendrier peut être de cours si un des parents l'est !
+		_bdd.executeRequest("DELETE FROM edt.alieuensalle tablesuppr WHERE EXISTS (" +
+				"SELECT 1 FROM edt.alieuensalle " +
+				"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id=alieuensalle.eve_id " +
+				"LEFT JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
+				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
+					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours) " +
+				"WHERE alieuensalle.eve_id IN (" + strIdEvenements + ") AND alieuensalle.salle_id IN (" + strIdSalles + ") " +
+					"AND alieuensalle.eve_id = tablesuppr.eve_id AND alieuensalle.salle_id = tablesuppr.salle_id " +
+				"GROUP BY alieuensalle.eve_id, alieuensalle.salle_id " +
+				"HAVING COUNT(groupecours.groupeparticipant_id) = 0)");
 	}
 	
 	/**

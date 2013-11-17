@@ -9,12 +9,6 @@ DROP SEQUENCE edt.utilisateur_utilisateur_id_seq CASCADE;
 DROP SEQUENCE edt.typeutilisateur_type_id_seq CASCADE;
 DROP SEQUENCE edt.droits_droits_id_seq CASCADE;
 
-DROP TRIGGER trigger_update_groupeparticipant_aparentcours ON edt.groupeparticipant;
-DROP TRIGGER trigger_set_groupeparticipant_aparentcours ON edt.groupeparticipant;
-
-DROP FUNCTION edt.update_groupeparticipant_aparentcours();
-DROP FUNCTION edt.set_groupeparticipant_aparentcours();
-
 DROP TABLE edt.salle CASCADE;
 DROP TABLE edt.materiel CASCADE;
 DROP TABLE edt.contientmateriel CASCADE;
@@ -38,3 +32,6 @@ DROP TABLE edt.typeutilisateur CASCADE;
 DROP TABLE edt.estdetype CASCADE;
 DROP TABLE edt.droits CASCADE;
 DROP TABLE edt.aledroitde CASCADE;
+
+DROP FUNCTION edt.update_groupeparticipant_aparentcours();
+DROP FUNCTION edt.set_groupeparticipant_aparentcours();

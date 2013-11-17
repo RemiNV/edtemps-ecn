@@ -235,13 +235,13 @@
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'OBJET TD'
-		AND groupeparticipant.groupeparticipant_nom='EI3 Info' OR groupeparticipant.groupeparticipant_nom='OBJET TD' LIMIT 2;
+		AND (groupeparticipant.groupeparticipant_nom='EI3 Info' OR groupeparticipant.groupeparticipant_nom='OBJET TD') LIMIT 2;
 
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'GELOL TD'
-		AND groupeparticipant.groupeparticipant_nom='EI3 Info' OR groupeparticipant.groupeparticipant_nom='GELOL TD' LIMIT 2;
+		AND (groupeparticipant.groupeparticipant_nom='EI3 Info' OR groupeparticipant.groupeparticipant_nom='GELOL TD') LIMIT 2;
 
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
@@ -253,19 +253,19 @@
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'Sport groupes K,L'
-		AND groupeparticipant.groupeparticipant_nom='EI1 Groupe K' OR groupeparticipant.groupeparticipant_nom='EI1 Groupe L' OR groupeparticipant.groupeparticipant_nom='Sport groupes K,L' LIMIT 3;
+		AND (groupeparticipant.groupeparticipant_nom='EI1 Groupe K' OR groupeparticipant.groupeparticipant_nom='EI1 Groupe L' OR groupeparticipant.groupeparticipant_nom='Sport groupes K,L') LIMIT 3;
 
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'THERE CM Promo B'
-		AND groupeparticipant.groupeparticipant_nom='EI1 Promo B' OR groupeparticipant.groupeparticipant_nom='THERE CM Promo B' LIMIT 2;
+		AND (groupeparticipant.groupeparticipant_nom='EI1 Promo B' OR groupeparticipant.groupeparticipant_nom='THERE CM Promo B') LIMIT 2;
 
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'Réunions d''information EI1'
-		AND groupeparticipant.groupeparticipant_nom='EI1' OR groupeparticipant.groupeparticipant_nom='Réunions d''information EI1' LIMIT 2;
+		AND (groupeparticipant.groupeparticipant_nom='EI1' OR groupeparticipant.groupeparticipant_nom='Réunions d''information EI1') LIMIT 2;
 
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id

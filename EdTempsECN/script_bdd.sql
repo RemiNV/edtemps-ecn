@@ -50,6 +50,7 @@ CREATE TABLE edt.GroupeParticipant (
                 groupeParticipant_nom VARCHAR,
                 groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
                 groupeParticipant_id_parent INTEGER,
+                groupeParticipant_id_parent_tmp INTEGER,
 		groupeParticipant_estCours BOOLEAN NOT NULL DEFAULT FALSE,
 		groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
 		groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,

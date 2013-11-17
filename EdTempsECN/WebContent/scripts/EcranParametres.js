@@ -3,9 +3,9 @@
  * Associé au HTML templates/page_parametres.html
  * @module EcranParametres
  */
-define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "lib/davis.min",
-        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, DialogCreationCalendrier, 
-        		DialogCreationGroupeParticipants, Davis) {
+define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "DialogDetailGroupeParticipants", "DialogGererGroupeParticipants", "lib/davis.min",
+        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, CalendrierGestion, DialogCreationCalendrier, 
+        		DialogCreationGroupeParticipants, DialogDetailGroupeParticipants, DialogGererGroupeParticipants, Davis) {
 	
 	/**
 	 * @constructor
@@ -14,8 +14,13 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	var EcranParametres = function(restManager) {
 		this.restManager = restManager;
  		this.groupeGestion = new GroupeGestion(this.restManager);
- 		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager);
+ 		this.calendrierGestion = new CalendrierGestion(this.restManager);
+ 		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager, this);
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
+ 		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
+ 		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager, this);
+ 		//Variable contenant les calendriers dont l'utilisateur est propriétaire
+ 		this.listeCalendriers = new Object();
 	};
 	
 	var idTabs = {
@@ -82,7 +87,15 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 					html += '<option value="' + gpe.id + '"'
 						+ ' idparent="' + gpe.parentId + '"'
 						+ ' selected="selected">' 
-						+ gpe.nom + '</option>';
+						+ gpe.nom ;
+					// Information groupeUnique
+					if (gpe.estCalendrierUnique) {
+						html += " (Calendrier)";
+					}						
+					else {
+						html += " (Groupe)";
+					}
+					html += '</option>';
 				}
 				// Parcourt des groupes auxquels l'utilisateur est abonné 
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
@@ -94,7 +107,15 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 						html += ' disabled="disabled"';
 					}
 					html += ' idparent="' + gpe.parentId + '"';
-					html += '>' + gpe.nom + '</option>';
+					html += '>' + gpe.nom ;
+					// Information GroupeUnique
+					if (gpe.estCalendrierUnique) {
+						html += " (Calendrier)";
+					}						
+					else {
+						html += " (Groupe)";
+					}
+					html += '</option>';
 				}
 			
 				// Affichage	 
@@ -130,7 +151,6 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 										var idGpe = $(this).attr("id").replace("-selectable", "");
 										var nomGpe = $(this).text();
 										me.afficheAbonnementsIndirectes(idGpe, nomGpe);
-										console.log(nomGpe);
 									}
 								});	
 							}
@@ -224,12 +244,61 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 	 */
 	EcranParametres.prototype.initMesCalendriers = function() {
 		
-		// Affichage des calendriers (utiliser template ?)
-		
-		// Listener
+		// Listener du bouton de creation d'un nouveau calendrier
 		var me = this;
 		$("#btn_creer_calendrier").click(function() {
 			me.dialogCreationCalendrier.init();
+		});
+
+		// Création du template pour la liste des calendriers
+		var listMesCalendriersTemplate = 
+			"<% _.each(calendriers, function(calendrier) { %> " +
+			"<tr data-id='<%= calendrier.id %>'>" +
+				"<td><%= calendrier.nom %></td>" +
+				"<td class='tbl_mes_calendriers_boutons'>" +
+					"<input type='button' data-id='<%= calendrier.id %>' class='button tbl_mes_calendriers_boutons_modifier' value='Modifier' />" +
+					"<input type='button' class='button tbl_mes_calendriers_boutons_supprimer' data-id='<%= calendrier.id %>' value='Supprimer' />" +
+				"</td>" +
+			"</tr> <% }); %>";
+		
+		// Récupération des groupes de l'utilisateur
+		me.calendrierGestion.queryCalendrierUtilisateurProprietaire(function (resultCode, data) {
+			
+			if(resultCode != RestManager.resultCode_Success) {
+				window.showToast("La récupération des calendriers a échoué ; vérifiez votre connexion.");
+			}
+			else {
+				if (data.listeCalendriers.length == 0) {
+					$("#tbl_mes_calendriers").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
+				}
+				else {
+					// Enregistrement de la liste des calendriers
+					me.listeCalendriers = data.listeCalendriers;
+					// Ecriture du tableau dans la page, en utilisant le template
+					$("#tbl_mes_calendriers").html(_.template(listMesCalendriersTemplate, {calendriers: data.listeCalendriers}));
+					// Listeners pour les boutons "modifier"
+					//$(".tbl_...").click(function() {
+						//me.dialogModifierGroupeParticipants.show($(this).attr("data-id"));
+					//});
+
+					// Listeners pour les boutons supprimer
+					$(".tbl_mes_calendriers_boutons_supprimer").click(function() {
+						/*if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
+							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
+								if (resultCode == RestManager.resultCode_Success) {
+									window.showToast("Le groupe a été supprimé avec succès.");
+									me.initMesGroupes();
+									me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
+								} else {
+									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
+								}
+							});
+						}*/
+					});
+
+				}
+		 	} 
+			
 		});
 
 	};
@@ -243,64 +312,20 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 
 		// Listener pour le bouton d'ajout
 		$("#btn_creer_groupe").click(function() {
-			me.dialogCreationGroupeParticipants.show();
+			var dialog = me.dialogCreationGroupeParticipants;
+			dialog.show("Créer un groupe de participants", "Créer", null, function() {
+				dialog.ajouterGroupe(
+					dialog.jqChampNom.val(),
+					dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
+					dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
+					dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
+					dialog.listeProprietairesSelectionnes
+				);
+			});
 		});
-
-		// Création du template pour la liste des groupes
-		var listMesGroupesTemplate = 
-			"<% _.each(groupes, function(groupe) { %> <tr>" +
-				"<td class='tbl_mes_groupes_groupe'><%= groupe.nom %></td>" +
-				"<td class='tbl_mes_groupes_boutons'>" +
-					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />" +
-					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' " +
-					"<% if (groupe.estCalendrierUnique) { %>title='Ce groupe ne peut pas être supprimé car c&apos;est le groupe unique rattaché à son calendrier. Supprimer ce calendrier supprimera également ce groupe.' disabled='disabled' <% } %>" +
-					"/>" +
-				"</td>" +
-			"</tr> <% }); %>";
 		
-		// Affichage d'un message de chargement
-		$("#tbl_mes_groupes_chargement").css("display", "block");
-		$("#tbl_mes_groupes_chargement_message").html("Récupération de mes groupes de participants ...");
-		
-		// Récupération des groupes de l'utilisateur
-		me.groupeGestion.queryGroupesUtilisateurProprietaire(function (resultCode, data) {
-			
-			// Suppression du message de chargement
-			$("#tbl_mes_groupes_chargement").css("display", "none");
-
-			if(resultCode == RestManager.resultCode_Success) {
-
-				if (data.listeGroupes.length>0) {
-					// Ecriture du tableau dans la page
-					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
-					// Listeners pour les boutons gérer
-					$(".tbl_mes_groupes_boutons_gerer").click(function() {
-						alert($(this).attr("data-id"));
-						me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
-					});
-					// Listeners pour les boutons supprimer
-					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
-						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
-							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
-								if (resultCode == RestManager.resultCode_Success) {
-									window.showToast("Le groupe a été supprimé avec succès.");
-									me.initMesGroupes();
-									me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
-								} else {
-									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
-								}
-							});
-						}
-					});					
-				} else {
-					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
-				}
-
-		 	} else {
-				// En cas d'erreur, on affiche un message
-				window.showToast("La récupération des groupes a échoué ; vérifiez votre connexion.");
-			}
-		});
+		// Affiche liste des groupes de participants
+		this.afficheListeMesGroupes();
 		
 	};
 	
@@ -379,6 +404,135 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 			});
 		}
 	};
+	
+	
+	/**
+	 * Met en valeur les demande de rattachement qui sont en attente de validation
+	 */
+	EcranParametres.prototype.miseEnValeurGroupesEnAttenteRattachement = function() {
+		var me=this;
+
+		// Cacher la bulle d'information
+		$("#bulle_information").html("").hide();
+		
+		this.groupeGestion.queryGroupesEnAttenteRattachement(function(resultCode, data) {
+			var nbGroupes = data.length;
+
+			// Ajout des boutons "Gérer" et mise en surbrillance les lignes
+			var dejaMisEnValeur = new Object();
+			if (nbGroupes > 0) {
+				for (var i=0; i<nbGroupes; i++) {
+					if (!dejaMisEnValeur[data[i].parentIdTmp]) {
+						$("#tbl_mes_groupes_ligne_"+data[i].parentIdTmp).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+						$("#tbl_mes_groupes_ligne_"+data[i].parentIdTmp+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+data[i].parentIdTmp+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
+						dejaMisEnValeur[data[i].parentIdTmp] = true;
+					}
+				}
+			}
+			
+			// Listeners pour les boutons gérer
+			$(".tbl_mes_groupes_boutons_gerer").click(function() {
+				var listeRattachementAttenteValidation = new Array();
+				for (var i=0, maxI=data.length; i<maxI; i++) {
+					if (data[i].parentIdTmp==$(this).attr("data-id")) {
+						listeRattachementAttenteValidation.push(data[i]);
+					}
+				}
+				me.dialogGererGroupeParticipants.show($(this).attr("data-id"), listeRattachementAttenteValidation);
+			});
+
+		});
+
+	};
+
+	
+	/**
+	 * Affiche la liste des groupes dans l'onglet Mes groupes de participants
+	 */
+	EcranParametres.prototype.afficheListeMesGroupes = function() {
+		var me=this;
+		
+		// Affichage d'un message de chargement
+		$("#tbl_mes_groupes_chargement").css("display", "block");
+		$("#tbl_mes_groupes_chargement_message").html("Récupération de mes groupes de participants ...");
+		
+		// Récupération des groupes de l'utilisateur
+		this.groupeGestion.queryGroupesUtilisateurProprietaire(function (resultCode, data) {
+			
+			// Suppression du message de chargement
+			$("#tbl_mes_groupes_chargement").css("display", "none");
+
+			if(resultCode == RestManager.resultCode_Success) {
+
+				if (data.listeGroupes.length>0) {
+					// Ecriture du tableau dans la page
+					var listMesGroupesTemplate = 
+						"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>'><% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
+							"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
+							"<td class='tbl_mes_groupes_boutons'>" +
+								"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_modifier' value='Modifier' />" +
+								"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' />" +
+							"</td>" +
+						"</tr> <% }); %>";
+
+					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
+					
+					// Listeners pour les lignes
+					$(".tbl_mes_groupes_groupe").click(function() {
+						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
+					});
+
+					// Listeners pour les boutons Supprimer
+					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
+						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
+							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
+								if (resultCode == RestManager.resultCode_Success) {
+									window.showToast("Le groupe a été supprimé avec succès.");
+									me.afficheListeMesGroupes();
+								} else {
+									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
+								}
+							});
+						}
+					});
+					
+					// Listeners pour les boutons Modifier
+					$(".tbl_mes_groupes_boutons_modifier").click(function() {
+						// Récupération des informations complètes sur le groupe
+						me.groupeGestion.queryGetGroupeComplet($(this).attr("data-id"), function(resultCode, data) {
+							if (resultCode == RestManager.resultCode_Success) {
+								var dialog = me.dialogCreationGroupeParticipants;
+								dialog.show("Modifier un groupe de participants", "Modifier", data.groupe, function() {
+									dialog.modifierGroupe(
+										dialog.idGroupeModification,
+										dialog.jqChampNom.val(),
+										dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
+										dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
+										dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
+										dialog.listeProprietairesSelectionnes
+									);
+								});
+							} else {
+								window.showToast("La récupération des informations sur le groupe a échoué ; vérifiez votre connexion.");
+							}
+						});
+					});
+					
+					// Mise en valeur des groupes qui ont des demandes de rattachement en attente de validation
+					me.miseEnValeurGroupesEnAttenteRattachement();
+
+				} else {
+					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
+				}
+
+		 	} else {
+				// En cas d'erreur, on affiche un message
+				window.showToast("La récupération des groupes a échoué ; vérifiez votre connexion.");
+			}
+		});
+
+	};
+
 	
 	return EcranParametres;
 });

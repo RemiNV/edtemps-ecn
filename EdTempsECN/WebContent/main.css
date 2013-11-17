@@ -280,25 +280,67 @@ table.liste_materiel th {
 	margin-bottom: 5px;
 }
 
-.form_creer_calendrier_proprietaire {
-	width: 250px;
+.form_creer_calendrier_proprietaire_utilisateurencours {
+	width: 225px;
 	margin-bottom: 2px;
+	margin-right: 2px;
 }
 
-#form_creer_calendrier_ajouter_proprietaire {
-	width: 250px;
-	text-align: right;
-	font-style: italic;
-	font-size: 0.8em;
-	margin-top: -4px;
-	text-decoration: underline;
+.form_creer_calendrier_proprietaire {
+	width: 225px;
+	margin-bottom: 2px;
+	margin-right: 2px;
 }
 
-#form_creer_calendrier_ajouter_proprietaire:hover {
-	color:white;
+#form_creer_calendrier_ajouter_proprietaire, .form_creer_calendrier_supprimer_proprietaire {
 	cursor: pointer;
+	height: 12px;
+    width: 12px;
+	border: solid 1px gray;
+	border-radius: 2px;
+	padding: 2px;
+	vertical-align: middle;	
 }
 
+.form_creer_calendrier_supprimer_proprietaire {
+	margin-left:5px;
+}
+
+#form_creer_calendrier_ajouter_proprietaire:hover, .form_creer_calendrier_supprimer_proprietaire:hover {
+	background-color: white;
+}
+
+#form_creer_calendrier_proprietaires {
+	width: 300px;
+}
+
+#btn_creer_calendrier {
+	margin-top: 20px;
+}
+
+/* Tableau d'affichage des calendriers de l'utilisateur (= dont il est propriétaire) */
+#tbl_mes_calendriers {
+	margin-top: 20px;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#tbl_mes_calendriers tr {
+    border-bottom: 1px solid gray;
+    border: 1px solid gray;
+}
+
+#tbl_mes_calendriers td {
+    padding-left: 5px;
+}
+
+.tbl_mes_calendriers_boutons {
+    text-align: right;
+}
+
+.tbl_mes_calendriers_boutons_modifier {
+    margin-right: 5px;
+}
 
 /* Formulaire CreationGroupeParticipants */
 
@@ -309,11 +351,15 @@ table.liste_materiel th {
 
 #form_creer_groupe_nom {
 	width: 210px;
+	padding-left: 5px;
+	margin-left: 2px;
 }
 
 .form_creer_groupe_proprietaire_text {
+	padding-left: 5px;
 	width: 210px;
 	margin-right: 3px;
+	margin-left: 2px;
 }
 	
 #form_creer_groupe_parent_message {
@@ -417,6 +463,55 @@ table.liste_materiel th {
 	z-index: 10;
 }
 
+
+/*
+ * Bulle d'information
+ */
+
+#bulle_information {
+	display: none;
+	position: fixed;
+	width: 200px;
+	background-color: red;
+	border-radius: 3px;
+	padding: 10px;
+	color: white;
+	box-shadow: 3px 5px 7px #888888;
+	z-index: 10;
+	cursor: move;
+}
+
+#bulle_information a {
+	text-decoration: none;
+	font-weight: bold;
+	color: white;
+}
+
+#bulle_information a:hover {
+	text-decoration: underline;
+	color: black;
+}
+
+#bulle_information #bulle_information_fermer {
+	float: right;
+	margin-right: -5px;
+	margin-top: -5px;
+	border: solid 1px black;
+	width: 8px;
+	padding: 2px;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+#bulle_information #bulle_information_fermer:hover {
+	background-color: white;
+}
+
+#bulle_information #bulle_information_clique:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
 .tab_parametres {
 	width: 700px;
 	padding-right: 10px;
@@ -456,11 +551,19 @@ input.valide {
 	right: 3px;
 }
 
+.salle_occupee {
+	color: red;
+}
+
+.salle_occupee_noncours {
+	color: #fb863a;
+}
+
 /* 
  * Onglet "Mes groupes de participants" de la page de paramétrage
  */
  
-#btn_creer_groupe {
+#btn_creer_groupe, #btn_creer_calendrier {
 	margin-top: 20px;
 }
 
@@ -475,6 +578,10 @@ input.valide {
 	cursor: pointer;
 }
 
+#tbl_mes_groupes .tbl_mes_groupes_ligne_importante {
+	background-color: #FFDBDB;
+}
+
 #tbl_mes_groupes tr:hover {
 	background-color: #DDDDDD;
 }
@@ -485,8 +592,57 @@ input.valide {
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons {
 	text-align: right;
+	width: 250px;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons input {
-	margin-left: 10px;
+	margin-left: 5px;
+}
+
+
+/* 
+ * Boîte de dialogue pour afficher les détails d'un groupe de participants
+ */
+
+#dialog_detail_groupe .dialog_detail_groupe_label {
+	text-decoration: underline;
+}
+
+#dialog_detail_groupe_boutons {
+	text-align: right;
+}
+
+/* 
+ * Boîte de dialogue de gestion d'un groupe de participants
+ */
+
+#dialog_gerer_groupe #dialog_gerer_groupe_boutons {
+	text-align: right;
+	margin-top: 10px;	
+}
+
+#dialog_gerer_groupe table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#dialog_gerer_groupe table tr {
+	border: solid 1px black;
+}
+
+#dialog_gerer_groupe table td {
+	padding-left: 5px;
+}
+
+#dialog_gerer_groupe table .dialog_gerer_groupe_table_boutons {
+	width: 160px;
+	text-align: right;
+}
+
+#dialog_gerer_groupe table .dialog_gerer_groupe_table_noms {
+	cursor: pointer;	
+}
+
+#dialog_gerer_groupe table tr:hover {
+	background-color: white;
 }

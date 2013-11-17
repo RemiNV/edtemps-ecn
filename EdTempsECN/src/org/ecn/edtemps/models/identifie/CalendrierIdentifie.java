@@ -3,6 +3,7 @@ package org.ecn.edtemps.models.identifie;
 import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
@@ -42,16 +43,35 @@ public class CalendrierIdentifie extends Calendrier implements JSONAble {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	@Override
-	public JsonValue toJson() {
-		return Json.createObjectBuilder()
+	
+	protected JsonObjectBuilder makeObjectBuilder() {
+		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("id", id)
 				.add("nom", nom)
-				.add("type", type)
-				.add("matiere", matiere)
-				.add("proprietaires", JSONUtils.getJsonIntArray(idProprietaires))
-				.build();
+				.add("proprietaires", JSONUtils.getJsonIntArray(idProprietaires));
+		
+		if(type != null) {
+			builder.add("type", type);
+		}
+		else {
+			builder.addNull("type");
+		}
+		
+		if(matiere != null) {
+			builder.add("matiere", matiere);
+		}
+		else {
+			builder.addNull("type");
+		}
+		
+		return builder;
+	}
+
+	@Override
+	public final JsonValue toJson() {
+		JsonObjectBuilder builder = makeObjectBuilder();
+		
+		return builder.build();
 	}
 
 }

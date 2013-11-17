@@ -9,6 +9,7 @@ import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,6 +23,7 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
+import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
@@ -36,23 +38,19 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 	/**
 	 * Méthode générale du servlet appelée par la requête POST
-	 * Elle redirige vers les trois méthodes possibles : ajout, modification et suppression
+	 * Elle redirige vers les différentes fonctionnalités possibles
 	 * 
-	 * @param userId
-	 * 			identifiant de l'utilisateur qui a fait la requête
-	 * @param bdd
-	 * 			gestionnaire de la base de données
-	 * @param req
-	 * 			requête
-	 * @param resp
-	 * 			réponse pour le client
+	 * @param userId Identifiant de l'utilisateur qui a fait la requête
+	 * @param bdd Gestionnaire de la base de données
+	 * @param req Requête
+	 * @param resp Réponse pour le client
 	 */
 	@Override
 	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
 		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/ajouter") && !pathInfo.equals("/modifier") && !pathInfo.equals("/supprimer")) {
+		if (!pathInfo.equals("/ajouter") && !pathInfo.equals("/modifier") && !pathInfo.equals("/supprimer") && !pathInfo.equals("/get") ) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			bdd.close();
 			return;
@@ -60,19 +58,19 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 		try {
 
-			// Renvoies vers les trois fonctionnalités possibles : ajout, modification et suppression 
+			// Renvoies vers les différentes fonctionnalités
 			switch (pathInfo) {
 				case "/ajouter":
-					// Lance la méthode d'ajout
 					doAjouterGroupeParticipants(userId, bdd, req, resp);
 					break;
 				case "/modifier":
-					
-					doModifierGroupeParticipants();
+					doModifierGroupeParticipants(userId, bdd, req, resp);
 					break;
 				case "/supprimer":
-					// Lance la méthode de suppression
 					doSupprimerGroupeParticipants(bdd, req, resp);
+					break;
+				case "/get":
+					doGetGroupeParticipants(bdd, req, resp);
 					break;
 			}
 
@@ -83,7 +81,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format de l'objet JSON 'groupe de participants' incorrect", null));
 			bdd.close();
 		} catch(EdtempsException e) {
-			logger.error("Erreur lors de l'ajout/modification/suppression d'un groupe de participants", e);
+			logger.error("Erreur lors de l'ajout/modification/suppression/récupération d'un groupe de participants", e);
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 			bdd.close();
 		}
@@ -92,16 +90,12 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 	
 	/**
-	 * Ajoutter un groupe de participants
+	 * Ajouter un groupe de participants
 	 * 
-	 * @param userId
-	 * 			identifiant de l'utilisateur qui fait la demande d'ajout
-	 * @param bdd
-	 * 			gestionnaire de la base de données
-	 * @param resp
-	 * 			réponse à compléter
-	 * @param requete
-	 * 			requête
+	 * @param userId Identifiant de l'utilisateur qui fait la demande d'ajout
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
 	 * 
 	 * @throws EdtempsException
 	 * @throws IOException
@@ -122,6 +116,9 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		// Récupération des informations sur le groupe
 		String nom = jsonGroupe.getString("nom");
 		Integer idGroupeParent = Integer.valueOf(jsonGroupe.getString("idGroupeParent"));
+		if (idGroupeParent==-1) {
+			idGroupeParent=null;
+		}
 		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
 		Boolean estCours = jsonGroupe.getBoolean("estCours");
 		JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
@@ -136,24 +133,68 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 		// Ajout
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		groupeGestion.sauverGroupe(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires);
+		groupeGestion.sauverGroupe(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, userId);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe ajouté", null));
 	}
 
 	
-	protected void doModifierGroupeParticipants() throws EdtempsException, IOException {
+	/**
+	 * Modifier un groupe de participants
+	 * 
+	 * @param userId Identifiant de l'utilisateur qui fait la demande de modification
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * 
+	 * @throws EdtempsException
+	 * @throws IOException
+	 */
+	protected void doModifierGroupeParticipants(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+
+		// Récupération des infos de l'objet groupe
+		String strGroupe = req.getParameter("groupe");
+		if (strGroupe == null) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe manquant", null));
+			bdd.close();
+			return;
+		}
+
+		JsonReader reader = Json.createReader(new StringReader(strGroupe));
+		JsonObject jsonGroupe = reader.readObject();
+		
+		// Récupération des informations sur le groupe
+		int idGroupe = jsonGroupe.getInt("id");
+		String nom = jsonGroupe.getString("nom");
+		Integer idGroupeParent = Integer.valueOf(jsonGroupe.getString("idGroupeParent"));
+		if (idGroupeParent==-1) {
+			idGroupeParent=null;
+		}
+		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
+		Boolean estCours = jsonGroupe.getBoolean("estCours");
+		JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
+		List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayList(jsonIdProprietaires);
+		
+		// Vérification que l'objet est bien complet
+		if (StringUtils.isBlank(nom) || rattachementAutorise == null || estCours == null || CollectionUtils.isEmpty(listeIdProprietaires)) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe incomplet : paramètres manquants", null));
+			bdd.close();
+			return;
+		}
+
+		// Modification
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		groupeGestion.modifierGroupe(idGroupe, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, userId);
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe ajouté", null));
 	}
 
 	
 	/**
 	 * Supprimer un groupe de participants
 	 * 
-	 * @param bdd
-	 * 		gestionnaire de la base de données
-	 * @param req
-	 * 		requête
-	 * @param resp
-	 * 		réponse à compléter
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * 
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */
@@ -161,6 +202,23 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		groupeGestion.supprimerGroupe(Integer.valueOf(req.getParameter("id")));
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe supprimé", null));
+	}
+
+	/**
+	 * Récupérer un groupe de participants
+	 * 
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * 
+	 * @throws EdtempsException
+	 * @throws IOException
+	 */
+	protected void doGetGroupeParticipants(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		GroupeComplet groupe = groupeGestion.getGroupeComplet(Integer.valueOf(req.getParameter("id")));
+		JsonValue data = Json.createObjectBuilder().add("groupe", groupe.toJson()).build();
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe récupéré", data));
 	}
 
 }

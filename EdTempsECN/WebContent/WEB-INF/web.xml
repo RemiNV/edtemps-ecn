@@ -106,6 +106,21 @@
       <servlet-class>org.ecn.edtemps.servlets.impl.GroupesProprietaireServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>RattachementGroupe</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.RattachementGroupeServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>Disponibilite</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.DisponibiliteServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>ClientLogging</servlet-name>
+    <servlet-class>org.ecn.edtemps.servlets.ClientLoggingServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -205,6 +220,22 @@
     <servlet-name>ListeGroupesUtilisateurProprietaire</servlet-name>
     <url-pattern>/groupesutilisateurproprietaire</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>RattachementGroupe</servlet-name>
+    <url-pattern>/rattachementgroupe/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>Disponibilite</servlet-name>
+      <url-pattern>/disponibilitesalle</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>ClientLogging</servlet-name>
+      <url-pattern>/logging</url-pattern>
+  </servlet-mapping>
+  
 
 </web-app>
 

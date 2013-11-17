@@ -65,5 +65,23 @@ define([], function() {
 	};
 
 	
+	/**
+	 * Récupérer les calendriers dont l'utilisateur est propriétaire
+	 * 
+	 * @param callback : Fonction appelée une fois la requete de création effectuée
+	 *
+	 */
+	CalendrierGestion.prototype.queryCalendrierUtilisateurProprietaire = function(callback) {
+		var me = this;
+		this.restManager.effectuerRequete(
+			"GET",
+			"calendrier", 
+			{ 
+			  token: me.restManager.getToken(),
+			},
+			function(data){callback(data.resultCode, data.data);}
+		);
+	};
+	
 	return CalendrierGestion;
 });

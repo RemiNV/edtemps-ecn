@@ -1,23 +1,75 @@
 
+/**
+ * Définition du reporting d'erreurs
+ */
+require(["lib/stacktrace"], function(stacktrace) {
+	// Gestion d'erreurs signalées au serveur
+	window.onerror = function(message, url, lineNb, colNb, e) {
+		// Chrome supporte le passage de l'exception javascript
+		var stack = false;
+		if(e) {
+			stack = stacktrace({ e: e }).join("\n");
+		}
+		
+		var reportMessage = "erreur : " + message + "\nScript " + url + " ligne " + lineNb;
+		if(colNb) {
+			reportMessage += " colonne " + colNb;
+		}
+		if(stack) {
+			reportMessage += "\nStack : \n" + stack;
+		}
+		
+		if(console && console.log) {
+			console.log("Erreur signalée au serveur : ", reportMessage);
+		}
+		$.ajax("logging", {
+			type: "POST",
+			data: {
+				message: reportMessage
+			}
+		});
+	};
+
+	// Modification du comportement de requirejs pour les erreurs (ne pas signaler les erreurs de chargement au serveur)
+	requirejs.onError = function(e) {
+		// Pas d'erreur lancée pour les timeout : log manuel
+		if(e.requireType == "timeout") {
+			if(console && console.log) {
+				console.log("requireJS : Timeout au chargement des scripts : ", e);
+			}
+		}
+		else {
+			throw e;
+		}
+	};
+});
+
+
 /* Fonction d'entrée du programme. 
  * Le plugin davis est appelé par le mot-clé "davis" (configuré dans index.html)
  * Placer jquery en dernier dans la liste (ne se charge pas dans les arguments de la fonction) */
-require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion.html", "DialogConnexion", 
-         "lib/davis.hashrouting", "jquery"], function(Davis, RestManager, htmlFormulaireConnexion, DialogConnexion) {
+require(["lib/stacktrace", "lib/davis.min", "RestManager", "text!../templates/formulaire_connexion.html", "DialogConnexion", 
+         "lib/davis.hashrouting", "jquery"], function(stacktrace, Davis, RestManager, htmlFormulaireConnexion, DialogConnexion) {
 	/* Davis est chargé de manière locale avec le mot-clé "Davis" dans cette fonction (passé en argument) : 
 	 * le plugin est configuré pour être chargé de cette manière dans le index.html
 	 * 
 	 * jquery est accessible de manière globale par $ (mais il faut tout de même préciser la dépendance
 	 * dans les arguments de require() !), pour ne pas avoir de problème de dépendances (avec jQuery UI notamment) */
-	
 
+	
 	var currentPage = { nom: null, manager: null };
 	
 	var restManager = new RestManager();
 	
 	/** Remplace toutes les infobulles par celle de jQuery UI */
 	$(document).tooltip({
-	    content: function() { return $(this).attr('title'); } /* permet d'insérer du html dans le title */
+	    content: function() { return $(this).attr('title'); }, /* permet d'insérer du html dans le title */
+	    show: {
+	    	duration: 200
+	    },
+	    hide: {
+	    	duration: 200
+	    }
 	});
 	
 	/**
@@ -197,4 +249,5 @@ require(["lib/davis.min", "RestManager", "text!../templates/formulaire_connexion
 	};
 	
 	init();
+
 });
