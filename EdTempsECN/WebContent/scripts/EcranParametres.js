@@ -250,57 +250,8 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 			me.dialogCreationCalendrier.init();
 		});
 
-		// Création du template pour la liste des calendriers
-		var listMesCalendriersTemplate = 
-			"<% _.each(calendriers, function(calendrier) { %> " +
-			"<tr data-id='<%= calendrier.id %>'>" +
-				"<td><%= calendrier.nom %></td>" +
-				"<td class='tbl_mes_calendriers_boutons'>" +
-					"<input type='button' data-id='<%= calendrier.id %>' class='button tbl_mes_calendriers_boutons_modifier' value='Modifier' />" +
-					"<input type='button' class='button tbl_mes_calendriers_boutons_supprimer' data-id='<%= calendrier.id %>' value='Supprimer' />" +
-				"</td>" +
-			"</tr> <% }); %>";
-		
-		// Récupération des groupes de l'utilisateur
-		me.calendrierGestion.queryCalendrierUtilisateurProprietaire(function (resultCode, data) {
-			
-			if(resultCode != RestManager.resultCode_Success) {
-				window.showToast("La récupération des calendriers a échoué ; vérifiez votre connexion.");
-			}
-			else {
-				if (data.listeCalendriers.length == 0) {
-					$("#tbl_mes_calendriers").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
-				}
-				else {
-					// Enregistrement de la liste des calendriers
-					me.listeCalendriers = data.listeCalendriers;
-					// Ecriture du tableau dans la page, en utilisant le template
-					$("#tbl_mes_calendriers").html(_.template(listMesCalendriersTemplate, {calendriers: data.listeCalendriers}));
-					// Listeners pour les boutons "modifier"
-					//$(".tbl_...").click(function() {
-						//me.dialogModifierGroupeParticipants.show($(this).attr("data-id"));
-					//});
-
-					// Listeners pour les boutons supprimer
-					$(".tbl_mes_calendriers_boutons_supprimer").click(function() {
-						/*if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
-							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
-								if (resultCode == RestManager.resultCode_Success) {
-									window.showToast("Le groupe a été supprimé avec succès.");
-									me.initMesGroupes();
-									me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
-								} else {
-									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
-								}
-							});
-						}*/
-					});
-
-				}
-		 	} 
-			
-		});
-
+		// Affiche la liste des calendriers de l'utilisateur
+		this.afficheListeMesCalendriers();
 	};
 	
 
@@ -531,6 +482,76 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 			}
 		});
 
+	};
+
+	/**
+	 * Affiche la liste des calendriers dans l'onglet "Mes calendriers"
+	 */
+	EcranParametres.prototype.afficheListeMesCalendriers = function() {
+		var me=this;
+		
+		// Création du template pour la liste des calendriers
+		var listMesCalendriersTemplate = 
+			"<% _.each(calendriers, function(calendrier) { %> " +
+			"<tr data-id='<%= calendrier.id %>'>" +
+				"<td><%= calendrier.nom %></td>" +
+				"<td><%= calendrier.matiere %></td>" +
+				"<td><%= calendrier.type %></td>" +
+				"<td class='tbl_mes_calendriers_boutons'>" +
+					"<input type='button' data-id='<%= calendrier.id %>' class='button tbl_mes_calendriers_boutons_modifier' value='Modifier' />" +
+					"<input type='button' class='button tbl_mes_calendriers_boutons_supprimer' data-id='<%= calendrier.id %>' value='Supprimer' />" +
+				"</td>" +
+			"</tr> <% }); %>";
+		
+		// Récupération des groupes de l'utilisateur
+		me.calendrierGestion.queryCalendrierUtilisateurProprietaire(function (resultCode, data) {
+			
+			if(resultCode != RestManager.resultCode_Success) {
+				window.showToast("La récupération des calendriers a échoué ; vérifiez votre connexion.");
+			}
+			else {
+				if (data.listeCalendriers.length == 0) {
+					$("#tbl_mes_calendriers").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
+				}
+				else {
+					// Enregistrement de la liste des calendriers
+					me.listeCalendriers = data.listeCalendriers;
+					// Ecriture du tableau dans la page, en utilisant le template
+					$("#tbl_mes_calendriers").html(_.template(listMesCalendriersTemplate, {calendriers: data.listeCalendriers}));
+					
+					// Listeners pour les boutons "modifier"
+					$(".tbl_mes_calendriers_boutons_modifier").click(function() {
+						var dialog = me.dialogCreationCalendrier;
+						dialog.show("Modifier le calendrier", "Modifier", data.groupe, function() {
+							dialog.modifierGroupe(
+								dialog.idGroupeModification,
+								dialog.jqChampNom.val(),
+								dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
+								dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
+								dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
+								dialog.listeProprietairesSelectionnes
+							);
+						});
+					});
+	
+					// Listeners pour les boutons "supprimer"
+					$(".tbl_mes_calendriers_boutons_supprimer").click(function() {
+						if(confirm("Etes-vous sur de vouloir supprimer le calendrier '" + $(this).parent().siblings().first().text()+"' ?")) {
+							me.calendrierGestion.supprimerCalendrier($(this).parent().parent().attr("data-id"), function () {
+								if (resultCode == RestManager.resultCode_Success) {
+									window.showToast("Le calendrier a été supprimé avec succès.");
+									me.afficheListeMesCalendriers();
+								} else {
+									window.showToast("La suppression du calendrier a échoué ; vérifiez votre connexion.");
+								}
+							});
+						}	
+					});
+	
+				}
+		 	} 
+			
+		});
 	};
 
 	
