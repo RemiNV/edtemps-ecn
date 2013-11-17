@@ -19,7 +19,9 @@ require(["lib/stacktrace"], function(stacktrace) {
 			reportMessage += "\nStack : \n" + stack;
 		}
 		
-		console.log("Erreur signalée au serveur : ", reportMessage);
+		if(console && console.log) {
+			console.log("Erreur signalée au serveur : ", reportMessage);
+		}
 		$.ajax("logging", {
 			type: "POST",
 			data: {
