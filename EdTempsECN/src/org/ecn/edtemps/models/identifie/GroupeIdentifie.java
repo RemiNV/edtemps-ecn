@@ -37,13 +37,14 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 	}
 	
 	/**
-	 * Autre constructeur, uniquement avec "nom", "parendId" et "id"
+	 * Autre constructeur, uniquement avec "nom", "parendId", "id" et "estCalendrierUnique"
 	 * @param id
 	 * @param nom
 	 * @param parentId
+	 * @param estCalendrierUnique
 	 */
-	public GroupeIdentifie(int id, String nom, int parentId) {
-		super(nom, parentId);
+	public GroupeIdentifie(int id, String nom, int parentId, boolean estCalendrierUnique) {
+		super(nom, parentId, estCalendrierUnique);
 		this.id = id;
 	}
 

@@ -54,13 +54,16 @@ public class Groupe {
 	}
 	
 	/**
-	 * Autre constructeur, uniquement avec "nom" et "parendId"
+	 * Autre constructeur, uniquement avec "nom", "parendId" et "estCalendrierUnique"
 	 * @param nom
 	 * @param parentId
+	 * @param estCalendrierUnique
 	 */
-	public Groupe(String nom, int parentId) {
+	public Groupe(String nom, int parentId, boolean estCalendrierUnique) {
 		this.nom = nom;
 		this.parentId = parentId;
+		this.estCalendrierUnique = estCalendrierUnique;
+		
 	}
 
 	public List<Integer> getIdCalendriers() {

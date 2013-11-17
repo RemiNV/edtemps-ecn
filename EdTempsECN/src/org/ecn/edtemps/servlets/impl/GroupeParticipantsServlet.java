@@ -40,14 +40,10 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	 * Méthode générale du servlet appelée par la requête POST
 	 * Elle redirige vers les différentes fonctionnalités possibles
 	 * 
-	 * @param userId
-	 * 			identifiant de l'utilisateur qui a fait la requête
-	 * @param bdd
-	 * 			gestionnaire de la base de données
-	 * @param req
-	 * 			requête
-	 * @param resp
-	 * 			réponse pour le client
+	 * @param userId Identifiant de l'utilisateur qui a fait la requête
+	 * @param bdd Gestionnaire de la base de données
+	 * @param req Requête
+	 * @param resp Réponse pour le client
 	 */
 	@Override
 	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -68,7 +64,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 					doAjouterGroupeParticipants(userId, bdd, req, resp);
 					break;
 				case "/modifier":
-					doModifierGroupeParticipants();
+					doModifierGroupeParticipants(userId, bdd, req, resp);
 					break;
 				case "/supprimer":
 					doSupprimerGroupeParticipants(bdd, req, resp);
@@ -96,14 +92,10 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	/**
 	 * Ajouter un groupe de participants
 	 * 
-	 * @param userId
-	 * 			identifiant de l'utilisateur qui fait la demande d'ajout
-	 * @param bdd
-	 * 			gestionnaire de la base de données
-	 * @param resp
-	 * 			réponse à compléter
-	 * @param requete
-	 * 			requête
+	 * @param userId Identifiant de l'utilisateur qui fait la demande d'ajout
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
 	 * 
 	 * @throws EdtempsException
 	 * @throws IOException
@@ -146,19 +138,63 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	}
 
 	
-	protected void doModifierGroupeParticipants() throws EdtempsException, IOException {
+	/**
+	 * Modifier un groupe de participants
+	 * 
+	 * @param userId Identifiant de l'utilisateur qui fait la demande de modification
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * 
+	 * @throws EdtempsException
+	 * @throws IOException
+	 */
+	protected void doModifierGroupeParticipants(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+
+		// Récupération des infos de l'objet groupe
+		String strGroupe = req.getParameter("groupe");
+		if (strGroupe == null) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe manquant", null));
+			bdd.close();
+			return;
+		}
+
+		JsonReader reader = Json.createReader(new StringReader(strGroupe));
+		JsonObject jsonGroupe = reader.readObject();
+		
+		// Récupération des informations sur le groupe
+		int idGroupe = jsonGroupe.getInt("id");
+		String nom = jsonGroupe.getString("nom");
+		Integer idGroupeParent = Integer.valueOf(jsonGroupe.getString("idGroupeParent"));
+		if (idGroupeParent==-1) {
+			idGroupeParent=null;
+		}
+		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
+		Boolean estCours = jsonGroupe.getBoolean("estCours");
+		JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
+		List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayList(jsonIdProprietaires);
+		
+		// Vérification que l'objet est bien complet
+		if (StringUtils.isBlank(nom) || rattachementAutorise == null || estCours == null || CollectionUtils.isEmpty(listeIdProprietaires)) {
+			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe incomplet : paramètres manquants", null));
+			bdd.close();
+			return;
+		}
+
+		// Modification
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		groupeGestion.modifierGroupe(idGroupe, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, userId);
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe ajouté", null));
 	}
 
 	
 	/**
 	 * Supprimer un groupe de participants
 	 * 
-	 * @param bdd
-	 * 		gestionnaire de la base de données
-	 * @param req
-	 * 		requête
-	 * @param resp
-	 * 		réponse à compléter
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * 
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */
@@ -171,12 +207,10 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	/**
 	 * Récupérer un groupe de participants
 	 * 
-	 * @param bdd
-	 * 		gestionnaire de la base de données
-	 * @param req
-	 * 		requête
-	 * @param resp
-	 * 		réponse à compléter
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * 
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */

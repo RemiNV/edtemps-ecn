@@ -280,25 +280,67 @@ table.liste_materiel th {
 	margin-bottom: 5px;
 }
 
-.form_creer_calendrier_proprietaire {
-	width: 250px;
+.form_creer_calendrier_proprietaire_utilisateurencours {
+	width: 225px;
 	margin-bottom: 2px;
+	margin-right: 2px;
 }
 
-#form_creer_calendrier_ajouter_proprietaire {
-	width: 250px;
-	text-align: right;
-	font-style: italic;
-	font-size: 0.8em;
-	margin-top: -4px;
-	text-decoration: underline;
+.form_creer_calendrier_proprietaire {
+	width: 225px;
+	margin-bottom: 2px;
+	margin-right: 2px;
 }
 
-#form_creer_calendrier_ajouter_proprietaire:hover {
-	color:white;
+#form_creer_calendrier_ajouter_proprietaire, .form_creer_calendrier_supprimer_proprietaire {
 	cursor: pointer;
+	height: 12px;
+    width: 12px;
+	border: solid 1px gray;
+	border-radius: 2px;
+	padding: 2px;
+	vertical-align: middle;	
 }
 
+.form_creer_calendrier_supprimer_proprietaire {
+	margin-left:5px;
+}
+
+#form_creer_calendrier_ajouter_proprietaire:hover, .form_creer_calendrier_supprimer_proprietaire:hover {
+	background-color: white;
+}
+
+#form_creer_calendrier_proprietaires {
+	width: 300px;
+}
+
+#btn_creer_calendrier {
+	margin-top: 20px;
+}
+
+/* Tableau d'affichage des calendriers de l'utilisateur (= dont il est propriétaire) */
+#tbl_mes_calendriers {
+	margin-top: 20px;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#tbl_mes_calendriers tr {
+    border-bottom: 1px solid gray;
+    border: 1px solid gray;
+}
+
+#tbl_mes_calendriers td {
+    padding-left: 5px;
+}
+
+.tbl_mes_calendriers_boutons {
+    text-align: right;
+}
+
+.tbl_mes_calendriers_boutons_modifier {
+    margin-right: 5px;
+}
 
 /* Formulaire CreationGroupeParticipants */
 
@@ -309,11 +351,15 @@ table.liste_materiel th {
 
 #form_creer_groupe_nom {
 	width: 210px;
+	padding-left: 5px;
+	margin-left: 2px;
 }
 
 .form_creer_groupe_proprietaire_text {
+	padding-left: 5px;
 	width: 210px;
 	margin-right: 3px;
+	margin-left: 2px;
 }
 	
 #form_creer_groupe_parent_message {
@@ -517,7 +563,7 @@ input.valide {
  * Onglet "Mes groupes de participants" de la page de paramétrage
  */
  
-#btn_creer_groupe {
+#btn_creer_groupe, #btn_creer_calendrier {
 	margin-top: 20px;
 }
 
@@ -555,7 +601,7 @@ input.valide {
 
 
 /* 
- * Boîte de dialogue pour afficher les détail d'un groupe de participants
+ * Boîte de dialogue pour afficher les détails d'un groupe de participants
  */
 
 #dialog_detail_groupe .dialog_detail_groupe_label {
@@ -593,7 +639,10 @@ input.valide {
 	text-align: right;
 }
 
+#dialog_gerer_groupe table .dialog_gerer_groupe_table_noms {
+	cursor: pointer;	
+}
 
-
-
-
+#dialog_gerer_groupe table tr:hover {
+	background-color: white;
+}

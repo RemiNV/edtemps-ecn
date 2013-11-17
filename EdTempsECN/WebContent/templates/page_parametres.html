@@ -7,7 +7,7 @@
 	
 		<ul class="button_nav">
 			<li><a href="#parametres/mes_abonnements">Mes abonnements</a></li>
-			<li><a href="#parametres/mes_agendas">Mes agendas</a></li>
+			<li><a href="#parametres/mes_agendas">Mes calendriers</a></li>
 			<li><a href="#parametres/mes_groupes">Mes groupes de participants</a></li>
 		</ul>
 		
@@ -33,7 +33,7 @@
 		</div>
 		
 		<div id="parametres/mes_agendas" class="tab_parametres">
-			<div class="button" id="btn_creer_calendrier">Créer un agenda</div>
+			<div class="button" id="btn_creer_calendrier">Créer un calendrier</div>
 			<div id="form_creer_calendrier"
 				title="Formulaire de création d'un calendrier">
 				<form>
@@ -78,15 +78,11 @@
 								</label>
 							</td>
 							<td id="form_creer_calendrier_proprietaires">
-								<input class="form_creer_calendrier_proprietaire"
+								<input class="form_creer_calendrier_proprietaire_utilisateurencours"
 								type="text" value="Vous-même" disabled="disabled" />
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td id="form_creer_calendrier_ajouter_proprietaire">
-								<span>Ajouter un propriétaire</span>
+								<img alt='Ajout' src='img/ajout.png' 
+			     				id="form_creer_calendrier_ajouter_proprietaire"  
+			     				title='Ajout un propriétaire' />
 							</td>
 						</tr>
 					</table>
@@ -100,9 +96,8 @@
 				</form>
 			</div>
 
-			<table id="tbl_mes_agendas">
-				<!-- TODO : Utiliser un template pour remplir la liste -->
-			
+			<table id="tbl_mes_calendriers">
+				<!-- Remplit en Javascript -->
 			</table>
 		</div>
 		
@@ -117,7 +112,7 @@
 				<div id="dialog_gerer_groupe_boutons"><input type="button" class="button" id="dialog_gerer_groupe_fermer" value="Fermer" /></div>
 			</div>
 			
-			<div id="form_creer_groupe" title="Formulaire de création d'un groupe de participants">
+			<div id="form_creer_groupe">
 				<form>
 					<table id="form_creer_groupe_table">
 						<tr>
@@ -157,7 +152,7 @@
 
 					<div id="form_creer_groupe_boutons" class="boutons_valider">
 						<input type="button" id="form_creer_groupe_annuler" class="button" value="Annuler" /> 
-						<input type="button" id="form_creation_groupe_ajouter" class="button" value="Ajouter" />
+						<input type="button" id="form_creation_groupe_ajouter" class="button" value="" />
 					</div>
 					
 					<div id="form_creer_groupe_chargement" style="display: none">
