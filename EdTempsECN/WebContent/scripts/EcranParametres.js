@@ -245,67 +245,20 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 
 		// Listener pour le bouton d'ajout
 		$("#btn_creer_groupe").click(function() {
-			me.dialogCreationGroupeParticipants.show();
+			var dialog = me.dialogCreationGroupeParticipants;
+			dialog.show("Créer un groupe de participants", "Créer", null, function() {
+				dialog.ajouterGroupe(
+					dialog.jqChampNom.val(),
+					dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
+					dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
+					dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
+					dialog.listeProprietairesSelectionnes
+				);
+			});
 		});
-
-		// Création du template pour la liste des groupes
-		var listMesGroupesTemplate = 
-			"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>'><% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
-				"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
-				"<td class='tbl_mes_groupes_boutons'>" +
-					"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_modifier' value='Modifier' />" +
-					"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' />" +
-				"</td>" +
-			"</tr> <% }); %>";
 		
-		// Affichage d'un message de chargement
-		$("#tbl_mes_groupes_chargement").css("display", "block");
-		$("#tbl_mes_groupes_chargement_message").html("Récupération de mes groupes de participants ...");
-		
-		// Récupération des groupes de l'utilisateur
-		me.groupeGestion.queryGroupesUtilisateurProprietaire(function (resultCode, data) {
-			
-			// Suppression du message de chargement
-			$("#tbl_mes_groupes_chargement").css("display", "none");
-
-			if(resultCode == RestManager.resultCode_Success) {
-
-				if (data.listeGroupes.length>0) {
-					// Ecriture du tableau dans la page
-					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
-					
-					// Listeners pour les lignes
-					$(".tbl_mes_groupes_groupe").click(function() {
-						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
-					});
-
-					// Listeners pour les boutons supprimer
-					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
-						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
-							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
-								if (resultCode == RestManager.resultCode_Success) {
-									window.showToast("Le groupe a été supprimé avec succès.");
-									me.initMesGroupes();
-									me.dialogCreationGroupeParticipants.chargementListeGroupesParents();
-								} else {
-									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
-								}
-							});
-						}
-					});
-					
-					// Mise en valeur des groupes qui ont des demandes de rattachement en attente de validation
-					me.miseEnValeurGroupesEnAttenteRattachement();
-
-				} else {
-					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
-				}
-
-		 	} else {
-				// En cas d'erreur, on affiche un message
-				window.showToast("La récupération des groupes a échoué ; vérifiez votre connexion.");
-			}
-		});
+		// Affiche liste des groupes de participants
+		this.afficheListeMesGroupes();
 		
 	};
 	
@@ -421,6 +374,94 @@ define(["RestManager", "GroupeGestion", "DialogCreationCalendrier", "DialogCreat
 				me.dialogGererGroupeParticipants.show($(this).attr("data-id"), listeRattachementAttenteValidation);
 			});
 
+		});
+
+	};
+
+	
+	/**
+	 * Affiche la liste des groupes dans l'onglet Mes groupes de participants
+	 */
+	EcranParametres.prototype.afficheListeMesGroupes = function() {
+		var me=this;
+		
+		// Affichage d'un message de chargement
+		$("#tbl_mes_groupes_chargement").css("display", "block");
+		$("#tbl_mes_groupes_chargement_message").html("Récupération de mes groupes de participants ...");
+		
+		// Récupération des groupes de l'utilisateur
+		this.groupeGestion.queryGroupesUtilisateurProprietaire(function (resultCode, data) {
+			
+			// Suppression du message de chargement
+			$("#tbl_mes_groupes_chargement").css("display", "none");
+
+			if(resultCode == RestManager.resultCode_Success) {
+
+				if (data.listeGroupes.length>0) {
+					// Ecriture du tableau dans la page
+					var listMesGroupesTemplate = 
+						"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>'><% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
+							"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
+							"<td class='tbl_mes_groupes_boutons'>" +
+								"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_modifier' value='Modifier' />" +
+								"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' />" +
+							"</td>" +
+						"</tr> <% }); %>";
+
+					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
+					
+					// Listeners pour les lignes
+					$(".tbl_mes_groupes_groupe").click(function() {
+						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
+					});
+
+					// Listeners pour les boutons Supprimer
+					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
+						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
+							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
+								if (resultCode == RestManager.resultCode_Success) {
+									window.showToast("Le groupe a été supprimé avec succès.");
+									me.afficheListeMesGroupes();
+								} else {
+									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
+								}
+							});
+						}
+					});
+					
+					// Listeners pour les boutons Modifier
+					$(".tbl_mes_groupes_boutons_modifier").click(function() {
+						// Récupération des informations complètes sur le groupe
+						me.groupeGestion.queryGetGroupeComplet($(this).attr("data-id"), function(resultCode, data) {
+							if (resultCode == RestManager.resultCode_Success) {
+								var dialog = me.dialogCreationGroupeParticipants;
+								dialog.show("Modifier un groupe de participants", "Modifier", data.groupe, function() {
+									dialog.modifierGroupe(
+										dialog.idGroupeModification,
+										dialog.jqChampNom.val(),
+										dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
+										dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
+										dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
+										dialog.listeProprietairesSelectionnes
+									);
+								});
+							} else {
+								window.showToast("La récupération des informations sur le groupe a échoué ; vérifiez votre connexion.");
+							}
+						});
+					});
+					
+					// Mise en valeur des groupes qui ont des demandes de rattachement en attente de validation
+					me.miseEnValeurGroupesEnAttenteRattachement();
+
+				} else {
+					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
+				}
+
+		 	} else {
+				// En cas d'erreur, on affiche un message
+				window.showToast("La récupération des groupes a échoué ; vérifiez votre connexion.");
+			}
 		});
 
 	};

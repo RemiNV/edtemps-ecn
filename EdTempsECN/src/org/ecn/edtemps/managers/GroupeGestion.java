@@ -122,71 +122,6 @@ public class GroupeGestion {
 	
 	
 	/**
-	 * Modifie un groupe en base de données
-	 * 
-	 * @param groupe
-	 *            groupe à modifier
-	 * 
-	 * @throws DatabaseException
-	 *             en cas d'erreur de communication avec la base de données
-	 * @throws EdtempsException si le groupe fourni est incorrect
-	 */
-	public void modifierGroupe(GroupeIdentifie groupe) throws DatabaseException, EdtempsException {
-
-		if (groupe != null) {
-			// Récupération des nouvelles informations sur le groupe
-			int id = groupe.getId();
-			String nom = groupe.getNom();
-			int parentId = groupe.getParentId();
-			boolean ratachementAutorise = groupe.getRattachementAutorise();
-
-			groupe.getIdCalendriers();
-			groupe.getIdProprietaires();
-
-			// Vérification de la cohérence des valeurs
-			if (StringUtils.isNotBlank(nom)) {
-
-				// Modifie les informations sur le groupe
-				_bdd.executeRequest("UPDATE edt.groupeparticipant SET groupeParticipant_nom='"
-						+ nom
-						+ "', groupeParticipant_rattachementAutorise='"
-						+ ratachementAutorise
-						+ "', groupeparticipant_id_parent='"
-						+ parentId
-						+ "' WHERE groupeParticipant_id='" + id + "'");
-
-				// Supprime les liens avec les propriétaires
-				_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeParticipant_id=" + id);
-
-				// Ajout des nouveaux propriétaires
-				if (CollectionUtils.isNotEmpty(groupe.getIdProprietaires())) {
-					for (Integer idProprietaire : groupe
-							.getIdProprietaires()) {
-						_bdd.executeRequest("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeParticipant_id) VALUES ("
-								+ idProprietaire + ", " + id + ")");
-					}
-				} else {
-					throw new EdtempsException(ResultCode.INVALID_OBJECT,
-							"Tentative d'enregistrer un groupe en base de données sans propriétaire.");
-				}
-
-			} else {
-				throw new EdtempsException(ResultCode.INVALID_OBJECT,
-						"Tentative d'enregistrer un groupe en base de données sans nom.");
-			}
-
-			// Termine la transaction
-			_bdd.commit();
-
-		} else {
-			throw new EdtempsException(ResultCode.INVALID_OBJECT,
-					"Tentative de modifier un objet NULL en base de données.");
-		}
-
-	}
-
-
-	/**
 	 * Groupe à enregistrer en base de données
 	 * 
 	 * @param nom
@@ -279,6 +214,132 @@ public class GroupeGestion {
 		}
 
 		return idInsertion;
+	}
+
+
+	/**
+	 * Groupe à modifier en base de données
+	 * 
+	 * @param id
+	 *            identifiant du groupe de participants à modifier
+	 * @param nom
+	 *            nom du groupe de participants à modifier
+	 * @param idGroupeParent
+	 *            identifiant du groupe parent du groupe de participants à modifier
+	 * @param rattachementAutorise
+	 *            VRAI si le groupe de participants à modifier accepte le rattachement
+	 * @param estCours
+	 *            VRAI si le groupe de participants à modifier est un cours
+	 * @param listeIdProprietaires
+	 *            liste des identifiants des propriétaires du groupe de participants à modifier
+	 * 
+	 * @throws EdtempsException
+	 *             en cas d'erreur
+	 */
+	public void modifierGroupe(Integer id, String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
+
+		try {
+
+			// Démarre une transaction
+			_bdd.startTransaction();
+			
+			if (StringUtils.isNotBlank(nom)) {
+
+				// Récupération de l'ancien groupe
+				ResultSet ancienGroupeParent = _bdd.executeRequest(
+						"SELECT groupeparticipant_nom, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp" +
+						" FROM edt.groupeparticipant WHERE groupeparticipant_id="+id);
+				ancienGroupeParent.next();
+				String ancienNom = ancienGroupeParent.getString("groupeparticipant_nom");
+				int ancienIdParent = ancienGroupeParent.getInt("groupeparticipant_id_parent");
+				int ancienIdParentTmp = ancienGroupeParent.getInt("groupeparticipant_id_parent_tmp");
+				
+				// Vérifie que le nom n'est pas déjà en base de données
+				if (!StringUtils.equals(nom, ancienNom)) {
+					PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
+					nomDejaPris.setString(1, nom);
+					ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+					nomDejaPrisResult.next();
+					if (nomDejaPrisResult.getInt(1)>0) {
+						throw new EdtempsException(ResultCode.NAME_TAKEN, "Tentative de modifier un groupe en base de données avec un nom déjà utilisé.");
+					}
+				}
+				
+				// Prépare la requête avec un traitement différent si un groupe parent a été indiqué (else) 
+				PreparedStatement req = null;
+				if (idGroupeParent == null) {
+					
+					// Suppression du lien avec un potentiel groupe parent antérieur
+					_bdd.executeUpdate("UPDATE edt.groupeparticipant SET" +
+						" groupeparticipant_id_parent=NULL, groupeparticipant_id_parent_tmp=NULL" +
+						" WHERE groupeParticipant_id="+id);
+					
+					// Préparation de la requête
+					req = _bdd.getConnection().prepareStatement("UPDATE edt.groupeparticipant SET" +
+							" groupeParticipant_nom=?," +
+							" groupeParticipant_rattachementAutorise='"+rattachementAutorise+"'," +
+							" groupeparticipant_estcours='"+estCours+"'," +
+							" groupeparticipant_id_parent=NULL" +
+							" WHERE groupeParticipant_id="+id);
+				} else {
+					// S'il n'y a pas eu de modification
+					if (ancienIdParent==idGroupeParent || ancienIdParentTmp==idGroupeParent) {
+						// Préparation de la requête
+						req = _bdd.getConnection().prepareStatement("UPDATE edt.groupeparticipant SET" +
+								" groupeParticipant_nom=?," +
+								" groupeParticipant_rattachementAutorise='"+rattachementAutorise+"'," +
+								" groupeparticipant_estcours='"+estCours+"'" +
+								" WHERE groupeParticipant_id=" + id);
+					} else {
+						// Requête pour récupérer le propriétaire du groupe parent 
+						ResultSet idProprietaireGroupeParent = _bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+idGroupeParent).executeQuery();
+						idProprietaireGroupeParent.next();
+						
+						// Préparation de la requête avec un idParent temporaire si le propriétaire du groupe parent n'est pas l'utilisateur en cours 
+						req = _bdd.getConnection().prepareStatement("UPDATE edt.groupeparticipant SET" +
+								" groupeParticipant_nom=?," +
+								" groupeParticipant_rattachementAutorise='"+rattachementAutorise+"'," +
+								" groupeparticipant_estcours='"+estCours+"'," +
+								" groupeparticipant_id_parent="+(idProprietaireGroupeParent.getInt(1)==userId ? idGroupeParent : "NULL")+"," +
+								" groupeparticipant_id_parent_tmp="+(idProprietaireGroupeParent.getInt(1)==userId ? "NULL" : idGroupeParent) +
+								" WHERE groupeParticipant_id=" + id);
+					}
+					
+				}
+				
+				// Execute la requête
+				req.setString(1, nom);
+				req.execute();
+
+				// Supprime les liens avec les propriétaires
+				_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeParticipant_id=" + id);
+
+				// Ajout des nouveaux propriétaires
+				if (CollectionUtils.isNotEmpty(listeIdProprietaires)) {
+					for (int idProprietaire : listeIdProprietaires) {
+						_bdd.executeRequest("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeParticipant_id) VALUES ("
+								+ idProprietaire + ", " + id + ")");
+					}
+				} else {
+					throw new EdtempsException(ResultCode.INVALID_OBJECT,
+							"Tentative de modifier un groupe en base de données sans propriétaire.");
+				}
+
+				
+			} else {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR,
+						"Tentative de modifier un groupe en base de données sans nom.");
+			}
+
+			// Termine la transaction
+			_bdd.commit();
+
+		} catch (DatabaseException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+
 	}
 
 	
@@ -575,7 +636,7 @@ public class GroupeGestion {
 	
 
 	/**
-	 * Listing des groupes pour lesquels l'utilisateur fait parti des propriétaires (sans remonter ni descendre les parents/enfants)
+	 * Listing des groupes desquels l'utilisateur fait parti des propriétaires (sans remonter ni descendre les parents/enfants)
 	 * @param idUtilisateur Utilisateur dont les groupes sont à lister
 	 * @return Liste des groupes trouvés
 	 * @throws DatabaseException Erreur d'accès à la base de données
@@ -588,7 +649,8 @@ public class GroupeGestion {
 					" FROM edt.groupeparticipant" +
 					" INNER JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id" +
 					" AND groupeparticipant.groupeparticipant_estcalendrierunique=FALSE " +
-					" AND proprietairegroupeparticipant.utilisateur_id="+idProprietaire);
+					" AND proprietairegroupeparticipant.utilisateur_id="+idProprietaire +
+					" ORDER BY groupeparticipant.groupeparticipant_nom");
 		
 		ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
 

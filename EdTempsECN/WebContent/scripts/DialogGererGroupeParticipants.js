@@ -114,8 +114,9 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		this.groupeGestion.queryDeciderRattachement(choix, groupeId, function (resultCode) {
 			if (resultCode == RestManager.resultCode_Success) {
 				window.showToast("Votre choix a été enregistré");
-				me.ecranParametres.initMesGroupes();
-				me.ecranParametres.dialogCreationGroupeParticipants.chargementListeGroupesParents();
+				
+				// Met à jour la liste des groupes
+				me.ecranParametres.afficheListeMesGroupes();
 				
 				// Suppression de la ligne dans le tableau
 				me.jqGererGroupeParticipants.find("#dialog_gerer_groupe_table_ligne_"+groupeId).remove();

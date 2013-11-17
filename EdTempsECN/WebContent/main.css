@@ -309,11 +309,15 @@ table.liste_materiel th {
 
 #form_creer_groupe_nom {
 	width: 210px;
+	padding-left: 5px;
+	margin-left: 2px;
 }
 
 .form_creer_groupe_proprietaire_text {
+	padding-left: 5px;
 	width: 210px;
 	margin-right: 3px;
+	margin-left: 2px;
 }
 	
 #form_creer_groupe_parent_message {
@@ -547,7 +551,7 @@ input.valide {
 
 
 /* 
- * Boîte de dialogue pour afficher les détail d'un groupe de participants
+ * Boîte de dialogue pour afficher les détails d'un groupe de participants
  */
 
 #dialog_detail_groupe .dialog_detail_groupe_label {
