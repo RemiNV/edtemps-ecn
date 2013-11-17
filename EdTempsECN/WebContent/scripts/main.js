@@ -63,7 +63,13 @@ require(["lib/stacktrace", "lib/davis.min", "RestManager", "text!../templates/fo
 	
 	/** Remplace toutes les infobulles par celle de jQuery UI */
 	$(document).tooltip({
-	    content: function() { return $(this).attr('title'); } /* permet d'insérer du html dans le title */
+	    content: function() { return $(this).attr('title'); }, /* permet d'insérer du html dans le title */
+	    show: {
+	    	duration: 200
+	    },
+	    hide: {
+	    	duration: 200
+	    }
 	});
 	
 	/**
