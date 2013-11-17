@@ -639,7 +639,10 @@ input.valide {
 	text-align: right;
 }
 
+#dialog_gerer_groupe table .dialog_gerer_groupe_table_noms {
+	cursor: pointer;	
+}
 
-
-
-
+#dialog_gerer_groupe table tr:hover {
+	background-color: white;
+}

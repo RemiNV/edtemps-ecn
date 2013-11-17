@@ -86,7 +86,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		// Préparation du template de remplissage
 		var listRattachementTemplate = 
 			"<% _.each(groupes, function(groupe) { %> <tr id='dialog_gerer_groupe_table_ligne_<%= groupe.id %>'>" +
-				"<td><%= groupe.nom %></td>" +
+				"<td class='dialog_gerer_groupe_table_noms' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
 				"<td class='dialog_gerer_groupe_table_boutons'><input type='button' data-id='<%= groupe.id %>' class='button dialog_gerer_groupe_accepter' value='Accepter' /><input type='button' data-id='<%= groupe.id %>' class='button dialog_gerer_groupe_refuser' value='Refuser' /></td>" +
 			"</tr> <% }); %>";
 
@@ -100,6 +100,10 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_refuser").click(function (){
 			me.deciderRattachement(false, $(this).attr("data-id"));
 		});
+		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_table_noms").click(function() {
+			me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
+		});
+
 
 	};
 	
