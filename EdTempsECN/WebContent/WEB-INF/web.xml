@@ -115,6 +115,11 @@
     <servlet-name>Disponibilite</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.DisponibiliteServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+    <servlet-name>ClientLogging</servlet-name>
+    <servlet-class>org.ecn.edtemps.servlets.ClientLoggingServlet</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>Salles</servlet-name>
@@ -235,6 +240,12 @@
       <servlet-name>Disponibilite</servlet-name>
       <url-pattern>/disponibilitesalle</url-pattern>
   </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>ClientLogging</servlet-name>
+      <url-pattern>/logging</url-pattern>
+  </servlet-mapping>
+  
 
   <servlet-mapping>
       <servlet-name>Salles</servlet-name>

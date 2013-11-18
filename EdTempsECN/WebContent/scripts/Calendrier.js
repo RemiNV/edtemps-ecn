@@ -11,7 +11,6 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 	var Calendrier = function(eventsSource, ajoutEvenement, evenementGestion) {
 		var me = this;
 		
-		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
 

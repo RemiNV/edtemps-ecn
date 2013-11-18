@@ -33,10 +33,7 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 			if (success) {
 				// On active le bouton "Valider"
 				$("#form_creer_calendrier_valider").click(function() {
-					// Si le formulaire est valide, la requête est effectuée
-					if (me.validationFormulaire()) {
-						me.effectuerRequete();
-					}
+					me.effectuerRequeteCreation();
 				});
 			}
 		});
@@ -206,41 +203,44 @@ define([ "RestManager", "CalendrierGestion", "jquerymaskedinput" ], function(Res
 	/**
 	 * Méthode qui effectue la requête de création du calendrier
 	 */
-	DialogCreationCalendrier.prototype.effectuerRequete = function() {
+	DialogCreationCalendrier.prototype.effectuerRequeteCreation = function() {
 		var me = this;
 		
-		//Récupérer nom, matiere et type
-		var nom = this.nom.val();
-		var matiere = this.matiere.val();
-		var type = this.type.val();
-		
-		// Parcourt des id des proprio (qu'on place dans un tableau, qui sera transformé en JSON)
-		// NOTE : L'utilisateur est obligatoirement propriétaire du calendrier qu'il crée
-		var idProprietaires = [];
-		if (window.localStorage) {
-			idProprietaires.push(localStorage["userId"]);
-		}
-		$(".form_creer_calendrier_proprietaire").each(function() {
-			var idUtilisateurCourant = $(this).attr("value");
-			idProprietaires.push(idUtilisateurCourant);
-		});
-		var idProprietairesJson = JSON.stringify(idProprietaires);
+		// Si le formulaire est valide, la requête est effectuée
+		if (me.validationFormulaire()) {
+
+			//Récupérer nom, matiere et type
+			var nom = this.nom.val();
+			var matiere = this.matiere.val();
+			var type = this.type.val();
 			
-		this.calendrierGestion.creerCalendrier(nom, matiere, type, idProprietairesJson, function(resultCode) {
-			if(resultCode == RestManager.resultCode_Success) {
-				// afficher message
-				window.showToast("Le calendrier a bien été créé");
-				// recharger les calendriers de l'utilisateur
-				me.ecranParametres.initMesCalendriers();
-				// fermer la dialog  
-				$("#form_creer_calendrier").dialog("close");
+			// Parcourt des id des proprio (qu'on place dans un tableau, qui sera transformé en JSON)
+			// NOTE : L'utilisateur est obligatoirement propriétaire du calendrier qu'il crée
+			var idProprietaires = [];
+			if (window.localStorage) {
+				idProprietaires.push(localStorage["userId"]);
 			}
-			else {
-				// afficher message
-				window.showToast("Erreur lors de la création du calendrier");
-			}
-		});	
-		
+			$(".form_creer_calendrier_proprietaire").each(function() {
+				var idUtilisateurCourant = $(this).attr("value");
+				idProprietaires.push(idUtilisateurCourant);
+			});
+			var idProprietairesJson = JSON.stringify(idProprietaires);
+				
+			this.calendrierGestion.creerCalendrier(nom, matiere, type, idProprietairesJson, function(resultCode) {
+				if(resultCode == RestManager.resultCode_Success) {
+					// afficher message
+					window.showToast("Le calendrier a bien été créé");
+					// recharger les calendriers de l'utilisateur
+					me.ecranParametres.afficheListeMesCalendriers();
+				}
+				else {
+					// afficher message
+					window.showToast("Erreur lors de la création du calendrier");
+				}
+			});	
+			
+		}
+			
 	};
 
 

@@ -83,5 +83,26 @@ define([], function() {
 		);
 	};
 	
+	
+	/**
+	 * Supprimer un calendrier, via son ID en paramètre
+	 * 
+	 * @param id : ID du calendrier à supprimer
+	 * @param callback : Fonction appelée une fois la requete de création effectuée
+	 *
+	 */
+	CalendrierGestion.prototype.supprimerCalendrier = function(id, callback) {
+		var me = this;
+		this.restManager.effectuerRequete(
+			"POST",
+			"calendrier/suppression", 
+			{ 
+			  token: me.restManager.getToken(),
+			  id: id
+			},
+			function(data){callback(data.resultCode);}
+		);
+	};
+	
 	return CalendrierGestion;
 });
