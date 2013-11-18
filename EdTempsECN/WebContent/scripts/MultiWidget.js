@@ -75,6 +75,34 @@ define([ "jquery", "jqueryui" ], function() {
 		}
 	};
 	
+	/**
+	 * Remplace les valeurs du widget par celles fournies.
+	 * @param {Object[]} values Valeurs à utiliser pour le widget
+	 */
+	MultiWidget.prototype.setValues = function(values) {
+		
+		this.clear();
+		
+		// Ajout des lignes manquantes
+		for(var i=0; i<values.length; i++) {
+			
+			// Première ligne déjà renseignée
+			if(i != 0 || this.forceFirstValue) {
+				this.ajouterLigne();
+			}
+				
+			var jqNewElem = this.jqDiv.find(".multiwidget_entry:last");
+			
+			if(this.setFunction) {
+				this.setFunction(jqNewElem, values[i]);
+			}
+			else {
+				jqNewElem.val(values[i]);
+			}
+		}
+		
+	};
+	
 	MultiWidget.prototype.ajouterLigne = function() {
 		// Clonage listeners compris
 		var newLine = this.newLine.clone(true);
