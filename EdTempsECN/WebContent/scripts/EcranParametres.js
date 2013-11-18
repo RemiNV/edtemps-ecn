@@ -247,7 +247,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		// Listener du bouton de creation d'un nouveau calendrier
 		var me = this;
 		$("#btn_creer_calendrier").click(function() {
-			me.dialogCreationCalendrier.init();
+			me.dialogCreationCalendrier.show();
 		});
 
 		// Affiche la liste des calendriers de l'utilisateur
