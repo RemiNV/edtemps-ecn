@@ -197,3 +197,7 @@
 	border: solid 1px gray;
 	border-radius: 3px;
 }
+
+.ui-autocomplete.ui-menu {
+	z-index: 10;
+}
