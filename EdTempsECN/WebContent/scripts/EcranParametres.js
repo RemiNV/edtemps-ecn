@@ -247,7 +247,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		// Listener du bouton de creation d'un nouveau calendrier
 		var me = this;
 		$("#btn_creer_calendrier").click(function() {
-			me.dialogCreationCalendrier.init();
+			me.dialogCreationCalendrier.show(false);
 		});
 
 		// Affiche la liste des calendriers de l'utilisateur
@@ -521,17 +521,17 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					
 					// Listeners pour les boutons "modifier"
 					$(".tbl_mes_calendriers_boutons_modifier").click(function() {
-						var dialog = me.dialogCreationCalendrier;
-						dialog.show("Modifier le calendrier", "Modifier", data.groupe, function() {
-							dialog.modifierGroupe(
-								dialog.idGroupeModification,
-								dialog.jqChampNom.val(),
-								dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
-								dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
-								dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
-								dialog.listeProprietairesSelectionnes
-							);
-						});
+						var idCalendrierEnQuestion = $(this).parent().parent().attr("data-id");
+						var calendrierAModifier = new Object();
+						//recherche du calendrier dans la liste
+						for (var i = 0, maxI=me.listeCalendriers.length ; i < maxI ; i++) {
+							if (me.listeCalendriers[i].id == idCalendrierEnQuestion) {
+								calendrierAModifier = me.listeCalendriers[i];
+								break;
+							}
+						}
+						//appel au dialog de creation/modification de calendrier
+						me.dialogCreationCalendrier.show(true, calendrierAModifier);
 					});
 	
 					// Listeners pour les boutons "supprimer"

@@ -108,7 +108,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 			}
 		});
 
-		// Affiche la boîte dialogue de recherche d'une salle libre
+		// Affiche la boîte dialogue de création d'un groupe
 		this.jqCreationGroupeForm.dialog({
 			autoOpen: false,
 			width: 500,
