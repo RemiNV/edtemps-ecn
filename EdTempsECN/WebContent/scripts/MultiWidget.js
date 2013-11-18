@@ -9,7 +9,7 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @typedef {Object} MultiWidgetParams
 	 * @property {function} getValFunction - Fonction permettant de récupérer les valeurs d'un contrôle. Prend en paramètres le contrôle et renvoie sa valeur, ou null pour ne rien renvoyer dans le tableau de résultats
 	 * @property {function} initControl - Fonction d'initialisation de chaque contrôle, à l'ajout ou l'initialisation de la première ligne
-	 * @property {function} clearFunction - Fonction de remise à zéro d'un champ. Reçoit un objet jQuery en paramètres, de même type que le paramètre jqControl du constructeur. Utilisé dans la méthode clear().
+	 * @property {function} setFunction - Fonction d'assignation de valeur à un champ. Reçoit un objet jQuery et une valeur en paramètres. jQuery.val() utilisé si non fourni. La valeur peut être null pour une valeur vide.
 	 * @property {Object} forceFirstValue - Valeur à assigner au premier contrôle de la liste, qui sera désactivé ; objet avec les attributs label et value
 	 * @property {number} width - Largeur à assigner au contrôle
 	 */
@@ -27,7 +27,7 @@ define([ "jquery", "jqueryui" ], function() {
 		
 		this.getValFunction = options.getValFunction;
 		this.initControl = options.initControl;
-		this.clearFunction = options.clearFunction;
+		this.setFunction = options.setFunction;
 		this.forceFirstValue = options.forceFirstValue;
 		
 		if(options.width) {
@@ -64,10 +64,13 @@ define([ "jquery", "jqueryui" ], function() {
 		}
 		
 		if(options.forceFirstValue) {
-			jqControl.val(options.forceFirstValue.label)
-				.attr("data-label", options.forceFirstValue.label)
-				.attr("data-val", options.forceFirstValue.value)
-				.attr("disabled", "disabled");
+			jqControl.attr("disabled", "disabled");
+			if(options.setFunction) {
+				options.setFunction(jqControl, options.forceFirstValue);
+			}
+			else {
+				jqControl.val(options.forceFirstValue);
+			}
 		}
 	};
 	
@@ -108,8 +111,8 @@ define([ "jquery", "jqueryui" ], function() {
 		var firstElem = this.jqDiv.find(".multiwidget_entry");
 		
 		if(!this.forceFirstValue) {
-			if(this.clearFunction) {
-				this.clearFunction(firstElem);
+			if(this.setFunction) {
+				this.setFunction(firstElem, null);
 			}
 			else {
 				firstElem.val("");
@@ -134,10 +137,18 @@ define([ "jquery", "jqueryui" ], function() {
 				var val = jqElem.attr("data-val");
 				return val !== "" ? val : null;
 			},
-			clearFunction: function(jqElem) {
-				jqElem.val("")
-					.removeAttr("data-val")
-					.removeAttr("data-label");
+			setFunction: function(jqElem, val) {
+				
+				if(val === null) {
+					jqElem.val("")
+						.removeAttr("data-val")
+						.removeAttr("data-label");
+				}
+				else {
+					jqElem.val(val.label)
+						.attr("data-val", val.value)
+						.attr("data-label", val.label);
+				}
 			},
 			forceFirstValue: forceFirstValue,
 			width: width,
@@ -170,6 +181,11 @@ define([ "jquery", "jqueryui" ], function() {
 					},
 					close: function(event, ui) {
 						inputAutocompletion.val("");
+					},
+					select: function(event, ui) {
+						inputAutocompletion.val("");
+						jqElem.val(jqElem.attr("data-label"));
+						return false;
 					}
 				});
 				
