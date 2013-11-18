@@ -25,7 +25,6 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 		
 		// MultiWidget pour les propriétaires
 		this.multiWidgetProprietaires = null;
-		
 	};
 
 	/**
@@ -36,7 +35,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 	 * @param callback : méthode à exécuter lorsque du clique sur le bouton de validation de la boîte de dialogue
 	 */
 	DialogCreationGroupeParticipants.prototype.show = function(titre, texteBouton, groupe, callback) {
-		if(!this.initAppele) {
+		if (!this.initAppele) {
 			this.init(titre, texteBouton, groupe, callback);
 		} else {
 			var me=this;
@@ -86,9 +85,6 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 			me.jqCreationGroupeForm.dialog("close");
 		});
 		
-		// Récupération des propriétaires potentiels
-		this.recupererProprietairesPotentiels();
-
 		// Affectation d'une méthode au clic sur le bouton d'action principale (créer/modifier)
 		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").click(function() {
 			if (me.validationFormulaire()) {
@@ -98,7 +94,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 			}
 		});
 
-		// Affiche la boîte dialogue
+		// Prépare la boîte dialogue
 		this.jqCreationGroupeForm.dialog({
 			autoOpen: false,
 			width: 500,
@@ -116,10 +112,13 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 			}
 		});
 
-		this.initAppele = true;
-		
-		// Rappelle la méthode show pour afficher la boite de dialogue
-		this.show(titre, texteBouton, groupe, callback);
+		// Récupération des propriétaires potentiels
+		this.recupererProprietairesPotentiels(function () {
+			me.initAppele = true;
+			
+			// Rappelle la méthode show pour afficher la boite de dialogue
+			me.show(titre, texteBouton, groupe, callback);
+		});
 	};
 
 
@@ -274,8 +273,9 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 	
 	/**
 	 * Remplir la liste des utilisateurs potentiellement propriétaires
+	 * @param callback
 	 */
-	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function() {
+	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function(callback) {
 		var me = this;
 		
 		// Récupération de la liste des propriétaires potentiels
@@ -299,6 +299,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 						MultiWidget.AUTOCOMPLETE_OPTIONS(listeProprietairesPotentiels, 1,
 								{ label: "Vous-même", value: me.restManager.getUserId() }, 230));
 
+				callback();
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
 			} else {
@@ -332,7 +333,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 	 */
 	DialogCreationGroupeParticipants.prototype.preRemplirDialog = function(groupe) {
 		
-		if (groupe!=null && this.multiWidgetProprietaires!=null) {
+		if (groupe!=null) {
 			// Identifiant du groupe
 			this.idGroupeModification = groupe.id;
 
