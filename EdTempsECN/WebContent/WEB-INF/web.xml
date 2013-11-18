@@ -121,6 +121,11 @@
       <servlet-class>org.ecn.edtemps.servlets.impl.SalleServlet</servlet-class>
   </servlet>
 
+  <servlet>
+      <servlet-name>Administrateur</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurServlet</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -234,6 +239,11 @@
   <servlet-mapping>
       <servlet-name>Salles</servlet-name>
       <url-pattern>/salles/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>Administrateur</servlet-name>
+      <url-pattern>/admin/*</url-pattern>
   </servlet-mapping>
   
 </web-app>
