@@ -440,4 +440,30 @@ public class SalleGestion {
 			throw new DatabaseException(e);
 		}	
 	}
+
+	
+	/**
+	 * Lister toutes les salles de la base de données
+	 * @return la liste des salles récupérées
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	public List<SalleIdentifie> listerToutesSalles() throws DatabaseException {
+		
+		try {
+			
+			ResultSet requete = _bdd.executeRequest("SELECT salle_id, salle_batiment, salle_nom," +
+					" salle_niveau, salle_numero, salle_capacite FROM edt.salle");
+
+			List<SalleIdentifie> res = new ArrayList<SalleIdentifie>();
+			while(requete.next()) {
+				res.add(new SalleIdentifieInflater().inflateSalle(requete, _bdd));
+			}
+			
+			return res;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}	
+	}
+
 }

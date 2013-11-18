@@ -273,7 +273,6 @@ public class CalendrierGestion {
 			}
 			
 			// Executer la requete
-			System.out.println(requete);
 			requete.executeUpdate();
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
@@ -285,8 +284,8 @@ public class CalendrierGestion {
 				int idProprio = itrProprios.next();
 				_bdd.executeRequest(
 						"INSERT INTO edt.proprietairecalendrier "
-						 + "VALUES (utilisateur_id, cal_id) = "
-						 + "(" + idProprio +", " + calId.getId() + ") " 
+						 + "(utilisateur_id, cal_id) "
+						 + "VALUES (" + idProprio + ", " + calId.getId() + ") " 
 				);
 			}
 			

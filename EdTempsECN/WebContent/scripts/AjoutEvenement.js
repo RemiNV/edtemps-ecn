@@ -321,7 +321,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		var formData = this.getDonneesFormulaire(false);
 		var me = this;
 		
-		if(formData.valide) {
+		if(formData.valide && (formData.salles.length > 0 || confirm("Ajouter un évènement sans salle ?"))) {
 			
 			// Message d'attente
 			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
@@ -497,20 +497,11 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			res.salles.push(this.sallesSelectionnees[i].id);
 		}
 		
-		if(!pourRechercheSalle) {
-			if(res.salles.length == 0) {
-				this.jqDialog.find("#btn_rechercher_salle_evenement").addClass("invalide").removeClass("valide");
-			}
-			else {
-				this.jqDialog.find("#btn_rechercher_salle_evenement").addClass("valide").removeClass("invalide");
-			}
-		}
-		
 		// Remplissage de res.valide et res.valideRechercheSalle
 		if(res.dateDebut != null && res.dateFin != null) {
 			res.valideRechercheSalle = true;
 			
-			if(res.nom !== "" && res.calendriers.length > 0 && res.salles.length > 0) {
+			if(res.nom !== "" && res.calendriers.length > 0) {
 				res.valide = true;
 			}
 		}

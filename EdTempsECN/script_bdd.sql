@@ -239,6 +239,14 @@ CREATE TABLE edt.ALeDroitDe (
                 CONSTRAINT type_id_droits_id PRIMARY KEY (type_id, droits_id)
 );
 
+CREATE SEQUENCE edt.administrateurs_admin_id_seq;
+CREATE TABLE edt.administrateurs (
+				admin_id INTEGER NOT NULL DEFAULT nextval('edt.administrateurs_admin_id_seq'),
+                admin_login VARCHAR,
+                admin_password VARCHAR,
+                CONSTRAINT admin_id PRIMARY KEY (admin_id)
+);
+ALTER SEQUENCE edt.administrateurs_admin_id_seq OWNER TO "edtemps-ecn";
 
 ALTER TABLE edt.ALieuenSalle ADD CONSTRAINT salle_alieuensalle_fk
 FOREIGN KEY (salle_id)
@@ -451,3 +459,4 @@ ALTER TABLE edt.typeutilisateur OWNER TO "edtemps-ecn";
 ALTER TABLE edt.estdetype OWNER TO "edtemps-ecn";
 ALTER TABLE edt.droits OWNER TO "edtemps-ecn";
 ALTER TABLE edt.aledroitde OWNER TO "edtemps-ecn";
+ALTER TABLE edt.administrateurs OWNER TO "edtemps-ecn";
