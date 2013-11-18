@@ -280,40 +280,6 @@ table.liste_materiel th {
 	margin-bottom: 5px;
 }
 
-.form_creer_calendrier_proprietaire_utilisateurencours {
-	width: 225px;
-	margin-bottom: 2px;
-	margin-right: 2px;
-}
-
-.form_creer_calendrier_proprietaire {
-	width: 225px;
-	margin-bottom: 2px;
-	margin-right: 2px;
-}
-
-#form_creer_calendrier_ajouter_proprietaire, .form_creer_calendrier_supprimer_proprietaire {
-	cursor: pointer;
-	height: 12px;
-    width: 12px;
-	border: solid 1px gray;
-	border-radius: 2px;
-	padding: 2px;
-	vertical-align: middle;	
-}
-
-.form_creer_calendrier_supprimer_proprietaire {
-	margin-left:5px;
-}
-
-#form_creer_calendrier_ajouter_proprietaire:hover, .form_creer_calendrier_supprimer_proprietaire:hover {
-	background-color: white;
-}
-
-#form_creer_calendrier_proprietaires {
-	width: 300px;
-}
-
 #btn_creer_calendrier {
 	margin-top: 20px;
 }
@@ -354,42 +320,10 @@ table.liste_materiel th {
 	padding-left: 5px;
 	margin-left: 2px;
 }
-
-.form_creer_groupe_proprietaire_text {
-	padding-left: 5px;
-	width: 210px;
-	margin-right: 3px;
-	margin-left: 2px;
-}
 	
 #form_creer_groupe_parent_message {
 	font-size: 0.8em;
 	color: gray;
-}
-
-.form_creer_groupe_proprietaire_supprimer {
-	cursor: pointer;
-	width: 10px;
-	border: solid 1px gray;
-	border-radius: 2px;
-	padding: 2px;
-	vertical-align: middle;
-}
-
-.form_creer_groupe_proprietaire_supprimer:hover {
-	background-color: white;
-}
-
-#form_creer_groupe_proprietaire_ajouter {
-	cursor: pointer;
-	border: solid 1px gray;
-	border-radius: 2px;
-	padding-left: 2px;
-	padding-right: 2px;
-}
-
-#form_creer_groupe_proprietaire_ajouter:hover {
-	background-color: white;
 }
 
 
@@ -645,4 +579,36 @@ input.valide {
 
 #dialog_gerer_groupe table tr:hover {
 	background-color: white;
+}
+
+/** Multiwidget */
+.multiwidget_line {
+	position: relative;
+}
+
+.multiwidget_btn {
+	width: 20px;
+	height: 20px;
+	cursor: pointer;
+	vertical-align: text-bottom;
+}
+
+.input_autocomplete, .input_autocomplete_overlay {
+
+}
+
+.input_autocomplete_overlay {
+	z-index: 1;
+	position: absolute;
+	border-color: transparent;
+	background-color: white;
+}
+
+.input_autocomplete {
+	z-index: 2;
+	position: relative;
+}
+
+.input_autocomplete:not([disabled]) {
+	background-color: transparent;
 }
