@@ -395,7 +395,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 				"<td>" +
 					"<input type='text' class='form_creer_groupe_proprietaire_text' value='"+(valeur ? valeur : "")+"' "+(premierChamp ? "disabled='disabled'" : "")+" />" +
 					(premierChamp
-						? "<span id='form_creer_groupe_proprietaire_ajouter' title='Ajouter un propriétaire'>+</span>"
+						? "<img alt='Ajouter' src='img/ajout.png' id='form_creer_groupe_proprietaire_ajouter' title='Ajouter un propriétaire' />"
 						: "<img alt='Supression' src='img/corbeille.png' class='form_creer_groupe_proprietaire_supprimer' title='Supprimer le propriétaire' />"
 					) +
 					"<input type='hidden' class='form_creer_groupe_proprietaire_id' value='' />" +

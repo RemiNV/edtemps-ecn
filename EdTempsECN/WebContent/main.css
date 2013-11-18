@@ -382,10 +382,11 @@ table.liste_materiel th {
 
 #form_creer_groupe_proprietaire_ajouter {
 	cursor: pointer;
+	width: 15px;
 	border: solid 1px gray;
 	border-radius: 2px;
-	padding-left: 2px;
-	padding-right: 2px;
+	padding: 2px;
+	vertical-align: middle;
 }
 
 #form_creer_groupe_proprietaire_ajouter:hover {
