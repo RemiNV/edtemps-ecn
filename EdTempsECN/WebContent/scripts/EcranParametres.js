@@ -16,9 +16,9 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.calendrierGestion = new CalendrierGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager, this, $("#form_creer_calendrier"));
- 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
- 		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
- 		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager, this);
+ 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, $("#form_creer_groupe"));
+ 		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager, $("#dialog_detail_groupe"));
+ 		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager, this, $("#dialog_gerer_groupe"));
  		//Variable contenant les calendriers dont l'utilisateur est propriétaire
  		this.listeCalendriers = new Object();
 	};
@@ -270,7 +270,10 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
 					dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
 					dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
-					dialog.listeProprietairesSelectionnes
+					dialog.multiWidgetProprietaires.val(),
+					function () {
+						me.afficheListeMesGroupes();
+					}
 				);
 			});
 		});
@@ -389,7 +392,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 						listeRattachementAttenteValidation.push(data[i]);
 					}
 				}
-				me.dialogGererGroupeParticipants.show($(this).attr("data-id"), listeRattachementAttenteValidation);
+				me.dialogGererGroupeParticipants.show(listeRattachementAttenteValidations);
 			});
 
 		});
@@ -418,7 +421,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 				if (data.listeGroupes.length>0) {
 					// Ecriture du tableau dans la page
 					var listMesGroupesTemplate = 
-						"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>'><% if (groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
+						"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>' <% if(groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
 							"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
 							"<td class='tbl_mes_groupes_boutons'>" +
 								"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_modifier' value='Modifier' />" +
@@ -460,7 +463,10 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 										dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
 										dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
 										dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
-										dialog.listeProprietairesSelectionnes
+										dialog.multiWidgetProprietaires.val(),
+										function() {
+											me.afficheListeMesGroupes();
+										}
 									);
 								});
 							} else {

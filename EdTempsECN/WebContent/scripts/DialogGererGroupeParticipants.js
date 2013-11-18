@@ -1,48 +1,37 @@
 /**
  * @module DialogGererGroupeParticipants
  */
-define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManager, GroupeGestion) {
+define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManager, GroupeGestion, EcranParametres) {
 
 	/**
 	 * @constructor
 	 * @alias DialogGererGroupeParticipants
 	 */
-	var DialogGererGroupeParticipants = function(restManager, ecranParametres) {
+	var DialogGererGroupeParticipants = function(restManager, ecranParametres, jqDialog) {
 		this.restManager = restManager;
-		this.groupeGestion = new GroupeGestion(this.restManager);
 		this.ecranParametres = ecranParametres;
+		this.jqDialog = jqDialog;
+		
+		this.groupeGestion = new GroupeGestion(this.restManager);
 
-		this.initAppele = false; /* Permet de ne lancer l'initialisation de la dialogue une seule fois */
-		this.jqGererGroupeParticipants = $("#dialog_gerer_groupe"); /* Pointeur jQuery vers la dialogue */
+		// Permet de ne lancer l'initialisation de la dialogue qu'une seule fois
+		this.initAppele = false;
 	};
 
 	/**
 	 * Affiche la boîte de dialogue de gestion d'un groupe de participants
-	 * @param idGroupe Identifiant du groupe à gérer
 	 * @param listeGroupesEnAttenteDeValidation Liste des groupes en attente de validation du groupe à gérer
 	 */
-	DialogGererGroupeParticipants.prototype.show = function(idGroupe, listeGroupesEnAttenteDeValidation) {
+	DialogGererGroupeParticipants.prototype.show = function(listeGroupesEnAttenteDeValidation) {
 		if(!this.initAppele) {
 			this.init();
-			this.initAppele = true;
 		}
 		
-		var me=this;
+		// Ecrit le contenu de la boîte de dialogue
+		this.chargerContenu(listeGroupesEnAttenteDeValidation);
 		
-		// Récupération des données sur le groupe
-		this.groupeGestion.queryGetGroupeComplet(idGroupe, function(resultCode, data) {
-
-			if (resultCode == RestManager.resultCode_Success) {
-				// Ecrit le contenu de la boîte de dialogue
-				me.chargerContenu(data.groupe, listeGroupesEnAttenteDeValidation);
-				
-				// Ouvre la boîte de dialogue
-				me.jqGererGroupeParticipants.dialog("open");
-			} else {
-				window.showToast("La récupération des informations sur le groupe a échoué ; vérifiez votre connexion.");
-			}
-			
-		});
+		// Ouvre la boîte de dialogue
+		this.jqDialog.dialog("open");
 		
 	};
 	
@@ -54,7 +43,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		var me=this;
 		
 		// Affiche la boîte dialogue de gestion d'un groupe de participants
-		this.jqGererGroupeParticipants.dialog({
+		this.jqDialog.dialog({
 			autoOpen: false,
 			width: 510,
 			modal: true,
@@ -69,8 +58,8 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		});
 		
 		// Listener du bouton "Fermer"
-		this.jqGererGroupeParticipants.find("#dialog_gerer_groupe_fermer").click(function() {
-			me.jqGererGroupeParticipants.dialog("close");
+		this.jqDialog.find("#dialog_gerer_groupe_fermer").click(function() {
+			me.jqDialog.dialog("close");
 		});
 
 		this.initAppele = true;
@@ -80,7 +69,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 	 * Ecrit le contenu de la boite de dialogue
 	 * @param listeGroupesEnAttenteDeValidation Liste des groupes en attente de validation du groupe à gérer
 	 */
-	DialogGererGroupeParticipants.prototype.chargerContenu = function(groupe, listeGroupesEnAttenteDeValidation) {
+	DialogGererGroupeParticipants.prototype.chargerContenu = function(listeGroupesEnAttenteDeValidation) {
 		var me=this;
 		
 		// Préparation du template de remplissage
@@ -91,17 +80,17 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 			"</tr> <% }); %>";
 
 		// Ecriture du contenu de la dialogue
-		this.jqGererGroupeParticipants.find("table").html(_.template(listRattachementTemplate, {groupes: listeGroupesEnAttenteDeValidation}));
+		this.jqDialog.find("table").html(_.template(listRattachementTemplate, {groupes: listeGroupesEnAttenteDeValidation}));
 		
 		// Listeners
-		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_accepter").click(function (){
+		this.jqDialog.find(".dialog_gerer_groupe_accepter").click(function (){
 			me.deciderRattachement(true, $(this).attr("data-id"));
 		});
-		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_refuser").click(function (){
+		this.jqDialog.find(".dialog_gerer_groupe_refuser").click(function (){
 			me.deciderRattachement(false, $(this).attr("data-id"));
 		});
-		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_table_noms").click(function() {
-			me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
+		this.jqDialog.find(".dialog_gerer_groupe_table_noms").click(function() {
+			me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"), $("#dialog_detail_groupe"));
 		});
 
 
@@ -123,11 +112,11 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 				me.ecranParametres.afficheListeMesGroupes();
 				
 				// Suppression de la ligne dans le tableau
-				me.jqGererGroupeParticipants.find("#dialog_gerer_groupe_table_ligne_"+groupeId).remove();
+				me.jqDialog.find("#dialog_gerer_groupe_table_ligne_"+groupeId).remove();
 				
 				// S'il n'y a plus de ligne, fermeture de la boîte de dialogue
 				if ($('#dialog_gerer_groupe table > *').length==0) {
-					me.jqGererGroupeParticipants.dialog("close");
+					me.jqDialog.dialog("close");
 				}
 			} else {
 				window.showToast("L'enregistrement de votre choix a échoué ; vérifiez votre connexion.");

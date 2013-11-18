@@ -19,6 +19,9 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Général</h1>
 			
+			<div id="content">
+				<p>Page générale</p>
+			</div>
 
 		</div>
 

@@ -44,21 +44,23 @@ public class AdministrateurServlet extends HttpServlet {
 			return;
 		}
 
+		HttpSession session = req.getSession(true);
+
 		try {
 			switch (pathInfo) {
 				case "/connexion":
-					doConnexionAdministrateur(req, resp);
+					doConnexionAdministrateur(req, resp, session);
 					break;
 			}
 		} catch (IOException | ServletException e) {
 			logger.error("Erreur lors de l'écriture de la réponse");
-			resp.getWriter().write("KO");
+			session.setAttribute("connect", "KO");
 		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
 			logger.error("Erreur lors du cryptage du mot de passe");
-			resp.getWriter().write("KO");
+			session.setAttribute("connect", "KO");
 		} catch (SQLException | DatabaseException e) {
 			logger.error("Erreur liée à la base de données");
-			resp.getWriter().write("KO");
+			session.setAttribute("connect", "KO");
 		}
 		
 	}
@@ -68,6 +70,7 @@ public class AdministrateurServlet extends HttpServlet {
 	 * Connecter mode Administrateur
 	 * @param resp Réponse à compléter
 	 * @param requete Requête
+	 * @param session Session HTTP
 	 * @throws IOException 
 	 * @throws NoSuchAlgorithmException 
 	 * @throws InvalidKeyException 
@@ -75,7 +78,7 @@ public class AdministrateurServlet extends HttpServlet {
 	 * @throws SQLException 
 	 * @throws ServletException 
 	 */
-	protected void doConnexionAdministrateur(HttpServletRequest req, HttpServletResponse resp) throws IOException, InvalidKeyException, NoSuchAlgorithmException, DatabaseException, SQLException, ServletException {
+	protected void doConnexionAdministrateur(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws IOException, InvalidKeyException, NoSuchAlgorithmException, DatabaseException, SQLException, ServletException {
 
 		BddGestion bdd = new BddGestion();
 		
@@ -97,7 +100,6 @@ public class AdministrateurServlet extends HttpServlet {
 		reqResultat.next();
 		
 		// Alimente les attributs de la session http
-		HttpSession session = req.getSession(true);
 		session.setAttribute("login", login);
 
 		if (reqResultat.getInt(1)>0) {
