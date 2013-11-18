@@ -392,7 +392,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 						listeRattachementAttenteValidation.push(data[i]);
 					}
 				}
-				me.dialogGererGroupeParticipants.show($(this).attr("data-id"), listeRattachementAttenteValidation);
+				me.dialogGererGroupeParticipants.show(listeRattachementAttenteValidation, $("#dialog_gerer_groupe"));
 			});
 
 		});

@@ -1,48 +1,35 @@
 /**
  * @module DialogGererGroupeParticipants
  */
-define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManager, GroupeGestion) {
+define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManager, GroupeGestion, EcranParametres) {
 
 	/**
 	 * @constructor
 	 * @alias DialogGererGroupeParticipants
 	 */
-	var DialogGererGroupeParticipants = function(restManager, ecranParametres) {
+	var DialogGererGroupeParticipants = function(restManager, ecranParametres, jqGererGroupeParticipants) {
 		this.restManager = restManager;
-		this.groupeGestion = new GroupeGestion(this.restManager);
 		this.ecranParametres = ecranParametres;
+		this.jqGererGroupeParticipants = jqGererGroupeParticipants;
+		this.groupeGestion = new GroupeGestion(this.restManager);
 
 		this.initAppele = false; /* Permet de ne lancer l'initialisation de la dialogue une seule fois */
-		this.jqGererGroupeParticipants = $("#dialog_gerer_groupe"); /* Pointeur jQuery vers la dialogue */
 	};
 
 	/**
 	 * Affiche la boîte de dialogue de gestion d'un groupe de participants
-	 * @param idGroupe Identifiant du groupe à gérer
 	 * @param listeGroupesEnAttenteDeValidation Liste des groupes en attente de validation du groupe à gérer
 	 */
-	DialogGererGroupeParticipants.prototype.show = function(idGroupe, listeGroupesEnAttenteDeValidation) {
+	DialogGererGroupeParticipants.prototype.show = function(listeGroupesEnAttenteDeValidation) {
 		if(!this.initAppele) {
 			this.init();
-			this.initAppele = true;
 		}
 		
-		var me=this;
+		// Ecrit le contenu de la boîte de dialogue
+		this.chargerContenu(listeGroupesEnAttenteDeValidation);
 		
-		// Récupération des données sur le groupe
-		this.groupeGestion.queryGetGroupeComplet(idGroupe, function(resultCode, data) {
-
-			if (resultCode == RestManager.resultCode_Success) {
-				// Ecrit le contenu de la boîte de dialogue
-				me.chargerContenu(data.groupe, listeGroupesEnAttenteDeValidation);
-				
-				// Ouvre la boîte de dialogue
-				me.jqGererGroupeParticipants.dialog("open");
-			} else {
-				window.showToast("La récupération des informations sur le groupe a échoué ; vérifiez votre connexion.");
-			}
-			
-		});
+		// Ouvre la boîte de dialogue
+		this.jqGererGroupeParticipants.dialog("open");
 		
 	};
 	
@@ -80,7 +67,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 	 * Ecrit le contenu de la boite de dialogue
 	 * @param listeGroupesEnAttenteDeValidation Liste des groupes en attente de validation du groupe à gérer
 	 */
-	DialogGererGroupeParticipants.prototype.chargerContenu = function(groupe, listeGroupesEnAttenteDeValidation) {
+	DialogGererGroupeParticipants.prototype.chargerContenu = function(listeGroupesEnAttenteDeValidation) {
 		var me=this;
 		
 		// Préparation du template de remplissage
