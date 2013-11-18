@@ -76,7 +76,7 @@ define([ "jquery", "jqueryui" ], function() {
 	
 	/**
 	 * Remplace les valeurs du widget par celles fournies.
-	 * @param {Object[]} values Valeurs à utiliser pour le contrôle
+	 * @param {Object[]} values Valeurs à utiliser pour le widget
 	 */
 	MultiWidget.prototype.setValues = function(values) {
 		
