@@ -114,3 +114,7 @@ ul.button_nav li:last-child {
 #erreur_connexion {
 	color: red;
 }
+
+#main_content #content {
+	padding: 10px;
+}

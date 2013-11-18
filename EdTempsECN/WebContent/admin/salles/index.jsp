@@ -19,6 +19,11 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Gestion des salles</h1>			
 
+			<div id="content">
+				<p>Liste des salles :</p>
+				
+				
+			</div>
 
 		</div>
 
