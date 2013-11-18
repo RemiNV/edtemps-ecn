@@ -21,7 +21,7 @@ define([ "jquery", "jqueryui" ], function() {
 		this.initControl = initControl;
 		
 		// Wrapping du contrôle dans une div globale
-		jqControl.addClass("multiwidget_entry").wrap("<div class='multiwidget'></div>")
+		jqControl.addClass("multiwidget_entry").wrap("<div class='multiwidget'></div>");
 		this.jqDiv = jqControl.parent();
 		
 		// Wrapping de chaque ligne
@@ -136,4 +136,6 @@ define([ "jquery", "jqueryui" ], function() {
 			jqElem.addClass("input_autocomplete");
 		};
 	};
+	
+	return MultiWidget;
 });
