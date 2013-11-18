@@ -24,8 +24,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 	
 	/**
 	 * Affichage de la boîte de dialogue
-	 */
-	DialogCreationCalendrier.prototype.show = function() {
+	 */	DialogCreationCalendrier.prototype.show = function() {
 		if(!this.initAppele) {
 			this.init();
 		}
@@ -49,7 +48,6 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 				// Création des autocomplete pour les propriétaires
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#form_creer_calendrier_input_proprietaire"), 
 						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 3, { label: "Vous-même", value: me.restManager.getUserId() }, 230));
-				
 				
 				// On active le bouton "Valider"
 				me.jqDialog.find("#form_creer_calendrier_valider").click(function() {
