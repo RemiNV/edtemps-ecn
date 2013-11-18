@@ -592,10 +592,6 @@ input.valide {
 	vertical-align: text-bottom;
 }
 
-.input_autocomplete, .input_autocomplete_overlay {
-
-}
-
 .input_autocomplete_overlay {
 	z-index: 1;
 	position: absolute;

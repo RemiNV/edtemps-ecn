@@ -15,7 +15,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		this.restManager = restManager;
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.calendrierGestion = new CalendrierGestion(this.restManager);
- 		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager, this);
+ 		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager, this, $("#form_creer_calendrier"));
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager);
  		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
  		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager, this);
@@ -247,7 +247,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		// Listener du bouton de creation d'un nouveau calendrier
 		var me = this;
 		$("#btn_creer_calendrier").click(function() {
-			me.dialogCreationCalendrier.init();
+			me.dialogCreationCalendrier.show();
 		});
 
 		// Affiche la liste des calendriers de l'utilisateur
