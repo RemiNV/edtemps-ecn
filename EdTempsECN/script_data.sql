@@ -16,7 +16,10 @@
 	INSERT INTO edt.utilisateur(utilisateur_token, utilisateur_nom, utilisateur_prenom) VALUES('6', 'EleveEI3', 'Info2'); /* Elève EI3 Info */
 	INSERT INTO edt.utilisateur(utilisateur_token, utilisateur_nom, utilisateur_prenom) VALUES('7', 'EleveEI1', 'GrL'); /* Elève EI1 groupe L, suit SIBAD */
 
-	/* Intervenant */
+/* administrateurs */
+	INSERT INTO edt.administrateurs(admin_login, admin_password) VALUES('admin', '4747b3c121b96d7ead4a1b279f1982958e241f57691d3fe51c382b5b7b29446c');
+
+/* Intervenant */
 	INSERT INTO edt.utilisateur(utilisateur_nom, utilisateur_prenom) VALUES('Doe', 'John');
 
 /* estdetype */
