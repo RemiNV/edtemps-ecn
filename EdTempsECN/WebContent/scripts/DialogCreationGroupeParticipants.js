@@ -13,10 +13,6 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 		// Liens vers les objets javascript
 		this.jqCreationGroupeForm = jqCreationGroupeForm;
 		this.jqChampNom = this.jqCreationGroupeForm.find("#form_creer_groupe_nom");
-		this.jqCreationGroupeTable = this.jqCreationGroupeForm.find("#form_creer_groupe_table");
-
-		// Liste des propriétaires potentiels (récupérée en base de données)
-		this.listeProprietairesPotentiels = new Array();
 
 		// Est-ce que la fonction init a déjà été appelée ?
 		this.initAppele = false;
@@ -41,46 +37,48 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 	 */
 	DialogCreationGroupeParticipants.prototype.show = function(titre, texteBouton, groupe, callback) {
 		if(!this.initAppele) {
-			this.init();
-		}
-		
-		var me=this;
-		
-		// Blocage du bouton de validation pendant le chargement de la boîte de dialogue
-		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
-		this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
-		this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement en cours ...");
-		
-		// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
-		this.jqCreationGroupeForm.dialog("option", "title", titre);
-		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("value", texteBouton);
+			this.init(titre, texteBouton, groupe, callback);
+		} else {
+			var me=this;
+			
+			// Blocage du bouton de validation pendant le chargement de la boîte de dialogue
+			this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("disabled", "disabled");
+			this.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "block");
+			this.jqCreationGroupeForm.find("#form_creer_groupe_message_chargement").html("Chargement en cours ...");
+			
+			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
+			this.jqCreationGroupeForm.dialog("option", "title", titre);
+			this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("value", texteBouton);
 
-		// Charge la liste des groupes parents disponibles
-		this.ecritListeGroupesParentsDisponibles(me.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
-			if (success) {
-				// Réactivation du bouton "Ajouter"/"Modifier"
-				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
-				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
-			}
-		});
+			// Charge la liste des groupes parents disponibles
+			this.ecritListeGroupesParentsDisponibles(me.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
+				if (success) {
+					// Réactivation du bouton "Ajouter"/"Modifier"
+					me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
+					me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
+				}
+			});
 
-		// Si un objet est passé en paramètre, la dialogue est pré-remplie avec les informations
-		if (groupe) {
+			// Récupération des propriétaires potentiels
 			me.preRemplirDialog(groupe);
-		}
 
-		// Récupère la méthode de callback de la dialogue
-		this.callback = callback;
-		
-		// Ouvre la boîte de dialogue
-		this.jqCreationGroupeForm.dialog("open");
+			// Récupère la méthode de callback de la dialogue
+			this.callback = callback;
+			
+			// Ouvre la boîte de dialogue
+			this.jqCreationGroupeForm.dialog("open");
+		}
 	};
-	
+
 	
 	/**
 	 * Initialise la boîte de dialogue de création d'un groupe de participants (uniquement la première fois)
+	 * @param titre : le titre de la boîte de dialogue
+	 * @param texteBouton : le texte du bouton de validation de la boîte de dialogue
+	 * @param groupe : groupe de participants dans le cas de la modification, null sinon
+	 * @param callback : méthode à exécuter lorsque du clique sur le bouton de validation de la boîte de dialogue
 	 */
-	DialogCreationGroupeParticipants.prototype.init = function() {
+	DialogCreationGroupeParticipants.prototype.init = function(titre, texteBouton, groupe, callback) {
 		var me = this;
 
 		// Affectation d'une méthode au clic sur le bouton "Annuler"
@@ -88,6 +86,9 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 			me.jqCreationGroupeForm.dialog("close");
 		});
 		
+		// Récupération des propriétaires potentiels
+		this.recupererProprietairesPotentiels();
+
 		// Affectation d'une méthode au clic sur le bouton d'action principale (créer/modifier)
 		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").click(function() {
 			if (me.validationFormulaire()) {
@@ -96,9 +97,6 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 				window.showToast("Veuillez vérifier et corriger les champs entourés en rouge");
 			}
 		});
-
-		// Récupération des propriétaires potentiels
-		this.recupererProprietairesPotentiels();
 
 		// Affiche la boîte dialogue
 		this.jqCreationGroupeForm.dialog({
@@ -119,6 +117,9 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 		});
 
 		this.initAppele = true;
+		
+		// Rappelle la méthode show pour afficher la boite de dialogue
+		this.show(titre, texteBouton, groupe, callback);
 	};
 
 
@@ -283,18 +284,19 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
 				
-				// Création du tableau des valeurs pour le plugin Autocomplete de Jquery UI
+				// Création du tableau des valeurs pour l'autocomplete
+				var listeProprietairesPotentiels = new Array();
 				for (var i=0, maxI=data.data.listeUtilisateurs.length; i<maxI; i++) {
 					var user = new Object();
 					user.label = data.data.listeUtilisateurs[i].prenom + " " + data.data.listeUtilisateurs[i].nom;
 					user.value = data.data.listeUtilisateurs[i].id;
-					me.listeProprietairesPotentiels.push(user);
+					listeProprietairesPotentiels.push(user);
 				}
 
 				// Widget pour les propriétaires
 				me.multiWidgetProprietaires = new MultiWidget(
-						me.jqCreationGroupeTable.find("#form_creer_groupe_proprietaire"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 1,
+						me.jqCreationGroupeForm.find("#form_creer_groupe_proprietaire"), 
+						MultiWidget.AUTOCOMPLETE_OPTIONS(listeProprietairesPotentiels, 1,
 								{ label: "Vous-même", value: me.restManager.getUserId() }, 230));
 
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
@@ -330,29 +332,38 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 	 */
 	DialogCreationGroupeParticipants.prototype.preRemplirDialog = function(groupe) {
 		
-		// Identifiant du groupe
-		this.idGroupeModification = groupe.id;
+		if (groupe!=null && this.multiWidgetProprietaires!=null) {
+			// Identifiant du groupe
+			this.idGroupeModification = groupe.id;
 
-		// Nom du groupe
-		this.jqChampNom.val(groupe.nom);
-		
-		// Sélection du groupe parent (s'il y en a un)
-		if (groupe.parent) {
-			this.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(groupe.parent.id);
-		}
-		
-		// Checkbox pour l'autorisation du rattachement
-		this.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").prop("checked", groupe.rattachementAutorise);
-
-		// Checkbox pour les groupes de cours
-		this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", groupe.estCours);
-		
-		// Sélection des propriétaires
-/*		for (var i=0, maxI=groupe.proprietaires.length; i<maxI; i++) {
-			if (groupe.proprietaires[i].id!=window.localStorage["userId"]) {
-				this.ajouterLigneProprietaire(groupe.proprietaires[i].prenom+" "+groupe.proprietaires[i].nom, false);
+			// Nom du groupe
+			this.jqChampNom.val(groupe.nom);
+			
+			// Sélection du groupe parent (s'il y en a un)
+			if (groupe.parent) {
+				this.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(groupe.parent.id);
 			}
-		}*/
+			
+			// Checkbox pour l'autorisation du rattachement
+			this.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").prop("checked", groupe.rattachementAutorise);
+
+			// Checkbox pour les groupes de cours
+			this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", groupe.estCours);
+			
+			// Sélection des propriétaires
+			var listeProprietaires = new Array();
+			for (var i=0, maxI=groupe.proprietaires.length; i<maxI; i++) {
+				var user = new Object();
+				user.label = groupe.proprietaires[i].prenom+" "+groupe.proprietaires[i].nom;
+				user.value = groupe.proprietaires[i].id;
+				if (user.value!=this.restManager.getUserId()) {
+					listeProprietaires.push(user);
+				}
+			}
+			this.multiWidgetProprietaires.setValues(listeProprietaires);
+
+		}
+
 	};
 	
 	return DialogCreationGroupeParticipants;
