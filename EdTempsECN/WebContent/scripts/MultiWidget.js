@@ -11,6 +11,7 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @property {function} initControl - Fonction d'initialisation de chaque contrôle, à l'ajout ou l'initialisation de la première ligne
 	 * @property {function} clearFunction - Fonction de remise à zéro d'un champ. Reçoit un objet jQuery en paramètres, de même type que le paramètre jqControl du constructeur. Utilisé dans la méthode clear().
 	 * @property {Object} forceFirstValue - Valeur à assigner au premier contrôle de la liste, qui sera désactivé ; objet avec les attributs label et value
+	 * @property {number} width - Largeur à assigner au contrôle
 	 */
 	
 	/**
@@ -27,6 +28,11 @@ define([ "jquery", "jqueryui" ], function() {
 		this.getValFunction = options.getValFunction;
 		this.initControl = options.initControl;
 		this.clearFunction = options.clearFunction;
+		this.forceFirstValue = options.forceFirstValue;
+		
+		if(options.width) {
+			jqControl.css("width", options.width);
+		}
 		
 		// Wrapping du contrôle dans une div globale
 		jqControl.addClass("multiwidget_entry").wrap("<div class='multiwidget'></div>");
@@ -53,14 +59,14 @@ define([ "jquery", "jqueryui" ], function() {
 		});
 	
 		// Initialisation de la première ligne
-		if(initControl) {
-			initControl(jqControl);
+		if(options.initControl) {
+			options.initControl(jqControl);
 		}
 		
 		if(options.forceFirstValue) {
-			jqControl.val(forceFirstValue.label)
-				.attr("data-label", forceFirstValue.label)
-				.attr("data-val", forceFirstValue.value)
+			jqControl.val(options.forceFirstValue.label)
+				.attr("data-label", options.forceFirstValue.label)
+				.attr("data-val", options.forceFirstValue.value)
 				.attr("disabled", "disabled");
 		}
 	};
@@ -101,11 +107,13 @@ define([ "jquery", "jqueryui" ], function() {
 		
 		var firstElem = this.jqDiv.find(".multiwidget_entry");
 		
-		if(this.clearFunction) {
-			this.clearFunction(firstElem);
-		}
-		else {
-			firstElem.val("");
+		if(!this.forceFirstValue) {
+			if(this.clearFunction) {
+				this.clearFunction(firstElem);
+			}
+			else {
+				firstElem.val("");
+			}
 		}
 	};
 	
@@ -116,8 +124,10 @@ define([ "jquery", "jqueryui" ], function() {
 	 * 
 	 * @param source Paramètre source de l'autocomplete
 	 * @param minLength Paramètre minLength de l'autocomplete
+	 * @param forceFirstValue Paramètre forceFirstValue du MultiWidget
+	 * @param width Paramètre widht du MultiWidget
 	 */
-	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength) {
+	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength, forceFirstValue, width) {
 		
 		return {
 			getValFunction: function(jqElem) {
@@ -129,8 +139,11 @@ define([ "jquery", "jqueryui" ], function() {
 					.removeAttr("data-val")
 					.removeAttr("data-label");
 			},
+			forceFirstValue: forceFirstValue,
+			width: width,
 			initControl: function(jqElem) {
 				var inputAutocompletion = $("<input type='text' disabled='disabled' class='input_autocomplete_overlay' />");
+				inputAutocompletion.css("width", jqElem.css("width"));
 				jqElem.autocomplete({
 					source: source,
 					autoFocus: true,

@@ -15,7 +15,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		this.restManager = restManager;
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.calendrierGestion = new CalendrierGestion(this.restManager);
- 		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager, this);
+ 		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager, this, $("#form_creer_calendrier"));
  		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, this);
  		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
  		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager, this);
