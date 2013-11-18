@@ -21,7 +21,7 @@
 					response.sendRedirect("general.jsp");
 			} %>
 			
-			<form action="<%=request.getContextPath()%>/admin/connexion" method="POST" id="form_login">
+			<form action="<%=request.getContextPath()%>/administrateur/connexion" method="POST" id="form_login">
 				<table>
 					<tr><td><label for="login">Identifiant</label></td><td><input type="text" name="login" id="login"></td></tr>
 					<tr><td><label for="password">Mot de passe</label></td><td><input type="password" name="password" id="password"></td></tr>

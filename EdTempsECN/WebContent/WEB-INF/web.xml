@@ -254,7 +254,7 @@
   
   <servlet-mapping>
       <servlet-name>Administrateur</servlet-name>
-      <url-pattern>/admin/*</url-pattern>
+      <url-pattern>/administrateur/*</url-pattern>
   </servlet-mapping>
   
 </web-app>
