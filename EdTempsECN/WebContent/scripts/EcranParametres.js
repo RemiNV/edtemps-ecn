@@ -16,7 +16,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
  		this.groupeGestion = new GroupeGestion(this.restManager);
  		this.calendrierGestion = new CalendrierGestion(this.restManager);
  		this.dialogCreationCalendrier = new DialogCreationCalendrier(this.restManager, this, $("#form_creer_calendrier"));
- 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager);
+ 		this.dialogCreationGroupeParticipants = new DialogCreationGroupeParticipants(this.restManager, $("#form_creer_groupe"));
  		this.dialogDetailGroupeParticipants = new DialogDetailGroupeParticipants(this.restManager);
  		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager, this);
  		//Variable contenant les calendriers dont l'utilisateur est propriétaire
@@ -270,7 +270,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
 					dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
 					dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
-					dialog.listeProprietairesSelectionnes,
+					dialog.multiWidgetProprietaires.val(),
 					function () {
 						me.afficheListeMesGroupes();
 					}
@@ -463,7 +463,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 										dialog.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(),
 										dialog.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").is(':checked'),
 										dialog.jqCreationGroupeForm.find("#form_creer_groupe_cours").is(':checked'),
-										dialog.listeProprietairesSelectionnes,
+										dialog.multiWidgetProprietaires.val(),
 										function() {
 											me.afficheListeMesGroupes();
 										}

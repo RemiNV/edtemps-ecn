@@ -17,6 +17,7 @@ define([ "jquery", "jqueryui" ], function() {
 	/**
 	 * Widget de formulaire duplicable sur plusieurs lignes en cliquant sur un bouton.
 	 * Voir les propriétés statiques AUTOCOMPLETE_INIT et AUTOCOMPLETE_VAL pour initialiser un widget autocomplete.
+	 * La valeur des objets manipulés doivent OBLIGATOIREMENT être des entiers (typiquement des identifiants)
 	 *
 	 * @param {jQuery} jqControl Objet jQuery à utiliser comme contrôle duplicable
 	 * @param {MultiWidgetParams} options Options à utiliser
@@ -134,7 +135,7 @@ define([ "jquery", "jqueryui" ], function() {
 		
 		return {
 			getValFunction: function(jqElem) {
-				var val = jqElem.attr("data-val");
+				var val = parseInt(jqElem.attr("data-val"));
 				return val !== "" ? val : null;
 			},
 			setFunction: function(jqElem, val) {

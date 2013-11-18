@@ -1,17 +1,17 @@
 /**
  * @module DialogCreationGroupeParticipants
  */
-define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
+define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 
 	/**
 	 * @constructor
 	 * @alias module:DialogCreationGroupeParticipants
 	 */
-	var DialogCreationGroupeParticipants = function(restManager) {
+	var DialogCreationGroupeParticipants = function(restManager, jqCreationGroupeForm) {
 		this.restManager = restManager;
 		
 		// Liens vers les objets javascript
-		this.jqCreationGroupeForm = $("#form_creer_groupe");
+		this.jqCreationGroupeForm = jqCreationGroupeForm;
 		this.jqChampNom = this.jqCreationGroupeForm.find("#form_creer_groupe_nom");
 		this.jqCreationGroupeTable = this.jqCreationGroupeForm.find("#form_creer_groupe_table");
 
@@ -20,15 +20,15 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 
 		// Est-ce que la fonction init a déjà été appelée ?
 		this.initAppele = false;
-		
+
 		// Méthode appelée à l'appui sur le bouton principal de la dialogue (créer / modifier)
-		this.callback = function() {};
-		
+		this.callback = null;
+
 		// Identifiant du groupe en cours de modification (-1 si c'est un ajout)
 		this.idGroupeModification = -1;
 		
 		// MultiWidget pour les propriétaires
-		this.proprietaireWidget = null;
+		this.multiWidgetProprietaires = null;
 		
 	};
 
@@ -56,22 +56,19 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("value", texteBouton);
 
 		// Charge la liste des groupes parents disponibles
-		this.ecritListeGroupesParentsDisponibles(me.jqCreationGroupeForm.find("#form_creer_groupe_parent"));
-
-		// Récupération des propriétaires potentiels
-		this.recupererProprietairesPotentiels(function (success) {
+		this.ecritListeGroupesParentsDisponibles(me.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
 			if (success) {
-				// Si un objet est passé en paramètre, la dialogue est pré-remplie avec les informations
-				if (groupe) {
-					me.preRemplirDialog(groupe);
-				}
-				
 				// Réactivation du bouton "Ajouter"/"Modifier"
 				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
 				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
 			}
 		});
-		
+
+		// Si un objet est passé en paramètre, la dialogue est pré-remplie avec les informations
+		if (groupe) {
+			me.preRemplirDialog(groupe);
+		}
+
 		// Récupère la méthode de callback de la dialogue
 		this.callback = callback;
 		
@@ -100,6 +97,9 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 			}
 		});
 
+		// Récupération des propriétaires potentiels
+		this.recupererProprietairesPotentiels();
+
 		// Affiche la boîte dialogue
 		this.jqCreationGroupeForm.dialog({
 			autoOpen: false,
@@ -125,8 +125,9 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 	/**
 	 * Ecrit la liste des groupes parents potentiels dans le select dédié
 	 * @param object Objet jquery où il faut écrire la liste des groupes
+	 * @param callback
 	 */
-	DialogCreationGroupeParticipants.prototype.ecritListeGroupesParentsDisponibles = function(object) {
+	DialogCreationGroupeParticipants.prototype.ecritListeGroupesParentsDisponibles = function(object, callback) {
 		var me = this;
 		
 		// Récupération de la liste des groupes parents potentiels
@@ -150,10 +151,13 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 					$(object).attr("disabled", "disabled");
 				}
 
+				callback(true);
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; vérifiez votre connexion.");
+				callback(false);
 			} else {
 				window.showToast(data.resultCode + " Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
+				callback(false);
 			}
 		});
 
@@ -182,8 +186,9 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 	 * @param rattachementAutorise Booleen qui indique si un rattachement est autorisé
 	 * @param estCours Booleen qui indique si le groupe est un cours
 	 * @param listeIdProprietaires Liste des identifiants des propriétaires
+	 * @param callback Méthode appelé en cas de réussite
 	 */
-	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires) {
+	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, callback) {
 		var me = this;
 
 		// Bloque le bouton d'ajout et affiche un message de chargement
@@ -207,6 +212,7 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				window.showToast("Le groupe de participant à été créé avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
+				callback();
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
@@ -226,8 +232,9 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 	 * @param rattachementAutorise Booleen qui indique si un rattachement est autorisé
 	 * @param estCours Booleen qui indique si le groupe est un cours
 	 * @param listeIdProprietaires Liste des identifiants des propriétaires
+	 * @param callback Méthode appelé en cas de réussite
 	 */
-	DialogCreationGroupeParticipants.prototype.modifierGroupe = function(id, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires) {
+	DialogCreationGroupeParticipants.prototype.modifierGroupe = function(id, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, callback) {
 		var me = this;
 
 		// Bloque le bouton de modification et affiche un message de chargement
@@ -252,6 +259,7 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				window.showToast("Le groupe de participant à été modifié avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
+				callback();
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la modification du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
@@ -265,9 +273,8 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 	
 	/**
 	 * Remplir la liste des utilisateurs potentiellement propriétaires
-	 * @param callback
 	 */
-	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function(callback) {
+	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function() {
 		var me = this;
 		
 		// Récupération de la liste des propriétaires potentiels
@@ -280,25 +287,20 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 				for (var i=0, maxI=data.data.listeUtilisateurs.length; i<maxI; i++) {
 					var user = new Object();
 					user.label = data.data.listeUtilisateurs[i].prenom + " " + data.data.listeUtilisateurs[i].nom;
-					user.id = data.data.listeUtilisateurs[i].id;
+					user.value = data.data.listeUtilisateurs[i].id;
 					me.listeProprietairesPotentiels.push(user);
 				}
 
 				// Widget pour les propriétaires
-				me.proprietaireWidget = new MultiWidget(
-						me.jqCreationGroupeTable.find("#form_creer_groupe_proprietaire"),
-						MultiWidget.AUTOCOMPLETE_VAL, 
-						MultiWidget.AUTOCOMPLETE_INIT(me.listeProprietairesPotentiels, 1),
-						{ label: "Vous-même", value: localStorage["userId"] });
+				me.multiWidgetProprietaires = new MultiWidget(
+						me.jqCreationGroupeTable.find("#form_creer_groupe_proprietaire"), 
+						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 1,
+								{ label: "Vous-même", value: me.restManager.getUserId() }, 230));
 
-				// Appelle la méthode de retour
-				callback(true);
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
-				callback(false);
 			} else {
 				window.showToast(data.resultCode + " Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; votre session a peut-être expiré ?");
-				callback(false);
 			}
 		});
 	};
@@ -313,8 +315,10 @@ define([ "RestManager", "multiwidget" ], function(RestManager, MultiWidget) {
 		this.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(-1);
 		this.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").prop("checked", false);
 		this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", false);
-		this.jqCreationGroupeForm.find("#form_creer_groupe_proprietaire_td").html("<input type='text' id='form_creer_groupe_proprietaire' name='form_creer_groupe_proprietaire' />");
-		
+		if (this.multiWidgetProprietaires != null) {
+			this.multiWidgetProprietaires.clear();
+		}
+
 		// Enlève les bordures sur le champ nom
 		this.jqChampNom.css("box-shadow", "transparent 0 0 10px");
 		this.jqChampNom.css("border", "1px solid black");
