@@ -145,9 +145,11 @@ public class EvenementGestion {
 			}
 			
 			// Vérification de la disponibilité de la salle
-			SalleGestion salleGestion = new SalleGestion(_bdd);
-			if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin)) {
-				throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
+			if(!idSalles.isEmpty()) {
+				SalleGestion salleGestion = new SalleGestion(_bdd);
+				if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin)) {
+					throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
+				}
 			}
 			
 			// Modifier l'évenement (nom, date début, date fin)
