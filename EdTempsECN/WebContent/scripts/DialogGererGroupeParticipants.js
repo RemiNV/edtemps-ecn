@@ -7,13 +7,15 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 	 * @constructor
 	 * @alias DialogGererGroupeParticipants
 	 */
-	var DialogGererGroupeParticipants = function(restManager, ecranParametres, jqGererGroupeParticipants) {
+	var DialogGererGroupeParticipants = function(restManager, ecranParametres, jqDialog) {
 		this.restManager = restManager;
 		this.ecranParametres = ecranParametres;
-		this.jqGererGroupeParticipants = jqGererGroupeParticipants;
+		this.jqDialog = jqDialog;
+		
 		this.groupeGestion = new GroupeGestion(this.restManager);
 
-		this.initAppele = false; /* Permet de ne lancer l'initialisation de la dialogue une seule fois */
+		// Permet de ne lancer l'initialisation de la dialogue qu'une seule fois
+		this.initAppele = false;
 	};
 
 	/**
@@ -29,7 +31,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		this.chargerContenu(listeGroupesEnAttenteDeValidation);
 		
 		// Ouvre la boîte de dialogue
-		this.jqGererGroupeParticipants.dialog("open");
+		this.jqDialog.dialog("open");
 		
 	};
 	
@@ -41,7 +43,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		var me=this;
 		
 		// Affiche la boîte dialogue de gestion d'un groupe de participants
-		this.jqGererGroupeParticipants.dialog({
+		this.jqDialog.dialog({
 			autoOpen: false,
 			width: 510,
 			modal: true,
@@ -56,8 +58,8 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		});
 		
 		// Listener du bouton "Fermer"
-		this.jqGererGroupeParticipants.find("#dialog_gerer_groupe_fermer").click(function() {
-			me.jqGererGroupeParticipants.dialog("close");
+		this.jqDialog.find("#dialog_gerer_groupe_fermer").click(function() {
+			me.jqDialog.dialog("close");
 		});
 
 		this.initAppele = true;
@@ -78,17 +80,17 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 			"</tr> <% }); %>";
 
 		// Ecriture du contenu de la dialogue
-		this.jqGererGroupeParticipants.find("table").html(_.template(listRattachementTemplate, {groupes: listeGroupesEnAttenteDeValidation}));
+		this.jqDialog.find("table").html(_.template(listRattachementTemplate, {groupes: listeGroupesEnAttenteDeValidation}));
 		
 		// Listeners
-		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_accepter").click(function (){
+		this.jqDialog.find(".dialog_gerer_groupe_accepter").click(function (){
 			me.deciderRattachement(true, $(this).attr("data-id"));
 		});
-		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_refuser").click(function (){
+		this.jqDialog.find(".dialog_gerer_groupe_refuser").click(function (){
 			me.deciderRattachement(false, $(this).attr("data-id"));
 		});
-		this.jqGererGroupeParticipants.find(".dialog_gerer_groupe_table_noms").click(function() {
-			me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
+		this.jqDialog.find(".dialog_gerer_groupe_table_noms").click(function() {
+			me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"), $("#dialog_detail_groupe"));
 		});
 
 
@@ -110,11 +112,11 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 				me.ecranParametres.afficheListeMesGroupes();
 				
 				// Suppression de la ligne dans le tableau
-				me.jqGererGroupeParticipants.find("#dialog_gerer_groupe_table_ligne_"+groupeId).remove();
+				me.jqDialog.find("#dialog_gerer_groupe_table_ligne_"+groupeId).remove();
 				
 				// S'il n'y a plus de ligne, fermeture de la boîte de dialogue
 				if ($('#dialog_gerer_groupe table > *').length==0) {
-					me.jqGererGroupeParticipants.dialog("close");
+					me.jqDialog.dialog("close");
 				}
 			} else {
 				window.showToast("L'enregistrement de votre choix a échoué ; vérifiez votre connexion.");
