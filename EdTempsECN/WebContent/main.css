@@ -355,7 +355,7 @@ table.liste_materiel th {
 	margin-left: 2px;
 }
 
-.form_creer_groupe_proprietaire_text {
+.form_creer_groupe_proprietaire_sup, .form_creer_groupe_proprietaire {
 	padding-left: 5px;
 	width: 210px;
 	margin-right: 3px;

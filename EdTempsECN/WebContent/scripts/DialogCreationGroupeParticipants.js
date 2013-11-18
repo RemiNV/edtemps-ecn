@@ -19,10 +19,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		// Liste des propriétaires potentiels (récupérée en base de données)
 		this.listeProprietairesPotentiels = new Array();
 		this.compteurProprietaires = 0;
-		this.nomPrenomUtilisateurEnCours = "";
-
-		// Liste des propriétaires sélectionnés
-		this.listeProprietairesSelectionnes = new Array();
+		this.nomPrenomUtilisateurEnCours = "";		
 
 		// Est-ce que la fonction init a déjà été appelée ?
 		this.initAppele = false;
@@ -60,11 +57,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		// Récupération des propriétaires potentiels
 		this.recupererProprietairesPotentiels(function(success, nbUtilisateurs) {
 			if (success) {
-				if (nbUtilisateurs>0) {
-					// Affichage d'une première zone propriétaire avec l'utilisateur en cours
-					me.ajouterLigneProprietaire(me.nomPrenomUtilisateurEnCours, true);
-				}
-
+				
 				// Charge la liste des groupes parents disponibles
 				me.chargementListeGroupesParents(function() {
 					// Si un objet est passé en paramètre, la fenêtre est pré-remplie avec les informations
@@ -73,7 +66,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 					}
 				});
 
-				// Reactivation du bouton "Ajouter"/"Modifier"
+				// Réactivation du bouton "Ajouter"/"Modifier"
 				me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
 				me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
 			}
@@ -93,6 +86,11 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 	DialogCreationGroupeParticipants.prototype.init = function() {
 		var me = this;
 
+		// Affectation d'une méthode au clic sur le bouton "Ajouter un propriétaire"
+		this.jqCreationGroupeForm.find("#form_creer_groupe_proprietaire_ajouter").click(function() {
+			me.ajouterLigneProprietaire();
+		});
+
 		// Affectation d'une méthode au clic sur le bouton "Annuler"
 		this.jqCreationGroupeForm.find("#form_creer_groupe_annuler").click(function() {
 			me.jqCreationGroupeForm.dialog("close");
@@ -100,7 +98,6 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		
 		// Affectation d'une méthode au clic sur le bouton d'action principale
 		this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").click(function() {
-			me.listeProprietairesSelectionnes = new Array();
 			if (me.validationFormulaire()) {
 				me.callback();
 			} else {
@@ -220,7 +217,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		}
 		
 		// Vérifie les champs de propriétaires
-		this.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_text").each(function(index) {
+		this.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_sup").each(function(index) {
 			valid &= me.verifierValeurChampProprietaire($(this));
 		});
 		
@@ -348,15 +345,15 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 			if (data.resultCode == RestManager.resultCode_Success) {
 				
 				// Création du tableau des valeurs pour le plugin Autocomplete de Jquery UI
-				me.listeProprietairesPotentiels = data.data.listeUtilisateurs;
 				for (var i=0, maxI=data.data.listeUtilisateurs.length; i<maxI; i++) {
-					if (window.localStorage && localStorage["userId"]==data.data.listeUtilisateurs[i].id) {
-						me.nomPrenomUtilisateurEnCours = data.data.listeUtilisateurs[i].prenom+" "+data.data.listeUtilisateurs[i].nom;
-					}
+					var user = new Object();
+					user.label = data.data.listeUtilisateurs[i].prenom + " " + data.data.listeUtilisateurs[i].nom;
+					user.id = data.data.listeUtilisateurs[i].id;
+					me.listeProprietairesPotentiels.push(user);
 				}
 
 				// Appelle la méthode de retour
-				callback(true, data.data.listeUtilisateurs.length);
+				callback(true, maxI);
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
 				callback(false, 0);
@@ -371,16 +368,8 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 	
 	/**
 	 * Affiche une ligne pour un propriétaire
-	 * 
-	 * @param valeur
-	 * 			Valeur à assigner au champ par défaut (peut être vide)
-	 * 
-	 * @param premierChamp
-	 * 			VRAI si c'est le premier champ de propriétaires
-	 * 			Dans ce cas, un bouton "Ajouter un propriétaire" est affiché,
-	 * 			sinon c'est un bouton "Supprimer" qui est affiché  
 	 */
-	DialogCreationGroupeParticipants.prototype.ajouterLigneProprietaire = function(valeur, premierChamp) {
+	DialogCreationGroupeParticipants.prototype.ajouterLigneProprietaire = function() {
 		var me = this;
 		
 		// Incrémente le compteur des propriétaires
@@ -388,104 +377,67 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 
 		// Ajoute une ligne dans le tableau du formulaire
 		this.jqCreationGroupeTable.append(
-			"<tr id='form_creer_groupe_proprietaire_"+this.compteurProprietaires+"'>" +
+			"<tr>" +
+				"<td><label>Propriétaire supplémentaire</label></td>" +
 				"<td>" +
-					"<label>Propriétaire"+(premierChamp ? "" : " supplémentaire")+"</label>" +
-				"</td>" +
-				"<td>" +
-					"<input type='text' class='form_creer_groupe_proprietaire_text' value='"+(valeur ? valeur : "")+"' "+(premierChamp ? "disabled='disabled'" : "")+" />" +
-					(premierChamp
-						? "<img alt='Ajouter' src='img/ajout.png' id='form_creer_groupe_proprietaire_ajouter' title='Ajouter un propriétaire' />"
-						: "<img alt='Supression' src='img/corbeille.png' class='form_creer_groupe_proprietaire_supprimer' title='Supprimer le propriétaire' />"
-					) +
-					"<input type='hidden' class='form_creer_groupe_proprietaire_id' value='' />" +
+					"<input type='text' id='form_creer_groupe_proprietaire_sup_"+this.compteurProprietaires+"' class='form_creer_groupe_proprietaire_sup' />" +
+					"<img alt='Supression' src='img/corbeille.png' title='Supprimer le propriétaire' class='form_creer_groupe_proprietaire_supprimer' />" +
 				"</td>" +
 			"</tr>");
 
 		// Ajoute l'autocomplete sur le champ ajouté
-		var champ = this.jqCreationGroupeTable.find("#form_creer_groupe_proprietaire_"+this.compteurProprietaires+" .form_creer_groupe_proprietaire_text");
+		var champ = this.jqCreationGroupeTable.find("#form_creer_groupe_proprietaire_sup_"+this.compteurProprietaires);
 		champ.autocomplete({
 			source: this.listeProprietairesPotentiels,
-			focus: function (event, ui) {
-				champ.val(ui.item.prenom + " " + ui.item.nom);
-				return false;
-			},
-			select: function (event, ui) {
-				champ.val(ui.item.prenom + " " + ui.item.nom);
-				champ.parents("tr").find(".form_creer_groupe_proprietaire_id").val(ui.item.id);
-				return false;
-			}
-		}).data("ui-autocomplete")._renderItem = function (ul, item) {
-			return $("<li></li>")
-				.append("<a title='"+(item.email ? item.email : "")+"'>"+item.prenom+" "+item.nom+"</a>")
-				.appendTo(ul);
-		};
-
+			select: function (event, ui) { champ.attr( "value", ui.item.id ); }
+		});
 		champ.focusout(function() {
 			me.verifierValeurChampProprietaire($(this));
 		});
 		
-		// Assigne une action sur le bouton d'ajout de propriétaires
-		if (premierChamp) {
-			this.jqCreationGroupeTable.find("#form_creer_groupe_proprietaire_ajouter").click(function() {
-				me.ajouterLigneProprietaire("", false);
-			});
-		} else {
-			this.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_supprimer").click(function() {
-				$(this).parents("tr").remove();
-			});
-		}
+		// Listener sur le bouton de suppression du propriétaire
+		this.jqCreationGroupeForm.find(".form_creer_groupe_proprietaire_supprimer").click(function() {
+			$(this).parents("tr").remove();
+		});
 
 	};
 
 
 	/**
 	 * Vérifie qu'un champ propriétaire est correct (le nom est bien présent dans la liste des propriétaires potentiels
-	 * 
-	 * @param object
-	 * 			champ à vérifier
+	 * @param object Champ à vérifier
 	 * @returns VRAI si le champ est valide
-	 * 
 	 */
 	DialogCreationGroupeParticipants.prototype.verifierValeurChampProprietaire = function(object) {
 		var valid = false;
-		var id = null;
 
 		// Vérifie que le nom du propriétaire est correct
 		for (var i=0, maxI=this.listeProprietairesPotentiels.length; i<maxI; i++) {
-			var nom = this.listeProprietairesPotentiels[i].prenom + " " + this.listeProprietairesPotentiels[i].nom; 
-			if (nom == $(object).val() || $(object).val()=="") {
+			if (this.listeProprietairesPotentiels[i].label == $(object).val() || $(object).val()=="") {
 				valid = true;
-				id = this.listeProprietairesPotentiels[i].id;
 				break;
 			}
 		}
 
-		// Vérifie que le propriétaire n'est pas présent plusieurs fois
+		// Vérifie que le propriétaire n'est présent qu'une seule fois
 		if (valid) {
-			// Récupère l'identifiant du propriétaire
+			
+			// Balaye tous les champs
+			
 			if ($(object).val()!="") {
-				var valeurChampIdCache = $(object).parents("tr").find(".form_creer_groupe_proprietaire_id");
-				
-				if (id!=valeurChampIdCache.val()) {
-					// Si le champ id caché ne correspond pas au nom du propriétaire, on le met à jour
-					valeurChampIdCache.val(id);
-				}
-
-				// Vérifie que l'identifiant n'existe pas déjà dans la table des propriétaires sélectionnés
-				if (jQuery.inArray(valeurChampIdCache.val(), this.listeProprietairesSelectionnes)<0) {
+				if (jQuery.inArray($(object).attr("value"), this.listeProprietairesSelectionnes)<0) {
 					// Ajoute le propriétaire dans la liste des propriétaires sélectionnés
-					this.listeProprietairesSelectionnes.push(parseFloat(valeurChampIdCache.val()));	
+					this.listeProprietairesSelectionnes.push($(object).attr("value"));
 				} else {
 					$(object).attr("title", "Le nom d'utilisateur que vous avez saisi est déjà présent.");
 					valid = false;
 				}
 			}
+			
 		} else {
 			$(object).attr("title", "Le nom d'utilisateur que vous avez saisi est incorrect.");
 		}
-		
-		
+
 		// Modifie l'affichage
 		if (valid) {
 			// Enlève la bordure rouge
@@ -493,11 +445,6 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 			$(object).css("border", "1px solid black");
 			$(object).attr("title", "");
 		} else {
-
-			// Met à vide le champ id pour le propriétaire et remet à zéro la liste des propriétaires sélectionnés
-			$(object).parents("tr").find(".form_creer_groupe_proprietaire_id").val("");
-			this.listeProprietairesSelectionnes = new Array();
-
 			// Met une bordure rouge
 			$(object).css("box-shadow", "red 0 0 10px");
 			$(object).css("border", "1px solid red");
@@ -517,8 +464,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		this.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(-1);
 		this.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").prop("checked", false);
 		this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", false);
-		this.listeProprietairesSelectionnes = new Array();
-		this.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_text").each(function(index) {
+		this.jqCreationGroupeTable.find(".form_creer_groupe_proprietaire_sup").each(function(index) {
 			$(this).parents("tr").remove();
 		});
 		
@@ -527,7 +473,7 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		this.jqChampNom.css("border", "1px solid black");
 		
 	};
-	
+
 	
 	/**
 	 * Pré-remplie la boîte de dialogue avec le groupe 
@@ -553,14 +499,12 @@ define([ "RestManager", "EcranParametres" ], function(RestManager) {
 		this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", groupe.estCours);
 		
 		// Sélection des propriétaires
-		for (var i=0, maxI=groupe.proprietaires.length; i<maxI; i++) {
+/*		for (var i=0, maxI=groupe.proprietaires.length; i<maxI; i++) {
 			if (groupe.proprietaires[i].id!=window.localStorage["userId"]) {
 				this.ajouterLigneProprietaire(groupe.proprietaires[i].prenom+" "+groupe.proprietaires[i].nom, false);
 			}
-		}
+		}*/
 	};
 	
-
 	return DialogCreationGroupeParticipants;
-
 });
