@@ -596,7 +596,9 @@ input.valide {
 .input_autocomplete_overlay {
 	z-index: 1;
 	position: absolute;
-	border-color: transparent;
+	top: 0px;
+	left: 0px;
+	border-color: transparent !important;
 	background-color: white;
 }
 

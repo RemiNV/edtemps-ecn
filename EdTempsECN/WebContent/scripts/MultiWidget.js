@@ -218,8 +218,6 @@ define([ "jquery", "jqueryui" ], function() {
 					}
 				});
 				
-				var posElem = jqElem.position();
-				inputAutocompletion.css({ top: posElem.top, left: posElem.left });
 				jqElem.after(inputAutocompletion);
 				jqElem.addClass("input_autocomplete");
 			}
