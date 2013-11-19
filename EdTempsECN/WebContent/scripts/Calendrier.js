@@ -8,7 +8,7 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, ajoutEvenement, evenementGestion) {
+	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion) {
 		var me = this;
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
@@ -49,7 +49,7 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 				// Durée d'1h par défaut
 				var dateFin = new Date(date.getTime() + 1000 * 3600);
 				
-				ajoutEvenement.show(date, dateFin, null);
+				dialogAjoutEvenement.show(date, dateFin, null);
 			},
 			eventRender: function(event, jqElement) {
 				if(event.loading) {

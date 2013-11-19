@@ -29,9 +29,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	/**
 	 * Affiche la boîte de dialogue de recherche d'une salle libre
 	 */
-	RechercheSalle.prototype.show = function(ajoutEvenement) {
+	RechercheSalle.prototype.show = function(dialogAjoutEvenement) {
 		if(!this.initAppele) {
-			this.init(ajoutEvenement);
+			this.init(dialogAjoutEvenement);
 			this.initAppele = true;
 		}
 		
@@ -43,9 +43,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * Doit être appelé uniquement une fois.
 	 * Est automatiquement appelé par show() si nécessaire.
 	 */
-	RechercheSalle.prototype.init = function(ajoutEvenement) {
+	RechercheSalle.prototype.init = function(dialogAjoutEvenement) {
 		var me = this;
-		this.ajoutEvenement = ajoutEvenement;
+		this.dialogAjoutEvenement = dialogAjoutEvenement;
 
 		// Ajout des masques aux différents champs
 		this.jqHeureDebut.mask("99:99");
@@ -93,7 +93,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
 					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
 				}, function(data) {
-					me.ajoutEvenement.show(dateDebut, dateFin, data);
+					me.dialogAjoutEvenement.show(dateDebut, dateFin, data);
 				});
 
 			}
