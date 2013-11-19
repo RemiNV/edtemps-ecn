@@ -50,7 +50,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 			this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("value", texteBouton);
 
 			// Charge la liste des groupes parents disponibles
-			this.ecritListeGroupesParentsDisponibles(me.jqCreationGroupeForm.find("#form_creer_groupe_parent"), function(success) {
+			this.ecritListeGroupesParentsDisponibles(me.jqCreationGroupeForm.find("#form_creer_groupe_parent"), groupe, function(success) {
 				if (success) {
 					// Réactivation du bouton "Ajouter"/"Modifier"
 					me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
@@ -125,10 +125,14 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 	/**
 	 * Ecrit la liste des groupes parents potentiels dans le select dédié
 	 * @param object Objet jquery où il faut écrire la liste des groupes
+	 * @param groupe : groupe de participants dans le cas de la modification, null sinon
 	 * @param callback
 	 */
-	DialogCreationGroupeParticipants.prototype.ecritListeGroupesParentsDisponibles = function(object, callback) {
+	DialogCreationGroupeParticipants.prototype.ecritListeGroupesParentsDisponibles = function(object, groupe, callback) {
 		var me = this;
+		
+		var idGroupeModification = -1;
+		if (groupe) idGroupeModification = groupe.id;
 		
 		// Récupération de la liste des groupes parents potentiels
 		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
@@ -142,7 +146,9 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 				if (maxI>0) {
 					var str = "<option value='-1'>---</option>";
 					for (var i=0; i<maxI; i++) {
-						str += "<option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"</option>";
+						if (idGroupeModification!=data.data.listeGroupes[i].id) {
+							str += "<option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"</option>";
+						}
 					}
 					$(object).append(str);
 				} else {
