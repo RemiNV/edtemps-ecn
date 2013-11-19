@@ -236,8 +236,12 @@ public class GroupeGestion {
 	 * @throws EdtempsException
 	 *             en cas d'erreur
 	 */
-	public void modifierGroupe(Integer id, String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
+	public void modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
 
+		if(idGroupeParent != null && idGroupeParent.equals(id)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe ne peut pas être son propre parent");
+		}
+		
 		try {
 
 			// Démarre une transaction
@@ -283,7 +287,7 @@ public class GroupeGestion {
 							" WHERE groupeParticipant_id="+id);
 				} else {
 					// S'il n'y a pas eu de modification
-					if (ancienIdParent==idGroupeParent || ancienIdParentTmp==idGroupeParent) {
+					if (idGroupeParent.equals(ancienIdParent) || idGroupeParent.equals(ancienIdParentTmp)) {
 						// Préparation de la requête
 						req = _bdd.getConnection().prepareStatement("UPDATE edt.groupeparticipant SET" +
 								" groupeParticipant_nom=?," +
