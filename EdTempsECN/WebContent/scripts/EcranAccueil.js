@@ -4,8 +4,8 @@
  * @module EcranAccueil
  */
 define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "GroupeGestion", 
-        "AjoutEvenement", "RestManager", "jquery", "jqueryui"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
-        		RechercheSalle, GroupeGestion, AjoutEvenement, RestManager) {
+        "DialogAjoutEvenement", "RestManager", "jquery", "jqueryui"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
+        		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager) {
 	
 	/**
 	 * @constructor
@@ -19,7 +19,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.groupeGestion = new GroupeGestion(this.restManager);
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
 		
-		this.ajoutEvenement = new AjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
+		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
 		
 		this.calendrier = null;
 		this.listeGroupesParticipants = null;
@@ -35,18 +35,18 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		
 		// Initialisation des listeners
 		$("#btn_chercher_salle").click(function(e) {
-			me.rechercheSalle.show(me.ajoutEvenement);
+			me.rechercheSalle.show(me.dialogAjoutEvenement);
 		});
 		
 		$("#btn_ajout_evenement").click(function(e) {
-			me.ajoutEvenement.show();
+			me.dialogAjoutEvenement.show();
 		});
 
 		if(!this.mode) {
 			this.setVue("mes_abonnements");
 		}
 		
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.ajoutEvenement, this.evenementGestion);
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.dialogAjoutEvenement, this.evenementGestion);
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 		

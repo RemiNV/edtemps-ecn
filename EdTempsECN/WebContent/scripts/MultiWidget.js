@@ -121,7 +121,7 @@ define([ "jquery", "jqueryui" ], function() {
 		var res = new Array();
 		var me = this;
 		this.jqDiv.find(".multiwidget_entry").each(function() {
-			var val = me.getValFunction($(this)); 
+			var val = me.getValFunction ? me.getValFunction($(this)) : $(this).val(); 
 			if(val != null) {
 				res.push(val);
 			}
@@ -157,7 +157,7 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @param source Paramètre source de l'autocomplete
 	 * @param minLength Paramètre minLength de l'autocomplete
 	 * @param forceFirstValue Paramètre forceFirstValue du MultiWidget
-	 * @param width Paramètre widht du MultiWidget
+	 * @param width Paramètre width du MultiWidget
 	 */
 	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength, forceFirstValue, width) {
 		

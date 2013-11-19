@@ -1,9 +1,10 @@
 
 /**
  * Module de contrôle de la boîte de dialogue d'ajout d'évènement
- * @module AjoutEvenement
+ * @module DialogAjoutEvenement
  */
-define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedinput", "lib/fullcalendar.translated.min"], function(CalendrierGestion, RestManager) {
+define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion", "jquery", "jqueryui", 
+        "jquerymaskedinput", "lib/fullcalendar.translated.min"], function(CalendrierGestion, RestManager, MultiWidget, UtilisateurGestion) {
 	
 	/**
 	 * Création d'un module d'ajout d'évènements (contrôle la boîte de dialogue associée)
@@ -14,9 +15,9 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @param {function} callbackRafraichirCalendrier Fonction à appeler pour déclencher le rafraîchissement du calendrier après ajout d'un évènement
 	 * 
 	 * @constructor
-	 * @alias module:AjoutEvenement
+	 * @alias module:DialogAjoutEvenement
 	 */
-	var AjoutEvenement = function(restManager, jqDialog, rechercheSalle, evenementGestion, callbackRafraichirCalendrier) {
+	var DialogAjoutEvenement = function(restManager, jqDialog, rechercheSalle, evenementGestion, callbackRafraichirCalendrier) {
 		
 		this.jqDialog = jqDialog;
 		this.restManager = restManager;
@@ -27,6 +28,9 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		this.sallesSelectionnees = new Array();
 		this.sallesLibres = new Array();
 		this.initAppele = false;
+		this.multiWidgetProprietaires = null;
+		this.multiWidgetIntervenants = null;
+		this.multiWidgetCalendriers = null;
 		this.listeCalendriers = new Array(); /* Liste des calendriers récupérée en base de données */
 		this.rechercheDisponibiliteSalles = {
 			versionSalles: 0, // Incrémenté à chaque changement des salles pour ignorer le résultat de la recherche effectué entre-temps
@@ -103,7 +107,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @param salles
 	 * @param calendrierCours Indique si l'évènement à ajouter est rattaché à un calendrier de cours
 	 */
-	AjoutEvenement.prototype.setSalles = function(salles) {
+	DialogAjoutEvenement.prototype.setSalles = function(salles) {
 		this.rechercheDisponibiliteSalles.versionSalles++;
 		this.sallesSelectionnees = salles;
 		this.sallesLibres = new Array();
@@ -134,7 +138,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * Rafraîchit l'affichage des salles sélectionnées en fonction de
 	 * this.sallesSelectionnees et this.sallesLibres
 	 */
-	AjoutEvenement.prototype.affichageSalles = function() {
+	DialogAjoutEvenement.prototype.affichageSalles = function() {
 		var strSalles;
 		if(this.sallesSelectionnees.length > 0) {
 			strSalles = "";
@@ -172,7 +176,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @param evenementsNonCours Evénements non cours (peut être null)
 	 * @param calendrierCours L'évènement en cours de sélection est un cours
 	 */
-	AjoutEvenement.prototype.afficherEvenementsSalleOccupee = function(evenementsCours, evenementsNonCours, calendrierCours, nomSalle) {
+	DialogAjoutEvenement.prototype.afficherEvenementsSalleOccupee = function(evenementsCours, evenementsNonCours, calendrierCours, nomSalle) {
 		var lstEvenementsSallesOccupeesNonCours = this.jqDialog.find(
 				calendrierCours ? "#lst_evenements_salles_occupees_non_cours" : "#lst_evenements_salles_occupees");
 		
@@ -199,7 +203,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		}
 	};
 	
-	AjoutEvenement.prototype.verifierDisponibiliteSalles = function() {
+	DialogAjoutEvenement.prototype.verifierDisponibiliteSalles = function() {
 		
 		if(this.sallesSelectionnees.length == 0) {
 			return;
@@ -283,7 +287,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		}
 	};
 	
-	AjoutEvenement.prototype.lancerRechercheSalle = function() {
+	DialogAjoutEvenement.prototype.lancerRechercheSalle = function() {
 		
 		var formData = this.getDonneesFormulaire(true);
 		
@@ -316,7 +320,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		
 	};
 	
-	AjoutEvenement.prototype.validationDialog = function() {
+	DialogAjoutEvenement.prototype.validationDialog = function() {
 		// Récupération des données du formulaire
 		var formData = this.getDonneesFormulaire(false);
 		var me = this;
@@ -395,7 +399,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @param {boolean} pourRechercheSalle Signaler les champs non remplis nécessaires pour rechercher une salle uniquement
 	 * @return {DonneesFormulaireAjoutEvenement} Données du formulaire
 	 */
-	AjoutEvenement.prototype.getDonneesFormulaire = function(pourRechercheSalle) {
+	DialogAjoutEvenement.prototype.getDonneesFormulaire = function(pourRechercheSalle) {
 		var res = {
 			valide: false,
 			valideRechercheSalle: false
@@ -414,20 +418,12 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			res.nom = validateNotEmpty(jqNom);
 		}
 		
-		// TODO : Récupération de la liste des responsables à implémenter
-		res.responsables = new Array();
-		res.responsables.push(this.restManager.getUserId());
+		res.responsables = this.multiWidgetProprietaires.val();
 		
-		// TODO : Récupération des intervenants à implémenter
-		res.intervenants = new Array();
+		res.intervenants = this.multiWidgetIntervenants.val();
 		
 		// Récupération de la liste des calendriers
-		res.calendriers = new Array();
-		
-		// TODO : avoir plusieurs calendriers
-		this.jqDialog.find("#calendriers_evenement .select_calendriers").each(function() {
-			res.calendriers.push(parseInt($(this).val()));
-		});
+		res.calendriers = this.multiWidgetCalendriers.val();
 		
 		// Validation du jour
 		var jour = false;
@@ -542,7 +538,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * Remplissage de la sélection des calendriers dans la boîte de dialogue d'ajout d'évènement
 	 * @param {CallbackRemplirCalendriers} callback Fonction rappelée une fois les calendriers remplis
 	 */
-	AjoutEvenement.prototype.remplirCalendriers = function(callback) {
+	DialogAjoutEvenement.prototype.remplirCalendriers = function(callback) {
 		var calendrierGestion = new CalendrierGestion(this.restManager);
 		
 		var me = this;
@@ -558,7 +554,24 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 					}
 					
 					me.strOptionsCalendriers = strRemplissageSelect;
-					me.jqDialog.find("#calendriers_evenement .select_calendriers").html(strRemplissageSelect);
+					var selectCalendriers = me.jqDialog.find("#calendriers_evenement .select_calendriers"); 
+					selectCalendriers.html(strRemplissageSelect);
+					
+					me.multiWidgetCalendriers = new MultiWidget(selectCalendriers, {
+						setFunction: function(jqControl, value) {
+							if(value == null) { // On n'accepte pas une valeur vide
+								jqControl.val(jqControl.find("option:first").val());
+							}
+							else {
+								jqControl.val(value);
+							}
+						}, 
+						getValFunction: function(jqControl) {
+							return parseInt(jqControl.val());
+						},
+						width: 250
+					});
+					
 				}
 				
 				me.listeCalendriers = data;
@@ -571,6 +584,36 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			}
 			else {
 				window.showToast("Erreur de récupération de vos calendriers");
+				callback(false);
+			}
+		});
+	};
+	
+	/**
+	 * Méthode de remplissage des propriétaires et intervenants de la dialog, à l'initialisation
+	 * @param callback Fonction appelée une fois le remplissage effectué (asychrone). Prend un booléen en argument indiquant le succès.
+	 */
+	DialogAjoutEvenement.prototype.remplirProprietairesIntervenants = function(callback) {
+		var utilisateurGestion = new UtilisateurGestion(this.restManager);
+		var me = this;
+		
+		utilisateurGestion.recupererProprietairesPotentielsAutocomplete(function(resultCode, proprietaires) {
+			if(resultCode == RestManager.resultCode_Success) {
+				
+				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#input_proprietaires_evenement"), 
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, { label: "vous-même", value: me.restManager.getUserId() }, 250));
+				
+				me.multiWidgetIntervenants = new MultiWidget(me.jqDialog.find("#input_intervenants_evenement"), 
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, null, 250));
+				
+				callback(true);
+			}
+			else if(resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération des propriétaires et intervenants ; vérifiez votre connexion");
+				callback(false);
+			}
+			else {
+				window.showToast("Erreur de récupération des propriétaires et intervenants.");
 				callback(false);
 			}
 		});
@@ -592,7 +635,7 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * @param {Date} dateFin date de fin à pré-remplir. <b>Doit être le même jour</b> que dateDebut si il est non null ; objet Date JavaScript
 	 * @param {SalleRemplissageAjoutEvenement} salles salles à pré-remplir.
 	 */
-	AjoutEvenement.prototype.show = function(dateDebut, dateFin, salles) {
+	DialogAjoutEvenement.prototype.show = function(dateDebut, dateFin, salles) {
 		
 		if(!this.initAppele) {
 			this.init();
@@ -632,14 +675,14 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 	 * Doit être appelé uniquement une fois.
 	 * Est automatiquement appelé par show() si nécessaire.
 	 */
-	AjoutEvenement.prototype.init = function() {
+	DialogAjoutEvenement.prototype.init = function() {
 		// Récupération des calendriers auxquels l'utilisateur peut ajouter des évènements
 		// this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
 		// TODO : remettre la désactivation du bouton
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Chargement des options de matériel...");
 		
-		// Les 2 remplissages s'effectueront dans un ordre "aléatoire" (asynchrone)
+		// Les remplissages s'effectueront dans un ordre "aléatoire" (asynchrone)
 		var succesChargementGlobal = true;
 		
 		// Remplissage du tableau de sélection des matières
@@ -658,8 +701,14 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 			enable();
 		});
 		
+		// Remplissage de la liste des propriétaires et intervenants
+		this.remplirProprietairesIntervenants(function(success) {
+			successChargementGlobal = succesChargementGlobal && success;
+			enable();
+		});
+		
 		// Réactivation des contrôles une fois tout chargé
-		var aCharger = 2;
+		var aCharger = 3;
 		var me = this;
 		function enable() {
 			aCharger--;
@@ -678,5 +727,5 @@ define(["CalendrierGestion", "RestManager", "jquery", "jqueryui", "jquerymaskedi
 		this.initAppele = true;
 	};
 	
-	return AjoutEvenement;
+	return DialogAjoutEvenement;
 });
