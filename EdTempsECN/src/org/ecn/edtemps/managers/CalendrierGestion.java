@@ -64,7 +64,7 @@ public class CalendrierGestion {
 			rs_ligneCreee_prepare.setString(1, nom);
 			
 			// Ajout de la matiere du calendrier à la requete préparée (NULL si pas de matiere)
-			if (matiere == "") { 
+			if (StringUtils.isEmpty(matiere)) { 
 				rs_ligneCreee_prepare.setNull(2, java.sql.Types.INTEGER);
 			}
 			else {
@@ -84,7 +84,7 @@ public class CalendrierGestion {
 			}
 			
 			// Ajout du type du calendrier à la requete préparée (NULL si pas de type)
-			if (type == "") { 
+			if (StringUtils.isEmpty(type)) { 
 				rs_ligneCreee_prepare.setNull(3, java.sql.Types.INTEGER);
 			}
 			else {
@@ -249,7 +249,7 @@ public class CalendrierGestion {
 			
 			// Ajout de la matiere du calendrier à la requete préparée (NULL si pas de matiere)
 			String matiere = calId.getMatiere();
-			if (matiere == "") { 
+			if (StringUtils.isEmpty(matiere)) { 
 				requete.setNull(2, java.sql.Types.INTEGER);
 			}
 			else {
@@ -270,7 +270,7 @@ public class CalendrierGestion {
 			
 			// Ajout du type du calendrier à la requete préparée (NULL si pas de type)
 			String type = calId.getType();
-			if (type == "") { 
+			if (StringUtils.isEmpty(type)) { 
 				requete.setNull(3, java.sql.Types.INTEGER);
 			}
 			else {
