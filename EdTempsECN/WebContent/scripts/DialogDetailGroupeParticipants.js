@@ -20,29 +20,23 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	/**
 	 * Affiche la boîte de dialogue de détail d'un groupe de participants
 	 * @param idGroupe Identifiant du groupe à afficher
-	 * @param groupe Groupe à afficher (plus rapide que de simplement donner l'identifiant car aucune requête n'est faite)
 	 */
-	DialogDetailGroupeParticipants.prototype.show = function(idGroupe, groupe) {
+	DialogDetailGroupeParticipants.prototype.show = function(idGroupe) {
 		if(!this.initAppele) {
 			this.init();
 		}
 		
 		var me=this;
 		
-		if (groupe!=null) {
-			this.chargerContenu(groupe);
-		} else {
-			// Récupération des données sur le groupe à afficher
-			this.groupeGestion.queryGetGroupeComplet(idGroupe, function(resultCode, data) {
-				if (resultCode == RestManager.resultCode_Success) {
-					me.chargerContenu(data.groupe);
-				} else {
-					window.showToast("La récupération des informations sur le groupe a échoué ; vérifiez votre connexion.");
-				}
-			});
-		}
+		// Récupération des données sur le groupe à afficher
+		this.groupeGestion.queryGetGroupeComplet(idGroupe, function(resultCode, data) {
+			if (resultCode == RestManager.resultCode_Success) {
+				me.chargerContenu(data.groupe);
+			} else {
+				window.showToast("La récupération des informations sur le groupe a échoué ; vérifiez votre connexion.");
+			}
+		});
 	};
-	
 	
 	/**
 	 * Initialise la boîte de dialogue de détail d'un groupe de participants
