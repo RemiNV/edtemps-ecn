@@ -287,7 +287,7 @@ public class GroupeGestion {
 							" WHERE groupeParticipant_id="+id);
 				} else {
 					// S'il n'y a pas eu de modification
-					if (idGroupeParent.equals(ancienIdParent) || idGroupeParent.equals("ancienIdParentTmp")) {
+					if (idGroupeParent.equals(ancienIdParent) || idGroupeParent.equals(ancienIdParentTmp)) {
 						// Préparation de la requête
 						req = _bdd.getConnection().prepareStatement("UPDATE edt.groupeparticipant SET" +
 								" groupeParticipant_nom=?," +
