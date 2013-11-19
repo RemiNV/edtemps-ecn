@@ -386,10 +386,10 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 			
 			// Listeners pour les boutons gérer
 			$(".tbl_mes_groupes_boutons_gerer").click(function() {
-				var listeRattachementAttenteValidation = new Array();
+				var listeRattachementAttenteValidations = new Array();
 				for (var i=0, maxI=data.length; i<maxI; i++) {
 					if (data[i].parentIdTmp==$(this).attr("data-id")) {
-						listeRattachementAttenteValidation.push(data[i]);
+						listeRattachementAttenteValidations.push(data[i]);
 					}
 				}
 				me.dialogGererGroupeParticipants.show(listeRattachementAttenteValidations);

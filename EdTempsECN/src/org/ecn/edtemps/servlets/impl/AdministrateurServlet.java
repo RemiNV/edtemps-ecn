@@ -86,7 +86,6 @@ public class AdministrateurServlet extends HttpServlet {
 		String login = req.getParameter("login");
 		String password = req.getParameter("password");
 		String cryptedPassword = UtilisateurGestion.hmac_sha256("Chaine de cryptage", password);
-		System.out.println(cryptedPassword);
 		logger.debug("Tentative de connexion à l'espace d'administration avec le login : " + login);
 		
 		// Prépare la requête

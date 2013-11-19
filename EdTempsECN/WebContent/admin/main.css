@@ -29,6 +29,7 @@ h1, h2, h3, h4, h5, h6 {
 	width: 1000px;
 	margin-left: auto;
 	margin-right: auto;
+	border-radius: 5px;
 }
 
 #main_content h1 {
@@ -39,6 +40,7 @@ h1, h2, h3, h4, h5, h6 {
 	text-align: left;
 	color: #0E007F;
 	font-size: 1.2em;
+	border-radius: 5px 5px 0px 0px;
 }
 
 .button {
