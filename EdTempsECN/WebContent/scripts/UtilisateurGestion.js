@@ -44,8 +44,9 @@ define(["RestManager"], function(RestManager) {
 				var res = new Array();
 				for (var i=0, maxI=utilisateurs.length; i<maxI; i++) {
 					var label_value = {
-							label: utilisateurs[i].prenom + " " + utilisateurs[i].nom + " (" + (utilisateurs[i].email != null ? utilisateurs[i].email : "email inconnu") + ")",
-							value: utilisateurs[i].id
+							label: utilisateurs[i].prenom + " " + utilisateurs[i].nom,
+							value: utilisateurs[i].id,
+							tooltip: utilisateurs[i].email
 					};
 					
 					res.push(label_value);
