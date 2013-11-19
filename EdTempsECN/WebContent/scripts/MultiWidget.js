@@ -18,6 +18,7 @@ define([ "jquery", "jqueryui" ], function() {
 	 * Widget de formulaire duplicable sur plusieurs lignes en cliquant sur un bouton.
 	 * Voir les propriétés statiques AUTOCOMPLETE_INIT et AUTOCOMPLETE_VAL pour initialiser un widget autocomplete.
 	 * La valeur des objets manipulés doivent OBLIGATOIREMENT être des entiers (typiquement des identifiants)
+	 * Il est possible d'ajouter l'attribut "tooltip" aux items. Cette valeur sera affiché en infobulle lors du passage de la souris sur celui-ci
 	 *
 	 * @param {jQuery} jqControl Objet jQuery à utiliser comme contrôle duplicable
 	 * @param {MultiWidgetParams} options Options à utiliser
@@ -216,7 +217,13 @@ define([ "jquery", "jqueryui" ], function() {
 						jqElem.val(jqElem.attr("data-label"));
 						return false;
 					}
-				});
+				}).data("ui-autocomplete")._renderItem = function (ul, item) {
+					return $("<li>")
+						.attr("data-value", item.value)
+						.attr("title", item.tooltip==null ? "" : item.tooltip)
+						.append($("<a>").text(item.label))
+						.appendTo(ul);
+				};
 				
 				jqElem.after(inputAutocompletion);
 				jqElem.addClass("input_autocomplete");
