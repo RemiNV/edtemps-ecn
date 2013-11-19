@@ -64,6 +64,34 @@ define([], function() {
 		);
 	};
 
+	/**
+	 * Modification d'un calendrier avec les informations fournies en paramètre
+	 * 
+	 * @param id : int
+	 * @param nom : String
+	 * @param matiere : String
+	 * @param type : String
+	 * @param idProprietaires : liste d'ID
+	 * @param callback : Fonction appelée une fois la requete de création effectuée
+	 *
+	 */
+	CalendrierGestion.prototype.modifierCalendrier = function(id_arg, nom_arg, matiere_arg, type_arg, idProprietaires_arg, callback) {
+		var me = this;
+		this.restManager.effectuerRequete(
+			"POST",
+			"calendrier/modification", 
+			{ 
+			  token: me.restManager.getToken(),
+			  id: id_arg,
+			  matiere: matiere_arg,
+			  nom: nom_arg,
+			  type: type_arg, 
+			  idProprietaires: idProprietaires_arg
+			},
+			function(data){callback(data.resultCode);}
+		);
+	};
+	
 	
 	/**
 	 * Récupérer les calendriers dont l'utilisateur est propriétaire

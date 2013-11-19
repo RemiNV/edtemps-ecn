@@ -222,7 +222,7 @@ public class CalendrierGestion {
 			
 			// Requete préparée pour la modification du calendrier
 			PreparedStatement requete = _bdd.getConnection().prepareStatement(
-					"UPDATE edtcalendrier SET (cal_nom, matiere_id, typeCal_id) = "
+					"UPDATE edt.calendrier SET (cal_nom, matiere_id, typeCal_id) = "
 					+ "(?, ?, ?) "
 					+ "WHERE cal_id = " + calId.getId() );
 			
@@ -273,7 +273,7 @@ public class CalendrierGestion {
 			}
 			
 			// Executer la requete
-			requete.execute();
+			requete.executeUpdate();
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
 			_bdd.executeRequest("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
@@ -284,8 +284,8 @@ public class CalendrierGestion {
 				int idProprio = itrProprios.next();
 				_bdd.executeRequest(
 						"INSERT INTO edt.proprietairecalendrier "
-						 + "VALUES (utilisateur_id, cal_id) = "
-						 + "(" + idProprio +", " + calId.getId() + ") " 
+						 + "(utilisateur_id, cal_id) "
+						 + "VALUES (" + idProprio + ", " + calId.getId() + ") " 
 				);
 			}
 			
