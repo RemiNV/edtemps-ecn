@@ -1,7 +1,7 @@
 /**
  * @module DialogCreationGroupeParticipants
  */
-define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
+define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestManager, MultiWidget, UtilisateurGestion) {
 
 	/**
 	 * @constructor
@@ -9,7 +9,8 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 	 */
 	var DialogCreationGroupeParticipants = function(restManager, jqCreationGroupeForm) {
 		this.restManager = restManager;
-		
+		this.utilisateurGestion = new UtilisateurGestion(this.restManager);
+
 		// Liens vers les objets javascript
 		this.jqCreationGroupeForm = jqCreationGroupeForm;
 		this.jqChampNom = this.jqCreationGroupeForm.find("#form_creer_groupe_nom");
@@ -283,28 +284,12 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 	 */
 	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function(callback) {
 		var me = this;
-		
-		// Récupération de la liste des propriétaires potentiels
-		this.restManager.effectuerRequete("POST", "proprietairespotentiels", {
-			token: this.restManager.getToken()
-		}, function(data) {
-			if (data.resultCode == RestManager.resultCode_Success) {
-				
-				// Création du tableau des valeurs pour l'autocomplete
-				var listeProprietairesPotentiels = new Array();
-				for (var i=0, maxI=data.data.listeUtilisateurs.length; i<maxI; i++) {
-					var user = new Object();
-					user.label = data.data.listeUtilisateurs[i].prenom + " " + data.data.listeUtilisateurs[i].nom;
-					user.value = data.data.listeUtilisateurs[i].id;
-					user.tooltip = (data.data.listeUtilisateurs[i].email!=null) ? data.data.listeUtilisateurs[i].email : null;
-					listeProprietairesPotentiels.push(user);
-				}
 
-				// Widget pour les propriétaires
+		this.utilisateurGestion.recupererProprietairesPotentielsAutocomplete(function(resultCode, utilisateurs) {
+			if (resultCode == RestManager.resultCode_Success) {
 				me.multiWidgetProprietaires = new MultiWidget(
 						me.jqCreationGroupeForm.find("#form_creer_groupe_proprietaire"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(listeProprietairesPotentiels, 1,
-								{ label: "Vous-même", value: me.restManager.getUserId() }, 230));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(utilisateurs, 1, { label: "Vous-même", value: me.restManager.getUserId() }, 230));
 
 				callback();
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
@@ -313,6 +298,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 				window.showToast(data.resultCode + " Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; votre session a peut-être expiré ?");
 			}
 		});
+
 	};
 
 	/**
