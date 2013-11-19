@@ -3,7 +3,7 @@
 		<img src="img/icone_appli.png" alt="Emploi du temps ECN" id="logoAppli" />
 	</div>
 	
-	<span class="button" id="btn_ajout_evenement">+ Evènement</span>
+	<span class="button" id="btn_ajout_evenement">+ Evénement</span>
 	
 	<div id="bloc_vos_agendas">
 		Vos agendas : <a href="#parametres/mes_abonnements" id="btn_gerer_agendas" class="button">Gérer</a>
@@ -18,7 +18,7 @@
 	
 	<ul id="nav_vue_agenda" class="button_nav">
 		<li class="selected" id="tab_mes_abonnements"><a href="#agenda/mes_abonnements">Mes abonnements</a></li>
-		<li id="tab_mes_evenements"><a href="#agenda/mes_evenements">Mes évènements</a></li>
+		<li id="tab_mes_evenements"><a href="#agenda/mes_evenements">Mes événements</a></li>
 		<li id="tab_vue_groupe"><a href="#agenda/vue_groupe">Vue groupe</a></li>
 		<li id="tab_vue_salle"><a href="#agenda/vue_salle">Vue salle</a></li>
 	</ul>
@@ -45,7 +45,7 @@
 						<td><input type="text" name="form_recherche_salle_capacite" id="form_recherche_salle_capacite" value="20" /></td>
 					</tr>
 					<tr>
-						<td><label for="form_recherche_salle_inclure_salles_occupees">Inclure les salles occupées <img alt="Aide" title="Si vous cochez la case, les salles occupées par des évènements autres que des cours seront inclues dans la recherche." src="img/help.png" class="help_icon" /></label></td>
+						<td><label for="form_recherche_salle_inclure_salles_occupees">Inclure les salles occupées <img alt="Aide" title="Si vous cochez la case, les salles occupées par des événements autres que des cours seront inclues dans la recherche." src="img/help.png" class="help_icon" /></label></td>
 						<td><input type="checkbox" name="form_recherche_salle_inclure_salles_occupees" id="form_recherche_salle_inclure_salles_occupees" /></td>
 					</tr>
 				</table>
@@ -100,24 +100,24 @@
 	<div id="calendar"></div>
 </div>
 
-<!-- Dialog d'ajout d'évènements (masquée au chargement du JavaScript) -->
-<div id="dialog_ajout_evenement" title="Ajouter un évènement">
+<!-- Dialog d'ajout d'événements (masquée au chargement du JavaScript) -->
+<div id="dialog_ajout_evenement" title="Ajouter un événement">
 	<table>
 		<tr>
-			<td><label for="txt_nom_evenement">Nom de l'évènement : </label></td>
+			<td><label for="txt_nom_evenement">Nom de l'événement : </label></td>
 			<td><input type="text" id="txt_nom_evenement"/></td>
 		</tr>
 		<!-- Elements à masquer selon les droits de l'utilisateur -->
 		<tr id="choix_proprietaire">
 			<td>Propriétaires</td>
-			<td>(Fonctionnalité uniquement administrateur)</td>
+			<td><input type="text" id="input_proprietaires_evenement" /></td>
 		</tr>
 		<tr id="choix_intervenants">
 			<td>Intervenants</td>
-			<td>(A implémenter)</td>
+			<td><input type="text" id="input_intervenants_evenement" /></td>
 		</tr>
 		<tr>
-			<td>Rattachement au calendrier : </td>
+			<td>Rattachement aux calendriers : </td>
 			<td id="calendriers_evenement">
 				<select class="select_calendriers"></select>
 			</td>
@@ -151,7 +151,7 @@
 	</table>
 	
 	<div id="notes_salles_occupees_non_cours" class="salle_occupee_noncours" style="display: none">
-		Vous allez prendre les salles des évènements :<br/> 
+		Vous allez prendre les salles des événements :<br/> 
 		<ul id="lst_evenements_salles_occupees_non_cours">
 		</ul>
 	</div>

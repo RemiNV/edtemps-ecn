@@ -7,12 +7,14 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	 * @constructor
 	 * @alias DialogDetailGroupeParticipants
 	 */
-	var DialogDetailGroupeParticipants = function(restManager) {
+	var DialogDetailGroupeParticipants = function(restManager, jqDialog) {
 		this.restManager = restManager;
+		this.jqDialog = jqDialog;
+
 		this.groupeGestion = new GroupeGestion(this.restManager);
-		
-		this.initAppele = false; /* Permet de ne lancer l'initialisation de la dialogue une seule fois */
-		this.jqDetailGroupeParticipants = $("#dialog_detail_groupe"); /* Pointeur jQuery vers la dialogue */
+
+		// Permet de ne lancer l'initialisation de la dialogue qu'une seule fois 
+		this.initAppele = false;
 	};
 
 	/**
@@ -22,28 +24,19 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	DialogDetailGroupeParticipants.prototype.show = function(idGroupe) {
 		if(!this.initAppele) {
 			this.init();
-			this.initAppele = true;
 		}
 		
 		var me=this;
 		
 		// Récupération des données sur le groupe à afficher
 		this.groupeGestion.queryGetGroupeComplet(idGroupe, function(resultCode, data) {
-
 			if (resultCode == RestManager.resultCode_Success) {
-				// Ecrit le contenu de la boîte de dialogue
 				me.chargerContenu(data.groupe);
-				
-				// Ouvre la boîte de dialogue
-				me.jqDetailGroupeParticipants.dialog("open");
 			} else {
 				window.showToast("La récupération des informations sur le groupe a échoué ; vérifiez votre connexion.");
 			}
-			
 		});
-		
 	};
-	
 	
 	/**
 	 * Initialise la boîte de dialogue de détail d'un groupe de participants
@@ -51,7 +44,7 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	DialogDetailGroupeParticipants.prototype.init = function() {
 
 		// Affiche la boîte dialogue de détail d'un groupe de participants
-		this.jqDetailGroupeParticipants.dialog({
+		this.jqDialog.dialog({
 			autoOpen: false,
 			width: 500,
 			modal: true,
@@ -80,8 +73,10 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 		var contenuHtml = "<p><span class='dialog_detail_groupe_label'>Nom du groupe :</span> "+groupe.nom+"</p>";
 
 		// Groupe parent
-		if (groupe.parentId>0 || groupe.parentIdTmp>0 ) {
+		if (groupe.parentId>0) {
 			contenuHtml += "<p><span class='dialog_detail_groupe_label'>Groupe parent :</span> "+groupe.parent.nom+"</p>";
+		} else if (groupe.parentIdTmp>0) {
+			contenuHtml += "<p><span class='dialog_detail_groupe_label'>Groupe parent :</span> "+groupe.parent.nom+" <i style='color: red;'>(En attente de validation)</i></p>";
 		}
 
 		// Propriétaires
@@ -110,15 +105,17 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 			"<div id='dialog_detail_groupe_boutons'><input class='button' type='button' value='Fermer' id='dialog_detail_groupe_fermer' /></div>";
 
 		// Ecrit le contenu dans la fenêtre
-		this.jqDetailGroupeParticipants.html(contenuHtml);
-		
+		this.jqDialog.html(contenuHtml);
+
 		// Affectation d'une méthode au clic sur le bouton "Fermer"
-		this.jqDetailGroupeParticipants.find("#dialog_detail_groupe_fermer").click(function() {
-			me.jqDetailGroupeParticipants.dialog("close");
+		this.jqDialog.find("#dialog_detail_groupe_fermer").click(function() {
+			me.jqDialog.dialog("close");
 		});
+		
+		// Affiche la boîte de dialogue
+		this.jqDialog.dialog("open");
 
 	};
-
 
 	return DialogDetailGroupeParticipants;
 

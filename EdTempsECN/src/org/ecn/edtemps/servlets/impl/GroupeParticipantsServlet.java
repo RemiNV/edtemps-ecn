@@ -116,7 +116,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		// Récupération des informations sur le groupe
 		String nom = jsonGroupe.getString("nom");
 		Integer idGroupeParent = Integer.valueOf(jsonGroupe.getString("idGroupeParent"));
-		if (idGroupeParent==-1) {
+		if (idGroupeParent != null && idGroupeParent.equals(-1)) {
 			idGroupeParent=null;
 		}
 		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
@@ -166,7 +166,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		int idGroupe = jsonGroupe.getInt("id");
 		String nom = jsonGroupe.getString("nom");
 		Integer idGroupeParent = Integer.valueOf(jsonGroupe.getString("idGroupeParent"));
-		if (idGroupeParent==-1) {
+		if (idGroupeParent != null && idGroupeParent.equals(-1)) {
 			idGroupeParent=null;
 		}
 		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");

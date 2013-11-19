@@ -25,6 +25,7 @@ import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.models.Calendrier;
 import org.ecn.edtemps.models.identifie.CalendrierComplet;
+import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
@@ -42,8 +43,8 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		
 		String pathInfo = req.getPathInfo();
 		
-		if(pathInfo == null) { // Page /calendrier/ =>  on renvoie les calendriers dont l'utilisateur est propriétaire
-			
+		// Page /calendrier/ =>  on renvoie les calendriers dont l'utilisateur est propriétaire
+		if(pathInfo == null) { 
 			CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 			JsonValue data;
 			try {
@@ -62,7 +63,8 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 
 			bdd.close();
 		}
-		else { // Autre page
+		// Autre page
+		else { 
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 
@@ -72,13 +74,16 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
 		String pathInfo = req.getPathInfo();
+		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 		
-		if(pathInfo == null) { // Page /calendrier/, accessible en GET
+		// Page /calendrier/, accessible en GET et non en POST
+		if(pathInfo == null) { 
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
-		else if(pathInfo.equals("/creation")) { // page /calendrier/creation
+		// Page /calendrier/creation
+		else if(pathInfo.equals("/creation")) { 
 			try {
-				creationCalendrier(userId, bdd, req);
+				creationOuModificationCalendrier(false, userId, calendrierGestion, req);
 				// Génération réponse si aucune exception
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Création calendrier réussie", null));
 				logger.debug("Création calendrier réussie");
@@ -88,19 +93,46 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 				logger.error("Erreur lors de la création du calendrier", e);
 			}
 		}
-		else { // Autre page
+		// Page /calendrier/modification
+		else if(pathInfo.equals("/modification")) { 
+			try {
+				creationOuModificationCalendrier(true, userId, calendrierGestion, req);
+				// Génération réponse si aucune exception
+				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Modification calendrier réussie", null));
+				logger.debug("Modification calendrier réussie");
+			} catch (EdtempsException e) {
+				// Génération réponse si exception
+				resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+				logger.error("Erreur lors de la modification du calendrier", e);
+			}
+		}
+		// Page /calendrier/suppression
+		else if(pathInfo.equals("/suppression")) { 
+			try {
+				int idCalendrierASupprimer = Integer.parseInt(req.getParameter("id"));
+				calendrierGestion.supprimerCalendrier(idCalendrierASupprimer);
+				// Génération réponse si aucune exception
+				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Suppression calendrier réussie", null));
+				logger.debug("Suppression calendrier réussie");
+			} catch (EdtempsException e) {
+				// Génération réponse si exception
+				resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+				logger.error("Erreur lors de la suppression du calendrier", e);
+			}
+		}
+		// Autre page, non prise en charge
+		else { 
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
-
+		
+		bdd.close();
 	}
 	
 	/** Fonction de création d'un calendrier 
 	 * 
 	 * @throws EdtempsException 
 	 */
-	private void creationCalendrier(int userId, BddGestion bdd, HttpServletRequest req) throws EdtempsException {
-		
-		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
+	private void creationOuModificationCalendrier(boolean casModifier, int userId, CalendrierGestion calendrierGestion, HttpServletRequest req) throws EdtempsException {
 		
 		// Récupération Nom du calendrier
 		String nom = req.getParameter("nom");
@@ -124,13 +156,21 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		  idProprietaires.add(Integer.parseInt(s)); 
 		}
 		
-		// Création d'un calendrier contenant les informations récupérées
-		Calendrier cal = new Calendrier(nom, type, matiere, idProprietaires);
-		
-		// Création du calendrier = ajout du calendrier dans la BDD
-		calendrierGestion.sauverCalendrier(cal);
-
-		bdd.close();
+		// Cas de MODIFICATION d'un calendrier
+		if (casModifier) {
+			int id = Integer.parseInt(req.getParameter("id"));
+			// Création d'un calendrier identifié, contenant les informations récupérées
+			CalendrierIdentifie cal = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
+			// Modification du calendrier = modification de la ligne correspondante dans la BDD
+			calendrierGestion.modifierCalendrier(cal);
+		}
+		// Cas de CREATION d'un calendrier
+		else {
+			// Création d'un calendrier contenant les informations récupérées
+			Calendrier cal = new Calendrier(nom, type, matiere, idProprietaires);
+			// Création du calendrier = ajout du calendrier dans la BDD
+			calendrierGestion.sauverCalendrier(cal);
+		}
 	}
 
 }

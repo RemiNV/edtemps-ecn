@@ -64,7 +64,7 @@ public class CalendrierGestion {
 			rs_ligneCreee_prepare.setString(1, nom);
 			
 			// Ajout de la matiere du calendrier à la requete préparée (NULL si pas de matiere)
-			if (matiere == "") { 
+			if (StringUtils.isEmpty(matiere)) { 
 				rs_ligneCreee_prepare.setNull(2, java.sql.Types.INTEGER);
 			}
 			else {
@@ -84,7 +84,7 @@ public class CalendrierGestion {
 			}
 			
 			// Ajout du type du calendrier à la requete préparée (NULL si pas de type)
-			if (type == "") { 
+			if (StringUtils.isEmpty(type)) { 
 				rs_ligneCreee_prepare.setNull(3, java.sql.Types.INTEGER);
 			}
 			else {
@@ -104,25 +104,43 @@ public class CalendrierGestion {
 				
 			}
 			
+			// On effectue la requete et recupère l'id du calendrier créé
 			ResultSet rs_ligneCreee = rs_ligneCreee_prepare.executeQuery();
-			
-			// On récupère l'id du calendrier créé
 			rs_ligneCreee.next();
-			int id_calendrier = rs_ligneCreee.getInt(1);
-
-			// On définit les utilisateurs idProprietaires comme proprietaires du calendrier créé
+			int idCalendrier = rs_ligneCreee.getInt(1);
+			
+			// Requete préparée pour la création du groupe unique associé 
+			PreparedStatement req = _bdd.getConnection().prepareStatement(
+						"INSERT INTO edt.groupeparticipant "
+						+ "(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique) "
+						+ "VALUES (?, 'FALSE', 'TRUE') "
+						+ "RETURNING groupeparticipant_id"
+						);
+			// nom du groupe unique = nom du calendrier
+			req.setString(1, nom); 
+			// On effectue la requete et récupère l'id du calendrier créé
+			ResultSet req_ligneCreee = req.executeQuery();
+			req_ligneCreee.next();
+			int idGroupeCree = req_ligneCreee.getInt(1);
+			
+			// Définition des propriétaires du calendrier et du groupe unique associé
 			Iterator<Integer> itr = idProprietaires.iterator();
 			while (itr.hasNext()){
-				int id_utilisateur = itr.next();
+				int idProprietaire = itr.next();
 				_bdd.executeRequest(
 						"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
-						+ "VALUES (" + id_utilisateur + ", " + id_calendrier + ")"
+						+ "VALUES (" + idProprietaire + ", " + idCalendrier + ")"
 						);
+				_bdd.executeRequest(
+						"INSERT INTO edt.proprietairegroupeparticipant "
+						+ "(utilisateur_id, groupeparticipant_id) "
+						+ "VALUES (" + idProprietaire + ", " + idGroupeCree	+ ")"
+				);
 			}
 			
 			// Fin transaction
 			_bdd.commit();
-			return id_calendrier;
+			return idCalendrier;
 
 		} catch (DatabaseException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
@@ -222,7 +240,7 @@ public class CalendrierGestion {
 			
 			// Requete préparée pour la modification du calendrier
 			PreparedStatement requete = _bdd.getConnection().prepareStatement(
-					"UPDATE edtcalendrier SET (cal_nom, matiere_id, typeCal_id) = "
+					"UPDATE edt.calendrier SET (cal_nom, matiere_id, typeCal_id) = "
 					+ "(?, ?, ?) "
 					+ "WHERE cal_id = " + calId.getId() );
 			
@@ -231,7 +249,7 @@ public class CalendrierGestion {
 			
 			// Ajout de la matiere du calendrier à la requete préparée (NULL si pas de matiere)
 			String matiere = calId.getMatiere();
-			if (matiere == "") { 
+			if (StringUtils.isEmpty(matiere)) { 
 				requete.setNull(2, java.sql.Types.INTEGER);
 			}
 			else {
@@ -252,7 +270,7 @@ public class CalendrierGestion {
 			
 			// Ajout du type du calendrier à la requete préparée (NULL si pas de type)
 			String type = calId.getType();
-			if (type == "") { 
+			if (StringUtils.isEmpty(type)) { 
 				requete.setNull(3, java.sql.Types.INTEGER);
 			}
 			else {
@@ -273,7 +291,7 @@ public class CalendrierGestion {
 			}
 			
 			// Executer la requete
-			requete.execute();
+			requete.executeUpdate();
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
 			_bdd.executeRequest("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
@@ -284,8 +302,8 @@ public class CalendrierGestion {
 				int idProprio = itrProprios.next();
 				_bdd.executeRequest(
 						"INSERT INTO edt.proprietairecalendrier "
-						 + "VALUES (utilisateur_id, cal_id) = "
-						 + "(" + idProprio +", " + calId.getId() + ") " 
+						 + "(utilisateur_id, cal_id) "
+						 + "VALUES (" + idProprio + ", " + calId.getId() + ") " 
 				);
 			}
 			

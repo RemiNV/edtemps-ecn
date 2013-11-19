@@ -233,8 +233,15 @@ define(["RestManager"], function(RestManager) {
 			var matieres = new Array();
 			var idCalendriers = evenements[i].calendriers;
 			for(var j=0, maxJ = idCalendriers.length; j<maxJ; j++) {
-				types.push(this.typesCalendriers[idCalendriers[j]]);
-				matieres.push(this.matieresCalendriers[idCalendriers[j]]);
+				var type = this.typesCalendriers[idCalendriers[j]];
+				if(type) {
+					types.push();
+				}
+				
+				var matiere = this.matieresCalendriers[idCalendriers[j]];
+				if(matiere) {
+					matieres.push(matiere);
+				}
 			}
 		
 			// Est-ce que l'utilisateur est propriétaire

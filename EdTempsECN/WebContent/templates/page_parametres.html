@@ -78,20 +78,16 @@
 								</label>
 							</td>
 							<td id="form_creer_calendrier_proprietaires">
-								<input class="form_creer_calendrier_proprietaire_utilisateurencours"
-								type="text" value="Vous-même" disabled="disabled" />
-								<img alt='Ajout' src='img/ajout.png' 
-			     				id="form_creer_calendrier_ajouter_proprietaire"  
-			     				title='Ajout un propriétaire' />
+								<input id="form_creer_calendrier_input_proprietaire" type="text" />
 							</td>
 						</tr>
 					</table>
 
 					<div id="form_creer_calendrier_boutons">
 						<input type="button" id="form_creer_calendrier_annuler"
-							value="Annuler" /> 
+							class="button" value="Annuler" /> 
 						<input type="button" id="form_creer_calendrier_valider" 
-							value="Valider" />
+							class="button" value="Valider" />
 					</div>
 				</form>
 			</div>
@@ -146,6 +142,14 @@
 							</td>
 							<td>
 								<input type="checkbox" id="form_creer_groupe_cours" name="form_creer_groupe_cours" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="form_creer_groupe_proprietaire">Propriétaire</label>
+							</td>
+							<td>
+								<input type="text" id="form_creer_groupe_proprietaire" name="form_creer_groupe_proprietaire" />
 							</td>
 						</tr>
 					</table>
