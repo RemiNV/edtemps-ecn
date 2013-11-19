@@ -296,6 +296,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 					var user = new Object();
 					user.label = data.data.listeUtilisateurs[i].prenom + " " + data.data.listeUtilisateurs[i].nom;
 					user.value = data.data.listeUtilisateurs[i].id;
+					user.tooltip = (data.data.listeUtilisateurs[i].email!=null) ? data.data.listeUtilisateurs[i].email : null;
 					listeProprietairesPotentiels.push(user);
 				}
 
@@ -363,6 +364,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 				var user = new Object();
 				user.label = groupe.proprietaires[i].prenom+" "+groupe.proprietaires[i].nom;
 				user.value = groupe.proprietaires[i].id;
+				user.tooltip = (groupe.proprietaires[i].email!=null) ? groupe.proprietaires[i].email : null;
 				if (user.value!=this.restManager.getUserId()) {
 					listeProprietaires.push(user);
 				}
