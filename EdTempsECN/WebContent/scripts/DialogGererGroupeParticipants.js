@@ -90,7 +90,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 			me.deciderRattachement(false, $(this).attr("data-id"));
 		});
 		this.jqDialog.find(".dialog_gerer_groupe_table_noms").click(function() {
-			me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"), $("#dialog_detail_groupe"));
+			me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
 		});
 
 

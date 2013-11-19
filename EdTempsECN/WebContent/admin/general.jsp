@@ -7,7 +7,6 @@
 		<title>Espace d'administration</title>
 		
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/admin/main.css" />
-		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/admin/jquery-ui-1.10.3.custom.min.css" />
 		
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-ui-1.10.3.notheme.min.js"></script>
