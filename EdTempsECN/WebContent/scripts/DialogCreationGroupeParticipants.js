@@ -56,10 +56,10 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 					me.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").removeAttr("disabled");
 					me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
 				}
+				
+				// Récupération des propriétaires potentiels
+				me.preRemplirDialog(groupe);
 			});
-
-			// Récupération des propriétaires potentiels
-			me.preRemplirDialog(groupe);
 
 			// Récupère la méthode de callback de la dialogue
 			this.callback = callback;
@@ -348,7 +348,7 @@ define([ "RestManager", "MultiWidget" ], function(RestManager, MultiWidget) {
 			
 			// Sélection du groupe parent (s'il y en a un)
 			if (groupe.parent) {
-				this.jqCreationGroupeForm.find("#form_creer_groupe_parent").val(groupe.parent.id);
+				this.jqCreationGroupeForm.find("#form_creer_groupe_parent option[value="+groupe.parent.id+"]").prop('selected', true);
 			}
 			
 			// Checkbox pour l'autorisation du rattachement
