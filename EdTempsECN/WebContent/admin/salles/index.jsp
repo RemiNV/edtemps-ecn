@@ -29,6 +29,18 @@
 			<div id="content">
 			
 				<div id="ajouter_salle">
+					<div id="ajouter_salle_bouton" class="button" onclick="afficheCacheFormulaireModifierSalle()">Ajouter une salle</div>
+					<form action="<%=request.getContextPath() %>/administrateur/salles/ajouter" method="POST" id="ajouter_salle_form" onsubmit='return validationModifierSalle()'>
+						<table>
+							<tr><td><label for="ajouter_salle_nom">Nom</label></td><td><input type="text" name="ajouter_salle_nom" /></td></tr>
+							<tr><td><label for="ajouter_salle_batiment">Bâtiment</label></td><td><input type="text" name="ajouter_salle_batiment" /></td></tr>
+							<tr><td><label for="ajouter_salle_niveau">Niveau</label></td><td><input type="text" name="ajouter_salle_niveau" /></td></tr>
+							<tr><td><label for="ajouter_salle_numero">Numéro</label></td><td><input type="text" name="ajouter_salle_numero" /></td></tr>
+							<tr><td><label for="ajouter_salle_capacite">Capacité</label></td><td><input type="text" name="ajouter_salle_capacite" /></td></tr>
+							<tr><td><label for="ajouter_salle_materiel">Liste des matériels</label></td><td><input type="text" name="ajouter_salle_materiel" /></td></tr>
+							<tr><td colspan="2"><input type="submit" value="Ajouter" class="button" /></td></tr>
+						</table>
+					</form>
 				</div>
 			
 				<div id="liste_salles">

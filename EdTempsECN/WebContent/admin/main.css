@@ -165,3 +165,10 @@ ul.button_nav li:last-child {
 	background-color: #0187AA;
 	color: white;
 }
+
+#ajouter_salle #ajouter_salle_form {
+	display: none;
+	box-shadow: 0 0 7px #555;
+	width: 500px;
+	border-radius: 5px;
+}
