@@ -143,65 +143,65 @@ public class GroupeGestion {
 	public int sauverGroupe(String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
 
 		int idInsertion = -1;
+		
+		if(StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom et au moins un responsable");
+		}
+
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique");
+		}
 
 		try {
 
 			// Démarre une transaction
 			_bdd.startTransaction();
+
+			// Vérifie que le nom n'est pas déjà en base de données
+			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
+			nomDejaPris.setString(1, nom);
+			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+			nomDejaPrisResult.next();
+			if (nomDejaPrisResult.getInt(1)>0) {
+				throw new EdtempsException(ResultCode.NAME_TAKEN,
+						"Tentative d'enregistrer un groupe en base de données avec un nom déjà utilisé.");
+			}
 			
-			// Vérification de la cohérence des valeurs
-			if (StringUtils.isNotBlank(nom)) {
-
-				// Vérifie que le nom n'est pas déjà en base de données
-				PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
-				nomDejaPris.setString(1, nom);
-				ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
-				nomDejaPrisResult.next();
-				if (nomDejaPrisResult.getInt(1)>0) {
-					throw new EdtempsException(ResultCode.NAME_TAKEN,
-							"Tentative d'enregistrer un groupe en base de données avec un nom déjà utilisé.");
-				}
+			// Prépare la requête avec un traitement différent si un groupe parent a été indiqué (else) 
+			PreparedStatement req = null;
+			if (idGroupeParent == null) {
+				req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
+						"?, '" + rattachementAutorise + "', 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id ");
+				req.setString(1, nom);
+			} else {
+				// Requête pour récupérer le propriétaire du groupe parent 
+				ResultSet idProprietaireGroupeParent = _bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+idGroupeParent).executeQuery();
+				idProprietaireGroupeParent.next();
 				
-				// Prépare la requête avec un traitement différent si un groupe parent a été indiqué (else) 
-				PreparedStatement req = null;
-				if (idGroupeParent == null) {
-					req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
-							"?, '" + rattachementAutorise + "', 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id ");
-					req.setString(1, nom);
-				} else {
-					// Requête pour récupérer le propriétaire du groupe parent 
-					ResultSet idProprietaireGroupeParent = _bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+idGroupeParent).executeQuery();
-					idProprietaireGroupeParent.next();
-					
-					// Préparation de la requête avec un idParent temporaire si le propriétaire du groupe parent n'est pas l'utilisateur en cours 
-					req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, "+(idProprietaireGroupeParent.getInt(1)==userId ? "groupeparticipant_id_parent" : "groupeparticipant_id_parent_tmp")+", groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
-							"?, '"	+ rattachementAutorise + "', " + idGroupeParent + ", 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id");
-					req.setString(1, nom);
+				// Préparation de la requête avec un idParent temporaire si le propriétaire du groupe parent n'est pas l'utilisateur en cours 
+				req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, "+(idProprietaireGroupeParent.getInt(1)==userId ? "groupeparticipant_id_parent" : "groupeparticipant_id_parent_tmp")+", groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
+						"?, '"	+ rattachementAutorise + "', " + idGroupeParent + ", 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id");
+				req.setString(1, nom);
+			}
+
+			// Exécute la requête
+			ResultSet resultat = req.executeQuery(); 
+
+			// Récupère l'identifiant de la ligne ajoutée
+			resultat.next();
+			idInsertion = resultat.getInt(1);
+			resultat.close();
+
+			// Ajout des propriétaires
+			if (CollectionUtils.isNotEmpty(listeIdProprietaires)) {
+				for (Integer idProprietaire : listeIdProprietaires) {
+					_bdd.executeRequest("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeparticipant_id) VALUES (" +
+							idProprietaire + ", "	+
+							idInsertion	+ ")");
 				}
-
-				// Exécute la requête
-				ResultSet resultat = req.executeQuery(); 
-
-				// Récupère l'identifiant de la ligne ajoutée
-				resultat.next();
-				idInsertion = resultat.getInt(1);
-				resultat.close();
-
-				// Ajout des propriétaires
-				if (CollectionUtils.isNotEmpty(listeIdProprietaires)) {
-					for (Integer idProprietaire : listeIdProprietaires) {
-						_bdd.executeRequest("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeparticipant_id) VALUES (" +
-								idProprietaire + ", "	+
-								idInsertion	+ ")");
-					}
-				} else {
-					throw new EdtempsException(ResultCode.DATABASE_ERROR,
-							"Tentative d'enregistrer un groupe en base de données sans propriétaire.");
-				}
-
 			} else {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR,
-						"Tentative d'enregistrer un groupe en base de données sans nom.");
+						"Tentative d'enregistrer un groupe en base de données sans propriétaire.");
 			}
 
 			// Termine la transaction
@@ -237,6 +237,14 @@ public class GroupeGestion {
 	 *             en cas d'erreur
 	 */
 	public void modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
+
+		if(StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom et au moins un responsable");
+		}
+
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique");
+		}
 
 		if(idGroupeParent != null && idGroupeParent.equals(id)) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe ne peut pas être son propre parent");

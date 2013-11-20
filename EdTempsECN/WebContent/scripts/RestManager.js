@@ -39,7 +39,8 @@ define(["jquery"], function() {
 	 * - RestManager.resultCode_IdentificationError<br>
 	 * - RestManager.resultCode_LdapError<br>
 	 * - RestManager.resultCode_NameTaken<br>
-	 * - RestManager.resultCode_SalleOccupee
+	 * - RestManager.resultCode_SalleOccupee<br>
+	 * - RestManager.resultCode_AlphanumericRequired
 	 * @typedef ResultCode
 	 * @type {number}
 	 */
@@ -49,6 +50,7 @@ define(["jquery"], function() {
 	RestManager.resultCode_LdapError = 3;
 	RestManager.resultCode_NameTaken = 8;
 	RestManager.resultCode_SalleOccupee = 10;
+	RestManager.resultCode_AlphanumericRequired = 11;
 	
 	RestManager.prototype.setToken = function(token) {
 		this._token = token;

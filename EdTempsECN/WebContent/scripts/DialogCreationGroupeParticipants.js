@@ -175,15 +175,24 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 	 * @return VRAI si le formulaire est valide, FAUX sinon
 	 */
 	DialogCreationGroupeParticipants.prototype.validationFormulaire = function() {
+		var correct = true;
 		if (this.jqChampNom.val()=="") {
 			this.jqChampNom.css("box-shadow", "#FF0000 0 0 10px");
 			this.jqChampNom.css("border", "1px solid #FF0000");
-			return false;
+			this.jqChampNom.attr("title", "Le nom du groupe doit être spécifié.");
+			correct = false;
+		} else if (/^[a-z 0-9]+$/i.test(this.jqChampNom.val())) {
+			this.jqChampNom.css("box-shadow", "#FF0000 0 0 10px");
+			this.jqChampNom.css("border", "1px solid #FF0000");
+			this.jqChampNom.attr("title", "Le nom du groupe ne doit contenir que des caractères alphanumériques et des espaces");
+			correct = false;
 		} else {
 			this.jqChampNom.css("box-shadow", "#60C003 0 0 10px");
 			this.jqChampNom.css("border", "1px solid #60C003");
-			return true;
+			this.jqChampNom.attr("title", "");
 		}
+		
+		return correct;
 	};
 
 	/**
@@ -220,6 +229,8 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Le groupe de participant à été créé avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
 				callback();
+			} else if (response.resultCode == RestManager.resultCode_AlphanumericRequired) {
+				window.showToast("Le nom du groupe ne doit comporter que des caractères alphanumériques et des espaces");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
@@ -267,6 +278,8 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Le groupe de participant à été modifié avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
 				callback();
+			} else if (response.resultCode == RestManager.resultCode_AlphanumericRequired) {
+				window.showToast("Le nom du groupe ne doit comporter que des caractères alphanumériques et des espaces");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la modification du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {

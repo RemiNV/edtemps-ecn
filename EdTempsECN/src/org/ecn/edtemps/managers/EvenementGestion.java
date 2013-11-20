@@ -45,7 +45,11 @@ public class EvenementGestion {
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean startTransaction) throws EdtempsException {
 		
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
-			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier et un responsable");
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un événement doit avoir un nom, un calendrier et un responsable");
+		}
+		
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique");
 		}
 		
 		try {
@@ -136,7 +140,11 @@ public class EvenementGestion {
 		try {
 			
 			if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
-				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un évènement doit avoir un nom, un calendrier et un responsable");
+				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un événement doit avoir un nom, un calendrier et un responsable");
+			}
+			
+			if(!StringUtils.isAlphanumericSpace(nom)) {
+				throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique");
 			}
 			
 			//début d'une transaction si requis
