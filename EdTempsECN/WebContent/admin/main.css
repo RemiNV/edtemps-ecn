@@ -120,3 +120,37 @@ ul.button_nav li:last-child {
 #main_content #content {
 	padding: 10px;
 }
+
+
+
+
+/**
+ * Gestion des salles
+ */
+
+#liste_salles p {
+	text-decoration: underline;
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+#liste_salles table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#liste_salles table tr:nth-child(odd) {
+  background-color: #E3EDEF;
+}
+
+#liste_salles table td {
+	border: solid 1px black;
+	padding: 3px;
+}
+
+#liste_salles table th {
+	border: solid 1px black;
+	padding: 3px;
+	background-color: #0187AA;
+	color: white;
+}
