@@ -5,7 +5,6 @@
 <%@page import="org.ecn.edtemps.managers.BddGestion"%>
 <%@page import="org.ecn.edtemps.models.identifie.SalleIdentifie"%>
 <%@page import="org.ecn.edtemps.models.Materiel"%>
-<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="java.util.List"%>
 
 <!DOCTYPE html>
@@ -18,6 +17,7 @@
 		
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-ui-1.10.3.notheme.min.js"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/main.js"></script>
 	</head>
 	<body>
 
@@ -33,20 +33,24 @@
 			
 				<div id="liste_salles">
 					<p>Liste des salles :</p>
-					<table>
-						<tr>
-							<th>Nom</th>
-							<th>Bâtiment</th>
-							<th>Niveau</th>
-							<th>Numéro</th>
-							<th>Capacité</th>
-							<th>Liste des matériels</th>
-							<th>Actions</th>
-						</tr>
-						<%
-							BddGestion bdd = new BddGestion();
-							SalleGestion gestionnaireSalles = new SalleGestion(bdd);
-							List<SalleIdentifie> listeSalles = gestionnaireSalles.listerToutesSalles();
+					<%
+						BddGestion bdd = new BddGestion();
+						SalleGestion gestionnaireSalles = new SalleGestion(bdd);
+						List<SalleIdentifie> listeSalles = gestionnaireSalles.listerToutesSalles();
+						
+						if (listeSalles.size()==0) {
+							out.write("<tr><td colspan='7'>Aucunes salles dans la base de données</td></tr>");
+						} else {
+							out.write("<table>");
+							out.write("<tr>");
+							out.write("<th>Nom</th>");
+							out.write("<th>Bâtiment</th>");
+							out.write("<th>Niveau</th>");
+							out.write("<th>Numéro</th>");
+							out.write("<th>Capacité</th>");
+							out.write("<th>Liste des matériels</th>");
+							out.write("<th colspan='2'>Actions</th>");
+							out.write("</tr>");
 							for (SalleIdentifie salle : listeSalles) {
 								out.write("<tr>");
 								out.write("<td>"+salle.getNom()+"</td>");
@@ -62,12 +66,14 @@
 										preparationCase.append(materiel.getQuantite() + " " + materiel.getNom() + "s, ");
 									}
 								}
-								out.write("<td>"+StringUtils.substringBeforeLast(preparationCase.toString(), ", ")+"</td>");
-								out.write("<td></td>");
+								out.write("<td>" + (preparationCase.length()>0 ? preparationCase.substring(0, preparationCase.length()-2) : "") + "</td>");
+								out.write("<td class='liste_salles_modifier'><a href=''><img alt='Modifier' title='Modifier' src='"+request.getContextPath()+"/img/modifier.png' /></a></td>");
+								out.write("<td class='liste_salles_supprimer'><form onsubmit='return confirmationSupprimerSalle()' action='"+request.getContextPath()+"/administrateur/salles/supprimer' method='POST' class='liste_salles_form_supprimer'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+salle.getId()+"' /></form></td>");
 								out.write("</tr>");
 							}
-						%>
-					</table>
+							out.write("</table>");
+						}
+					%>
 				</div>
 			</div>
 

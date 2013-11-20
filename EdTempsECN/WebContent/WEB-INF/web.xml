@@ -248,7 +248,7 @@
 
   <servlet-mapping>
       <servlet-name>Salles</servlet-name>
-      <url-pattern>/salles/*</url-pattern>
+      <url-pattern>/administrateur/salles/*</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

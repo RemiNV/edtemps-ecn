@@ -20,7 +20,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #header .message_bonjour {
-	color: blue;
+	color: gray;
 	font-style: italic;
 }
 
@@ -146,6 +146,17 @@ ul.button_nav li:last-child {
 #liste_salles table td {
 	border: solid 1px black;
 	padding: 3px;
+}
+
+#liste_salles table .liste_salles_modifier {
+	text-align: right;
+	border-right: none;
+	padding-right: 5px;
+}
+
+#liste_salles table .liste_salles_supprimer {
+	border-left: none;
+	padding-left: 5px;
 }
 
 #liste_salles table th {
