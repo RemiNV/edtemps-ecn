@@ -55,12 +55,15 @@ public class AdministrateurServlet extends HttpServlet {
 		} catch (IOException | ServletException e) {
 			logger.error("Erreur lors de l'écriture de la réponse");
 			session.setAttribute("connect", "KO");
+			resp.sendRedirect("../admin/login.jsp");
 		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
 			logger.error("Erreur lors du cryptage du mot de passe");
 			session.setAttribute("connect", "KO");
+			resp.sendRedirect("../admin/login.jsp");
 		} catch (SQLException | DatabaseException e) {
 			logger.error("Erreur liée à la base de données");
 			session.setAttribute("connect", "KO");
+			resp.sendRedirect("../admin/login.jsp");
 		}
 		
 	}
