@@ -181,7 +181,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 			this.jqChampNom.css("border", "1px solid #FF0000");
 			this.jqChampNom.attr("title", "Le nom du groupe doit être spécifié.");
 			correct = false;
-		} else if (/^[a-z 0-9]+$/i.test(this.jqChampNom.val())) {
+		} else if (!(/^[a-z\u00C0-\u00FF0-9]+$/i.test(this.jqChampNom.val()))) {
 			this.jqChampNom.css("box-shadow", "#FF0000 0 0 10px");
 			this.jqChampNom.css("border", "1px solid #FF0000");
 			this.jqChampNom.attr("title", "Le nom du groupe ne doit contenir que des caractères alphanumériques et des espaces");
