@@ -442,13 +442,13 @@ public class UtilisateurGestion {
 		boolean isAble = false;
 		try {
 			ResultSet reponse = bdd.executeRequest(
-					"SELECT droits_libelle "
+					"SELECT droits.droits_libelle "
 					+ "FROM edt.droits "
 					+ "INNER JOIN edt.aledroitde ON droits.droits_id = aledroitde.droits_id "
 					+ "INNER JOIN edt.typeutilisateur ON typeutilisateur.type_id = aledroitde.type_id "
-					+ "INNER JOIN estdetype ON estdetype.type_id = typeutilisateur.typeid "
-					+ "WHERE utilisateur_id = " + idUtilisateur + " "
-					+ "AND droits_id = " + action.getId());
+					+ "INNER JOIN edt.estdetype ON estdetype.type_id = typeutilisateur.type_id "
+					+ "WHERE estdetype.utilisateur_id = " + idUtilisateur + " "
+					+ "AND droits.droits_id = " + action.getId());
 			if(reponse.next()) {
 				isAble = true;
 			}
