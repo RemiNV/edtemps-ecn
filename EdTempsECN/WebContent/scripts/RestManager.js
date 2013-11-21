@@ -52,6 +52,22 @@ define(["jquery"], function() {
 	RestManager.resultCode_SalleOccupee = 10;
 	RestManager.resultCode_AlphanumericRequired = 11;
 	
+	/**
+	 * Enumération des actions possibles dans l'emploi du temps
+	 * Correspond aux codes définis dans le serveur Java.
+	 * Accepte les valeurs : <br>
+	 * - RestManager.actionsEdtemps_CreerGroupe<br>
+	 * - RestManager.actionsEdtemps_RattacherCalendrierGroupe<br>
+	 * - RestManager.actionsEdtemps_CreerGroupeCours<br>
+	 * - RestManager.actionsEdtemps_ChoisirProprietairesEvenement
+	 * @typedef actionsEdtemps
+	 * @type {number}
+	 */
+	RestManager.actionsEdtemps_CreerGroupe = 1;
+	RestManager.actionsEdtemps_RattacherCalendrierGroupe = 2;
+	RestManager.actionsEdtemps_CreerGroupeCours = 3;
+	RestManager.actionsEdtemps_ChoisirProprietairesEvenement = 4;
+	
 	RestManager.prototype.setToken = function(token) {
 		this._token = token;
 		if(window.localStorage) {
