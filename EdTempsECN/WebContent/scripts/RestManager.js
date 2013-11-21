@@ -84,9 +84,6 @@ define(["jquery"], function() {
 
 	RestManager.prototype.setListeActionsAutorisees = function(listeActionsAutorisees) {
 		this._listeActionsAutorisees = listeActionsAutorisees;
-		if(window.localStorage) {
-			window.localStorage["listeActionsAutorisees"] = listeActionsAutorisees;
-		}
 	};
 
 	/** 
