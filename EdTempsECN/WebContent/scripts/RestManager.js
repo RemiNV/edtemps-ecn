@@ -66,6 +66,13 @@ define(["jquery"], function() {
 		}
 	};
 
+	RestManager.prototype.setListeActionsAutorisees = function(listeActionsAutorisees) {
+		this._listeActionsAutorisees = listeActionsAutorisees;
+		if(window.localStorage) {
+			window.localStorage["listeActionsAutorisees"] = listeActionsAutorisees;
+		}
+	};
+
 	/** 
 	 * Fonction de connexion auprès du serveur.
 	 * @param identifiant identifiant de l'utilisateur
@@ -85,6 +92,7 @@ define(["jquery"], function() {
 				if(response.resultCode == RestManager.resultCode_Success) { // Succès de l'identification
 					me.setToken(response.data.token);
 					me.setUserId(response.data.userId);
+					me.setListeActionsAutorisees(response.data.actionsAutorisees);
 					me._isConnected = true;
 				}
 				

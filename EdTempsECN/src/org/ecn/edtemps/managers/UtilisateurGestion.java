@@ -14,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -60,18 +61,26 @@ public class UtilisateurGestion {
 		
 		private Integer userId;
 		private String token;
+		private List<Integer> actionsAutorisees;
 		
-		public ObjetRetourMethodeConnexion(Integer userId, String token) {
+		public ObjetRetourMethodeConnexion(Integer userId, String token, List<Integer> actionsAutorisees) {
 			this.userId = userId;
 			this.token = token;
+			if (CollectionUtils.isNotEmpty(actionsAutorisees)) {
+				this.actionsAutorisees = actionsAutorisees;
+			} else {
+				this.actionsAutorisees = new ArrayList<Integer>();
+			}
 		}
 
 		public Integer getUserId() {
 			return userId;
 		}
-
 		public String getToken() {
 			return token;
+		}
+		public List<Integer> getActionsAutorisees() {
+			return actionsAutorisees;
 		}
 	}
 	
@@ -361,7 +370,7 @@ public class UtilisateurGestion {
 			
 			bdd.commit();
 			
-			return new ObjetRetourMethodeConnexion(userId, token);
+			return new ObjetRetourMethodeConnexion(userId, token, getListeActionsAutorisees(userId));
 			
 		} catch (com.unboundid.ldap.sdk.LDAPException e) {
 			
@@ -558,7 +567,6 @@ public class UtilisateurGestion {
 	
 	/**
 	 * Récupère la liste de tous les utilisateurs qui peuvent potentiellement être propriétaires d'un groupe de participants
-	 * 
 	 * @return liste des utilisateurs
 	 * @throws DatabaseException
 	 */
@@ -578,5 +586,38 @@ public class UtilisateurGestion {
 
 		return res;
 	}
+	
+	/**
+	 * Récupère la liste actions autorisées pour un utilisateur
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return la liste des identifiants des actions que l'utilisateur peut réaliser
+	 * @throws DatabaseException
+	 */
+	public List<Integer> getListeActionsAutorisees(int idUtilisateur) throws DatabaseException {
+
+		List<Integer> resultat = new ArrayList<Integer>();
+		
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT droits.droits_id "
+					+ "FROM edt.droits "
+					+ "INNER JOIN edt.aledroitde ON droits.droits_id = aledroitde.droits_id "
+					+ "INNER JOIN edt.typeutilisateur ON typeutilisateur.type_id = aledroitde.type_id "
+					+ "INNER JOIN edt.estdetype ON estdetype.type_id = typeutilisateur.type_id "
+					+ "WHERE utilisateur_id = " + idUtilisateur);
+			while(reponse.next()) {
+				resultat.add(reponse.getInt("droits_id"));
+			}
+			
+			reponse.close();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return resultat;
+		
+	}
+	
 	
 }
