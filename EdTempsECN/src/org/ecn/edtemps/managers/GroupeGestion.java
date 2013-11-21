@@ -158,11 +158,10 @@ public class GroupeGestion {
 			_bdd.startTransaction();
 
 			// Vérifie que le nom n'est pas déjà en base de données
-			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
+			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT * FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
 			nomDejaPris.setString(1, nom);
 			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
-			nomDejaPrisResult.next();
-			if (nomDejaPrisResult.getInt(1)>0) {
+			if (nomDejaPrisResult.next()) {
 				throw new EdtempsException(ResultCode.NAME_TAKEN,
 						"Tentative d'enregistrer un groupe en base de données avec un nom déjà utilisé.");
 			}
