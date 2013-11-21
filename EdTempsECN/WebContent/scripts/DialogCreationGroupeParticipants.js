@@ -235,12 +235,14 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Le groupe de participant à été créé avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
 				callback();
+			} else if (response.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé a effectuer cette action");
 			} else if (response.resultCode == RestManager.resultCode_AlphanumericRequired) {
 				window.showToast("Le nom du groupe ne doit comporter que des caractères alphanumériques et des espaces");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
+				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
-				window.showToast("Le nom du groupe est déjà utilisé, veuillez en choisir un autre.");
+				window.showToast("Le nom du groupe est déjà utilisé, veuillez en choisir un autre");
 			} else {
 				window.showToast(response.resultCode + " Erreur lors de la création du groupe de participants ; votre session a peut-être expiré ?");
 			}
@@ -284,6 +286,8 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Le groupe de participant à été modifié avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
 				callback();
+			} else if (response.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé a effectuer cette action");
 			} else if (response.resultCode == RestManager.resultCode_AlphanumericRequired) {
 				window.showToast("Le nom du groupe ne doit comporter que des caractères alphanumériques et des espaces");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {

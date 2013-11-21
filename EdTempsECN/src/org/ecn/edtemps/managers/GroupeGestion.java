@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
@@ -151,6 +152,12 @@ public class GroupeGestion {
 		if(!StringUtils.isAlphanumericSpace(nom)) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique");
 		}
+		
+		// Vérification si l'utilisateur a le droit de créer un groupe de cours
+		UtilisateurGestion userGestion = new UtilisateurGestion(_bdd);
+		if (estCours && !userGestion.aDroit(ActionsEdtemps.CREER_GROUPE_COURS, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Action non autorisée");
+		}
 
 		try {
 
@@ -249,6 +256,12 @@ public class GroupeGestion {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe ne peut pas être son propre parent");
 		}
 		
+		// Vérification si l'utilisateur a le droit de créer un groupe de cours
+		UtilisateurGestion userGestion = new UtilisateurGestion(_bdd);
+		if (estCours && !userGestion.aDroit(ActionsEdtemps.CREER_GROUPE_COURS, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR);
+		}
+
 		try {
 
 			// Démarre une transaction
