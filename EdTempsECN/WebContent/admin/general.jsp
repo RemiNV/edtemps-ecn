@@ -10,7 +10,6 @@
 		
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-ui-1.10.3.notheme.min.js"></script>
-		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/main.js"></script>
 	</head>
 	<body>
 

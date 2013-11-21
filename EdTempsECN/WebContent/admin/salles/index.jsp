@@ -1,11 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 
-<%@page import="org.ecn.edtemps.managers.SalleGestion"%>
-<%@page import="org.ecn.edtemps.managers.BddGestion"%>
-<%@page import="org.ecn.edtemps.models.identifie.SalleIdentifie"%>
-<%@page import="org.ecn.edtemps.models.Materiel"%>
-<%@page import="java.util.List"%>
+<%@page import="org.ecn.edtemps.managers.*"%>
+<%@page import="org.ecn.edtemps.models.*"%>
+<%@page import="org.ecn.edtemps.models.identifie.*"%>
+<%@page import="java.util.*"%>
 
 <!DOCTYPE html>
 <html>
@@ -17,7 +16,8 @@
 		
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-ui-1.10.3.notheme.min.js"></script>
-		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/main.js"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery.maskedinput.min.js"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/salles.js"></script>
 	</head>
 	<body>
 
@@ -29,28 +29,46 @@
 			<div id="content">
 			
 				<div id="ajouter_salle">
-					<div id="ajouter_salle_bouton" class="button" onclick="afficheCacheFormulaireModifierSalle()">Ajouter une salle</div>
+					<div id="ajouter_salle_bouton" class="button" onclick="afficheCacheFormulaireAjouterSalle()">Ajouter une salle</div>
 					<form action="<%=request.getContextPath() %>/administrateur/salles/ajouter" method="POST" id="ajouter_salle_form" onsubmit='return validationModifierSalle()'>
 						<table>
-							<tr><td><label for="ajouter_salle_nom">Nom</label></td><td><input type="text" name="ajouter_salle_nom" /></td></tr>
-							<tr><td><label for="ajouter_salle_batiment">Bâtiment</label></td><td><input type="text" name="ajouter_salle_batiment" /></td></tr>
-							<tr><td><label for="ajouter_salle_niveau">Niveau</label></td><td><input type="text" name="ajouter_salle_niveau" /></td></tr>
-							<tr><td><label for="ajouter_salle_numero">Numéro</label></td><td><input type="text" name="ajouter_salle_numero" /></td></tr>
-							<tr><td><label for="ajouter_salle_capacite">Capacité</label></td><td><input type="text" name="ajouter_salle_capacite" /></td></tr>
-							<tr><td><label for="ajouter_salle_materiel">Liste des matériels</label></td><td><input type="text" name="ajouter_salle_materiel" /></td></tr>
-							<tr><td colspan="2"><input type="submit" value="Ajouter" class="button" /></td></tr>
+							<tr><td><label for="ajouter_salle_batiment">Bâtiment :</label></td><td><input type="text" name="ajouter_salle_batiment" id="ajouter_salle_batiment" size="50" onchange="afficheNomSalle()" /></td></tr>
+							<tr><td><label for="ajouter_salle_niveau">Niveau :</label></td><td><input type="text" name="ajouter_salle_niveau" id="ajouter_salle_niveau" size="50" onchange="afficheNomSalle()" /></td></tr>
+							<tr><td><label for="ajouter_salle_numero">Numéro :</label></td><td><input type="text" name="ajouter_salle_numero" id="ajouter_salle_numero" size="50" onchange="afficheNomSalle()" /></td></tr>
+							<tr><td><label for="ajouter_salle_nom">Nom :</label></td><td><input type="text" name="ajouter_salle_nom" id="ajouter_salle_nom" size="46" disabled /><img alt="Modifier" onclick="activeChampNom()" title="Cliquez si vous souhaitez modifier manuellement le nom de la salle" src="<%=request.getContextPath()%>/img/modifier.png" /></td></tr>
+							<tr><td><label for="ajouter_salle_capacite">Capacité :</label></td><td><input type="text" name="ajouter_salle_capacite" id="ajouter_salle_capacite" size="50" /></td></tr>
+							<%
+								BddGestion bdd = new BddGestion();
+								MaterielGestion materielGestion = new MaterielGestion(bdd);
+								List<Materiel> listeMateriels = materielGestion.getListeMateriel();
+								if (!listeMateriels.isEmpty()) {
+									out.write("<tr>");
+									out.write("<td>Liste des matériels :</td>");
+									out.write("<td>");
+									out.write("<table id='ajouter_salle_materiels'>");
+									for (Materiel materiel : listeMateriels) {
+										out.write("<tr><td>"+materiel.getNom()+"</td><td class='ajouter_salle_quantite_materiel'><input type='number' name='ajouter_salle_materiel_1' value='0' /></td></tr>");
+									}
+									out.write("</table>");
+									out.write("</td>");
+									out.write("</tr>");
+								}
+							%>
+							<tr><td colspan="2" class="ajouter_salle_form_boutons"><input type="reset" value="Annuler" class="button" onclick="afficheCacheFormulaireAjouterSalle()" /><input type="submit" value="Ajouter" class="button" /></td></tr>
 						</table>
+						<div class="information">
+							<p>Le nom de la salle est généré automatiquement à partir du bâtiment, du niveau et du numéro. Vous pouvez cependant l'éditer manuellement en cliquant sur le bouton modifier à côté du champ.
+						</div>
 					</form>
 				</div>
 			
 				<div id="liste_salles">
 					<p>Liste des salles :</p>
 					<%
-						BddGestion bdd = new BddGestion();
 						SalleGestion gestionnaireSalles = new SalleGestion(bdd);
 						List<SalleIdentifie> listeSalles = gestionnaireSalles.listerToutesSalles();
 						
-						if (listeSalles.size()==0) {
+						if (listeSalles.isEmpty()) {
 							out.write("<tr><td colspan='7'>Aucunes salles dans la base de données</td></tr>");
 						} else {
 							out.write("<table>");
