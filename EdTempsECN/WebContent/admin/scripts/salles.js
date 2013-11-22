@@ -5,10 +5,17 @@ $(document).ready(function() {
 	$("#ajouter_salle_niveau").mask("9?999");
 	$("#ajouter_salle_batiment").mask("a?aaa");
 	$(".ajouter_salle_quantite_materiel input").mask("?9999", { placeholder: "" });
+
+	// Masques sur les champs du formulaire de modification d'une salle
+	$("#modifier_salle_capacite").mask("9?999");
+	$("#modifier_salle_numero").mask("9?999");
+	$("#modifier_salle_niveau").mask("9?999");
+	$("#modifier_salle_batiment").mask("a?aaa");
+	$(".salle_quantite_materiel input").mask("?9999", { placeholder: "" });
 });
 
 /*
- * Affiche la boite de confirmation de confirmation de salles
+ * Affiche la demande de confirmation de suppression de salles
  */
 function confirmationSupprimerSalle() {
 	return confirm("Etes-vous sur de vouloir supprimer la salle ?");
@@ -58,6 +65,43 @@ function validationAjouterSalle() {
 		$("#ajouter_salle_form_ajouter").removeAttr("disabled");
 		$("#ajouter_salle_form_annuler").removeAttr("disabled");
 		$("#ajouter_salle_nom").attr("disabled", "disabled");
+	}
+
+	return valid;
+}
+
+
+/*
+ * Validation du formulaire de modification d'une salle
+ */
+function validationModifierSalle() {
+	var valid = true;
+	
+	var jqNom = $("#modifier_salle_nom");
+
+	// Vérifie que le nom n'est pas déjà utilisé
+	var nomDejaUtilise = false;
+	$.each($(".liste_salles_nom"), function() {
+		if (jqNom.val()==$(this).html()) {
+			nomDejaUtilise = true;
+		}
+	});
+	
+	// Champ nom
+	if (jqNom.val()=="") {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Le nom de la salle est obligatoire");
+		valid = false;
+	} else if (!/^[a-z \u00C0-\u00FF0-9]+$/i.test(jqNom.val())) {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Le nom de la salle doit uniquement comporter des caracteres alphanumeriques");
+		valid = false;
+	} else if (nomDejaUtilise) {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Ce nom de salle est deja utilise");
+		valid = false;
+	} else {
+		jqNom.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
 	}
 
 	return valid;

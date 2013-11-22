@@ -19,6 +19,7 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.SalleGestion;
 import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.Salle;
+import org.ecn.edtemps.models.identifie.SalleIdentifie;
 
 /**
  * Servlet pour la gestion des salles
@@ -61,6 +62,7 @@ public class SalleServlet extends HttpServlet {
 					doAjouter(req, resp);
 					break;
 				case "/modifier":
+					doModifier(req, resp);
 					break;
 				case "/supprimer":
 					doSupprimer(req, resp);
@@ -131,7 +133,9 @@ public class SalleServlet extends HttpServlet {
 			for (String materiel : listeIdMateriel) {
 				int id = Integer.valueOf(materiel);
 				Integer quantite = req.getParameter("ajouter_salle_materiel_"+id)!="" ? Integer.valueOf(req.getParameter("ajouter_salle_materiel_"+id)) : null;
-				materiels.add(new Materiel(id, "", quantite));
+				if (quantite>0) {
+					materiels.add(new Materiel(id, "", quantite));
+				}
 			}
 		}
 		
@@ -159,4 +163,64 @@ public class SalleServlet extends HttpServlet {
 		resp.sendRedirect(req.getContextPath()+"/admin/salles/index.jsp");
 	}
 	
+	
+	/**
+	 * Modifier une salle
+	 * @param req Requête
+	 * @param resp Réponse
+	 * @throws IOException 
+	 * @throws EdtempsException 
+	 */
+	public void doModifier(HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
+		logger.error("Modifer d'une salle");
+
+		// Récupération des valeurs du formulaire
+		String batiment = req.getParameter("modifier_salle_batiment");
+		String nom = req.getParameter("modifier_salle_nom");
+		Integer niveau = req.getParameter("modifier_salle_niveau")!="" ? Integer.valueOf(req.getParameter("modifier_salle_niveau")) : null;
+		Integer numero = req.getParameter("modifier_salle_numero")!="" ? Integer.valueOf(req.getParameter("modifier_salle_numero")) : null;
+		Integer capacite = req.getParameter("modifier_salle_capacite")!="" ? Integer.valueOf(req.getParameter("modifier_salle_capacite")) : null;
+		Integer idSalle = req.getParameter("modifier_salle_id")!="" ? Integer.valueOf(req.getParameter("modifier_salle_id")) : null;
+		if (idSalle == null) {
+			logger.error("Identifiant de la salle erroné");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		
+		// Récupère la liste des matériels avec la quantité associée
+		ArrayList<Materiel> materiels = new ArrayList<Materiel>();
+		List<String> listeIdMateriel = Arrays.asList(req.getParameter("listeIdMateriel").split(","));
+		if (CollectionUtils.isNotEmpty(listeIdMateriel)) {
+			for (String materiel : listeIdMateriel) {
+				int id = Integer.valueOf(materiel);
+				Integer quantite = req.getParameter("modifier_salle_materiel_"+id)!="" ? Integer.valueOf(req.getParameter("modifier_salle_materiel_"+id)) : null;
+				if (quantite>0) {
+					materiels.add(new Materiel(id, "", quantite));
+				}
+			}
+		}
+		
+		// Créer l'objet Salle à modifier en base de données
+		SalleIdentifie salle = new SalleIdentifie(idSalle, nom);
+		salle.setBatiment(batiment);
+		if (capacite!=null) {
+			salle.setCapacite(capacite);
+		}
+		if (niveau!=null) {
+			salle.setNiveau(niveau);
+		}
+		if (numero!=null) {
+			salle.setNumero(numero);
+		}
+		salle.setMateriels(materiels);
+
+		// Exécute la requête de modification avec le manager
+		BddGestion bdd = new BddGestion();
+		SalleGestion gestionnaireSalles = new SalleGestion(bdd);
+		gestionnaireSalles.modifierSalle(salle);
+		bdd.close();
+
+		// Redirige vers la page de liste des salles
+		resp.sendRedirect(req.getContextPath()+"/admin/salles/index.jsp");
+	}
+
 }
