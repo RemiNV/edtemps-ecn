@@ -114,6 +114,10 @@ public class SalleGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR,
 					"Tentative d'enregistrer une salle en base de données sans nom.");
 		}
+		
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom de la salle doit être alphanumérique");
+		}
 			
 		try {
 
@@ -198,7 +202,11 @@ public class SalleGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR,
 					"Tentative d'enregistrer une salle en base de données sans nom.");
 		}
-			
+
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom de la salle doit être alphanumérique");
+		}
+
 		try {
 
 			// Démarre une transaction
