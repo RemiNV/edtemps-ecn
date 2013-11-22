@@ -238,6 +238,22 @@ define(["jquery"], function() {
 		});
 	};
 	
+
+	/**
+	 * Vérifie si un utilisateur a le droit d'effectuer une action
+	 * Cette méthode ne fait pas de requête au serveur. Elle va chercher l'information dans le RestManager
+	 * qui a récupéré la liste des actions que l'utilisateur peut faire, au moment de sa connexion
+	 * @param codeAction Action à vérifier
+	 * @return VRAI ou FAUX en fonction des droits de l'utilisateur
+	 */
+	RestManager.prototype.aDroit = function(codeAction) {
+		if (jQuery.inArray(codeAction, this._listeActionsAutorisees)>0) {
+			return true;
+		} else {
+			return false;
+		}
+	};
+	
 	// Renvoyer RestManager dans cette fonction le définit comme l'objet de ce fichier de module
 	return RestManager;
 });

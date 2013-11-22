@@ -51,7 +51,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 			this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("value", texteBouton);
 
 			// Si l'utilisateur n'a pas le droit de créer un groupe de cours, la case à cocher est désactivée
-			if (!this.utilisateurGestion.aDroit(RestManager.actionsEdtemps_CreerGroupeCours)) {
+			if (!this.restManager.aDroit(RestManager.actionsEdtemps_CreerGroupeCours)) {
 				this.jqCreationGroupeForm.find("#form_creer_groupe_cours").parents("tr").hide();
 				this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", false);
 			}
