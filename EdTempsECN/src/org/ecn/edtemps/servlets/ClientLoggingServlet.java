@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ecn.edtemps.servlets.TokenServlet.SupportedMethods;
-import org.ecn.edtemps.servlets.impl.CalendriersUtilisateurServlet;
 
 /**
  * Servlet permettant de récupérer les rapports d'erreur JS des clients.
@@ -22,6 +20,8 @@ import org.ecn.edtemps.servlets.impl.CalendriersUtilisateurServlet;
  */
 public class ClientLoggingServlet extends HttpServlet {
 	
+	private static final long serialVersionUID = -4840232540550780272L;
+
 	private static Logger logger = LogManager.getLogger(ClientLoggingServlet.class.getName());
 	
 	// Délai minimal entre deux signalements d'un utilisateur (20 sec)
