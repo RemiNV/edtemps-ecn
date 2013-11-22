@@ -222,3 +222,62 @@ input[type=text], input[type=email], input[type=password], textarea {
 	font-size: 0.9em;
 	color: gray;
 }
+
+
+
+/**
+ * Liste du matériel
+ */
+
+#liste_materiel {
+	margin-top: 20px;
+}
+
+#liste_materiel table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#liste_materiel table tr:nth-child(odd) {
+  background-color: #E3EDEF;
+}
+
+#liste_materiel table td {
+	border: solid 1px black;
+	padding: 3px;
+}
+
+#liste_materiel table .liste_materiel_modifier {
+	text-align: right;
+	border-right: none;
+	padding-right: 5px;
+}
+
+#liste_materiel table .liste_materiel_supprimer {
+	border-left: none;
+	padding-left: 5px;
+}
+
+#liste_materiel table th {
+	border: solid 1px black;
+	padding: 3px;
+	background-color: #0187AA;
+	color: white;
+}
+
+
+/**
+ * Formulaires ajout
+ */
+
+#ajouter_materiel #ajouter_materiel_form {
+	display: none;
+	box-shadow: 0 0 7px #555;
+	width: 500px;
+	border-radius: 5px;
+	padding: 10px;
+}
+
+.materiel_form_boutons {
+	text-align: right;
+}
