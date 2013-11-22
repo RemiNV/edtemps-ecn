@@ -90,7 +90,7 @@
 							out.write("</tr>");
 							for (SalleIdentifie salle : listeSalles) {
 								out.write("<tr>");
-								out.write("<td>"+salle.getNom()+"</td>");
+								out.write("<td class='liste_salles_nom'>"+salle.getNom()+"</td>");
 								out.write("<td>"+salle.getBatiment()+"</td>");
 								out.write("<td>"+salle.getNiveau()+"</td>");
 								out.write("<td>"+salle.getNumero()+"</td>");

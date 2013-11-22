@@ -24,57 +24,35 @@ function validationModifierSalle() {
 	$("#ajouter_salle_form_ajouter").attr("disabled", "disabled");
 	$("#ajouter_salle_form_annuler").attr("disabled", "disabled");
 	$("#ajouter_salle_nom").removeAttr("disabled");
+
+	var jqNom = $("#ajouter_salle_nom");
+
+	// Vérifie que le nom n'est pas déjà utilisé
+	var nomDejaUtilise = false;
+	$.each($(".liste_salles_nom"), function() {
+		if (jqNom.val()==$(this).html()) {
+			nomDejaUtilise = true;
+		}
+	});
 	
 	// Champ nom
-	var jqNom = $("#ajouter_salle_nom");
-	if (jqNom.val()=="" || !/^[a-z \u00C0-\u00FF0-9]+$/i.test(jqNom.val())) {
+	if (jqNom.val()=="") {
 		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
-		jqNom.attr("title", "Le nom du groupe doit etre specifie et doit uniquement comporter des caracteres alphanumeriques");
+		jqNom.attr("title", "Le nom de la salle est obligatoire");
+		valid = false;
+	} else if (!/^[a-z \u00C0-\u00FF0-9]+$/i.test(jqNom.val())) {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Le nom de la salle doit uniquement comporter des caracteres alphanumeriques");
+		valid = false;
+	} else if (nomDejaUtilise) {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Ce nom de salle est deja utilise");
 		valid = false;
 	} else {
 		jqNom.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
 	}
 	
-	// Champ bâtiment
-	var jqBatiment = $("#ajouter_salle_batiment");
-	if (jqBatiment.val()!="" && !/^[a-z]+$/i.test(jqBatiment.val())) {
-		jqBatiment.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
-		jqBatiment.attr("title", "Le batiment doit etre un caractere alphanumerique");
-		valid = false;
-	} else if (jqBatiment.val()!="") {
-		jqBatiment.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
-	}
-	
-	// Champ niveau
-	var jqNiveau = $("#ajouter_salle_niveau");
-	if (jqNiveau.val()!="" && !/^[0-9]+$/i.test(jqNiveau.val())) {
-		jqNiveau.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
-		jqNiveau.attr("title", "Le niveau doit etre un nombre");
-		valid = false;
-	} else if (jqNiveau.val()!="") {
-		jqNiveau.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
-	}
-	
-	// Champ numéro
-	var jqNumero = $("#ajouter_salle_numero");
-	if (jqNumero.val()!="" && !/^[0-9]+$/i.test(jqNumero.val())) {
-		jqNumero.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
-		jqNumero.attr("title", "Le numero doit etre un nombre");
-		valid = false;
-	} else if (jqNumero.val()!="") {
-		jqNumero.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
-	}
-	
-	// Champ capacité
-	var jqCapacite = $("#ajouter_salle_capacite");
-	if (jqCapacite.val()!="" && !/^[0-9]+$/i.test(jqCapacite.val())) {
-		jqCapacite.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
-		jqCapacite.attr("title", "La capacite doit etre un nombre");
-		valid = false;
-	} else if (jqCapacite.val()!="") {
-		jqCapacite.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
-	}
-	
+	// Si le formulaire n'est pas valide, la main est redonnée à l'utilisateur
 	if (!valid) {
 		$("#ajouter_salle_form_chargement").hide();
 		$("#ajouter_salle_form_ajouter").removeAttr("disabled");
