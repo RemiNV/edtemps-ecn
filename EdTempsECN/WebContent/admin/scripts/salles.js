@@ -20,6 +20,11 @@ function confirmationSupprimerSalle() {
 function validationModifierSalle() {
 	var valid = true;
 	
+	$("#ajouter_salle_form_chargement").show();
+	$("#ajouter_salle_form_ajouter").attr("disabled", "disabled");
+	$("#ajouter_salle_form_annuler").attr("disabled", "disabled");
+	$("#ajouter_salle_nom").removeAttr("disabled");
+	
 	// Champ nom
 	var jqNom = $("#ajouter_salle_nom");
 	if (jqNom.val()=="" || !/^[a-z \u00C0-\u00FF0-9]+$/i.test(jqNom.val())) {
@@ -68,6 +73,13 @@ function validationModifierSalle() {
 		valid = false;
 	} else if (jqCapacite.val()!="") {
 		jqCapacite.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
+	}
+	
+	if (!valid) {
+		$("#ajouter_salle_form_chargement").hide();
+		$("#ajouter_salle_form_ajouter").removeAttr("disabled");
+		$("#ajouter_salle_form_annuler").removeAttr("disabled");
+		$("#ajouter_salle_nom").attr("disabled", "disabled");
 	}
 
 	return valid;

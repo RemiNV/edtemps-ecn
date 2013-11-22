@@ -128,10 +128,8 @@ ul.button_nav li:last-child {
  * Gestion des salles
  */
 
-#liste_salles p {
-	text-decoration: underline;
-	font-size: 1.1em;
-	font-weight: bold;
+#liste_salles {
+	margin-top: 20px;
 }
 
 #liste_salles table {

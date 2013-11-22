@@ -46,16 +46,24 @@
 									out.write("<td>Liste des matériels :</td>");
 									out.write("<td>");
 									out.write("<table id='ajouter_salle_materiels'>");
+									String stringListeIdMateriel = "";
 									for (Materiel materiel : listeMateriels) {
-										out.write("<tr><td>"+materiel.getNom()+"</td><td class='ajouter_salle_quantite_materiel'><input type='number' name='ajouter_salle_materiel_1' value='0' /></td></tr>");
+										out.write("<tr><td>"+materiel.getNom()+"</td><td class='ajouter_salle_quantite_materiel'><input type='number' name='ajouter_salle_materiel_"+materiel.getId()+"' value='0' /></td></tr>");
+										stringListeIdMateriel += materiel.getId() + ",";
 									}
+									out.write("<tr style='display: none'><td colspan='2'><input type='hidden' name='listeIdMateriel' value='"+((stringListeIdMateriel=="") ? "" : stringListeIdMateriel.substring(0, stringListeIdMateriel.length()-1))+"' /></td></tr>");
 									out.write("</table>");
 									out.write("</td>");
 									out.write("</tr>");
 								}
 							%>
-							<tr><td colspan="2" class="ajouter_salle_form_boutons"><input type="reset" value="Annuler" class="button" onclick="afficheCacheFormulaireAjouterSalle()" /><input type="submit" value="Ajouter" class="button" /></td></tr>
+							<tr><td colspan="2" class="ajouter_salle_form_boutons"><input type="reset" id="ajouter_salle_form_annuler" value="Annuler" class="button" onclick="afficheCacheFormulaireAjouterSalle()" /><input type="submit"  id="ajouter_salle_form_ajouter" value="Ajouter" class="button" /></td></tr>
 						</table>
+						<div id="ajouter_salle_form_chargement" style="display: none">
+							<img src="<%=request.getContextPath()%>/img/spinner_chargement.gif" alt="Chargement" width="30" />
+							<span>Traitement en cours</span>
+						</div>
+						
 						<div class="information">
 							<p>Le nom de la salle est généré automatiquement à partir du bâtiment, du niveau et du numéro. Vous pouvez cependant l'éditer manuellement en cliquant sur le bouton modifier à côté du champ.
 						</div>
@@ -63,7 +71,6 @@
 				</div>
 			
 				<div id="liste_salles">
-					<p>Liste des salles :</p>
 					<%
 						SalleGestion gestionnaireSalles = new SalleGestion(bdd);
 						List<SalleIdentifie> listeSalles = gestionnaireSalles.listerToutesSalles();
