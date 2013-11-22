@@ -17,7 +17,7 @@ function confirmationSupprimerSalle() {
 /*
  * Validation du formulaire d'ajout d'une salle
  */
-function validationModifierSalle() {
+function validationAjouterSalle() {
 	var valid = true;
 	
 	$("#ajouter_salle_form_chargement").show();

@@ -30,7 +30,7 @@
 			
 				<div id="ajouter_salle">
 					<div id="ajouter_salle_bouton" class="button" onclick="afficheCacheFormulaireAjouterSalle()">Ajouter une salle</div>
-					<form action="<%=request.getContextPath() %>/administrateur/salles/ajouter" method="POST" id="ajouter_salle_form" onsubmit='return validationModifierSalle()'>
+					<form action="<%=request.getContextPath() %>/administrateur/salles/ajouter" method="POST" id="ajouter_salle_form" onsubmit='return validationAjouterSalle()'>
 						<table>
 							<tr><td><label for="ajouter_salle_batiment">Bâtiment :</label></td><td><input type="text" name="ajouter_salle_batiment" id="ajouter_salle_batiment" size="50" onchange="afficheNomSalle()" /></td></tr>
 							<tr><td><label for="ajouter_salle_niveau">Niveau :</label></td><td><input type="text" name="ajouter_salle_niveau" id="ajouter_salle_niveau" size="50" onchange="afficheNomSalle()" /></td></tr>
@@ -104,7 +104,7 @@
 									}
 								}
 								out.write("<td>" + (preparationCase.length()>0 ? preparationCase.substring(0, preparationCase.length()-2) : "") + "</td>");
-								out.write("<td class='liste_salles_modifier'><a href=''><img alt='Modifier' title='Modifier' src='"+request.getContextPath()+"/img/modifier.png' /></a></td>");
+								out.write("<td class='liste_salles_modifier'><a href='"+request.getContextPath()+"/admin/salles/modifier.jsp?id="+salle.getId()+"'><img alt='Modifier' title='Modifier' src='"+request.getContextPath()+"/img/modifier.png' /></a></td>");
 								out.write("<td class='liste_salles_supprimer'><form onsubmit='return confirmationSupprimerSalle()' action='"+request.getContextPath()+"/administrateur/salles/supprimer' method='POST' class='liste_salles_form_supprimer'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+salle.getId()+"' /></form></td>");
 								out.write("</tr>");
 							}
@@ -112,6 +112,7 @@
 						}
 					%>
 				</div>
+				
 			</div>
 
 		</div>
