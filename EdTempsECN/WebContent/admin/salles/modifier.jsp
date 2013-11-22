@@ -42,7 +42,7 @@
 			<div id="content">
 			
 				<form action="<%=request.getContextPath() %>/administrateur/salles/modifier" method="POST" id="modifier_salle_form" onsubmit="return validationModifierSalle()">
-					<input type="hidden" value="<%=id %>" name="modifier_salle_id" id="modifier_salle_id" />
+					<input type="hidden" value="<%=id %>" name="modifier_salle_id" />
 					<table>
 						<tr><td><label for="modifier_salle_batiment">Bâtiment :</label></td><td><input type="text" name="modifier_salle_batiment" id="modifier_salle_batiment" size="50" value="<%=salle.getBatiment()%>" /></td></tr>
 						<tr><td><label for="modifier_salle_niveau">Niveau :</label></td><td><input type="text" name="modifier_salle_niveau" id="modifier_salle_niveau" size="50" value="<%=salle.getNiveau()%>" /></td></tr>

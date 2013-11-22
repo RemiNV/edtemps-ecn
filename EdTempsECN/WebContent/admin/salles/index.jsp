@@ -76,7 +76,7 @@
 						List<SalleIdentifie> listeSalles = gestionnaireSalles.listerToutesSalles();
 						
 						if (listeSalles.isEmpty()) {
-							out.write("<tr><td colspan='7'>Aucunes salles dans la base de données</td></tr>");
+							out.write("<tr><td colspan='7'>Aucune salle dans la base de données</td></tr>");
 						} else {
 							out.write("<table>");
 							out.write("<tr>");
