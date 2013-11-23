@@ -234,8 +234,8 @@ input[type=text], input[type=email], input[type=password], textarea {
 #liste_materiel {
 	border-collapse: collapse;
 	width: 450px;
-	margin-top: 10px;
-	margin-left: 10px;
+	margin-top: -5px;
+	margin-left: 20px;
 	box-shadow: 0 0 7px #0187AA;
 	border: solid 1px 0187AA;
 }
@@ -269,7 +269,7 @@ input[type=text], input[type=email], input[type=password], textarea {
 	padding-left: 10px
 }
 
-.materiel_zone_titre {
+.formulaire_zone_titre {
 	margin-top: 10px;
 	margin-bottom: 10px;
 	text-decoration: underline;

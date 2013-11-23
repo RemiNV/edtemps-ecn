@@ -5,9 +5,9 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Espace d'administration</title>
-		
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/admin/main.css" />
 	</head>
+	
 	<body>
 
 		<jsp:include page="/admin/includes/menu.jsp" />

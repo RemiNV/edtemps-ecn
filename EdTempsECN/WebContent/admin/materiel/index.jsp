@@ -11,11 +11,11 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Espace d'administration</title>
-		
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/admin/main.css" />
-
+		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/materiels.js"></script>
 	</head>
+	
 	<body>
 
 		<jsp:include page="../includes/menu.jsp" />
@@ -26,7 +26,7 @@
 			<div id="content" style="min-height: 250px">
 
 				<div id="ajouter_materiel">
-					<p class="materiel_zone_titre">Ajouter un type de matériel :</p>
+					<p class="formulaire_zone_titre">Ajouter un type de matériel :</p>
 					<form action="<%=request.getContextPath() %>/administrateur/materiel/ajouter" method="POST" id="ajouter_materiel_form" onsubmit="return validationAjouterMateriel()">
 						<input type="text" name="ajouter_materiel_nom" id="ajouter_materiel_nom" size="50" placeholder="Nom du type de matériel que vous souhaitez ajouter" />
 						<input type="submit" value="Ajouter" class="button" style="height: 22px; padding-top: 2px;" />
@@ -34,7 +34,7 @@
 				</div>
 
 				<div id="supprimer_materiel">
-					<p class="materiel_zone_titre">Supprimer un type de matériel :</p>
+					<p class="formulaire_zone_titre">Supprimer un type de matériel :</p>
 					<form action="<%=request.getContextPath() %>/administrateur/materiel/supprimer" method="POST" id="supprimer_materiel_form" onsubmit="return confirmationSupprimerMateriel()">
 						<select name="supprimer_materiel_id" id="supprimer_materiel_id">
 							<%
