@@ -349,3 +349,32 @@ input[type=text], input[type=email], input[type=password], textarea {
 	top: 390px;
 	height: 70px;
 }
+
+
+
+/**
+ * Liste des utilisateurs
+ */
+
+#liste_utilisateurs {
+	border-collapse: collapse;
+	width: 600px;
+	margin-top: -5px;
+	margin-left: 10px;
+	box-shadow: 0 0 7px #0187AA;
+	border: solid 1px 0187AA;
+}
+
+#liste_utilisateurs tr:nth-child(odd) {
+  background-color: #E3EDEF;
+}
+
+#liste_utilisateurs td {
+	padding: 3px;
+}
+
+#liste_utilisateurs th {
+	padding: 3px;
+	background-color: #0187AA;
+	color: white;
+}

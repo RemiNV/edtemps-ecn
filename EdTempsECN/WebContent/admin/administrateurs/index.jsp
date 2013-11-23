@@ -63,7 +63,7 @@
 
 				<table id="liste_administrateurs">
 					<tr>
-						<th>Administrateurs</th>
+						<th>Liste des administrateurs</th>
 					</tr>
 					<%
 						for (Map.Entry<Integer, String> admin : listeAdministrateurs.entrySet()) {
