@@ -37,7 +37,7 @@ public class AdministrateurServlet extends HttpServlet {
 		
 		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/connexion")) {
+		if (!pathInfo.equals("/connexion") && !pathInfo.equals("/ajouter") && !pathInfo.equals("/supprimer")) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -47,7 +47,13 @@ public class AdministrateurServlet extends HttpServlet {
 		try {
 			switch (pathInfo) {
 				case "/connexion":
-					doConnexionAdministrateur(req, resp, session);
+					doConnexion(req, resp, session);
+					break;
+				case "/ajouter":
+					doAjouter(req, resp, session);
+					break;
+				case "/supprimer":
+					doSupprimer(req, resp, session);
 					break;
 			}
 		} catch (IOException | ServletException e) {
@@ -79,7 +85,7 @@ public class AdministrateurServlet extends HttpServlet {
 	 * @throws SQLException 
 	 * @throws ServletException 
 	 */
-	protected void doConnexionAdministrateur(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws IOException, InvalidKeyException, NoSuchAlgorithmException, DatabaseException, ServletException {
+	protected void doConnexion(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws IOException, InvalidKeyException, NoSuchAlgorithmException, DatabaseException, ServletException {
 		
 		// Récupération des identifiants passés en paramètre
 		String login = req.getParameter("login");
@@ -99,5 +105,59 @@ public class AdministrateurServlet extends HttpServlet {
 		}
 
 	}
+	
+	
+	/**
+	 * Ajouter un administrateur 
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * @param session Session HTTP
+	 * @throws DatabaseException 
+	 * @throws IOException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws InvalidKeyException 
+	 */
+	protected void doAjouter(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws DatabaseException, IOException, InvalidKeyException, NoSuchAlgorithmException {
+		logger.error("Ajouter un administrateur");
+
+		// Récupération du login et du mot de passe
+		String login = req.getParameter("ajouter_administrateur_login");
+		String password = req.getParameter("ajouter_administrateur_password");
+
+		// Exécute la requête d'ajout avec le manager
+		BddGestion bdd = new BddGestion();
+		AdministrateurGestion gestionnaireAdministrateur = new AdministrateurGestion(bdd);
+		gestionnaireAdministrateur.ajouterAdministrateur(login, password);
+		bdd.close();
+
+		// Redirige vers la page de liste des administrateurs
+		resp.sendRedirect(req.getContextPath()+"/admin/administrateurs/index.jsp");
+	}
+	
+
+	/**
+	 * Supprimer un administrateur 
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * @param session Session HTTP
+	 * @throws DatabaseException 
+	 * @throws IOException 
+	 */
+	protected void doSupprimer(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws DatabaseException, IOException {
+		logger.error("Suppression d'un administrateur");
+
+		// Récupération de l'identifiant de l'administrateur à supprimer
+		int id = Integer.valueOf(req.getParameter("supprimer_administrateur_id"));
+		
+		// Exécute la requête de suppression avec le manager
+		BddGestion bdd = new BddGestion();
+		AdministrateurGestion gestionnaireAdministrateur = new AdministrateurGestion(bdd);
+		gestionnaireAdministrateur.supprimerAdministrateur(id);
+		bdd.close();
+		
+		// Redirige vers la page de liste des types de matériel
+		resp.sendRedirect(req.getContextPath()+"/admin/administrateurs/index.jsp");
+	}
+
 
 }

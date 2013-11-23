@@ -20,7 +20,8 @@ public class AdministrateurGestion {
 	
 	/** Gestionnaire de base de données */
 	protected BddGestion bdd;
-	
+
+	private static final String KEY_CRYPTAGE_PASSWORD = "Chaine de cryptage";
 	
 	/**
 	 * Initialise un gestionnaire d'administrateurs
@@ -71,7 +72,7 @@ public class AdministrateurGestion {
 
 		try {
 			
-			String cryptedPassword = UtilisateurGestion.hmac_sha256("Chaine de cryptage", password);
+			String cryptedPassword = UtilisateurGestion.hmac_sha256(KEY_CRYPTAGE_PASSWORD, password);
 			
 			// Prépare la requête
 			PreparedStatement reqPreparee = bdd.getConnection().prepareStatement(
@@ -90,6 +91,47 @@ public class AdministrateurGestion {
 		}
 
 	}
+	
+	
+	/**
+	 * Ajouter un administrateur
+	 * @param login Identifiant de connexion
+	 * @param password Mot de passe
+	 * @throws DatabaseException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws InvalidKeyException 
+	 */
+	public void ajouterAdministrateur(String login, String password) throws DatabaseException, InvalidKeyException, NoSuchAlgorithmException {
 
+		try {
+			
+			String cryptedPassword = UtilisateurGestion.hmac_sha256(KEY_CRYPTAGE_PASSWORD, password);
+			
+			// Prépare la requête
+			PreparedStatement reqPreparee = bdd.getConnection().prepareStatement(
+					"INSERT INTO edt.administrateurs (admin_login, admin_password) VALUES (?,?)");
+			reqPreparee.setString(1, login);
+			reqPreparee.setString(2, cryptedPassword);
+
+			// Exécute la requête
+			reqPreparee.execute();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e); 
+		}
+		
+	}
+
+	
+	/**
+	 * Supprime un administrateur
+	 * @param id Identifiant de l'administrateur à supprimer
+	 * @throws DatabaseException 
+	 */
+	public void supprimerAdministrateur(int id) throws DatabaseException {
+		
+		bdd.executeRequest("DELETE FROM edt.administrateurs WHERE admin_id="+id);
+		
+	}
 
 }
