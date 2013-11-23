@@ -7,7 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -619,5 +621,28 @@ public class UtilisateurGestion {
 		
 	}
 	
+	
+	/**
+	 * Récupère la liste des types d'utilisateurs possibles
+	 * @return liste des types d'utilisateurs
+	 * @throws DatabaseException 
+	 */
+	public Map<Integer, String> getListeTypesUtilisateur() throws DatabaseException {
+
+		Map<Integer, String> listeTypes = new HashMap<Integer, String>();
+
+		try {
+			ResultSet reponse = bdd.executeRequest("SELECT type_id, type_libelle FROM edt.typeutilisateur");
+			while (reponse.next()) {
+				listeTypes.put(reponse.getInt("type_id"), reponse.getString("type_libelle"));
+			}
+			reponse.close();
+			
+			return listeTypes;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
 	
 }
