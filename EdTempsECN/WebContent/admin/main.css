@@ -226,6 +226,7 @@ input[type=text], input[type=email], input[type=password], textarea {
 .information {
 	font-size: 0.9em;
 	color: gray;
+	text-align: justify;
 }
 
 
@@ -285,10 +286,11 @@ input[type=text], input[type=email], input[type=password], textarea {
 
 #supprimer_materiel {
 	box-shadow: 0 0 7px #555;
-	width: 450px;
+	width: 440px;
 	padding-left: 10px;
+	padding-right: 10px;
 	position: absolute;
 	margin-left: 500px;
 	top: 300px;
-	height: 120px;
+	height: 130px;
 }

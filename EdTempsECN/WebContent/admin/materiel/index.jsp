@@ -26,7 +26,7 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Gestion du matériel</h1>			
 
-			<div id="content" style="min-height: 200px">
+			<div id="content" style="min-height: 250px">
 
 				<div id="ajouter_materiel">
 					<p class="materiel_zone_titre">Ajouter un type de matériel :</p>
@@ -52,7 +52,7 @@
 						</select>
 						<input type="submit" value="Supprimer" class="button" style="height: 22px; padding-top: 2px;" />
 					</form>
-					<p>Attention! Supprimer un type de matériel entraîne, de manière irrévocable, la suppression des liens entre les salles et ce type de matériel.</p>
+					<p class="information">Attention! Supprimer un type de matériel rompt, de manière irrévocable, les liens avec les salles qui contiennent ce type de matériel.</p>
 				</div>
 
 				<table id="liste_materiel">

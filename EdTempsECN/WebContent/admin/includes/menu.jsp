@@ -16,6 +16,5 @@
 				<li><a href="<%=request.getContextPath()%>/admin/deconnexion.jsp">Déconnexion</a></li>
 			</ul>
 		</td>
-		<td class="message_bonjour">Bonjour <%=session.getAttribute("login")%>,</td>
 	</tr>
 </table>

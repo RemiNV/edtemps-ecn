@@ -26,10 +26,10 @@ import org.ecn.edtemps.models.identifie.SalleIdentifie;
  * 
  * @author Joffrey Terrade
  */
-public class SalleServlet extends HttpServlet {
+public class AdministrateurSalleServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 2760466483465073439L;
-	private static Logger logger = LogManager.getLogger(SalleServlet.class.getName());
+	private static Logger logger = LogManager.getLogger(AdministrateurSalleServlet.class.getName());
 	
 	/**
 	 * Servlet pour la gestion des salles

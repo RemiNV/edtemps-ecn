@@ -123,7 +123,7 @@
 
   <servlet>
       <servlet-name>Salles</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.impl.SalleServlet</servlet-class>
+      <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurSalleServlet</servlet-class>
   </servlet>
 
   <servlet>
