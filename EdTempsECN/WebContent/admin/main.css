@@ -144,6 +144,8 @@ ul.button_nav li:last-child {
 }
 
 #liste_salles table {
+	box-shadow: 0 0 7px #0187AA;
+	border: solid 1px 0187AA;
 	border-collapse: collapse;
 	width: 100%;
 }
@@ -153,31 +155,34 @@ ul.button_nav li:last-child {
 }
 
 #liste_salles table td {
-	border: solid 1px black;
 	padding: 3px;
 }
 
 #liste_salles table .liste_salles_modifier {
 	text-align: right;
-	border-right: none;
 	padding-right: 5px;
 }
 
 #liste_salles table .liste_salles_supprimer {
-	border-left: none;
 	padding-left: 5px;
 }
 
 #liste_salles table th {
-	border: solid 1px black;
 	padding: 3px;
 	background-color: #0187AA;
 	color: white;
 }
 
+.bordure_gauche_grise {
+	border-left: solid 1px gray;
+}
+
+.bordure_gauche_blanche {
+	border-left: solid 1px white;
+}
 
 /**
- * Formulaires ajout
+ * Formulaires d'ajout et modification de salles
  */
 
 #ajouter_salle #ajouter_salle_form {
@@ -230,36 +235,23 @@ input[type=text], input[type=email], input[type=password], textarea {
  */
 
 #liste_materiel {
-	margin-top: 20px;
-}
-
-#liste_materiel table {
 	border-collapse: collapse;
-	width: 100%;
+	width: 450px;
+	margin-top: 10px;
+	margin-left: 10px;
+	box-shadow: 0 0 7px #0187AA;
+	border: solid 1px 0187AA;
 }
 
-#liste_materiel table tr:nth-child(odd) {
+#liste_materiel tr:nth-child(odd) {
   background-color: #E3EDEF;
 }
 
-#liste_materiel table td {
-	border: solid 1px black;
+#liste_materiel td {
 	padding: 3px;
 }
 
-#liste_materiel table .liste_materiel_modifier {
-	text-align: right;
-	border-right: none;
-	padding-right: 5px;
-}
-
-#liste_materiel table .liste_materiel_supprimer {
-	border-left: none;
-	padding-left: 5px;
-}
-
-#liste_materiel table th {
-	border: solid 1px black;
+#liste_materiel th {
 	padding: 3px;
 	background-color: #0187AA;
 	color: white;
@@ -267,17 +259,36 @@ input[type=text], input[type=email], input[type=password], textarea {
 
 
 /**
- * Formulaires ajout
+ * Formulaire d'ajout de matériel
  */
 
-#ajouter_materiel #ajouter_materiel_form {
-	display: none;
+#ajouter_materiel {
 	box-shadow: 0 0 7px #555;
-	width: 500px;
-	border-radius: 5px;
-	padding: 10px;
+	width: 450px;
+	position: absolute;
+	margin-left: 500px;
+	top: 197px;
+	height: 70px;
+	padding-left: 10px
 }
 
-.materiel_form_boutons {
-	text-align: right;
+.materiel_zone_titre {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-decoration: underline;
+	font-size: 0.9em;
+}
+
+/**
+ * Formulaire de suppression de matériel
+ */
+
+#supprimer_materiel {
+	box-shadow: 0 0 7px #555;
+	width: 450px;
+	padding-left: 10px;
+	position: absolute;
+	margin-left: 500px;
+	top: 300px;
+	height: 120px;
 }

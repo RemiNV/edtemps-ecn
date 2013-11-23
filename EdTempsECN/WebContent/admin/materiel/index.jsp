@@ -26,43 +26,51 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Gestion du matériel</h1>			
 
-			<div id="content">
-			
+			<div id="content" style="min-height: 200px">
+
 				<div id="ajouter_materiel">
-					<div id="ajouter_materiel_bouton" class="button" onclick="afficheCacheFormulaireAjouterMateriel()">Ajouter un matériel</div>
-					<form action="<%=request.getContextPath() %>/administrateur/materiel/ajouter" method="POST" id="ajouter_materiel_form" onsubmit="return validationAjouterMateriel()">
-						<table>
-							<tr><td><label for="ajouter_materiel_nom">Nom :</label></td><td><input type="text" name="ajouter_materiel_nom" id="ajouter_materiel_nom" size="50" /></td></tr>
-							<tr><td colspan="2" class="materiel_form_boutons"><input type="reset" id="ajouter_materiel_form_annuler" value="Annuler" class="button" onclick="afficheCacheFormulaireAjouterMateriel()" /><input type="submit" id="ajouter_materiel_form_ajouter" value="Ajouter" class="button" /></td></tr>
-						</table>
+					<p class="materiel_zone_titre">Ajouter un type de matériel :</p>
+					<form action="<%=request.getContextPath() %>/administrateur/materiels/ajouter" method="POST" id="ajouter_materiel_form" onsubmit="return validationAjouterMateriel()">
+						<input type="text" name="ajouter_materiel_nom" id="ajouter_materiel_nom" size="50" placeholder="Nom du type de matériel que vous souhaitez ajouter" />
+						<input type="submit" value="Ajouter" class="button" style="height: 22px; padding-top: 2px;" />
 					</form>
 				</div>
-			
-				<div id="liste_materiel">
+
+				<div id="supprimer_materiel">
+					<p class="materiel_zone_titre">Supprimer un type de matériel :</p>
+					<form action="" method="POST" id="supprimer_materiel_form" onsubmit="return confirmationSupprimerMateriel()">
+						<select name="supprimer_materiel_nom" id="supprimer_materiel_nom">
+							<%
+								BddGestion bdd = new BddGestion();
+								MaterielGestion materielGestion = new MaterielGestion(bdd);
+								List<Materiel> listeMateriels = materielGestion.getListeMateriel();
+
+								for (Materiel materiel : listeMateriels) {
+									out.write("<option value='"+materiel.getId()+"'>"+materiel.getNom()+"</option>");
+								}
+							%>
+						</select>
+						<input type="submit" value="Supprimer" class="button" style="height: 22px; padding-top: 2px;" />
+					</form>
+					<p>Attention! Supprimer un type de matériel entraîne, de manière irrévocable, la suppression des liens entre les salles et ce type de matériel.</p>
+				</div>
+
+				<table id="liste_materiel">
 					<%
-						BddGestion bdd = new BddGestion();
-						MaterielGestion materielGestion = new MaterielGestion(bdd);
-						List<Materiel> listeMateriels = materielGestion.getListeMateriel();
-						
 						if (listeMateriels.isEmpty()) {
 							out.write("<tr><td colspan='7'>Aucun matériel dans la base de données</td></tr>");
 						} else {
-							out.write("<table>");
 							out.write("<tr>");
 							out.write("<th>Nom</th>");
-							out.write("<th colspan='2'>Actions</th>");
 							out.write("</tr>");
 							for (Materiel materiel : listeMateriels) {
 								out.write("<tr>");
 								out.write("<td class='liste_materiel_nom'>"+materiel.getNom()+"</td>");
-								out.write("<td class='liste_materiel_modifier'><a href='"+request.getContextPath()+"/admin/materiel/modifier.jsp?id="+materiel.getId()+"'><img alt='Modifier' title='Modifier' src='"+request.getContextPath()+"/img/modifier.png' /></a></td>");
-								out.write("<td class='liste_materiel_supprimer'><form onsubmit='return confirmationSupprimerMateriel()' action='"+request.getContextPath()+"/administrateur/materiel/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+materiel.getId()+"' /></form></td>");
 								out.write("</tr>");
 							}
-							out.write("</table>");
 						}
 					%>
-				</div>
+				</table>
 				
 			</div>
 
