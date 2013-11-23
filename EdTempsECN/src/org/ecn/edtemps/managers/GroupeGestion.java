@@ -41,14 +41,9 @@ public class GroupeGestion {
 
 	/**
 	 * Récupérer un groupe identifié de participants dans la base de données
-	 * 
-	 * @param identifiant
-	 *            identifiant du groupe à récupérer
-	 * 
+	 * @param identifiant Identifiant du groupe à récupérer
 	 * @return le groupe identifié (standard)
-	 * 
-	 * @throws EdtempsException
-	 *             en cas d'erreur de connexion avec la base de données
+	 * @throws EdtempsException En cas d'erreur de connexion avec la base de données
 	 */
 	public GroupeIdentifie getGroupe(int identifiant) throws EdtempsException {
 
@@ -71,9 +66,7 @@ public class GroupeGestion {
 				requeteGroupe.close();
 			}
 
-		} catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		} catch (SQLException e) {
+		} catch (DatabaseException | SQLException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
@@ -83,14 +76,9 @@ public class GroupeGestion {
 
 	/**
 	 * Récupérer un groupe complet de participants dans la base de données
-	 * 
-	 * @param identifiant
-	 *            identifiant du groupe à récupérer
-	 * 
+	 * @param identifiant Identifiant du groupe à récupérer
 	 * @return le groupe complet
-	 * 
-	 * @throws EdtempsException
-	 *             en cas d'erreur de connexion avec la base de données
+	 * @throws EdtempsException En cas d'erreur de connexion avec la base de données
 	 */
 	public GroupeComplet getGroupeComplet(int identifiant) throws EdtempsException {
 
@@ -112,9 +100,7 @@ public class GroupeGestion {
 				requeteGroupe.close();
 			}
 
-		} catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		} catch (SQLException e) {
+		} catch (DatabaseException | SQLException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
@@ -123,23 +109,14 @@ public class GroupeGestion {
 	
 	
 	/**
-	 * Groupe à enregistrer en base de données
-	 * 
-	 * @param nom
-	 *            nom du groupe de participants à ajouter
-	 * @param idGroupeParent
-	 *            identifiant du groupe parent du groupe de participants à ajouter
-	 * @param rattachementAutorise
-	 *            VRAI si le groupe de participants à ajouter accepte le rattachement
-	 * @param estCours
-	 *            VRAI si le groupe de participants à ajouter est un cours
-	 * @param listeIdProprietaires
-	 *            liste des identifiants des propriétaires du groupe de participants à ajouter
-	 * 
+	 * Enregistrer un groupe de participants en base de données
+	 * @param nom Nom du groupe
+	 * @param idGroupeParent Identifiant du groupe parent
+	 * @param rattachementAutorise VRAI si le groupe accepte le rattachement
+	 * @param estCours VRAI si le groupe est un cours
+	 * @param listeIdProprietaires Liste des identifiants des propriétaires du groupe
 	 * @return l'identifiant de la ligne insérée
-	 * 
-	 * @throws EdtempsException
-	 *             en cas d'erreur
+	 * @throws EdtempsException En cas d'erreur
 	 */
 	public int sauverGroupe(String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
 
@@ -213,9 +190,7 @@ public class GroupeGestion {
 			// Termine la transaction
 			_bdd.commit();
 
-		} catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		} catch (SQLException e) {
+		} catch (DatabaseException | SQLException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
@@ -224,23 +199,14 @@ public class GroupeGestion {
 
 
 	/**
-	 * Groupe à modifier en base de données
-	 * 
-	 * @param id
-	 *            identifiant du groupe de participants à modifier
-	 * @param nom
-	 *            nom du groupe de participants à modifier
-	 * @param idGroupeParent
-	 *            identifiant du groupe parent du groupe de participants à modifier
-	 * @param rattachementAutorise
-	 *            VRAI si le groupe de participants à modifier accepte le rattachement
-	 * @param estCours
-	 *            VRAI si le groupe de participants à modifier est un cours
-	 * @param listeIdProprietaires
-	 *            liste des identifiants des propriétaires du groupe de participants à modifier
-	 * 
-	 * @throws EdtempsException
-	 *             en cas d'erreur
+	 * Modifier un groupe de participants en base de données
+	 * @param id Identifiant du groupe
+	 * @param nom Nom du groupe
+	 * @param idGroupeParent Identifiant du groupe parent
+	 * @param rattachementAutorise VRAI si le groupe accepte le rattachement
+	 * @param estCours VRAI si le groupe est un cours
+	 * @param listeIdProprietaires Liste des identifiants des propriétaires du groupe
+	 * @throws EdtempsException En cas d'erreur
 	 */
 	public void modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
 
@@ -358,9 +324,7 @@ public class GroupeGestion {
 			// Termine la transaction
 			_bdd.commit();
 
-		} catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		} catch (SQLException e) {
+		} catch (DatabaseException | SQLException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
@@ -370,12 +334,8 @@ public class GroupeGestion {
 	
 	/**
 	 * Supprime un groupe en base de données
-	 * 
-	 * @param idGroupe
-	 *            identifiant du groupe à supprimer
-	 * 
-	 * @throws EdtempsException
-	 *             si le groupe n'est pas supprimable
+	 * @param idGroupe Identifiant du groupe à supprimer
+	 * @throws EdtempsException Si le groupe n'est pas supprimable
 	 */
 	public void supprimerGroupe(int idGroupe) throws EdtempsException {
 
