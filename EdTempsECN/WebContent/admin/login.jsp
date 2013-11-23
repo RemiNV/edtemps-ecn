@@ -7,11 +7,17 @@
 		<title>Espace d'administration</title>
 		
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/admin/main.css" />
-		
-		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
-		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-ui-1.10.3.notheme.min.js"></script>
 	</head>
+	
 	<body>
+
+		<table id="header">
+			<tr>
+				<td id="logo">
+					<img src="<%=request.getContextPath()%>/img/icone_appli.png" alt="Emploi du temps ECN" />
+				</td>
+			</tr>
+		</table>
 
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Connexion</h1>
