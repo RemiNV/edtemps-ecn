@@ -76,15 +76,14 @@ public class AdministrateurGestion {
 			
 			// Prépare la requête
 			PreparedStatement reqPreparee = bdd.getConnection().prepareStatement(
-					"SELECT COUNT(*) FROM edt.administrateurs WHERE admin_login=? AND admin_password=?");
+					"SELECT * FROM edt.administrateurs WHERE admin_login=? AND admin_password=?");
 			reqPreparee.setString(1, login);
 			reqPreparee.setString(2, cryptedPassword);
 
 			// Exécute la requête
 			ResultSet reqResultat = reqPreparee.executeQuery();
-			reqResultat.next();
 			
-			return (reqResultat.getInt(1)>0);
+			return (reqResultat.next());
 			
 		} catch (SQLException e) {
 			throw new DatabaseException(e); 

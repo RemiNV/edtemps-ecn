@@ -23,13 +23,17 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Gestion des administrateurs</h1>			
 
-			<div id="content" style="min-height: 180px">
+			<div id="content" style="min-height: 270px">
 
 				<div id="ajouter_administrateur">
 					<p class="formulaire_zone_titre">Ajouter un administrateur :</p>
 					<form action="<%=request.getContextPath() %>/administrateur/ajouter" method="POST" id="ajouter_administrateur_form" onsubmit="return validationAjouterAdministrateur()">
-						<input type="text" name="ajouter_administrateur_login" id="ajouter_administrateur_login" size="50" placeholder="Identifiant de l'administrateur" />
-						<input type="submit" value="Ajouter" class="button" style="height: 22px; padding-top: 2px;" />
+						<table>
+							<tr><td><label for="ajouter_administrateur_login">Identifiant </label></td><td><input type="text" name="ajouter_administrateur_login" id="ajouter_administrateur_login" size="30" placeholder="Identifiant de l'administrateur" autocomplete="off" /></td></tr>
+							<tr><td><label for="ajouter_administrateur_password">Mot de passe </label></td><td><input type="password" name="ajouter_administrateur_password" id="ajouter_administrateur_password" size="30" placeholder="Mot de passe de l'administrateur" autocomplete="off" /></td></tr>
+							<tr><td><label for="ajouter_administrateur_password_again">Vérification du mot de passe </label></td><td><input type="password" name="ajouter_administrateur_password_again" id="ajouter_administrateur_password_again" size="30" placeholder="Ressaissez le mot de passe" autocomplete="off" /></td></tr>
+						</table>
+						<input type="submit" value="Ajouter" class="button" style="margin: 10px 10px 10px 355px;" />
 					</form>
 				</div>
 
@@ -41,12 +45,19 @@
 								BddGestion bdd = new BddGestion();
 								AdministrateurGestion administrateurGestion = new AdministrateurGestion(bdd);
 								Map<Integer, String> listeAdministrateurs = administrateurGestion.listerAdministrateurs();
+								boolean ilYADesValeurs = false; 
 								for (Map.Entry<Integer, String> admin : listeAdministrateurs.entrySet()) {
-									out.write("<option value='"+admin.getKey()+"'>"+admin.getValue()+"</option>");
+									if (!admin.getValue().equals(session.getAttribute("login"))) {
+										out.write("<option value='"+admin.getKey()+"'>"+admin.getValue()+"</option>");
+										ilYADesValeurs = true;
+									}
+								}
+								if (!ilYADesValeurs) {
+									out.write("<option value='-1'>Aucun utilisateur à supprimer</option>");
 								}
 							%>
 						</select>
-						<input type="submit" value="Supprimer" class="button" style="height: 22px; padding-top: 2px;" />
+						<input type="submit" value="Supprimer" class="button" style="height: 22px; padding-top: 2px;" <% if (!ilYADesValeurs) out.write("disabled"); %> />
 					</form>
 				</div>
 

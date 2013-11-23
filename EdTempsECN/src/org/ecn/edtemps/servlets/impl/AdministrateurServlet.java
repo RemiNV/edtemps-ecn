@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
@@ -94,13 +95,16 @@ public class AdministrateurServlet extends HttpServlet {
 		
 		BddGestion bdd = new BddGestion();
 		AdministrateurGestion gestionnaireAdministrateur = new AdministrateurGestion(bdd);
+		
 		if (gestionnaireAdministrateur.seConnecter(login, password)) {
 			logger.error("Connexion réussie");
 			session.setAttribute("connect", "OK");
+			session.setAttribute("login", login);
 			resp.sendRedirect("../admin/general.jsp");
 		} else {
 			logger.error("Echec de connexion : identifiant ou mot de passe erroné.");
 			session.setAttribute("connect", "KO");
+			session.setAttribute("login", "");
 			resp.sendRedirect("../admin/login.jsp");
 		}
 
@@ -124,6 +128,11 @@ public class AdministrateurServlet extends HttpServlet {
 		String login = req.getParameter("ajouter_administrateur_login");
 		String password = req.getParameter("ajouter_administrateur_password");
 
+		// Si le login ou mot de passe est vide, une erreur est générée
+		if (StringUtils.isBlank(login) || StringUtils.isBlank(password)) {
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		
 		// Exécute la requête d'ajout avec le manager
 		BddGestion bdd = new BddGestion();
 		AdministrateurGestion gestionnaireAdministrateur = new AdministrateurGestion(bdd);
