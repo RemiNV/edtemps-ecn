@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.SalleGestion;
@@ -72,10 +71,6 @@ public class AdministrateurSalleServlet extends HttpServlet {
 			logger.error("Erreur de cast des paramètres");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
-		} catch (DatabaseException e) {
-			logger.error("Erreur avec la base de données");
-			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			return;
 		} catch (EdtempsException e) {
 			logger.error("Erreur du gestionnaire de salle");
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -89,10 +84,10 @@ public class AdministrateurSalleServlet extends HttpServlet {
 	 * Supprimer une salle
 	 * @param req Requête
 	 * @param resp Réponse
-	 * @throws DatabaseException 
+	 * @throws EdtempsException 
 	 * @throws IOException 
 	 */
-	public void doSupprimer(HttpServletRequest req, HttpServletResponse resp) throws DatabaseException, IOException {
+	public void doSupprimer(HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
 		logger.error("Suppression d'une salle");
 
 		// Récupération de l'identifiant de la salle à supprimer dans la requête

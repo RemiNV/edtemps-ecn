@@ -24,13 +24,13 @@
 		<jsp:include page="../includes/menu.jsp" />
 
 		<div id="main_content">
-			<h1>Espace d'administration &rarr; Gestion du matériel</h1>			
+			<h1>Espace d'administration &rarr; Gestion des types de matériel</h1>			
 
 			<div id="content" style="min-height: 250px">
 
 				<div id="ajouter_materiel">
 					<p class="materiel_zone_titre">Ajouter un type de matériel :</p>
-					<form action="<%=request.getContextPath() %>/administrateur/materiels/ajouter" method="POST" id="ajouter_materiel_form" onsubmit="return validationAjouterMateriel()">
+					<form action="<%=request.getContextPath() %>/administrateur/materiel/ajouter" method="POST" id="ajouter_materiel_form" onsubmit="return validationAjouterMateriel()">
 						<input type="text" name="ajouter_materiel_nom" id="ajouter_materiel_nom" size="50" placeholder="Nom du type de matériel que vous souhaitez ajouter" />
 						<input type="submit" value="Ajouter" class="button" style="height: 22px; padding-top: 2px;" />
 					</form>
@@ -38,8 +38,8 @@
 
 				<div id="supprimer_materiel">
 					<p class="materiel_zone_titre">Supprimer un type de matériel :</p>
-					<form action="" method="POST" id="supprimer_materiel_form" onsubmit="return confirmationSupprimerMateriel()">
-						<select name="supprimer_materiel_nom" id="supprimer_materiel_nom">
+					<form action="<%=request.getContextPath() %>/administrateur/materiel/supprimer" method="POST" id="supprimer_materiel_form" onsubmit="return confirmationSupprimerMateriel()">
+						<select name="supprimer_materiel_id" id="supprimer_materiel_id">
 							<%
 								BddGestion bdd = new BddGestion();
 								MaterielGestion materielGestion = new MaterielGestion(bdd);
@@ -61,7 +61,7 @@
 							out.write("<tr><td colspan='7'>Aucun matériel dans la base de données</td></tr>");
 						} else {
 							out.write("<tr>");
-							out.write("<th>Nom</th>");
+							out.write("<th>Types de matériel</th>");
 							out.write("</tr>");
 							for (Materiel materiel : listeMateriels) {
 								out.write("<tr>");

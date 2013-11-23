@@ -130,6 +130,11 @@
       <servlet-name>Administrateur</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurServlet</servlet-class>
   </servlet>
+
+  <servlet>
+      <servlet-name>Materiel</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurMaterielServlet</servlet-class>
+  </servlet>
   
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
@@ -254,6 +259,11 @@
   <servlet-mapping>
       <servlet-name>Administrateur</servlet-name>
       <url-pattern>/administrateur/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>Materiel</servlet-name>
+      <url-pattern>/administrateur/materiel/*</url-pattern>
   </servlet-mapping>
   
 </web-app>
