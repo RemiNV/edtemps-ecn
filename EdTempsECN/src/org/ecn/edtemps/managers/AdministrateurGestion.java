@@ -96,11 +96,12 @@ public class AdministrateurGestion {
 	 * Ajouter un administrateur
 	 * @param login Identifiant de connexion
 	 * @param password Mot de passe
+	 * @return l'identifiant de l'administrateur ajouté
 	 * @throws DatabaseException 
 	 * @throws NoSuchAlgorithmException 
 	 * @throws InvalidKeyException 
 	 */
-	public void ajouterAdministrateur(String login, String password) throws DatabaseException, InvalidKeyException, NoSuchAlgorithmException {
+	public int ajouterAdministrateur(String login, String password) throws DatabaseException, InvalidKeyException, NoSuchAlgorithmException {
 
 		try {
 			
@@ -108,13 +109,19 @@ public class AdministrateurGestion {
 			
 			// Prépare la requête
 			PreparedStatement reqPreparee = bdd.getConnection().prepareStatement(
-					"INSERT INTO edt.administrateurs (admin_login, admin_password) VALUES (?,?)");
+					"INSERT INTO edt.administrateurs (admin_login, admin_password) VALUES (?,?) RETURNING admin_id");
 			reqPreparee.setString(1, login);
 			reqPreparee.setString(2, cryptedPassword);
 
 			// Exécute la requête
-			reqPreparee.execute();
-			
+			ResultSet resultat = reqPreparee.executeQuery();
+
+			// Récupère l'identifiant de la ligne ajoutée
+			resultat.next();
+			int idInsertion = resultat.getInt(1);
+			resultat.close();
+
+			return idInsertion;
 		} catch (SQLException e) {
 			throw new DatabaseException(e); 
 		}
