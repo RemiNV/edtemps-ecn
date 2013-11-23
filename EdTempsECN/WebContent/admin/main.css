@@ -290,3 +290,62 @@ input[type=text], input[type=email], input[type=password], textarea {
 	top: 300px;
 	height: 130px;
 }
+
+
+/**
+ * Liste des administraurs
+ */
+
+#liste_administrateurs {
+	border-collapse: collapse;
+	width: 450px;
+	margin-top: -5px;
+	margin-left: 20px;
+	box-shadow: 0 0 7px #0187AA;
+	border: solid 1px 0187AA;
+}
+
+#liste_administrateurs tr:nth-child(odd) {
+  background-color: #E3EDEF;
+}
+
+#liste_administrateurs td {
+	padding: 3px;
+}
+
+#liste_administrateurs th {
+	padding: 3px;
+	background-color: #0187AA;
+	color: white;
+}
+
+
+/**
+ * Formulaire d'ajout d'un administrateur
+ */
+
+#ajouter_administrateur {
+	box-shadow: 0 0 7px #555;
+	width: 450px;
+	position: absolute;
+	margin-left: 500px;
+	top: 197px;
+	height: 70px;
+	padding-left: 10px
+}
+
+
+/**
+ * Formulaire de suppression d'un administrateur
+ */
+
+#supprimer_administrateur {
+	box-shadow: 0 0 7px #555;
+	width: 440px;
+	padding-left: 10px;
+	padding-right: 10px;
+	position: absolute;
+	margin-left: 500px;
+	top: 300px;
+	height: 70px;
+}
