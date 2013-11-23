@@ -3,8 +3,6 @@ package org.ecn.edtemps.servlets.impl;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
@@ -16,8 +14,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.managers.AdministrateurGestion;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.managers.UtilisateurGestion;
 
 /**
  * Servlet pour la connexion en grand administrateur
@@ -60,7 +58,7 @@ public class AdministrateurServlet extends HttpServlet {
 			logger.error("Erreur lors du cryptage du mot de passe");
 			session.setAttribute("connect", "KO");
 			resp.sendRedirect("../admin/login.jsp");
-		} catch (SQLException | DatabaseException e) {
+		} catch (DatabaseException e) {
 			logger.error("Erreur liée à la base de données");
 			session.setAttribute("connect", "KO");
 			resp.sendRedirect("../admin/login.jsp");
@@ -81,30 +79,16 @@ public class AdministrateurServlet extends HttpServlet {
 	 * @throws SQLException 
 	 * @throws ServletException 
 	 */
-	protected void doConnexionAdministrateur(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws IOException, InvalidKeyException, NoSuchAlgorithmException, DatabaseException, SQLException, ServletException {
-
-		BddGestion bdd = new BddGestion();
+	protected void doConnexionAdministrateur(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws IOException, InvalidKeyException, NoSuchAlgorithmException, DatabaseException, ServletException {
 		
 		// Récupération des identifiants passés en paramètre
 		String login = req.getParameter("login");
 		String password = req.getParameter("password");
-		String cryptedPassword = UtilisateurGestion.hmac_sha256("Chaine de cryptage", password);
 		logger.debug("Tentative de connexion à l'espace d'administration avec le login : " + login);
 		
-		// Prépare la requête
-		PreparedStatement reqPreparee = bdd.getConnection().prepareStatement(
-				"SELECT COUNT(*) FROM edt.administrateurs WHERE admin_login=? AND admin_password=?");
-		reqPreparee.setString(1, login);
-		reqPreparee.setString(2, cryptedPassword);
-
-		// Exécute la requête
-		ResultSet reqResultat = reqPreparee.executeQuery();
-		reqResultat.next();
-		
-		// Alimente les attributs de la session http
-		session.setAttribute("login", login);
-
-		if (reqResultat.getInt(1)>0) {
+		BddGestion bdd = new BddGestion();
+		AdministrateurGestion gestionnaireAdministrateur = new AdministrateurGestion(bdd);
+		if (gestionnaireAdministrateur.seConnecter(login, password)) {
 			logger.error("Connexion réussie");
 			session.setAttribute("connect", "OK");
 			resp.sendRedirect("../admin/general.jsp");
