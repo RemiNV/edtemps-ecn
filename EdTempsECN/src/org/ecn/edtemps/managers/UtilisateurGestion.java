@@ -645,4 +645,38 @@ public class UtilisateurGestion {
 		}
 	}
 	
+	
+	/**
+	 * Récupère la liste de tous les utilisateurs
+	 * @return liste des utilisateurs
+	 * @throws DatabaseException
+	 */
+	public List<UtilisateurIdentifie> getListeUtilisateurs() throws DatabaseException {
+		ResultSet reponse = bdd.executeRequest("" +
+				"SELECT utilisateur_id, utilisateur_nom, utilisateur_prenom, utilisateur_email, type_id FROM edt.utilisateur" +
+				" INNER JOIN edt.estdetype ON estdetype.utilisateur_id=utilisateur.utilisateur_id");
+
+		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+
+		try {
+			while(reponse.next()) {
+				int id = reponse.getInt("utilisateur_id");
+				int type = reponse.getInt("utilisateur_type");
+				String nom = reponse.getString("utilisateur_nom");
+				String prenom = reponse.getString("utilisateur_prenom");
+				String email = reponse.getString("utilisateur_email");
+				
+				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email);
+				utilisateur.setType(type);
+				
+				res.add(utilisateur);
+			}
+			reponse.close();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return res;
+	}
+	
 }
