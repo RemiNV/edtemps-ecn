@@ -56,8 +56,8 @@ public class EvenementGestionTest {
 			List<Integer> idIntervenants, List<Integer> idResponsables) {
 		
 		assertEquals(evenementRecup.getNom(), nom);
-		assertEquals(evenementRecup.getDateDebut(), dateDebut);
-		assertEquals(evenementRecup.getDateFin(), dateFin);
+		assertEquals(evenementRecup.getDateDebut().compareTo(dateDebut),0);
+		assertEquals(evenementRecup.getDateFin().compareTo(dateFin),0);
 		
 		//Comparaison des calendriers de rattachement
 		List<Integer> idCalRecup = evenementRecup.getIdCalendriers();
@@ -132,14 +132,14 @@ public class EvenementGestionTest {
 		
 		//Récupération d'un id de calendrier
 		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
-				"SELECT min(cal_id) FROM edt.calendrier");
-		int idCal = bdd.recupererId(requetePreparee, "cal_id");
+				"SELECT min(cal_id) AS idcal FROM edt.calendrier");
+		int idCal = bdd.recupererId(requetePreparee, "idcal");
 		assertTrue(idCal > 0);
 		
 		//Récupération d'un id de salle
 		requetePreparee = bdd.getConnection().prepareStatement(
-				"SELECT min(salle_id) FROM edt.salle");
-		int idSalle = bdd.recupererId(requetePreparee, "salle_id");
+				"SELECT min(salle_id) AS idSalle FROM edt.salle");
+		int idSalle = bdd.recupererId(requetePreparee, "idSalle");
 		assertTrue(idSalle > 0);
 		
 		// Récupération de 2 utilisateurs de test (correspond au jeu de tests de la BDD)
@@ -172,6 +172,17 @@ public class EvenementGestionTest {
 		//Enregistrement de l'évenement
 		evenementGestion.sauverEvenement("EvenementTestJUnit", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
 		
+		//Test de l'impossibilité d'enregistrer un évènement au même moment dans une même salle
+		int resultatException = 0;
+		try{
+			evenementGestion.sauverEvenement("EvenementTestJUnit2", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
+		}
+		catch(EdtempsException e) {
+			 
+			resultatException = e.getResultCode().getCode();
+		}
+		assertTrue(resultatException == 11); //Code 11 : Salle Occupée
+		
 		//Récupération de l'id de l'évenement créé
 		requetePreparee = bdd.getConnection().prepareStatement(
 				"SELECT eve_id FROM edt.evenement WHERE eve_nom = 'EvenementTestJUnit'");
@@ -201,6 +212,8 @@ public class EvenementGestionTest {
 		
 		
 	}
+	
+
 	
 	
 
