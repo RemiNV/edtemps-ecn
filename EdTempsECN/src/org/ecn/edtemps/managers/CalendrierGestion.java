@@ -51,6 +51,10 @@ public class CalendrierGestion {
 		String type = calendrier.getType();
 		List<Integer> idProprietaires = calendrier.getIdProprietaires(); 
 		
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique");
+		}
+		
 		try {
 			// Début transaction
 			_bdd.startTransaction();
@@ -233,6 +237,10 @@ public class CalendrierGestion {
 	 * @throws EdtempsException
 	 */
 	public void modifierCalendrier(CalendrierIdentifie calId) throws EdtempsException {
+		
+		if(!StringUtils.isAlphanumericSpace(calId.getNom())) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique");
+		}
 		
 		try {
 			// Début transaction

@@ -14,6 +14,7 @@ import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.IdentificationErrorException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
@@ -66,6 +67,7 @@ public class ConnectionServlet extends HttpServlet {
 				JsonObject data = Json.createObjectBuilder()
 						.add("token", retourConnexion.getToken())
 						.add("userId", retourConnexion.getUserId())
+						.add("actionsAutorisees", JSONUtils.getJsonIntArray(retourConnexion.getActionsAutorisees()))
 						.build();
 				
 				reponse = ResponseManager.generateResponse(result, "", data);

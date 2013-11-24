@@ -7,13 +7,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -60,18 +63,26 @@ public class UtilisateurGestion {
 		
 		private Integer userId;
 		private String token;
+		private List<Integer> actionsAutorisees;
 		
-		public ObjetRetourMethodeConnexion(Integer userId, String token) {
+		public ObjetRetourMethodeConnexion(Integer userId, String token, List<Integer> actionsAutorisees) {
 			this.userId = userId;
 			this.token = token;
+			if (CollectionUtils.isNotEmpty(actionsAutorisees)) {
+				this.actionsAutorisees = actionsAutorisees;
+			} else {
+				this.actionsAutorisees = new ArrayList<Integer>();
+			}
 		}
 
 		public Integer getUserId() {
 			return userId;
 		}
-
 		public String getToken() {
 			return token;
+		}
+		public List<Integer> getActionsAutorisees() {
+			return actionsAutorisees;
 		}
 	}
 	
@@ -361,7 +372,7 @@ public class UtilisateurGestion {
 			
 			bdd.commit();
 			
-			return new ObjetRetourMethodeConnexion(userId, token);
+			return new ObjetRetourMethodeConnexion(userId, token, getListeActionsAutorisees(userId));
 			
 		} catch (com.unboundid.ldap.sdk.LDAPException e) {
 			
@@ -433,13 +444,13 @@ public class UtilisateurGestion {
 		boolean isAble = false;
 		try {
 			ResultSet reponse = bdd.executeRequest(
-					"SELECT droits_libelle "
+					"SELECT droits.droits_libelle "
 					+ "FROM edt.droits "
 					+ "INNER JOIN edt.aledroitde ON droits.droits_id = aledroitde.droits_id "
 					+ "INNER JOIN edt.typeutilisateur ON typeutilisateur.type_id = aledroitde.type_id "
-					+ "INNER JOIN estdetype ON estdetype.type_id = typeutilisateur.typeid "
-					+ "WHERE utilisateur_id = " + idUtilisateur + " "
-					+ "AND droits_id = " + action.getId());
+					+ "INNER JOIN edt.estdetype ON estdetype.type_id = typeutilisateur.type_id "
+					+ "WHERE estdetype.utilisateur_id = " + idUtilisateur + " "
+					+ "AND droits.droits_id = " + action.getId());
 			if(reponse.next()) {
 				isAble = true;
 			}
@@ -558,7 +569,6 @@ public class UtilisateurGestion {
 	
 	/**
 	 * Récupère la liste de tous les utilisateurs qui peuvent potentiellement être propriétaires d'un groupe de participants
-	 * 
 	 * @return liste des utilisateurs
 	 * @throws DatabaseException
 	 */
@@ -577,6 +587,160 @@ public class UtilisateurGestion {
 		}
 
 		return res;
+	}
+	
+	/**
+	 * Récupère la liste actions autorisées pour un utilisateur
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return la liste des identifiants des actions que l'utilisateur peut réaliser
+	 * @throws DatabaseException
+	 */
+	public List<Integer> getListeActionsAutorisees(int idUtilisateur) throws DatabaseException {
+
+		List<Integer> resultat = new ArrayList<Integer>();
+		
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT droits.droits_id "
+					+ "FROM edt.droits "
+					+ "INNER JOIN edt.aledroitde ON droits.droits_id = aledroitde.droits_id "
+					+ "INNER JOIN edt.typeutilisateur ON typeutilisateur.type_id = aledroitde.type_id "
+					+ "INNER JOIN edt.estdetype ON estdetype.type_id = typeutilisateur.type_id "
+					+ "WHERE utilisateur_id = " + idUtilisateur);
+			while(reponse.next()) {
+				resultat.add(reponse.getInt("droits_id"));
+			}
+			
+			reponse.close();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return resultat;
+		
+	}
+	
+	
+	/**
+	 * Récupère la liste des types d'utilisateurs possibles
+	 * @return liste des types d'utilisateurs
+	 * @throws DatabaseException 
+	 */
+	public Map<Integer, String> getListeTypesUtilisateur() throws DatabaseException {
+
+		Map<Integer, String> listeTypes = new HashMap<Integer, String>();
+
+		try {
+			ResultSet reponse = bdd.executeRequest("SELECT type_id, type_libelle FROM edt.typeutilisateur");
+			while (reponse.next()) {
+				listeTypes.put(reponse.getInt("type_id"), reponse.getString("type_libelle"));
+			}
+			reponse.close();
+			
+			return listeTypes;
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	
+	/**
+	 * Récupère la liste de tous les utilisateurs
+	 * @return liste des utilisateurs
+	 * @throws DatabaseException
+	 */
+	public List<UtilisateurIdentifie> getListeUtilisateurs() throws DatabaseException {
+		ResultSet reponse = bdd.executeRequest("" +
+				"SELECT * FROM edt.utilisateur" +
+				" LEFT JOIN edt.estdetype ON estdetype.utilisateur_id=utilisateur.utilisateur_id" +
+				" ORDER BY utilisateur.utilisateur_prenom");
+
+		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
+
+		try {
+			while(reponse.next()) {
+				int id = reponse.getInt("utilisateur_id");
+				int type = reponse.getInt("type_id");
+				String nom = reponse.getString("utilisateur_nom");
+				String prenom = reponse.getString("utilisateur_prenom");
+				String email = reponse.getString("utilisateur_email");
+				
+				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email);
+				utilisateur.setType(type);
+				
+				res.add(utilisateur);
+			}
+			reponse.close();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return res;
+	}
+	
+	
+	/**
+	 * Modifie le type d'un utilisateur
+	 * @param userId Identifiant de l'utilisateur
+	 * @param typeId Identifiant du nouveau type de l'utilisateur
+	 * @throws DatabaseException 
+	 */
+	public void modifierTypeUtilisateur(int userId, int typeId) throws DatabaseException {
+		
+		// Démarre une transaction
+		bdd.startTransaction();
+		
+		// Supprime le type actuel de l'utilisateur
+		bdd.executeRequest("DELETE FROM edt.estdetype WHERE utilisateur_id="+userId);
+		
+		// Ajoute le nouveau type
+		bdd.executeRequest("INSERT INTO edt.estdetype (utilisateur_id, type_id) VALUES ("+userId+", "+typeId+")");
+		
+		// Commit la transaction
+		bdd.commit();
+		
+	}
+	
+
+	/**
+	 * Supprimer un utilisateur
+	 * @param userId Identifiant de l'utilisateur
+	 * @throws DatabaseException 
+	 */
+	public void supprimerUtilisateur(int userId) throws DatabaseException {
+		
+		// Démarre une transaction
+		bdd.startTransaction();
+
+		// Supprime les abonnements de l'utilisateur
+		bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE utilisateur_id="+userId);
+
+		// Supprime les liens de propriété de groupes
+		bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE utilisateur_id="+userId);
+
+		// Supprime les liens de propriété d'événements
+		bdd.executeRequest("DELETE FROM edt.ResponsableEvenement WHERE utilisateur_id="+userId);
+
+		// Supprime les liens d'intervenant sur des événements
+		bdd.executeRequest("DELETE FROM edt.IntervenantEvenement WHERE utilisateur_id="+userId);
+		
+		// Supprime les liens de propriété de calendriers
+		bdd.executeRequest("DELETE FROM edt.ProprietaireCalendrier WHERE utilisateur_id="+userId);
+
+		// Supprime les liens de propriété de matières
+		bdd.executeRequest("DELETE FROM edt.ProprietaireMatiere WHERE utilisateur_id="+userId);
+		
+		// Supprime les types de l'utilisateur
+		bdd.executeRequest("DELETE FROM edt.EstDeType WHERE utilisateur_id="+userId);
+		
+		// Supprime l'utilisateur
+		bdd.executeRequest("DELETE FROM edt.utilisateur WHERE utilisateur_id="+userId);
+		
+		// Commit la transaction
+		bdd.commit();
+		
 	}
 	
 }

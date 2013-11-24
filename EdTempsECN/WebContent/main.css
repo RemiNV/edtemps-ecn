@@ -19,7 +19,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #formulaire_connexion {
-	background-color: #bfc2bf;
 	padding: 20px;
 	overflow: hidden;
 	width: 500px;
@@ -30,11 +29,19 @@ h1, h2, h3, h4, h5, h6 {
 	margin-left: 60px;
 }
 
+#table_connexion label {
+	font-size: 1.1em;
+}
+
+#table_connexion td {
+	padding: 5px;
+}
+
 #btn_connexion {
 	float: right;
 }
 
-.message_alerte {
+.message_alerte, .salle_occupee {
 	color: red;
 }
 
@@ -483,11 +490,6 @@ input.valide {
 	top: 3px;
 	right: 3px;
 }
-
-.salle_occupee {
-	color: red;
-}
-
 .salle_occupee_noncours {
 	color: #fb863a;
 }

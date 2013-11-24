@@ -414,8 +414,15 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			res.nom = jqNom.val();
 		}
 		else {
-			// Validation du nom
-			res.nom = validateNotEmpty(jqNom);
+			// Validation du nom (alphanumérique et non vide)
+			res.nom = jqNom.val();
+			if(/^[a-z \u00C0-\u00FF0-9]+$/i.test(res.nom)) {
+				jqNom.addClass("valide").removeClass("invalide");
+			} 
+			else {
+				jqNom.addClass("invalide").removeClass("valide");
+				res.nom = null;
+			}
 		}
 		
 		res.responsables = this.multiWidgetProprietaires.val();
@@ -497,7 +504,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		if(res.dateDebut != null && res.dateFin != null) {
 			res.valideRechercheSalle = true;
 			
-			if(res.nom !== "" && res.calendriers.length > 0) {
+			if(res.nom != null && res.calendriers.length > 0) {
 				res.valide = true;
 			}
 		}

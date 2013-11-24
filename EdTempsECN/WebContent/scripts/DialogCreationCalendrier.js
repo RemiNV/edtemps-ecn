@@ -106,13 +106,13 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 		if (casModifier) {
 			// Si pas déjà fait, initialiser la boite de dialogue (listeners, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				me.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires); 
+				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires); 
 				this.initAppele = true;
 			}
 			else {
 				// On met affiche la matiere / le type du calendrier
-				me.matiere.val(calendrierAModifier.matiere); 
-				me.type.val(calendrierAModifier.type);
+				this.matiere.val(calendrierAModifier.matiere); 
+				this.type.val(calendrierAModifier.type);
 				// On remplir les proprietaires
 				$.each(calendrierAModifier.proprietaires, function(indiceArray, idProprietaire) {
 					if (localStorage && localStorage["userId"] != idProprietaire) {
@@ -124,32 +124,32 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 				});
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
-			me.jqDialog.dialog("option", "title", "Modifier le calendrier");
-			me.jqDialog.find("#form_creer_calendrier_valider").attr("value", "Modifier");
+			this.jqDialog.dialog("option", "title", "Modifier le calendrier");
+			this.jqDialog.find("#form_creer_calendrier_valider").attr("value", "Modifier");
 			// On affiche le nom du calendrier dans la case Nom
-			me.nom.val(calendrierAModifier.nom);
+			this.nom.val(calendrierAModifier.nom);
 			// Récupérer l'ID du calendrier à modifier
-			var idCal = calendrierAModifier.id;
+			idCal = calendrierAModifier.id;
 		}	
 		// CAS CREATION d'un calendrier
 		else {
 			// Si pas déjà fait, initialiser la boite de dialogue (listener, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				me.init("","", new Array()); //Matière = Aucune et type = Aucun
+				this.init("","", new Array()); //Matière = Aucune et type = Aucun
 				this.initAppele = true;
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
-			me.jqDialog.dialog("option", "title", "Création d'un nouveau calendrier");
-			me.jqDialog.find("#form_creer_calendrier_valider").attr("value", "Créer");
+			this.jqDialog.dialog("option", "title", "Création d'un nouveau calendrier");
+			this.jqDialog.find("#form_creer_calendrier_valider").attr("value", "Créer");
 		}
 		
 		// Listener bouton "Valider"
-		me.jqDialog.find("#form_creer_calendrier_valider").click(function() {
+		this.jqDialog.find("#form_creer_calendrier_valider").click(function() {
 			me.effectuerRequeteCreationModification(casModifier, idCal);
 		});
 		
 		// Ouverture de la boîte dialogue
-		me.jqDialog.dialog("open");
+		this.jqDialog.dialog("open");
 
 	};
 
@@ -221,7 +221,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 		var valid = true;
 
 		// Nom du calendrier non nul ?
-		if (this.nom.val()=="") {
+		if (this.nom.val()=="" || !(/^[a-z \u00C0-\u00FF0-9]+$/i.test(this.nom.val()))) {
 			this.nom.css({border: "1px solid red"});
 			valid = false;
 		} else {
@@ -276,8 +276,9 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 						window.showToast("Le calendrier a bien été créé");
 						// recharger les calendriers de l'utilisateur
 						me.ecranParametres.afficheListeMesCalendriers();
-					}
-					else {
+					} else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
+						window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
+					} else {
 						// afficher message
 						window.showToast("Erreur lors de la création du calendrier");
 					}

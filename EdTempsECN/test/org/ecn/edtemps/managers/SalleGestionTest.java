@@ -48,13 +48,13 @@ public class SalleGestionTest {
 		SalleIdentifie salle = this.salleGestionnaire.getSalle(6, true);
 		
 		Materiel materiel1 = new Materiel(1, "Ordinateur", 20);
-		Materiel materiel2 = new Materiel(2, "Vidéoprojecteur", 0);
+		Materiel materiel2 = new Materiel(2, "Vidéoprojecteur", 10);
 		ArrayList<Materiel> materiels = new ArrayList<Materiel>();
 		materiels.add(materiel1);
 		materiels.add(materiel2);
 		
 		//Modification de tous les paramètres de la salle
-		salle.setNom("testModification");
+		salle.setNom("testModification2");
 		salle.setBatiment("bat X");
 		salle.setCapacite(30);
 		salle.setNiveau(0);
@@ -64,13 +64,13 @@ public class SalleGestionTest {
 		this.salleGestionnaire.modifierSalle(salle);
 		SalleIdentifie salleModifie = this.salleGestionnaire.getSalle(6, true);
 		
-		assertTrue(salleModifie.getNom().equals("testModification"));
+		assertTrue(salleModifie.getNom().equals("testModification2"));
 		assertTrue(salleModifie.getBatiment().equals("bat X"));
 		assertTrue(salleModifie.getCapacite()==30);
 		assertTrue(salleModifie.getNiveau()==0);
 		assertTrue(salleModifie.getNumero()==1);
 		assertTrue(salleModifie.getMateriels().get(0).getQuantite()==20);
-		assertTrue(salleModifie.getMateriels().get(1).getQuantite()==0);
+		assertTrue(salleModifie.getMateriels().get(1).getQuantite()==10);
 	}
 
 	@Test

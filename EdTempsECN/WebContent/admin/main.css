@@ -2,26 +2,17 @@ body {
 	font-family: sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
-	margin: 0px;
-}
-
 #header {
 	width: 1000px;
 	margin: 0px auto 20px auto;
 }
 
-#header #logo {
+#logo {
 	width: 150px
 }
 
-#header #logo img {
+#logo img {
 	width: 100px
-}
-
-#header .message_bonjour {
-	color: blue;
-	font-style: italic;
 }
 
 #main_content {
@@ -32,16 +23,46 @@ h1, h2, h3, h4, h5, h6 {
 	border-radius: 5px;
 }
 
-#main_content h1 {
-	background-image: linear-gradient(to bottom, white, #e6e6e6);
-	border-bottom: 1px solid #bfc2bf;
+h1 {
+	background-image: linear-gradient(60deg, #0A3E91, #0096AE);
+	border-bottom: 1px solid #BFC2BF;
+	background-color: #0187AA;
+	color: white;
 	padding: 5px 10px 5px 10px;
 	display: block;
 	text-align: left;
-	color: #0E007F;
 	font-size: 1.2em;
 	border-radius: 5px 5px 0px 0px;
 }
+
+#form_login {
+	box-shadow: 0 0 7px #555;
+	width: 375px;
+	margin: 100px auto 0px auto;
+	border-radius: 5px;
+}
+
+#form_login h1 {
+	text-align: center;
+}
+
+#form_login form {
+	margin: 0px auto 20px auto;
+	width: 260px;
+}
+
+#erreur_connexion {
+	color: red;
+}
+
+#content {
+	padding: 10px;
+}
+
+
+/**
+ * Boutons et menus
+ */
 
 .button {
 	background-image: linear-gradient(to bottom, white, #e6e6e6);
@@ -108,15 +129,168 @@ ul.button_nav li:last-child {
 	border-bottom-right-radius: 4px;
 }
 
-#form_login {
-	margin: 20px auto 20px auto;
-	width: 300px;
+
+
+/**
+ * Généralités sur les tableaux
+ */
+.tableau_liste {
+	border-collapse: collapse;
 }
 
-#erreur_connexion {
-	color: red;
+.tableau_liste td {
+	padding: 3px;
+	border: solid 1px gray;
 }
 
-#main_content #content {
+.tableau_liste th {
+	padding: 3px;
+	background-color: #0187AA;
+	color: white;
+	border: solid 1px gray;
+}
+
+.tableau_liste tr:nth-child(odd) {
+  background-color: #E3EDEF;
+}
+
+.information {
+	font-size: 0.9em;
+	color: gray;
+	text-align: justify;
+}
+
+
+
+/**
+ * Page de gestion des salles
+ */
+
+#liste_salles {
+	margin-top: 20px;
+	width: 100%;
+}
+
+#liste_salles .liste_salles_modifier {
+	text-align: right;
+	padding-right: 5px;
+	border-right: none;
+}
+
+#liste_salles .liste_salles_supprimer {
+	padding-left: 5px;
+	border-left: none;
+}
+
+#ajouter_salle_form {
+	display: none;
+	box-shadow: 0 0 7px #555;
+	width: 500px;
+	border-radius: 5px;
 	padding: 10px;
+}
+
+#ajouter_salle_form .salle_form_boutons {
+	text-align: right;
+}
+
+#salle_materiels {
+	margin: 2px;
+	border-collapse: collapse;
+	width: 330px;
+}
+
+#salle_materiels td {
+	border: solid 1px gray;
+	padding-left: 5px;
+}
+
+#salle_materiels .salle_quantite_materiel input[type=number] {
+	width: 60px;
+	border: none;
+}
+
+#salle_materiels .salle_quantite_materiel {
+	width: 60px;
+}
+
+
+
+/**
+ * Page de gestion des types de matériel
+ */
+
+#liste_materiel {
+	width: 450px;
+}
+
+#ajouter_materiel {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 200px;
+	height: 70px;
+	width: 460px;
+	padding: 10px;
+}
+
+#supprimer_materiel {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 300px;
+	height: 130px;
+	width: 460px;
+	padding: 10px;
+}
+
+.formulaire_zone_titre {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-decoration: underline;
+	font-size: 0.9em;
+}
+
+
+
+/**
+ * Page de gestion des administraurs
+ */
+
+#liste_administrateurs {
+	width: 450px;
+}
+
+#ajouter_administrateur {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 200px;
+	height: 170px;
+	width: 460px;
+	padding: 10px;
+}
+
+#supprimer_administrateur {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 400px;
+	height: 70px;
+	width: 460px;
+	padding: 10px;
+}
+
+
+
+/**
+ * Page de gestion des utilisateurs
+ */
+
+#liste_utilisateurs {
+	width: 100%;
+}
+
+#liste_utilisateurs td.form_supprimer_utilisateur {
+	width: 20px;
 }

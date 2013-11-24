@@ -96,70 +96,76 @@ public class SalleGestion {
 	 */
 	public void modifierSalle(SalleIdentifie salle) throws EdtempsException {
 
-		if (salle != null) {
+		if (salle==null) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,
+					"Tentative d'enregistrer un objet NULL en base de données.");
+		}
 
-			try {
-				// Récupération des nouvelles informations sur la salle
-				int id = salle.getId();
-				String batiment = salle.getBatiment();
-				if (StringUtils.isBlank(batiment)) {
-					batiment = "";
+		int id = salle.getId();
+		String nom = salle.getNom();
+		String batiment = salle.getBatiment();
+		Integer niveau = salle.getNiveau();
+		Integer numero = salle.getNumero();
+		Integer capacite = salle.getCapacite();
+		ArrayList<Materiel> materiels = salle.getMateriels();
+
+		// Vérification de la cohérence des valeurs
+		if (StringUtils.isBlank(nom)) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,
+					"Tentative d'enregistrer une salle en base de données sans nom.");
+		}
+		
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom de la salle doit être alphanumérique");
+		}
+			
+		try {
+
+			// Démarre une transaction
+			_bdd.startTransaction();
+
+			// Vérifie que le nom de la salle n'est pas déjà pris
+			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT salle_id FROM edt.salle WHERE salle_nom=?");
+			nomDejaPris.setString(1, nom);
+			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+			if (nomDejaPrisResult.next()) {
+				int idRecupere = nomDejaPrisResult.getInt(1); 
+				if (idRecupere!=id) {
+					throw new EdtempsException(ResultCode.NAME_TAKEN,
+							"Tentative d'enregistrer une salle en base de données avec un nom déjà utilisé.");
 				}
-				String nom = salle.getNom();
-				Integer niveau = salle.getNiveau();
-				Integer numero = salle.getNumero();
-				Integer capacite = salle.getCapacite();
-				ArrayList<Materiel> materiels = salle.getMateriels();
-
-				// Vérification de la cohérence des valeurs
-				if (StringUtils.isNotBlank(nom)) {
-
-					// Démarre une transaction
-					_bdd.startTransaction();
-
-					// Modifie les informations sur la salle
-					PreparedStatement requete = _bdd.getConnection().prepareStatement(
-							"UPDATE edt.salle SET" +
-							" salle_batiment=?" +
-							", salle_niveau=" + niveau +
-							", salle_numero=" + numero +
-							", salle_capacite=" + capacite +
-							", salle_nom=? WHERE salle_id=" + id);
-					requete.setString(1, batiment);
-					requete.setString(2, nom);
-					
-					requete.execute();
-					
-					// Suppression de l'ancienne liste des matériels
-					_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id="+id);
-
-					// Ajout des nouveaux liens avec les matériels
-					for (int i = 0; i<materiels.size(); i++) {
-						_bdd.executeRequest(
-								"INSERT INTO edt.contientmateriel " +
-								"(salle_id, materiel_id, contientmateriel_quantite) VALUES (" +
-								id + ", " +
-								materiels.get(i).getId() + ", " +
-								materiels.get(i).getQuantite() +")");
-					}
-
-					// Termine la transaction
-					_bdd.commit();
-
-				} else {
-					throw new EdtempsException(ResultCode.DATABASE_ERROR,
-							"Tentative d'enregistrer une salle en base de données sans nom.");
-				}
-
-			} catch (DatabaseException e) {
-				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-			} catch (SQLException e) {
-				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 			}
 
-		} else {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR,
-					"Tentative de modifier un objet NULL en base de données.");
+			// Prépare la requête
+			PreparedStatement requete = _bdd.getConnection().prepareStatement(
+					"UPDATE edt.salle SET" +
+					" salle_batiment=?" +
+					", salle_niveau=" + niveau +
+					", salle_numero=" + numero +
+					", salle_capacite=" + capacite +
+					", salle_nom=? WHERE salle_id=" + id);
+			requete.setString(1, batiment);
+			requete.setString(2, nom);
+
+			// Exécute la requête
+			requete.execute();
+			
+			// Suppression de l'ancienne liste des matériels
+			_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id="+id);
+
+			// Ajout des liens avec le matériel
+			for (Materiel materiel : materiels) {
+				if (materiel.getQuantite()>0) {
+					_bdd.executeRequest("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) " +
+							"VALUES (" + id + ", " + materiel.getId() + ", " + materiel.getQuantite() + ")");
+				}
+			}
+
+			// Termine la transaction
+			_bdd.commit();
+
+		} catch (DatabaseException | SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 
 	}
@@ -179,75 +185,72 @@ public class SalleGestion {
 
 		int idInsertion = -1;
 		
-		if (salle != null) {
-
-			try {
-
-				// Démarre une transaction
-				_bdd.startTransaction();
-
-				// Récupération des arguments sur la salle
-				String batiment = salle.getBatiment();
-				if (StringUtils.isBlank(batiment)) {
-					batiment = "";
-				}
-				String nom = salle.getNom();
-				Integer niveau = salle.getNiveau();
-				Integer numero = salle.getNumero();
-				Integer capacite = salle.getCapacite();
-				ArrayList<Materiel> materiels = salle.getMateriels();
-
-				// Vérification de la cohérence des valeurs
-				if (StringUtils.isNotBlank(nom)) {
-
-					// Ajoute la salle dans la bdd et récupère l'identifiant de
-					// la ligne
-					PreparedStatement requete = _bdd.getConnection().prepareStatement(
-							"INSERT INTO edt.salle (salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) VALUES (" +
-							"?" + 
-							"," + niveau + 
-							", " + numero +
-							", " + capacite +
-							", ?) RETURNING salle_id");
-					requete.setString(1, batiment);
-					requete.setString(2, nom);
-					
-					// Exécute la requête
-					ResultSet resultat = requete.executeQuery();
-					
-					// Récupère l'identifiant de la ligne ajoutée
-					resultat.next();
-					idInsertion = resultat.getInt(1);
-					resultat.close();
-
-					// Ajout du lien avec les matériels
-					for (int i = 0; i<materiels.size(); i++){
-						_bdd.executeRequest(
-								"INSERT INTO edt.contientmateriel " +
-								"(salle_id, materiel_id, contientmateriel_quantite) VALUES (" +
-								idInsertion + ", " +
-								materiels.get(i).getId() + ", " +
-								materiels.get(i).getQuantite() + ")");
-					}
-
-				} else {
-					throw new EdtempsException(ResultCode.DATABASE_ERROR,
-							"Tentative d'enregistrer une salle en base de données sans nom.");
-				}
-
-				// Termine la transaction
-				_bdd.commit();
-
-			} catch (DatabaseException e) {
-				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-			} catch (SQLException e) {
-				throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-			}
-
-		} else {
+		if (salle==null) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR,
 					"Tentative d'enregistrer un objet NULL en base de données.");
 		}
+
+		String nom = salle.getNom();
+		String batiment = salle.getBatiment();
+		Integer niveau = salle.getNiveau();
+		Integer numero = salle.getNumero();
+		Integer capacite = salle.getCapacite();
+		ArrayList<Materiel> materiels = salle.getMateriels();
+		
+		// Vérification de la cohérence des valeurs
+		if (StringUtils.isBlank(nom)) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR,
+					"Tentative d'enregistrer une salle en base de données sans nom.");
+		}
+
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom de la salle doit être alphanumérique");
+		}
+
+		try {
+
+			// Démarre une transaction
+			_bdd.startTransaction();
+
+			// Vérifie que le nom de la salle n'est pas déjà pris
+			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT * FROM edt.salle WHERE salle_nom=?");
+			nomDejaPris.setString(1, nom);
+			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+			if (nomDejaPrisResult.next()) {
+				throw new EdtempsException(ResultCode.NAME_TAKEN,
+						"Tentative d'enregistrer une salle en base de données avec un nom déjà utilisé.");
+			}
+
+			// Ajoute la salle dans la bdd et récupère l'identifiant de la ligne
+			PreparedStatement requete = _bdd.getConnection().prepareStatement(
+					"INSERT INTO edt.salle (salle_batiment, salle_niveau, salle_numero, salle_capacite, salle_nom) " +
+					"VALUES (?, " + niveau + ", " + numero + ", " + capacite + ", ?) RETURNING salle_id");
+			requete.setString(1, batiment);
+			requete.setString(2, nom);
+
+			// Exécute la requête
+			ResultSet resultat = requete.executeQuery();
+
+			// Récupère l'identifiant de la ligne ajoutée
+			resultat.next();
+			idInsertion = resultat.getInt(1);
+			resultat.close();
+
+			// Ajout des liens avec le matériel
+			for (Materiel materiel : materiels) {
+				if (materiel.getQuantite()>0) {
+					_bdd.executeRequest("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) " +
+							"VALUES (" + idInsertion + ", " + materiel.getId() + ", " + materiel.getQuantite() + ")");
+				}
+			}
+
+			// Termine la transaction
+			_bdd.commit();
+
+		} catch (DatabaseException | SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+
 		return idInsertion;
 	}
 
@@ -452,7 +455,7 @@ public class SalleGestion {
 		try {
 			
 			ResultSet requete = _bdd.executeRequest("SELECT salle_id, salle_batiment, salle_nom," +
-					" salle_niveau, salle_numero, salle_capacite FROM edt.salle");
+					" salle_niveau, salle_numero, salle_capacite FROM edt.salle ORDER BY salle_nom");
 
 			List<SalleIdentifie> res = new ArrayList<SalleIdentifie>();
 			while(requete.next()) {

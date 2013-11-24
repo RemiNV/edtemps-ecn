@@ -165,7 +165,7 @@ define([ "jquery", "jqueryui" ], function() {
 		return {
 			getValFunction: function(jqElem) {
 				var val = parseInt(jqElem.attr("data-val"));
-				return val !== "" ? val : null;
+				return isNaN(val) ? null : val;
 			},
 			setFunction: function(jqElem, val) {
 				

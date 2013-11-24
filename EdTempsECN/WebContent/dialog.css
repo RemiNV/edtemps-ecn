@@ -6,24 +6,25 @@
 	z-index: 100;
 	position: absolute;
 	border-radius: 5px;
+	box-shadow: 0 0 7px #555;
 }
 
 .ui-dialog-content {
 	background-color: #DDDDDD;
 	padding: 10px;
 	border-radius: 0px 0px 5px 5px;
-	border: solid 1px gray;
 }
 
 .ui-dialog-titlebar {
-	background-color: #FFA500;
+	background-image: linear-gradient(60deg, #0A3E91, #0096AE);
+	background-color: #0187AA;
 	padding: 5px 10px 10px 10px;
 	border-radius: 5px 5px 0px 0px;
 	font-weight: bold;
 	height: 15px;
 	cursor: move;
 	text-align: center;
-	border: solid 1px gray;
+	color: white;
 }
 
 .ui-dialog-titlebar-close {

@@ -59,6 +59,7 @@ define(["RestManager"], function(RestManager) {
 			}
 		});	
 	};
+
 	
 	return UtilisateurGestion;
 });

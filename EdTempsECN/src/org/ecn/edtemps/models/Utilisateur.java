@@ -10,7 +10,9 @@ public class Utilisateur {
 	protected String nom;
 	protected String prenom;
 	protected String email;
+	protected int type;
 	
+
 	/**
 	 * Constructeur utilisant les paramètres indispensables
 	 * @param nom
@@ -42,4 +44,11 @@ public class Utilisateur {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	public int getType() {
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
+	}
+
 }

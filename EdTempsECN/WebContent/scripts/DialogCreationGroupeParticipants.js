@@ -50,6 +50,12 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 			this.jqCreationGroupeForm.dialog("option", "title", titre);
 			this.jqCreationGroupeForm.find("#form_creation_groupe_ajouter").attr("value", texteBouton);
 
+			// Si l'utilisateur n'a pas le droit de créer un groupe de cours, la case à cocher est désactivée
+			if (!this.restManager.aDroit(RestManager.actionsEdtemps_CreerGroupeCours)) {
+				this.jqCreationGroupeForm.find("#form_creer_groupe_cours").parents("tr").hide();
+				this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", false);
+			}
+
 			// Charge la liste des groupes parents disponibles
 			this.ecritListeGroupesParentsDisponibles(me.jqCreationGroupeForm.find("#form_creer_groupe_parent"), groupe, function(success) {
 				if (success) {
@@ -94,7 +100,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Veuillez vérifier et corriger les champs entourés en rouge");
 			}
 		});
-
+		
 		// Prépare la boîte dialogue
 		this.jqCreationGroupeForm.dialog({
 			autoOpen: false,
@@ -175,15 +181,24 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 	 * @return VRAI si le formulaire est valide, FAUX sinon
 	 */
 	DialogCreationGroupeParticipants.prototype.validationFormulaire = function() {
+		var correct = true;
 		if (this.jqChampNom.val()=="") {
 			this.jqChampNom.css("box-shadow", "#FF0000 0 0 10px");
 			this.jqChampNom.css("border", "1px solid #FF0000");
-			return false;
+			this.jqChampNom.attr("title", "Le nom du groupe doit être spécifié.");
+			correct = false;
+		} else if (!/^[a-z \u00C0-\u00FF0-9]+$/i.test(this.jqChampNom.val())) {
+			this.jqChampNom.css("box-shadow", "#FF0000 0 0 10px");
+			this.jqChampNom.css("border", "1px solid #FF0000");
+			this.jqChampNom.attr("title", "Le nom du groupe ne doit contenir que des caractères alphanumériques et des espaces");
+			correct = false;
 		} else {
 			this.jqChampNom.css("box-shadow", "#60C003 0 0 10px");
 			this.jqChampNom.css("border", "1px solid #60C003");
-			return true;
+			this.jqChampNom.attr("title", "");
 		}
+		
+		return correct;
 	};
 
 	/**
@@ -220,10 +235,14 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Le groupe de participant à été créé avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
 				callback();
+			} else if (response.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé a effectuer cette action");
+			} else if (response.resultCode == RestManager.resultCode_AlphanumericRequired) {
+				window.showToast("Le nom du groupe ne doit comporter que des caractères alphanumériques et des espaces");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion.");
+				window.showToast("Erreur lors de la création du groupe de participants ; vérifiez votre connexion");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {
-				window.showToast("Le nom du groupe est déjà utilisé, veuillez en choisir un autre.");
+				window.showToast("Le nom du groupe est déjà utilisé, veuillez en choisir un autre");
 			} else {
 				window.showToast(response.resultCode + " Erreur lors de la création du groupe de participants ; votre session a peut-être expiré ?");
 			}
@@ -267,6 +286,10 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Le groupe de participant à été modifié avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
 				callback();
+			} else if (response.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé a effectuer cette action");
+			} else if (response.resultCode == RestManager.resultCode_AlphanumericRequired) {
+				window.showToast("Le nom du groupe ne doit comporter que des caractères alphanumériques et des espaces");
 			} else if (response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur lors de la modification du groupe de participants ; vérifiez votre connexion.");
 			} else if (response.resultCode == RestManager.resultCode_NameTaken) {

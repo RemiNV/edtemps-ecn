@@ -3,8 +3,6 @@ package org.ecn.edtemps.servlets.impl;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
@@ -13,11 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.managers.AdministrateurGestion;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.managers.UtilisateurGestion;
 
 /**
  * Servlet pour la connexion en grand administrateur
@@ -39,7 +38,7 @@ public class AdministrateurServlet extends HttpServlet {
 		
 		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/connexion")) {
+		if (!pathInfo.equals("/connexion") && !pathInfo.equals("/ajouter") && !pathInfo.equals("/supprimer")) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -49,18 +48,27 @@ public class AdministrateurServlet extends HttpServlet {
 		try {
 			switch (pathInfo) {
 				case "/connexion":
-					doConnexionAdministrateur(req, resp, session);
+					doConnexion(req, resp, session);
+					break;
+				case "/ajouter":
+					doAjouter(req, resp, session);
+					break;
+				case "/supprimer":
+					doSupprimer(req, resp, session);
 					break;
 			}
 		} catch (IOException | ServletException e) {
 			logger.error("Erreur lors de l'écriture de la réponse");
 			session.setAttribute("connect", "KO");
+			resp.sendRedirect("../admin/login.jsp");
 		} catch (InvalidKeyException | NoSuchAlgorithmException e) {
 			logger.error("Erreur lors du cryptage du mot de passe");
 			session.setAttribute("connect", "KO");
-		} catch (SQLException | DatabaseException e) {
+			resp.sendRedirect("../admin/login.jsp");
+		} catch (DatabaseException e) {
 			logger.error("Erreur liée à la base de données");
 			session.setAttribute("connect", "KO");
+			resp.sendRedirect("../admin/login.jsp");
 		}
 		
 	}
@@ -78,39 +86,87 @@ public class AdministrateurServlet extends HttpServlet {
 	 * @throws SQLException 
 	 * @throws ServletException 
 	 */
-	protected void doConnexionAdministrateur(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws IOException, InvalidKeyException, NoSuchAlgorithmException, DatabaseException, SQLException, ServletException {
-
-		BddGestion bdd = new BddGestion();
+	protected void doConnexion(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws IOException, InvalidKeyException, NoSuchAlgorithmException, DatabaseException, ServletException {
 		
 		// Récupération des identifiants passés en paramètre
 		String login = req.getParameter("login");
 		String password = req.getParameter("password");
-		String cryptedPassword = UtilisateurGestion.hmac_sha256("Chaine de cryptage", password);
 		logger.debug("Tentative de connexion à l'espace d'administration avec le login : " + login);
 		
-		// Prépare la requête
-		PreparedStatement reqPreparee = bdd.getConnection().prepareStatement(
-				"SELECT COUNT(*) FROM edt.administrateurs WHERE admin_login=? AND admin_password=?");
-		reqPreparee.setString(1, login);
-		reqPreparee.setString(2, cryptedPassword);
-
-		// Exécute la requête
-		ResultSet reqResultat = reqPreparee.executeQuery();
-		reqResultat.next();
+		BddGestion bdd = new BddGestion();
+		AdministrateurGestion gestionnaireAdministrateur = new AdministrateurGestion(bdd);
 		
-		// Alimente les attributs de la session http
-		session.setAttribute("login", login);
-
-		if (reqResultat.getInt(1)>0) {
+		if (gestionnaireAdministrateur.seConnecter(login, password)) {
 			logger.error("Connexion réussie");
 			session.setAttribute("connect", "OK");
+			session.setAttribute("login", login);
 			resp.sendRedirect("../admin/general.jsp");
 		} else {
 			logger.error("Echec de connexion : identifiant ou mot de passe erroné.");
 			session.setAttribute("connect", "KO");
+			session.setAttribute("login", "");
 			resp.sendRedirect("../admin/login.jsp");
 		}
 
 	}
+	
+	
+	/**
+	 * Ajouter un administrateur 
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * @param session Session HTTP
+	 * @throws DatabaseException 
+	 * @throws IOException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws InvalidKeyException 
+	 */
+	protected void doAjouter(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws DatabaseException, IOException, InvalidKeyException, NoSuchAlgorithmException {
+		logger.error("Ajouter un administrateur");
+
+		// Récupération du login et du mot de passe
+		String login = req.getParameter("ajouter_administrateur_login");
+		String password = req.getParameter("ajouter_administrateur_password");
+
+		// Si le login ou mot de passe est vide, une erreur est générée
+		if (StringUtils.isBlank(login) || StringUtils.isBlank(password)) {
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		
+		// Exécute la requête d'ajout avec le manager
+		BddGestion bdd = new BddGestion();
+		AdministrateurGestion gestionnaireAdministrateur = new AdministrateurGestion(bdd);
+		gestionnaireAdministrateur.ajouterAdministrateur(login, password);
+		bdd.close();
+
+		// Redirige vers la page de liste des administrateurs
+		resp.sendRedirect(req.getContextPath()+"/admin/administrateurs/index.jsp");
+	}
+	
+
+	/**
+	 * Supprimer un administrateur 
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * @param session Session HTTP
+	 * @throws DatabaseException 
+	 * @throws IOException 
+	 */
+	protected void doSupprimer(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws DatabaseException, IOException {
+		logger.error("Suppression d'un administrateur");
+
+		// Récupération de l'identifiant de l'administrateur à supprimer
+		int id = Integer.valueOf(req.getParameter("supprimer_administrateur_id"));
+		
+		// Exécute la requête de suppression avec le manager
+		BddGestion bdd = new BddGestion();
+		AdministrateurGestion gestionnaireAdministrateur = new AdministrateurGestion(bdd);
+		gestionnaireAdministrateur.supprimerAdministrateur(id);
+		bdd.close();
+		
+		// Redirige vers la page de liste des types de matériel
+		resp.sendRedirect(req.getContextPath()+"/admin/administrateurs/index.jsp");
+	}
+
 
 }
