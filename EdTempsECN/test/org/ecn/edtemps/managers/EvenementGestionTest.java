@@ -56,8 +56,8 @@ public class EvenementGestionTest {
 			List<Integer> idIntervenants, List<Integer> idResponsables) {
 		
 		assertEquals(evenementRecup.getNom(), nom);
-		assertEquals(evenementRecup.getDateDebut(), dateDebut);
-		assertEquals(evenementRecup.getDateFin(), dateFin);
+		assertEquals(evenementRecup.getDateDebut().compareTo(dateDebut),0);
+		assertEquals(evenementRecup.getDateFin().compareTo(dateFin),0);
 		
 		//Comparaison des calendriers de rattachement
 		List<Integer> idCalRecup = evenementRecup.getIdCalendriers();
@@ -132,14 +132,14 @@ public class EvenementGestionTest {
 		
 		//Récupération d'un id de calendrier
 		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
-				"SELECT min(cal_id) FROM edt.calendrier");
-		int idCal = bdd.recupererId(requetePreparee, "cal_id");
+				"SELECT min(cal_id) AS idcal FROM edt.calendrier");
+		int idCal = bdd.recupererId(requetePreparee, "idcal");
 		assertTrue(idCal > 0);
 		
 		//Récupération d'un id de salle
 		requetePreparee = bdd.getConnection().prepareStatement(
-				"SELECT min(salle_id) FROM edt.salle");
-		int idSalle = bdd.recupererId(requetePreparee, "salle_id");
+				"SELECT min(salle_id) AS idSalle FROM edt.salle");
+		int idSalle = bdd.recupererId(requetePreparee, "idSalle");
 		assertTrue(idSalle > 0);
 		
 		// Récupération de 2 utilisateurs de test (correspond au jeu de tests de la BDD)
@@ -172,6 +172,17 @@ public class EvenementGestionTest {
 		//Enregistrement de l'évenement
 		evenementGestion.sauverEvenement("EvenementTestJUnit", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
 		
+		//Test de l'impossibilité d'enregistrer un évènement au même moment dans une même salle
+		int resultatException = 0;
+		try{
+			evenementGestion.sauverEvenement("EvenementTestJUnit2", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
+		}
+		catch(EdtempsException e) {
+			 
+			resultatException = e.getResultCode().getCode();
+		}
+		assertTrue(resultatException == 10); //Code 10 : Salle Occupée
+		
 		//Récupération de l'id de l'évenement créé
 		requetePreparee = bdd.getConnection().prepareStatement(
 				"SELECT eve_id FROM edt.evenement WHERE eve_nom = 'EvenementTestJUnit'");
@@ -184,6 +195,49 @@ public class EvenementGestionTest {
 			
 		//Comparaison
 		this.comparerEvenements(evenementEnregistre, "EvenementTestJUnit", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables);
+		
+		
+		
+		
+		
+		//Test modification de l'évènement
+		
+		//Creation des dates de début et fin (26/11/2013 16h et 26/11/2013 18h)
+		dateDebut = new Date(113, 10, 26, 16, 00, 00);
+		dateFin = new Date(113, 10, 26, 18, 00, 00);
+
+		//Récupération d'un id de calendrier
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT cal_id FROM edt.calendrier");
+		ArrayList<Integer> idsCalendrier = bdd.recupererIds(requetePreparee, "cal_id");
+		assertTrue(idsCalendrier.size() > 1);
+		idCal = idsCalendrier.get(1);
+
+		//Récupération d'un id de salle
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT salle_id FROM edt.salle");
+		ArrayList<Integer> idsSalle = bdd.recupererIds(requetePreparee, "salle_id");
+		assertTrue(idsSalle.size() > 1);
+		idSalle = idsSalle.get(1);
+		
+		//Modoification des listes
+		listeIdCal.set(0, idCal);
+		listeIdSalles.set(0, idSalle);
+		listeIdResponsables.set(0, idUser1);
+		listeIdResponsables.remove(1);
+		listeIdIntervenants.set(0, idUser2);
+		
+		//Modification de l'évènement
+		evenementGestion.modifierEvenement(idEvenementEnregistre, "EvenementTestJUnitModifie", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
+		
+		//Récupération de l'évenement enregistré
+		evenementEnregistre = evenementGestion.getEvenement(idEvenementEnregistre);
+
+		//Comparaison
+		this.comparerEvenements(evenementEnregistre, "EvenementTestJUnitModifie", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables);
+
+
+				
 		
 		
 		//Suppression de l'evenement enregistré
@@ -201,6 +255,8 @@ public class EvenementGestionTest {
 		
 		
 	}
+	
+
 	
 	
 
