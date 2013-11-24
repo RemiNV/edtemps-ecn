@@ -257,10 +257,12 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 			if (casModifier) {
 				this.calendrierGestion.modifierCalendrier(idCal, nom, matiere, type, idProprietairesJson, function(resultCode) {
 					if(resultCode == RestManager.resultCode_Success) {
-						// afficher message
-						window.showToast("Le calendrier a bien été modifié");
 						// recharger les calendriers de l'utilisateur
 						me.ecranParametres.afficheListeMesCalendriers();
+						// fermer dialog
+						me.jqDialog.dialog("close");
+						// afficher message
+						window.showToast("Le calendrier a bien été modifié");
 					}
 					else {
 						// afficher message
