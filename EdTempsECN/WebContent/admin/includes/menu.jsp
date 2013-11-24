@@ -12,6 +12,7 @@
 				<li><a href="<%=request.getContextPath()%>/admin/general.jsp">Général</a></li>
 				<li><a href="<%=request.getContextPath()%>/admin/administrateurs/index.jsp">Administrateurs</a></li>
 				<li><a href="<%=request.getContextPath()%>/admin/utilisateurs/index.jsp">Utilisateurs</a></li>
+				<li><a href="<%=request.getContextPath()%>/admin/typesutilisateurs/index.jsp">Types d'utilisateurs</a></li>
 				<li><a href="<%=request.getContextPath()%>/admin/salles/index.jsp">Salles</a></li>
 				<li><a href="<%=request.getContextPath()%>/admin/materiel/index.jsp">Matériel</a></li>
 				<li><a href="<%=request.getContextPath()%>/admin/deconnexion.jsp">Déconnexion</a></li>

@@ -358,7 +358,6 @@ input[type=text], input[type=email], input[type=password], textarea {
 
 #liste_utilisateurs {
 	border-collapse: collapse;
-	width: 600px;
 	margin: -5px 0px 10px 10px;
 	box-shadow: 0 0 7px #0187AA;
 	border: solid 1px 0187AA;
