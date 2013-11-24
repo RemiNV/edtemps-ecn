@@ -181,7 +181,7 @@ public class EvenementGestionTest {
 			 
 			resultatException = e.getResultCode().getCode();
 		}
-		assertTrue(resultatException == 11); //Code 11 : Salle Occupée
+		assertTrue(resultatException == 10); //Code 10 : Salle Occupée
 		
 		//Récupération de l'id de l'évenement créé
 		requetePreparee = bdd.getConnection().prepareStatement(
@@ -195,6 +195,49 @@ public class EvenementGestionTest {
 			
 		//Comparaison
 		this.comparerEvenements(evenementEnregistre, "EvenementTestJUnit", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables);
+		
+		
+		
+		
+		
+		//Test modification de l'évènement
+		
+		//Creation des dates de début et fin (26/11/2013 16h et 26/11/2013 18h)
+		dateDebut = new Date(113, 10, 26, 16, 00, 00);
+		dateFin = new Date(113, 10, 26, 18, 00, 00);
+
+		//Récupération d'un id de calendrier
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT cal_id FROM edt.calendrier");
+		ArrayList<Integer> idsCalendrier = bdd.recupererIds(requetePreparee, "cal_id");
+		assertTrue(idsCalendrier.size() > 1);
+		idCal = idsCalendrier.get(1);
+
+		//Récupération d'un id de salle
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT salle_id FROM edt.salle");
+		ArrayList<Integer> idsSalle = bdd.recupererIds(requetePreparee, "salle_id");
+		assertTrue(idsSalle.size() > 1);
+		idSalle = idsSalle.get(1);
+		
+		//Modoification des listes
+		listeIdCal.set(0, idCal);
+		listeIdSalles.set(0, idSalle);
+		listeIdResponsables.set(0, idUser1);
+		listeIdResponsables.remove(1);
+		listeIdIntervenants.set(0, idUser2);
+		
+		//Modification de l'évènement
+		evenementGestion.modifierEvenement(idEvenementEnregistre, "EvenementTestJUnitModifie", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
+		
+		//Récupération de l'évenement enregistré
+		evenementEnregistre = evenementGestion.getEvenement(idEvenementEnregistre);
+
+		//Comparaison
+		this.comparerEvenements(evenementEnregistre, "EvenementTestJUnitModifie", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables);
+
+
+				
 		
 		
 		//Suppression de l'evenement enregistré
