@@ -5,7 +5,9 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
@@ -137,6 +139,64 @@ public class AdministrateurGestion {
 	public void supprimerAdministrateur(int id) throws DatabaseException {
 		
 		bdd.executeRequest("DELETE FROM edt.administrateurs WHERE admin_id="+id);
+		
+	}
+
+
+	/**
+	 * Lister les actions de l'emploi du temps (pour lesquels on peut définir un droit)
+	 * @return la liste des actions sous forme d'une map : identifiant <> libellé
+	 * @throws DatabaseException 
+	 */
+	public Map<Integer, String> listerActionsEdtemps() throws DatabaseException {
+
+		try {
+
+			// Exécute la requête
+			ResultSet liste = bdd.executeRequest("SELECT droits_id, droits_libelle FROM edt.droits");
+
+			Map<Integer, String> resultat = new HashMap<Integer, String>();
+			while (liste.next()) {
+				resultat.put(liste.getInt("droits_id"), liste.getString("droits_libelle"));
+			}
+			liste.close();
+			
+			return (resultat);
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e); 
+		}
+
+	}
+	
+
+	/**
+	 * Récupère la liste actions autorisées pour un type d'utilisateur
+	 * @param idType identifiant du type d'utilisateur
+	 * @return la liste des identifiants des actions que l'utilisateur peut réaliser
+	 * @throws DatabaseException
+	 */
+	public List<Integer> getListeActionsTypeUtilisateurs(int idType) throws DatabaseException {
+		
+		try {
+			ResultSet liste = bdd.executeRequest(
+					"SELECT droits.droits_id, droits.droits_libelle  "
+					+ "FROM edt.droits "
+					+ "INNER JOIN edt.aledroitde ON droits.droits_id = aledroitde.droits_id "
+					+ "INNER JOIN edt.typeutilisateur ON typeutilisateur.type_id = aledroitde.type_id "
+					+ "WHERE typeutilisateur.type_id="+idType);
+
+			List<Integer> resultat = new ArrayList<Integer>();
+			while (liste.next()) {
+				resultat.add(liste.getInt("droits_id"));
+			}
+			liste.close();
+			
+			return (resultat);
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 		
 	}
 
