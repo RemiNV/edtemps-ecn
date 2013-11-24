@@ -4,10 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.models.Evenement;
 import org.ecn.edtemps.models.identifie.*;
@@ -121,7 +124,80 @@ public class EvenementGestionTest {
 	@Test
 	public void testAjoutSuppressionEvenement() throws Exception {
 		
+		//Création d'un évènement
 		
+		//Creation des dates de début et fin (25/11/2013 16h et 25/11/2013 18h)
+		Date dateDebut = new Date(113, 10, 25, 16, 00, 00);
+		Date dateFin = new Date(113, 10, 25, 18, 00, 00);
+		
+		//Récupération d'un id de calendrier
+		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT min(cal_id) FROM edt.calendrier");
+		int idCal = bdd.recupererId(requetePreparee, "cal_id");
+		assertTrue(idCal > 0);
+		
+		//Récupération d'un id de salle
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT min(salle_id) FROM edt.salle");
+		int idSalle = bdd.recupererId(requetePreparee, "salle_id");
+		assertTrue(idSalle > 0);
+		
+		// Récupération de 2 utilisateurs de test (correspond au jeu de tests de la BDD)
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='2'");
+		int idUser1 = bdd.recupererId(requetePreparee, "utilisateur_id");
+		assertTrue(idUser1 > 0);
+
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token='3'");
+		int idUser2 = bdd.recupererId(requetePreparee, "utilisateur_id");
+		assertTrue(idUser2 > 0);
+		
+
+		//Création des listes
+		ArrayList<Integer> listeIdCal = new ArrayList<Integer>();
+		listeIdCal.add(idCal);
+		
+		ArrayList<Integer> listeIdSalles = new ArrayList<Integer>();
+		listeIdSalles.add(idSalle);
+		
+		ArrayList<Integer> listeIdResponsables = new ArrayList<Integer>();
+		listeIdResponsables.add(idUser1);
+		listeIdResponsables.add(idUser2);
+		
+		ArrayList<Integer> listeIdIntervenants = new ArrayList<Integer>();
+		listeIdIntervenants.add(idUser1);
+		
+		
+		//Enregistrement de l'évenement
+		evenementGestion.sauverEvenement("EvenementTestJUnit", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
+		
+		//Récupération de l'id de l'évenement créé
+		requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT eve_id FROM edt.evenement WHERE eve_nom = 'EvenementTestJUnit'");
+		int idEvenementEnregistre = bdd.recupererId(requetePreparee, "eve_id");
+		
+		assertTrue(idEvenementEnregistre != -1);
+		
+		//Récupération de l'évenement enregistré
+		EvenementIdentifie evenementEnregistre = evenementGestion.getEvenement(idEvenementEnregistre);
+			
+		//Comparaison
+		this.comparerEvenements(evenementEnregistre, "EvenementTestJUnit", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables);
+		
+		
+		//Suppression de l'evenement enregistré
+		evenementGestion.supprimerEvenement(idEvenementEnregistre, true);
+
+		boolean thrown = false;
+		try {
+			evenementGestion.getEvenement(idEvenementEnregistre);
+		}
+		catch(EdtempsException e) {
+			thrown = true;
+		}
+		
+		assertTrue(thrown);
 		
 		
 	}
