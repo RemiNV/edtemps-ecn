@@ -34,7 +34,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		var me = this;
 		
 		var jqDialogDetailsEvenement = $("#dialog_details_evenement").dialog({
-			autoOpen: false
+			autoOpen: false,
+			draggable: false,
+			width: 500
 		});
 		
 		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");

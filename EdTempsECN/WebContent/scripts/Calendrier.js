@@ -74,15 +74,13 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 						title: event.title
 					});
 					
-					
 					// Remplissage du template
 					jqDialogDetailsEvenement.html(templateDialogDetails({
 						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy mm:ss"),
 						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy mm:ss"),
 						strSalles: event.strSalle,
-						strProprietaires: "afaire",
-						strIntervenants: "afaire",
-						strCalendriers: "afaire"
+						proprietaires: event.responsables,
+						intervenants: event.intervenants
 						
 					}));
 					

@@ -627,10 +627,19 @@ input.valide {
 	background-image: none;
 	color: black;
 	border-radius: 2px 2px 0px 0px;
+	cursor: default;
 }
 
 #dialog_details_evenement.ui-dialog-content {
 	border-radius: 0px 0px 2px 2px;
+}
+
+#dialog_details_evenement table tr {
+	height: 1.7em;
+}
+
+#dialog_details_evenement table tr td:first-child {
+	padding-right: 10px;
 }
 
 .dialog_details_evenement_arrow_outer {
@@ -641,7 +650,7 @@ input.valide {
 	height: 0px;
 	position: absolute;
 	bottom: -10px;
-	left: 143px;
+	left: 243px;
 }
 
 .dialog_details_evenement_arrow_inner {
@@ -652,5 +661,5 @@ input.valide {
 	height: 0px;
 	position: absolute;
 	bottom: -8px;
-	left: 144px;
+	left: 244px;
 }

@@ -14,15 +14,39 @@
 		</tr>
 		<tr>
 			<td>Propriétaires : </td>
-			<td><%= strProprietaires %></td>
+			<td>
+			<% 
+			var first = true;
+			_.each(proprietaires, function(prop) {
+				if(first) {
+					first = false;
+				}
+				else {
+					%>, <%
+				}
+				%>
+				<span title="<%= prop.email %>"><%= prop.prenom + " " + prop.nom %></span>
+				<%
+			});
+			%>
+			</td>
 		</tr>
 		<tr>
 			<td>Intervenants : </td>
-			<td><%= strIntervenants %></td>
-		</tr>
-		<tr>
-			<td>Calendriers : </td>
-			<td><%= strCalendriers %></td>
+			<td><% 
+			var first = true;
+			_.each(intervenants, function(prop) {
+				if(first) {
+					first = false;
+				}
+				else {
+					%>, <%
+				}
+				%>
+				<span title="<%= prop.email %>"><%= prop.prenom + " " + prop.nom %></span>
+				<%
+			});
+			%></td>
 		</tr>
 	</table>
 
