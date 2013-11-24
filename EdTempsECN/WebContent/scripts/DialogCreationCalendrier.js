@@ -221,7 +221,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 		var valid = true;
 
 		// Nom du calendrier non nul ?
-		if (this.nom.val()=="" || !(/^[a-z\u00C0-\u00FF0-9]+$/i.test(this.nom.val()))) {
+		if (this.nom.val()=="" || !(/^[a-z \u00C0-\u00FF0-9]+$/i.test(this.nom.val()))) {
 			this.nom.css({border: "1px solid red"});
 			valid = false;
 		} else {

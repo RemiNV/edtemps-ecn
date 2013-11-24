@@ -34,7 +34,7 @@ h1, h2, h3, h4, h5, h6 {
 	float: right;
 }
 
-.message_alerte {
+.message_alerte, .salle_occupee {
 	color: red;
 }
 
@@ -483,11 +483,6 @@ input.valide {
 	top: 3px;
 	right: 3px;
 }
-
-.salle_occupee {
-	color: red;
-}
-
 .salle_occupee_noncours {
 	color: #fb863a;
 }

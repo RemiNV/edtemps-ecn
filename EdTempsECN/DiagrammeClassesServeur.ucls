@@ -76,7 +76,7 @@
   </class>  
   <class id="9" language="java" name="org.ecn.edtemps.managers.BddGestion" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/managers/BddGestion.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1397" y="636"/>    
+    <position height="-1" width="-1" x="1805" y="668"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -85,7 +85,7 @@
   </class>  
   <class id="10" language="java" name="org.ecn.edtemps.managers.MaterielGestion" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/managers/MaterielGestion.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1146" y="111"/>    
+    <position height="-1" width="-1" x="1398" y="485"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -94,7 +94,7 @@
   </class>  
   <class id="11" language="java" name="org.ecn.edtemps.managers.SalleGestion" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/managers/SalleGestion.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1465" y="157"/>    
+    <position height="-1" width="-1" x="1549" y="285"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -103,7 +103,7 @@
   </class>  
   <class id="12" language="java" name="org.ecn.edtemps.managers.EvenementGestion" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/managers/EvenementGestion.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1978" y="193"/>    
+    <position height="-1" width="-1" x="2084" y="227"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -112,7 +112,7 @@
   </class>  
   <class id="13" language="java" name="org.ecn.edtemps.managers.GroupeGestion" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/managers/GroupeGestion.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="2507" y="219"/>    
+    <position height="-1" width="-1" x="2217" y="625"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -121,7 +121,7 @@
   </class>  
   <class id="14" language="java" name="org.ecn.edtemps.managers.UtilisateurGestion" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/managers/UtilisateurGestion.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1747" y="1079"/>    
+    <position height="-1" width="-1" x="2155" y="1111"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -130,7 +130,7 @@
   </class>  
   <class id="15" language="java" name="org.ecn.edtemps.managers.ICalGestion" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/managers/ICalGestion.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1438" y="917"/>    
+    <position height="-1" width="-1" x="1846" y="949"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -140,7 +140,7 @@
   <enumeration id="16" language="java" name="org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps" 
     project="EdTempsECN" file="/EdTempsECN/src/org/ecn/edtemps/managers/UtilisateurGestion.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="2096" y="1139"/>    
+    <position height="-1" width="-1" x="2504" y="1171"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -150,7 +150,7 @@
   <class id="17" language="java" name="org.ecn.edtemps.managers.UtilisateurGestion.ObjetRetourMethodeConnexion" 
     project="EdTempsECN" file="/EdTempsECN/src/org/ecn/edtemps/managers/UtilisateurGestion.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="2072" y="945"/>    
+    <position height="-1" width="-1" x="2480" y="977"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -159,7 +159,7 @@
   </class>  
   <class id="18" language="java" name="org.ecn.edtemps.managers.CalendrierGestion" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/managers/CalendrierGestion.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1082" y="990"/>    
+    <position height="-1" width="-1" x="1490" y="1022"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -168,7 +168,7 @@
   </class>  
   <class id="19" language="java" name="org.ecn.edtemps.models.Utilisateur" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/models/Utilisateur.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="5667" y="748"/>    
+    <position height="-1" width="-1" x="5495" y="1036"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -177,7 +177,7 @@
   </class>  
   <class id="20" language="java" name="org.ecn.edtemps.models.Groupe" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/models/Groupe.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="5942" y="646"/>    
+    <position height="-1" width="-1" x="5806" y="898"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -186,7 +186,7 @@
   </class>  
   <class id="21" language="java" name="org.ecn.edtemps.models.Salle" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/models/Salle.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="4716" y="649"/>    
+    <position height="-1" width="-1" x="4456" y="949"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -195,7 +195,7 @@
   </class>  
   <class id="22" language="java" name="org.ecn.edtemps.models.Calendrier" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/models/Calendrier.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="4130" y="693"/>    
+    <position height="-1" width="-1" x="4142" y="989"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -204,7 +204,7 @@
   </class>  
   <class id="23" language="java" name="org.ecn.edtemps.models.Materiel" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/models/Materiel.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="4952" y="187"/>    
+    <position height="-1" width="-1" x="4432" y="583"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -213,7 +213,7 @@
   </class>  
   <class id="24" language="java" name="org.ecn.edtemps.models.Evenement" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/models/Evenement.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="5219" y="636"/>    
+    <position height="-1" width="-1" x="5015" y="924"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -250,7 +250,7 @@
   </class>  
   <class id="28" language="java" name="org.ecn.edtemps.models.identifie.GroupeIdentifie" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/models/identifie/GroupeIdentifie.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="5872" y="1328"/>    
+    <position height="-1" width="-1" x="5816" y="1292"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -287,7 +287,7 @@
   </class>  
   <class id="32" language="java" name="org.ecn.edtemps.servlets.TokenServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/TokenServlet.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1620" y="1513"/>    
+    <position height="-1" width="-1" x="1380" y="1617"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -296,33 +296,23 @@
   </class>  
   <class id="33" language="java" name="org.ecn.edtemps.servlets.QueryWithIntervalServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/QueryWithIntervalServlet.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="2804" y="1837"/>    
+    <position height="-1" width="-1" x="1756" y="1853"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <enumeration id="34" language="java" name="org.ecn.edtemps.servlets.TokenServlet.SupportedMethods" 
-    project="EdTempsECN" file="/EdTempsECN/src/org/ecn/edtemps/servlets/TokenServlet.java" binary="false" 
-    corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1954" y="1493"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
-      visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </enumeration>  
-  <class id="35" language="java" name="org.ecn.edtemps.servlets.impl.ICalServlet" project="EdTempsECN" 
+  <class id="34" language="java" name="org.ecn.edtemps.servlets.impl.ICalServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/ICalServlet.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="935" y="1697"/>    
+    <position height="-1" width="-1" x="943" y="1633"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="36" language="java" name="org.ecn.edtemps.servlets.impl.SAbonnerServlet" project="EdTempsECN" 
+  <class id="35" language="java" name="org.ecn.edtemps.servlets.impl.SAbonnerServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/SAbonnerServlet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="422" y="2249"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -331,7 +321,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="37" language="java" name="org.ecn.edtemps.servlets.impl.ICalTokenServlet" project="EdTempsECN" 
+  <class id="36" language="java" name="org.ecn.edtemps.servlets.impl.ICalTokenServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/ICalTokenServlet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="695" y="2609"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -340,7 +330,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="38" language="java" name="org.ecn.edtemps.servlets.impl.GroupesAbonnementsEtNonAbonnementsServlet" 
+  <class id="37" language="java" name="org.ecn.edtemps.servlets.impl.GroupesAbonnementsEtNonAbonnementsServlet" 
     project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/GroupesAbonnementsEtNonAbonnementsServlet.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -351,17 +341,17 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="39" language="java" name="org.ecn.edtemps.servlets.impl.RechercheSalleLibreServlet" project="EdTempsECN" 
+  <class id="38" language="java" name="org.ecn.edtemps.servlets.impl.RechercheSalleLibreServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/RechercheSalleLibreServlet.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="3671" y="2162"/>    
+    <position height="-1" width="-1" x="2327" y="1690"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="40" language="java" name="org.ecn.edtemps.servlets.impl.MaterielServlet" project="EdTempsECN" 
+  <class id="39" language="java" name="org.ecn.edtemps.servlets.impl.MaterielServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/MaterielServlet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1692" y="2606"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -370,7 +360,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="41" language="java" name="org.ecn.edtemps.servlets.impl.SeDesabonnerServlet" project="EdTempsECN" 
+  <class id="40" language="java" name="org.ecn.edtemps.servlets.impl.SeDesabonnerServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/SeDesabonnerServlet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="2234" y="2601"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -379,16 +369,16 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="42" language="java" name="org.ecn.edtemps.servlets.impl.AbonnementsServlet" project="EdTempsECN" 
+  <class id="41" language="java" name="org.ecn.edtemps.servlets.impl.AbonnementsServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/AbonnementsServlet.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="2786" y="2166"/>    
+    <position height="-1" width="-1" x="2370" y="2030"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="43" language="java" name="org.ecn.edtemps.servlets.impl.DisconnectServlet" project="EdTempsECN" 
+  <class id="42" language="java" name="org.ecn.edtemps.servlets.impl.DisconnectServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/DisconnectServlet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="256" y="2613"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -397,36 +387,36 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="44" language="java" name="org.ecn.edtemps.servlets.impl.CalendriersUtilisateurServlet" project="EdTempsECN" 
+  <class id="43" language="java" name="org.ecn.edtemps.servlets.impl.CalendriersUtilisateurServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/CalendriersUtilisateurServlet.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="3140" y="2609"/>    
+    <position height="-1" width="-1" x="2360" y="2233"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="45" language="java" name="org.ecn.edtemps.servlets.impl.ConnectionServlet" project="EdTempsECN" 
+  <class id="44" language="java" name="org.ecn.edtemps.servlets.impl.ConnectionServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/ConnectionServlet.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="567" y="1689"/>    
+    <position height="-1" width="-1" x="575" y="1641"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="46" language="java" name="org.ecn.edtemps.servlets.impl.EvenementsResponsableServlet" project="EdTempsECN" 
+  <class id="45" language="java" name="org.ecn.edtemps.servlets.impl.EvenementsResponsableServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/EvenementsResponsableServlet.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="3240" y="2160"/>    
+    <position height="-1" width="-1" x="2324" y="1852"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="47" language="java" name="org.ecn.edtemps.servlets.impl.EvenementServlet" project="EdTempsECN" 
+  <class id="46" language="java" name="org.ecn.edtemps.servlets.impl.EvenementServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/EvenementServlet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="814" y="2883"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
@@ -435,7 +425,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="48" language="java" name="org.ecn.edtemps.servlets.impl.CheckConnectionServlet" project="EdTempsECN" 
+  <class id="47" language="java" name="org.ecn.edtemps.servlets.impl.CheckConnectionServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/CheckConnectionServlet.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1508" y="2865"/>    
@@ -445,7 +435,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="49" language="java" name="org.ecn.edtemps.servlets.impl.MatieresEtTypesServlet" project="EdTempsECN" 
+  <class id="48" language="java" name="org.ecn.edtemps.servlets.impl.MatieresEtTypesServlet" project="EdTempsECN" 
     file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/MatieresEtTypesServlet.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="2220" y="2877"/>    
@@ -455,226 +445,252 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="50" language="java" name="org.ecn.edtemps.servlets.impl.GroupesParentsPotentielsServlet" 
+  <class id="49" language="java" name="org.ecn.edtemps.servlets.impl.GroupesParentsPotentielsServlet" 
     project="EdTempsECN" file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/GroupesParentsPotentielsServlet.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="2688" y="2618"/>    
+    <position height="-1" width="-1" x="2352" y="2438"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
       visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <generalization id="51">    
-    <end type="SOURCE" refId="39"/>    
-    <end type="TARGET" refId="33"/>  
-  </generalization>  
-  <nesting id="52">    
-    <end type="SOURCE" refId="32"/>    
-    <end type="TARGET" refId="34"/>  
-  </nesting>  
+  <association id="50">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="51" name="_bdd"/>      
+      <multiplicity id="52" minimum="0" maximum="1">        
+        <position height="16" width="23" x="1934" y="492"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
   <generalization id="53">    
-    <end type="SOURCE" refId="40"/>    
+    <end type="SOURCE" refId="46"/>    
     <end type="TARGET" refId="31"/>  
   </generalization>  
   <generalization id="54">    
-    <end type="SOURCE" refId="27"/>    
-    <end type="TARGET" refId="24"/>  
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="5"/>  
   </generalization>  
   <association id="55">    
-    <end type="SOURCE" refId="15" navigable="false">      
-      <attribute id="56" name="bdd"/>      
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="56" name="_bdd"/>      
       <multiplicity id="57" minimum="0" maximum="1"/>    
     </end>    
     <end type="TARGET" refId="9" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <generalization id="58">    
-    <end type="SOURCE" refId="42"/>    
+    <end type="SOURCE" refId="43"/>    
+    <end type="TARGET" refId="31"/>  
+  </generalization>  
+  <nesting id="59">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="17"/>  
+  </nesting>  
+  <generalization id="60">    
+    <end type="SOURCE" refId="38"/>    
     <end type="TARGET" refId="33"/>  
   </generalization>  
-  <association id="59">    
-    <end type="SOURCE" refId="13" navigable="false">      
-      <attribute id="60" name="_bdd"/>      
-      <multiplicity id="61" minimum="0" maximum="1"/>    
+  <generalization id="61">    
+    <end type="SOURCE" refId="25"/>    
+    <end type="TARGET" refId="22"/>  
+  </generalization>  
+  <association id="62">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="63" name="bdd"/>      
+      <multiplicity id="64" minimum="0" maximum="1">        
+        <position height="16" width="23" x="1956" y="824"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="9" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="62">    
-    <end type="SOURCE" refId="24" navigable="false">      
-      <attribute id="63" name="intervenants"/>      
-      <multiplicity id="64" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="30" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
   <generalization id="65">    
-    <end type="SOURCE" refId="36"/>    
-    <end type="TARGET" refId="31"/>  
-  </generalization>  
-  <generalization id="66">    
-    <end type="SOURCE" refId="41"/>    
-    <end type="TARGET" refId="31"/>  
-  </generalization>  
-  <generalization id="67">    
-    <end type="SOURCE" refId="25"/>    
-    <end type="TARGET" refId="22"/>  
-  </generalization>  
-  <generalization id="68">    
-    <end type="SOURCE" refId="31"/>    
-    <end type="TARGET" refId="32"/>  
-  </generalization>  
-  <generalization id="69">    
-    <end type="SOURCE" refId="28"/>    
-    <end type="TARGET" refId="20"/>  
-  </generalization>  
-  <association id="70">    
-    <end type="SOURCE" refId="24" navigable="false">      
-      <attribute id="71" name="salles"/>      
-      <multiplicity id="72" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="29" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="73">    
-    <end type="SOURCE" refId="24" navigable="false">      
-      <attribute id="74" name="responsables"/>      
-      <multiplicity id="75" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="30" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="76">    
-    <end type="SOURCE" refId="29"/>    
-    <end type="TARGET" refId="21"/>  
-  </generalization>  
-  <generalization id="77">    
-    <end type="SOURCE" refId="44"/>    
-    <end type="TARGET" refId="31"/>  
-  </generalization>  
-  <generalization id="78">    
-    <end type="SOURCE" refId="46"/>    
-    <end type="TARGET" refId="33"/>  
-  </generalization>  
-  <generalization id="79">    
     <end type="SOURCE" refId="26"/>    
     <end type="TARGET" refId="27"/>  
   </generalization>  
-  <generalization id="80">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="5"/>  
+  <generalization id="66">    
+    <end type="SOURCE" refId="29"/>    
+    <end type="TARGET" refId="21"/>  
   </generalization>  
-  <generalization id="81">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="4"/>  
-  </generalization>  
-  <nesting id="82">    
-    <end type="SOURCE" refId="14"/>    
-    <end type="TARGET" refId="17"/>  
-  </nesting>  
-  <generalization id="83">    
+  <association id="67">    
+    <end type="SOURCE" refId="24" navigable="false">      
+      <attribute id="68" name="responsables">        
+        <position height="18" width="76" x="5196" y="1201"/>      
+      </attribute>      
+      <multiplicity id="69" minimum="0" maximum="2147483647">        
+        <position height="16" width="21" x="5408" y="1192"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="30" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="70">    
     <end type="SOURCE" refId="33"/>    
     <end type="TARGET" refId="31"/>  
   </generalization>  
+  <generalization id="71">    
+    <end type="SOURCE" refId="28"/>    
+    <end type="TARGET" refId="20"/>  
+  </generalization>  
+  <generalization id="72">    
+    <end type="SOURCE" refId="45"/>    
+    <end type="TARGET" refId="33"/>  
+  </generalization>  
+  <generalization id="73">    
+    <end type="SOURCE" refId="34"/>    
+    <end type="TARGET" refId="32"/>  
+  </generalization>  
+  <association id="74">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="75" name="resultCode"/>      
+      <multiplicity id="76" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="77">    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="78" name="_bdd">        
+        <position height="18" width="34" x="1605" y="552"/>      
+      </attribute>      
+      <multiplicity id="79" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="80">    
+    <end type="SOURCE" refId="41"/>    
+    <end type="TARGET" refId="33"/>  
+  </generalization>  
+  <generalization id="81">    
+    <end type="SOURCE" refId="27"/>    
+    <end type="TARGET" refId="24"/>  
+  </generalization>  
+  <generalization id="82">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <nesting id="83">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="16"/>  
+  </nesting>  
   <generalization id="84">    
-    <end type="SOURCE" refId="50"/>    
+    <end type="SOURCE" refId="39"/>    
     <end type="TARGET" refId="31"/>  
   </generalization>  
   <generalization id="85">    
     <end type="SOURCE" refId="49"/>    
     <end type="TARGET" refId="31"/>  
   </generalization>  
-  <association id="86">    
-    <end type="SOURCE" refId="14" navigable="false">      
-      <attribute id="87" name="bdd"/>      
-      <multiplicity id="88" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="9" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="89">    
+  <generalization id="86">    
+    <end type="SOURCE" refId="36"/>    
+    <end type="TARGET" refId="31"/>  
+  </generalization>  
+  <generalization id="87">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <generalization id="88">    
     <end type="SOURCE" refId="48"/>    
     <end type="TARGET" refId="31"/>  
   </generalization>  
-  <association id="90">    
-    <end type="SOURCE" refId="10" navigable="false">      
-      <attribute id="91" name="_bdd"/>      
-      <multiplicity id="92" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="9" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="93">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="5"/>  
-  </generalization>  
-  <association id="94">    
-    <end type="SOURCE" refId="12" navigable="false">      
-      <attribute id="95" name="_bdd"/>      
-      <multiplicity id="96" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="9" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="97">    
-    <end type="SOURCE" refId="43"/>    
-    <end type="TARGET" refId="31"/>  
-  </generalization>  
-  <generalization id="98">    
-    <end type="SOURCE" refId="38"/>    
-    <end type="TARGET" refId="31"/>  
-  </generalization>  
-  <generalization id="99">    
-    <end type="SOURCE" refId="47"/>    
-    <end type="TARGET" refId="31"/>  
-  </generalization>  
-  <association id="100">    
-    <end type="SOURCE" refId="18" navigable="false">      
-      <attribute id="101" name="_bdd"/>      
-      <multiplicity id="102" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="9" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="103">    
-    <end type="SOURCE" refId="30"/>    
-    <end type="TARGET" refId="19"/>  
-  </generalization>  
-  <generalization id="104">    
+  <generalization id="89">    
     <end type="SOURCE" refId="37"/>    
     <end type="TARGET" refId="31"/>  
   </generalization>  
-  <nesting id="105">    
-    <end type="SOURCE" refId="14"/>    
-    <end type="TARGET" refId="16"/>  
-  </nesting>  
-  <generalization id="106">    
-    <end type="SOURCE" refId="35"/>    
+  <generalization id="90">    
+    <end type="SOURCE" refId="42"/>    
+    <end type="TARGET" refId="31"/>  
+  </generalization>  
+  <generalization id="91">    
+    <end type="SOURCE" refId="31"/>    
     <end type="TARGET" refId="32"/>  
   </generalization>  
-  <association id="107">    
-    <end type="SOURCE" refId="11" navigable="false">      
-      <attribute id="108" name="_bdd"/>      
-      <multiplicity id="109" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="9" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="110">    
+  <association id="92">    
     <end type="SOURCE" refId="21" navigable="false">      
-      <attribute id="111" name="materiels"/>      
-      <multiplicity id="112" minimum="0" maximum="2147483647"/>    
+      <attribute id="93" name="materiels">        
+        <position height="18" width="53" x="4345" y="715"/>      
+      </attribute>      
+      <multiplicity id="94" minimum="0" maximum="2147483647">        
+        <position height="16" width="21" x="4447" y="722"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="23" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="113">    
-    <end type="SOURCE" refId="5" navigable="false">      
-      <attribute id="114" name="resultCode"/>      
-      <multiplicity id="115" minimum="0" maximum="1"/>    
+  <association id="95">    
+    <end type="SOURCE" refId="24" navigable="false">      
+      <attribute id="96" name="salles">        
+        <position height="18" width="38" x="4685" y="1203"/>      
+      </attribute>      
+      <multiplicity id="97" minimum="0" maximum="2147483647">        
+        <position height="16" width="21" x="4653" y="1229"/>      
+      </multiplicity>    
     </end>    
-    <end type="TARGET" refId="1" navigable="true"/>    
+    <end type="TARGET" refId="29" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="98">    
+    <end type="SOURCE" refId="35"/>    
+    <end type="TARGET" refId="31"/>  
+  </generalization>  
+  <association id="99">    
+    <end type="SOURCE" refId="15" navigable="false">      
+      <attribute id="100" name="bdd">        
+        <position height="18" width="26" x="1789" y="829"/>      
+      </attribute>      
+      <multiplicity id="101" minimum="0" maximum="1">        
+        <position height="16" width="23" x="1848" y="830"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="102">    
+    <end type="SOURCE" refId="40"/>    
+    <end type="TARGET" refId="31"/>  
+  </generalization>  
+  <association id="103">    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="104" name="_bdd"/>      
+      <multiplicity id="105" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="106">    
+    <end type="SOURCE" refId="47"/>    
+    <end type="TARGET" refId="31"/>  
+  </generalization>  
+  <association id="107">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="108" name="_bdd">        
+        <position height="18" width="34" x="1641" y="496"/>      
+      </attribute>      
+      <multiplicity id="109" minimum="0" maximum="1">        
+        <position height="16" width="23" x="1711" y="491"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="110">    
+    <end type="SOURCE" refId="30"/>    
+    <end type="TARGET" refId="19"/>  
+  </generalization>  
+  <association id="111">    
+    <end type="SOURCE" refId="24" navigable="false">      
+      <attribute id="112" name="intervenants">        
+        <position height="18" width="70" x="5208" y="1175"/>      
+      </attribute>      
+      <multiplicity id="113" minimum="0" maximum="2147483647">        
+        <position height="16" width="21" x="5440" y="1194"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="30" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -682,5 +698,5 @@
     <attributes public="true" package="true" protected="true" private="true" static="true"/>    
     <operations public="true" package="true" protected="true" private="true" static="true"/>  
   </classifier-display>  
-  <association-display labels="true" multiplicity="true"/>
+  <association-display labels="true" multiplicity="false"/>
 </class-diagram>
