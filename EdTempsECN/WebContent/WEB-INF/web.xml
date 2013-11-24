@@ -135,6 +135,11 @@
       <servlet-name>Materiel</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurMaterielServlet</servlet-class>
   </servlet>
+
+  <servlet>
+      <servlet-name>Utilisateurs</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurUtilisateurServlet</servlet-class>
+  </servlet>
   
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
@@ -264,6 +269,11 @@
   <servlet-mapping>
       <servlet-name>Materiel</servlet-name>
       <url-pattern>/administrateur/materiel/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>Utilisateurs</servlet-name>
+      <url-pattern>/administrateur/utilisateurs/*</url-pattern>
   </servlet-mapping>
   
 </web-app>

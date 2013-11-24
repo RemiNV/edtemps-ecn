@@ -654,7 +654,8 @@ public class UtilisateurGestion {
 	public List<UtilisateurIdentifie> getListeUtilisateurs() throws DatabaseException {
 		ResultSet reponse = bdd.executeRequest("" +
 				"SELECT * FROM edt.utilisateur" +
-				" LEFT JOIN edt.estdetype ON estdetype.utilisateur_id=utilisateur.utilisateur_id");
+				" LEFT JOIN edt.estdetype ON estdetype.utilisateur_id=utilisateur.utilisateur_id" +
+				" ORDER BY utilisateur.utilisateur_prenom");
 
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
 
@@ -677,6 +678,29 @@ public class UtilisateurGestion {
 		}
 
 		return res;
+	}
+	
+	
+	/**
+	 * Modifie le type d'un utilisateur
+	 * @param userId Identifiant de l'utilisateur
+	 * @param typeId Identifiant du nouveau type de l'utilisateur
+	 * @throws DatabaseException 
+	 */
+	public void modifierTypeUtilisateur(int userId, int typeId) throws DatabaseException {
+		
+		// Démarre une transaction
+		bdd.startTransaction();
+		
+		// Supprime le type actuel de l'utilisateur
+		bdd.executeRequest("DELETE FROM edt.estdetype WHERE utilisateur_id="+userId);
+		
+		// Ajoute le nouveau type
+		bdd.executeRequest("INSERT INTO edt.estdetype (utilisateur_id, type_id) VALUES ("+userId+", "+typeId+")");
+		
+		// Commit la transaction
+		bdd.commit();
+		
 	}
 	
 }
