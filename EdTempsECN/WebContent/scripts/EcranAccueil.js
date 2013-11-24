@@ -33,6 +33,12 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	EcranAccueil.prototype.init = function() {
 		var me = this;
 		
+		var jqDialogDetailsEvenement = $("#dialog_details_evenement").dialog({
+			autoOpen: false
+		});
+		
+		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");
+		
 		// Initialisation des listeners
 		$("#btn_chercher_salle").click(function(e) {
 			me.rechercheSalle.show(me.dialogAjoutEvenement);
@@ -46,7 +52,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			this.setVue("mes_abonnements");
 		}
 		
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.dialogAjoutEvenement, this.evenementGestion);
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.dialogAjoutEvenement, this.evenementGestion, jqDialogDetailsEvenement);
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 		

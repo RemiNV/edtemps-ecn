@@ -198,7 +198,8 @@ define(["RestManager"], function(RestManager) {
 				matieres: evenements[i].matieres,
 				types: evenements[i].types,
 				allDay: false,
-				editable: estProprietaire
+				editable: estProprietaire,
+				color: "#3a87ad"
 			});
 		}
 		
@@ -260,7 +261,8 @@ define(["RestManager"], function(RestManager) {
 				matieres: matieres,
 				types: types,
 				allDay: false,
-				editable: estProprietaire
+				editable: estProprietaire,
+				color: "#3a87ad"
 			};
 		}
 	

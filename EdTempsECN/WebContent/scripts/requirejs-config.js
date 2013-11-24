@@ -51,7 +51,11 @@ var require = {
 		
 		"jquerymaskedinput": {
 			deps: ["jquery"]
-		} 
+		},
+		
+		"underscore": {
+			exports: "_"
+		}
 	}
 
 };

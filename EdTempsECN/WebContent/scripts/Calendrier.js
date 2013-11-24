@@ -2,14 +2,16 @@
  * Module de gestion de l'interface du calendrier fullcalendar
  * @module Calendrier
  */
-define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager) {
+define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "underscore", "lib/fullcalendar.translated.min", "jqueryui"], function(RestManager, tplDialogDetailsEvenement, _) {
 
 	/**
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion) {
+	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement) {
 		var me = this;
+		
+		var templateDialogDetails = _.template(tplDialogDetailsEvenement);
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
@@ -55,6 +57,37 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 				if(event.loading) {
 					jqElement.append("<img src='img/spinner_chargement_outer_small.gif' class='spinner_evenement_loading' alt='Enregistrement...' />");
 				}
+				
+				jqElement.click(function() {
+					
+					jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar")
+						.css("color", event.color);
+					
+					console.log("event : ", event);
+					
+					jqDialogDetailsEvenement.dialog("option", {
+						position: {
+							my: "center bottom",
+							at: "top-10",
+							of: jqElement
+						},
+						title: event.title
+					});
+					
+					
+					// Remplissage du template
+					jqDialogDetailsEvenement.html(templateDialogDetails({
+						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy mm:ss"),
+						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy mm:ss"),
+						strSalles: event.strSalle,
+						strProprietaires: "afaire",
+						strIntervenants: "afaire",
+						strCalendriers: "afaire"
+						
+					}));
+					
+					jqDialogDetailsEvenement.dialog("open");
+				});
 			},
 			eventDragStop: function(event, jsEvent, ui, view) {
 				if(!event.pendingUpdates) { // L'évènement est synchronisé avec le serveur
