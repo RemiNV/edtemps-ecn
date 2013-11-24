@@ -27,6 +27,8 @@ import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
  */
 public class DisponibiliteServlet extends QueryWithIntervalServlet {
 
+	private static final long serialVersionUID = 3574476580715701446L;
+
 	@Override
 	protected JsonValue doQuery(int userId, BddGestion bdd, Date dateDebut,
 			Date dateFin, HttpServletRequest req) throws EdtempsException {

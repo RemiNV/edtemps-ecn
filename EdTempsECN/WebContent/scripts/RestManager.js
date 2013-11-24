@@ -40,7 +40,8 @@ define(["jquery"], function() {
 	 * - RestManager.resultCode_LdapError<br>
 	 * - RestManager.resultCode_NameTaken<br>
 	 * - RestManager.resultCode_SalleOccupee<br>
-	 * - RestManager.resultCode_AlphanumericRequired
+	 * - RestManager.resultCode_AlphanumericRequired<br>
+	 * - RestManager.resultCode_AuthorizationError
 	 * @typedef ResultCode
 	 * @type {number}
 	 */
@@ -51,6 +52,23 @@ define(["jquery"], function() {
 	RestManager.resultCode_NameTaken = 8;
 	RestManager.resultCode_SalleOccupee = 10;
 	RestManager.resultCode_AlphanumericRequired = 11;
+	RestManager.resultCode_AuthorizationError = 9;
+	
+	/**
+	 * Enumération des actions possibles dans l'emploi du temps
+	 * Correspond aux codes définis dans le serveur Java.
+	 * Accepte les valeurs : <br>
+	 * - RestManager.actionsEdtemps_CreerGroupe<br>
+	 * - RestManager.actionsEdtemps_RattacherCalendrierGroupe<br>
+	 * - RestManager.actionsEdtemps_CreerGroupeCours<br>
+	 * - RestManager.actionsEdtemps_ChoisirProprietairesEvenement
+	 * @typedef actionsEdtemps
+	 * @type {number}
+	 */
+	RestManager.actionsEdtemps_CreerGroupe = 1;
+	RestManager.actionsEdtemps_RattacherCalendrierGroupe = 2;
+	RestManager.actionsEdtemps_CreerGroupeCours = 3;
+	RestManager.actionsEdtemps_ChoisirProprietairesEvenement = 4;
 	
 	RestManager.prototype.setToken = function(token) {
 		this._token = token;
@@ -64,6 +82,10 @@ define(["jquery"], function() {
 		if(window.localStorage) {
 			window.localStorage["userId"] = userId;
 		}
+	};
+
+	RestManager.prototype.setListeActionsAutorisees = function(listeActionsAutorisees) {
+		this._listeActionsAutorisees = listeActionsAutorisees;
 	};
 
 	/** 
@@ -85,6 +107,7 @@ define(["jquery"], function() {
 				if(response.resultCode == RestManager.resultCode_Success) { // Succès de l'identification
 					me.setToken(response.data.token);
 					me.setUserId(response.data.userId);
+					me.setListeActionsAutorisees(response.data.actionsAutorisees);
 					me._isConnected = true;
 				}
 				
@@ -213,6 +236,22 @@ define(["jquery"], function() {
 		}).fail(function() {
 			callback({ resultCode: RestManager.resultCode_NetworkError });
 		});
+	};
+	
+
+	/**
+	 * Vérifie si un utilisateur a le droit d'effectuer une action
+	 * Cette méthode ne fait pas de requête au serveur. Elle va chercher l'information dans le RestManager
+	 * qui a récupéré la liste des actions que l'utilisateur peut faire, au moment de sa connexion
+	 * @param codeAction Action à vérifier
+	 * @return VRAI ou FAUX en fonction des droits de l'utilisateur
+	 */
+	RestManager.prototype.aDroit = function(codeAction) {
+		if (jQuery.inArray(codeAction, this._listeActionsAutorisees)>0) {
+			return true;
+		} else {
+			return false;
+		}
 	};
 	
 	// Renvoyer RestManager dans cette fonction le définit comme l'objet de ce fichier de module

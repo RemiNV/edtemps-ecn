@@ -504,10 +504,31 @@
 		AND evenement.eve_nom='Réunion d''information alternance';
 
 /* droits */
-/* TODO : compléter */
+INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (1, 'CREER_GROUPE');
+INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (2, 'RATTACHER_CALENDRIER_GROUPE');
+INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (3, 'CREER_GROUPE_COURS');
+INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (4, 'CHOISIR_PROPRIETAIRES_EVENEMENT');
 
 /* aledroitde */
-/* TODO : compléter */
+
+	/* L'enseignant et l'administration peuvent tout faire */
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 1);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 2);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 3);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 4);
+
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 1);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 2);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 3);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 4);
+
+	/* L'étudiant peut tout faire sauf créer un groupe de cours */
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 1);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 2);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 4);
+
+
+
 
 
 
