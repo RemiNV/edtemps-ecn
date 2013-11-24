@@ -4,7 +4,7 @@
  * @module EcranParametres
  */
 define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "DialogDetailGroupeParticipants", "DialogGererGroupeParticipants", "lib/davis.min",
-        "jqueryquicksearch", "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, CalendrierGestion, DialogCreationCalendrier, 
+        "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, CalendrierGestion, DialogCreationCalendrier, 
         		DialogCreationGroupeParticipants, DialogDetailGroupeParticipants, DialogGererGroupeParticipants, Davis) {
 	
 	/**

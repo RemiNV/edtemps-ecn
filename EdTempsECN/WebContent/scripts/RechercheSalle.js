@@ -1,7 +1,7 @@
 /**
  * @module RechercheSalle
  */
-define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "jqueryquicksearch" ], function(RestManager) {
+define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect" ], function(RestManager) {
 
 	/**
 	 * @constructor

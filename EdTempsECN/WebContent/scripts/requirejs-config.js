@@ -11,7 +11,6 @@ var require = {
 		jquerymultiselect: "lib/jquery.multi-select",
 		jquerymaskedinput: "lib/jquery.maskedinput.min",
 		text: "lib/text",
-		jqueryquicksearch: "lib/jquery.quicksearch",
 		underscore: "lib/underscore-min"
 	},
 
@@ -38,11 +37,7 @@ var require = {
 		"lib/fullcalendar.translated.min": {
 			deps: ["jqueryui"]
 		},
-		
-		"jqueryquicksearch": {
-			deps: ["jquery"]
-		},
-		
+				
 		"jquerymultiselect": {
 			deps: ["jquery"]
 		},
