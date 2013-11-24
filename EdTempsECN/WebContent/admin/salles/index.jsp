@@ -78,20 +78,20 @@
 							out.write("<table>");
 							out.write("<tr>");
 							out.write("<th>Nom</th>");
-							out.write("<th class='bordure_gauche_blanche'>Bâtiment</th>");
-							out.write("<th class='bordure_gauche_blanche'>Niveau</th>");
-							out.write("<th class='bordure_gauche_blanche'>Numéro</th>");
-							out.write("<th class='bordure_gauche_blanche'>Capacité</th>");
-							out.write("<th class='bordure_gauche_blanche'>Liste des matériels</th>");
-							out.write("<th colspan='2' class='bordure_gauche_blanche'>Actions</th>");
+							out.write("<th>Bâtiment</th>");
+							out.write("<th>Niveau</th>");
+							out.write("<th>Numéro</th>");
+							out.write("<th>Capacité</th>");
+							out.write("<th>Liste des matériels</th>");
+							out.write("<th colspan='2'>Actions</th>");
 							out.write("</tr>");
 							for (SalleIdentifie salle : listeSalles) {
 								out.write("<tr>");
 								out.write("<td class='liste_salles_nom'>"+salle.getNom()+"</td>");
-								out.write("<td class='bordure_gauche_grise'>"+salle.getBatiment()+"</td>");
-								out.write("<td class='bordure_gauche_grise'>"+salle.getNiveau()+"</td>");
-								out.write("<td class='bordure_gauche_grise'>"+salle.getNumero()+"</td>");
-								out.write("<td class='bordure_gauche_grise'>"+salle.getCapacite()+"</td>");
+								out.write("<td>"+salle.getBatiment()+"</td>");
+								out.write("<td>"+salle.getNiveau()+"</td>");
+								out.write("<td>"+salle.getNumero()+"</td>");
+								out.write("<td>"+salle.getCapacite()+"</td>");
 								StringBuilder preparationCase = new StringBuilder();
 								for (Materiel materiel : salle.getMateriels()) {
 									if (materiel.getQuantite()==1) {
@@ -100,8 +100,8 @@
 										preparationCase.append(materiel.getQuantite() + " " + materiel.getNom() + "s, ");
 									}
 								}
-								out.write("<td class='bordure_gauche_grise'>" + (preparationCase.length()>0 ? preparationCase.substring(0, preparationCase.length()-2) : "") + "</td>");
-								out.write("<td class='liste_salles_modifier bordure_gauche_grise'><a href='"+request.getContextPath()+"/admin/salles/modifier.jsp?id="+salle.getId()+"'><img alt='Modifier' title='Modifier' src='"+request.getContextPath()+"/img/modifier.png' /></a></td>");
+								out.write("<td>" + (preparationCase.length()>0 ? preparationCase.substring(0, preparationCase.length()-2) : "") + "</td>");
+								out.write("<td class='liste_salles_modifier'><a href='"+request.getContextPath()+"/admin/salles/modifier.jsp?id="+salle.getId()+"'><img alt='Modifier' title='Modifier' src='"+request.getContextPath()+"/img/modifier.png' /></a></td>");
 								out.write("<td class='liste_salles_supprimer'><form onsubmit='return confirmationSupprimerSalle()' action='"+request.getContextPath()+"/administrateur/salles/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+salle.getId()+"' /></form></td>");
 								out.write("</tr>");
 							}

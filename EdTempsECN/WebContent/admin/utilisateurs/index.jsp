@@ -13,6 +13,7 @@
 		<title>Espace d'administration</title>
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/admin/main.css" />
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery.multi-select.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/utilisateurs.js"></script>
 	</head>
 	
@@ -27,16 +28,16 @@
 			
 				<table id="liste_utilisateurs">
 					<tr>
-						<th>Prénom</th>
-						<th class='bordure_gauche_blanche'>Nom</th>
-						<th class='bordure_gauche_blanche'>Adresse mail</th>
-						<th class='bordure_gauche_blanche'>Type d'utilisateur</th>
+						<th width="200">Prénom</th>
+						<th width="200">Nom</th>
+						<th width="300">Adresse mail</th>
+						<th width="200">Type</th>
 					</tr>
 					<tr>
-						<td><input type="text" id="filtre_prenom" style="width: 100%" placeholder="Filtrer par prénom" /></td>
-						<td class='bordure_gauche_grise'><input type="text" id="filtre_nom" style="width: 100%" placeholder="Filtrer par nom" /></td>
-						<td class='bordure_gauche_grise'><input type="text" id="filtre_mail" style="width: 100%" placeholder="Filtrer par adresse mail" /></td>
-						<td class='bordure_gauche_grise'></td>
+						<td><input type="text" id="filtre_prenom" style="width:100%" placeholder="Filtrer par prénom" /></td>
+						<td><input type="text" id="filtre_nom" style="width:100%" placeholder="Filtrer par nom" /></td>
+						<td><input type="text" id="filtre_mail" style="width:100%" placeholder="Filtrer par adresse mail" /></td>
+						<td><input type="text" id="filtre_type" style="width:100%" placeholder="Filtrer par type" /></td>
 					</tr>
 					<%
 						BddGestion bdd = new BddGestion();
@@ -52,13 +53,15 @@
 						for (UtilisateurIdentifie utilisateur : listeUtilisateurs) {
 							out.write("<tr>");
 							out.write("<td class='data-collumn-prenom'>"+utilisateur.getPrenom()+"</td>");
-							out.write("<td class='bordure_gauche_grise data-collumn-nom'>"+utilisateur.getNom()+"</td>");
-							out.write("<td class='bordure_gauche_grise data-collumn-mail'>"+(utilisateur.getEmail()==null ? "-" : utilisateur.getEmail() )+"</td>");
-							out.write("<td class='bordure_gauche_grise'>");
+							out.write("<td class='data-collumn-nom'>"+utilisateur.getNom()+"</td>");
+							out.write("<td class='data-collumn-mail'>"+(utilisateur.getEmail()==null ? "-" : utilisateur.getEmail() )+"</td>");
+							out.write("<td class='data-collumn-type'>"+(utilisateur.getType()==0 ? "-" : typesUtilisateurs.get(utilisateur.getType()))+"</td>");
+							out.write("<td>");
 							out.write("<form action='"+request.getContextPath()+"/administrateur/utilisateurs/modifiertype' method='POST'>");
 							out.write("<select class='select_type' name='user_type' data-type-id='"+utilisateur.getType()+"'>"+listeDeroulanteTypes+"</select>");
 							out.write("<input type='hidden' name='user_id' value='"+utilisateur.getId()+"' /></form>");
 							out.write("</td>");
+							out.write("<td class='form_supprimer_utilisateur'><form onsubmit='return confirmationSupprimerUtilisateur()' action='"+request.getContextPath()+"/administrateur/utilisateurs/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+utilisateur.getId()+"' /></form></td>");
 							out.write("</tr>");
 						}
 					%>

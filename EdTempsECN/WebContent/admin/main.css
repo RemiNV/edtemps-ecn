@@ -140,7 +140,6 @@ ul.button_nav li:last-child {
 }
 
 #liste_salles table {
-	box-shadow: 0 0 7px #0187AA;
 	border: solid 1px 0187AA;
 	border-collapse: collapse;
 	width: 100%;
@@ -152,30 +151,28 @@ ul.button_nav li:last-child {
 
 #liste_salles table td {
 	padding: 3px;
+	border: solid 1px gray;
 }
 
 #liste_salles table .liste_salles_modifier {
 	text-align: right;
 	padding-right: 5px;
+	border-right: none;
 }
 
 #liste_salles table .liste_salles_supprimer {
 	padding-left: 5px;
+	border-left: none;
 }
 
 #liste_salles table th {
 	padding: 3px;
 	background-color: #0187AA;
 	color: white;
+	border: solid 1px gray;
 }
 
-.bordure_gauche_grise {
-	border-left: solid 1px gray;
-}
 
-.bordure_gauche_blanche {
-	border-left: solid 1px white;
-}
 
 /**
  * Formulaires d'ajout et modification de salles
@@ -358,9 +355,8 @@ input[type=text], input[type=email], input[type=password], textarea {
 
 #liste_utilisateurs {
 	border-collapse: collapse;
-	margin: -5px 0px 10px 10px;
-	box-shadow: 0 0 7px #0187AA;
 	border: solid 1px 0187AA;
+	width: 100%;
 }
 
 #liste_utilisateurs tr:nth-child(odd) {
@@ -369,10 +365,17 @@ input[type=text], input[type=email], input[type=password], textarea {
 
 #liste_utilisateurs td {
 	padding: 3px;
+	border: solid 1px gray;
 }
 
 #liste_utilisateurs th {
 	padding: 3px;
 	background-color: #0187AA;
 	color: white;
+	border: solid 1px gray;
+}
+
+#liste_utilisateurs td.form_supprimer_utilisateur {
+	width: 20px;
+	border-left: none;
 }
