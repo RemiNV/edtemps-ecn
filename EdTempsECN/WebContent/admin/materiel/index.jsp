@@ -52,7 +52,7 @@
 					<p class="information">Attention! Supprimer un type de matériel rompt, de manière irrévocable, les liens avec les salles qui contiennent ce type de matériel.</p>
 				</div>
 
-				<table id="liste_materiel">
+				<table id="liste_materiel" class="tableau_liste">
 					<%
 						if (listeMateriels.isEmpty()) {
 							out.write("<tr><td colspan='7'>Aucun matériel dans la base de données</td></tr>");

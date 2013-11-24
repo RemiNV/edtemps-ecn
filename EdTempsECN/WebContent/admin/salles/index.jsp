@@ -67,7 +67,7 @@
 					</form>
 				</div>
 			
-				<div id="liste_salles">
+				<table id="liste_salles" class="tableau_liste">
 					<%
 						SalleGestion gestionnaireSalles = new SalleGestion(bdd);
 						List<SalleIdentifie> listeSalles = gestionnaireSalles.listerToutesSalles();
@@ -75,7 +75,6 @@
 						if (listeSalles.isEmpty()) {
 							out.write("<tr><td colspan='7'>Aucune salle dans la base de données</td></tr>");
 						} else {
-							out.write("<table>");
 							out.write("<tr>");
 							out.write("<th>Nom</th>");
 							out.write("<th>Bâtiment</th>");
@@ -105,10 +104,9 @@
 								out.write("<td class='liste_salles_supprimer'><form onsubmit='return confirmationSupprimerSalle()' action='"+request.getContextPath()+"/administrateur/salles/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+salle.getId()+"' /></form></td>");
 								out.write("</tr>");
 							}
-							out.write("</table>");
 						}
 					%>
-				</div>
+				</table>
 				
 			</div>
 
