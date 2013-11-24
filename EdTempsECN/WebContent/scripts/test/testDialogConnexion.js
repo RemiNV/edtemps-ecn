@@ -5,7 +5,8 @@ require(["DialogConnexion", "RestManager", "text!../index.html", "jquery", "jque
 	module("Dialog de connexion", {
 		setup: function() {
 			
-			var htmlFormulaireConnexion = $(htmlIndex).find("#connection_dialog")[0].outerHTML;
+			var res = /<!-- UNITTEST_CONNECTION_DIALOG -->([\s\S]*)<!-- UNITTEST_CONNECTION_DIALOG -->/.exec(htmlIndex);
+			var htmlFormulaireConnexion = res[1];
 			
 			jqDialog = $("<div id='dialogConnexionUnitTest'></div>").append(htmlFormulaireConnexion).appendTo($("#qunit-fixture"));
 		},
