@@ -48,7 +48,7 @@ h1 {
 
 #form_login form {
 	margin: 0px auto 20px auto;
-	width: 260px;
+	width: 280px;
 }
 
 #erreur_connexion {
@@ -316,9 +316,13 @@ ul.button_nav li:last-child {
 #types_utilisateurs_modifier {
 	box-shadow: 0 0 7px #555;
 	position: absolute;
-	margin-left: 280px;
+	margin-left: 230px;
 	top: 200px;
-	height: 170px;
-	width: 680px;
+	width: 720px;
 	padding: 10px;
+}
+
+.titre_mutli-select {
+	height: 20px;
+	margin: 0px 0px 5px 5px;
 }
