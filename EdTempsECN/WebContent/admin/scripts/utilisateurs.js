@@ -26,6 +26,10 @@ $(document).ready(function() {
 	$("#filtre_mail").keyup(function() {
 		filtrerText($(this), $('.data-collumn-mail'));
 	});
+	// Filtre des Mails
+	$("#filtre_type").keyup(function() {
+		filtrerText($(this), $('.data-collumn-type'));
+	});
 });
 
 function filtrerText(idFiltreText, classTri) {
@@ -34,19 +38,22 @@ function filtrerText(idFiltreText, classTri) {
     var filtreValeur = idFiltreText.val().toLowerCase();
     
     // Pour chaque ligne du tableau, affiche ou cache en fonction du résultat
-    var couleurPrecedente = "white";
-    if(filtreValeur!="") {
-    	classTri.each(function() {
-            if ($(this).html().toLowerCase().indexOf(filtreValeur) >= 0) {
-            	if (couleurPrecedente=="#E3EDEF") couleurPrecedente = "white";
-            	else couleurPrecedente="#E3EDEF";
-            	$(this).parent().css("background-color", couleurPrecedente).fadeIn(200);
-            } else {
-                $(this).parent().fadeOut(200);
-            }
-        });
-    } else {
-    	classTri.parents().fadeIn(200);
-    }
+    var couleurPrecedente = "#E3EDEF";
+	classTri.each(function() {
+        if (filtreValeur=="" || $(this).html().toLowerCase().indexOf(filtreValeur) >= 0) {
+        	if (couleurPrecedente=="#E3EDEF") couleurPrecedente = "white";
+        	else couleurPrecedente="#E3EDEF";
+        	$(this).parent().css("background-color", couleurPrecedente).fadeIn(200);
+        } else {
+            $(this).parent().fadeOut(200);
+        }
+    });
     
+}
+
+/*
+ * Affiche la demande de confirmation de suppression
+ */
+function confirmationSupprimerUtilisateur() {
+	return confirm("Etes-vous sur de vouloir supprimer cet utilisateur ?");
 }

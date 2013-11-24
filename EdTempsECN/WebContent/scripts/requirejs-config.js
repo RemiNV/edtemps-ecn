@@ -11,9 +11,9 @@ var require = {
 		jquerymultiselect: "lib/jquery.multi-select",
 		jquerymaskedinput: "lib/jquery.maskedinput.min",
 		text: "lib/text",
-		jqueryquicksearch: "lib/jquery.quicksearch",
 		underscore: "lib/underscore-min",
-		davis: "lib/davis.min"
+		davis: "lib/davis.min",
+		underscore: "lib/underscore-min"
 	},
 
 	/* Configuration des bibliothèques non AMD (non compatibles avec 
@@ -39,11 +39,7 @@ var require = {
 		"lib/fullcalendar.translated.min": {
 			deps: ["jqueryui"]
 		},
-		
-		"jqueryquicksearch": {
-			deps: ["jquery"]
-		},
-		
+				
 		"jquerymultiselect": {
 			deps: ["jquery"]
 		},

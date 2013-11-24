@@ -23,7 +23,7 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Gestion des administrateurs</h1>			
 
-			<div id="content" style="min-height: 270px">
+			<div id="content" style="min-height: 300px">
 
 				<div id="ajouter_administrateur">
 					<p class="formulaire_zone_titre">Ajouter un administrateur :</p>
@@ -61,7 +61,7 @@
 					</form>
 				</div>
 
-				<table id="liste_administrateurs">
+				<table id="liste_administrateurs" class="tableau_liste">
 					<tr>
 						<th>Liste des administrateurs</th>
 					</tr>

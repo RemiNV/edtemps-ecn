@@ -33,7 +33,7 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 		
 		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/modifiertype")) {
+		if (!pathInfo.equals("/modifiertype") && !pathInfo.equals("/supprimer")) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -51,6 +51,9 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 			switch (pathInfo) {
 				case "/modifiertype":
 					doModifierType(req, resp);
+					break;
+				case "/supprimer":
+					doSupprimer(req, resp);
 					break;
 			}
 		} catch (NumberFormatException e) {
@@ -88,6 +91,34 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 		BddGestion bdd = new BddGestion();
 		UtilisateurGestion gestionnaireUtilisateurs = new UtilisateurGestion(bdd);
 		gestionnaireUtilisateurs.modifierTypeUtilisateur(userId, typeId);
+		bdd.close();
+
+		// Redirige vers la page de liste des utilisateurs
+		resp.sendRedirect(req.getContextPath()+"/admin/utilisateurs/index.jsp");
+	}
+
+
+	/**
+	 * Supprimer un utilisateur
+	 * @param req Requête
+	 * @param resp Réponse
+	 * @throws IOException 
+	 * @throws EdtempsException 
+	 */
+	public void doSupprimer(HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
+		logger.error("Suppression d'un utilisateur");
+
+		// Récupération des valeurs du formulaire
+		Integer id = req.getParameter("id")!="" ? Integer.valueOf(req.getParameter("id")) : null;
+		if (id == null) {
+			logger.error("Identifiant de l'utilisateur erroné");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
+
+		// Exécute la requête de modification avec le manager
+		BddGestion bdd = new BddGestion();
+		UtilisateurGestion gestionnaireUtilisateurs = new UtilisateurGestion(bdd);
+		gestionnaireUtilisateurs.supprimerUtilisateur(id);
 		bdd.close();
 
 		// Redirige vers la page de liste des utilisateurs

@@ -44,7 +44,6 @@
 			<div id="main_content">
 			
 				<div id="formulaire_connexion">
-					<h1>Connexion à l'emploi du temps</h1>
 					<!-- IFrame recevant le résultat du formulaire pour pouvoir faire un submit -> le navigateur propose de mémoriser les identifiants -->
 					<iframe name="dummy_iframe" id="dummy_iframe" style="display: none"></iframe>
 					<!--  <form method="post" action="templates/blank.html" target="dummy_iframe"> -->
@@ -52,11 +51,11 @@
 						<table id="table_connexion">
 							<tr>
 								<td><label for="txt_identifiant">Identifiant</label></td>
-								<td><input type="text" id="txt_identifiant" name="username" /></td>
+								<td><input type="text" id="txt_identifiant" name="username" size="30" placeholder="Votre identifiant de Centrale Nantes"/></td>
 							</tr>
 							<tr>
 								<td><label for="txt_password">Mot de passe</label></td>
-								<td><input type="password" id="txt_password" name="password" /></td>
+								<td><input type="password" id="txt_password" name="password" placeholder="Votre mot de passe" /></td>
 							</tr>
 						</table>
 						

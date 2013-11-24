@@ -703,4 +703,44 @@ public class UtilisateurGestion {
 		
 	}
 	
+
+	/**
+	 * Supprimer un utilisateur
+	 * @param userId Identifiant de l'utilisateur
+	 * @throws DatabaseException 
+	 */
+	public void supprimerUtilisateur(int userId) throws DatabaseException {
+		
+		// Démarre une transaction
+		bdd.startTransaction();
+
+		// Supprime les abonnements de l'utilisateur
+		bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE utilisateur_id="+userId);
+
+		// Supprime les liens de propriété de groupes
+		bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE utilisateur_id="+userId);
+
+		// Supprime les liens de propriété d'événements
+		bdd.executeRequest("DELETE FROM edt.ResponsableEvenement WHERE utilisateur_id="+userId);
+
+		// Supprime les liens d'intervenant sur des événements
+		bdd.executeRequest("DELETE FROM edt.IntervenantEvenement WHERE utilisateur_id="+userId);
+		
+		// Supprime les liens de propriété de calendriers
+		bdd.executeRequest("DELETE FROM edt.ProprietaireCalendrier WHERE utilisateur_id="+userId);
+
+		// Supprime les liens de propriété de matières
+		bdd.executeRequest("DELETE FROM edt.ProprietaireMatiere WHERE utilisateur_id="+userId);
+		
+		// Supprime les types de l'utilisateur
+		bdd.executeRequest("DELETE FROM edt.EstDeType WHERE utilisateur_id="+userId);
+		
+		// Supprime l'utilisateur
+		bdd.executeRequest("DELETE FROM edt.utilisateur WHERE utilisateur_id="+userId);
+		
+		// Commit la transaction
+		bdd.commit();
+		
+	}
+	
 }

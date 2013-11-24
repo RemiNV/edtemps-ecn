@@ -19,7 +19,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #formulaire_connexion {
-	background-color: #bfc2bf;
 	padding: 20px;
 	overflow: hidden;
 	width: 500px;
@@ -28,6 +27,14 @@ h1, h2, h3, h4, h5, h6 {
 #table_connexion {
 	margin-top: 20px;
 	margin-left: 60px;
+}
+
+#table_connexion label {
+	font-size: 1.1em;
+}
+
+#table_connexion td {
+	padding: 5px;
 }
 
 #btn_connexion {

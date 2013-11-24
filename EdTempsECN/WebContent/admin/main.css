@@ -24,7 +24,7 @@ body {
 }
 
 h1 {
-	background-image: linear-gradient(60deg, #0187AA, #E6E6E6);
+	background-image: linear-gradient(60deg, #0A3E91, #0096AE);
 	border-bottom: 1px solid #BFC2BF;
 	background-color: #0187AA;
 	color: white;
@@ -132,56 +132,57 @@ ul.button_nav li:last-child {
 
 
 /**
- * Liste des salles
+ * Généralités sur les tableaux
+ */
+.tableau_liste {
+	border-collapse: collapse;
+}
+
+.tableau_liste td {
+	padding: 3px;
+	border: solid 1px gray;
+}
+
+.tableau_liste th {
+	padding: 3px;
+	background-color: #0187AA;
+	color: white;
+	border: solid 1px gray;
+}
+
+.tableau_liste tr:nth-child(odd) {
+  background-color: #E3EDEF;
+}
+
+.information {
+	font-size: 0.9em;
+	color: gray;
+	text-align: justify;
+}
+
+
+
+/**
+ * Page de gestion des salles
  */
 
 #liste_salles {
 	margin-top: 20px;
-}
-
-#liste_salles table {
-	box-shadow: 0 0 7px #0187AA;
-	border: solid 1px 0187AA;
-	border-collapse: collapse;
 	width: 100%;
 }
 
-#liste_salles table tr:nth-child(odd) {
-  background-color: #E3EDEF;
-}
-
-#liste_salles table td {
-	padding: 3px;
-}
-
-#liste_salles table .liste_salles_modifier {
+#liste_salles .liste_salles_modifier {
 	text-align: right;
 	padding-right: 5px;
+	border-right: none;
 }
 
-#liste_salles table .liste_salles_supprimer {
+#liste_salles .liste_salles_supprimer {
 	padding-left: 5px;
+	border-left: none;
 }
 
-#liste_salles table th {
-	padding: 3px;
-	background-color: #0187AA;
-	color: white;
-}
-
-.bordure_gauche_grise {
-	border-left: solid 1px gray;
-}
-
-.bordure_gauche_blanche {
-	border-left: solid 1px white;
-}
-
-/**
- * Formulaires d'ajout et modification de salles
- */
-
-#ajouter_salle #ajouter_salle_form {
+#ajouter_salle_form {
 	display: none;
 	box-shadow: 0 0 7px #555;
 	width: 500px;
@@ -189,14 +190,8 @@ ul.button_nav li:last-child {
 	padding: 10px;
 }
 
-.salle_form_boutons {
+#ajouter_salle_form .salle_form_boutons {
 	text-align: right;
-}
-
-input[type=text], input[type=email], input[type=password], textarea {
-	border: 1px solid #A9A9A9;
-	box-shadow: white 0 0 10px;
-	outline: 0;
 }
 
 #salle_materiels {
@@ -219,54 +214,34 @@ input[type=text], input[type=email], input[type=password], textarea {
 	width: 60px;
 }
 
-.information {
-	font-size: 0.9em;
-	color: gray;
-	text-align: justify;
-}
-
 
 
 /**
- * Liste du matériel
+ * Page de gestion des types de matériel
  */
 
 #liste_materiel {
-	border-collapse: collapse;
 	width: 450px;
-	margin-top: -5px;
-	margin-left: 20px;
-	box-shadow: 0 0 7px #0187AA;
-	border: solid 1px 0187AA;
 }
-
-#liste_materiel tr:nth-child(odd) {
-  background-color: #E3EDEF;
-}
-
-#liste_materiel td {
-	padding: 3px;
-}
-
-#liste_materiel th {
-	padding: 3px;
-	background-color: #0187AA;
-	color: white;
-}
-
-
-/**
- * Formulaire d'ajout de matériel
- */
 
 #ajouter_materiel {
 	box-shadow: 0 0 7px #555;
-	width: 450px;
 	position: absolute;
-	margin-left: 500px;
-	top: 197px;
+	margin-left: 480px;
+	top: 200px;
 	height: 70px;
-	padding-left: 10px
+	width: 460px;
+	padding: 10px;
+}
+
+#supprimer_materiel {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 300px;
+	height: 130px;
+	width: 460px;
+	padding: 10px;
 }
 
 .formulaire_zone_titre {
@@ -276,103 +251,46 @@ input[type=text], input[type=email], input[type=password], textarea {
 	font-size: 0.9em;
 }
 
-/**
- * Formulaire de suppression de matériel
- */
-
-#supprimer_materiel {
-	box-shadow: 0 0 7px #555;
-	width: 440px;
-	padding-left: 10px;
-	padding-right: 10px;
-	position: absolute;
-	margin-left: 500px;
-	top: 300px;
-	height: 130px;
-}
 
 
 /**
- * Liste des administraurs
+ * Page de gestion des administraurs
  */
 
 #liste_administrateurs {
-	border-collapse: collapse;
 	width: 450px;
-	margin-top: -5px;
-	margin-left: 20px;
-	box-shadow: 0 0 7px #0187AA;
-	border: solid 1px 0187AA;
 }
-
-#liste_administrateurs tr:nth-child(odd) {
-  background-color: #E3EDEF;
-}
-
-#liste_administrateurs td {
-	padding: 3px;
-}
-
-#liste_administrateurs th {
-	padding: 3px;
-	background-color: #0187AA;
-	color: white;
-}
-
-
-/**
- * Formulaire d'ajout d'un administrateur
- */
 
 #ajouter_administrateur {
 	box-shadow: 0 0 7px #555;
-	width: 450px;
 	position: absolute;
-	margin-left: 500px;
-	top: 197px;
+	margin-left: 480px;
+	top: 200px;
 	height: 170px;
-	padding-left: 10px
+	width: 460px;
+	padding: 10px;
 }
-
-
-/**
- * Formulaire de suppression d'un administrateur
- */
 
 #supprimer_administrateur {
 	box-shadow: 0 0 7px #555;
-	width: 440px;
-	padding-left: 10px;
-	padding-right: 10px;
 	position: absolute;
-	margin-left: 500px;
-	top: 390px;
+	margin-left: 480px;
+	top: 400px;
 	height: 70px;
+	width: 460px;
+	padding: 10px;
 }
 
 
 
 /**
- * Liste des utilisateurs
+ * Page de gestion des utilisateurs
  */
 
 #liste_utilisateurs {
-	border-collapse: collapse;
-	margin: -5px 0px 10px 10px;
-	box-shadow: 0 0 7px #0187AA;
-	border: solid 1px 0187AA;
+	width: 100%;
 }
 
-#liste_utilisateurs tr:nth-child(odd) {
-  background-color: #E3EDEF;
-}
-
-#liste_utilisateurs td {
-	padding: 3px;
-}
-
-#liste_utilisateurs th {
-	padding: 3px;
-	background-color: #0187AA;
-	color: white;
+#liste_utilisateurs td.form_supprimer_utilisateur {
+	width: 20px;
 }

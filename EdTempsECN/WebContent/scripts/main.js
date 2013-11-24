@@ -216,7 +216,7 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 	function chargerInterfaceConnection(dialogConnexion, target) {
 		// Suppression de l'interface actuelle
 		$("#main_interface_hook").empty();
-		dialogConnexion.show("Connexion", function(success) {
+		dialogConnexion.show("Connexion à l'emploi du temps", function(success) {
 			if(success) {
 				if(target) {
 					Davis.location.assign(target);
