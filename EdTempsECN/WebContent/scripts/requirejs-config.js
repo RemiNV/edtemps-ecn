@@ -13,7 +13,8 @@ var require = {
 		text: "lib/text",
 		underscore: "lib/underscore-min",
 		davis: "lib/davis.min",
-		underscore: "lib/underscore-min"
+		underscore: "lib/underscore-min",
+		jqueryquicksearch: "lib/jquery.quicksearch" // Bibliothèque effectuant le tri dans le jquerymultiselect
 	},
 
 	/* Configuration des bibliothèques non AMD (non compatibles avec 
@@ -30,6 +31,10 @@ var require = {
 		"lib/davis.hashrouting": {
 			deps: ["davis"], // jquery nécessaire pour davis.js, et bibliothèque de base
 			exports: "Davis" // Utilisation du nom "Davis" en argument de la fonction le récupérant
+		},
+		
+		"jqueryquicksearch": {
+			deps: ["jquery"]
 		},
 		
 		"jqueryui": {
