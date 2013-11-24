@@ -3,8 +3,8 @@
  * Associé au HTML templates/page_parametres.html
  * @module EcranParametres
  */
-define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "DialogDetailGroupeParticipants", "DialogGererGroupeParticipants", "lib/davis.min",
-        "jqueryui", "jquerymultiselect", "jquery", "underscore"], function(RestManager, GroupeGestion, CalendrierGestion, DialogCreationCalendrier, 
+define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCalendrier", "DialogCreationGroupeParticipants", "DialogDetailGroupeParticipants", "DialogGererGroupeParticipants", "davis",
+        "jqueryui", "jquerymultiselect", "jqueryquicksearch", "jquery", "underscore"], function(RestManager, GroupeGestion, CalendrierGestion, DialogCreationCalendrier, 
         		DialogCreationGroupeParticipants, DialogDetailGroupeParticipants, DialogGererGroupeParticipants, Davis) {
 	
 	/**

@@ -1,9 +1,12 @@
-require(["DialogConnexion", "RestManager", "text!../templates/formulaire_connexion.html", "jquery", "jqueryui"], function(DialogConnexion, RestManager, htmlFormulaireConnexion) {
+require(["DialogConnexion", "RestManager", "text!../index.html", "jquery", "jqueryui"], function(DialogConnexion, RestManager, htmlIndex) {
 	
 	var jqDialog = null;
 	
 	module("Dialog de connexion", {
 		setup: function() {
+			
+			var htmlFormulaireConnexion = $(htmlIndex).find("#connection_dialog")[0].outerHTML;
+			
 			jqDialog = $("<div id='dialogConnexionUnitTest'></div>").append(htmlFormulaireConnexion).appendTo($("#qunit-fixture"));
 		},
 		teardown: function() {
