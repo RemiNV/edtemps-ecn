@@ -102,8 +102,8 @@ require(["RechercheSalle", "text!../templates/page_accueil.html", "RestManager",
 				}
 				
 				equal(mockedCalls[0].data.effectif, 42, "Capacité de salle dans la requête correspondant au formulaire");
-				equal(mockedCalls[0].data.debut, (new Date("2013-10-31T12:45:00")).getTime(), "Date début dans la requête correspondant au formulaire");
-				equal(mockedCalls[0].data.fin, (new Date("2013-10-31T13:45:00")).getTime(), "Date fin dans la requête correspondant au formulaire");
+				equal(mockedCalls[0].data.debut, (new Date(2013,9,31,12,45,0)).getTime(), "Date début dans la requête correspondant au formulaire");
+				equal(mockedCalls[0].data.fin, (new Date(2013,9,31,13,45,0)).getTime(), "Date fin dans la requête correspondant au formulaire");
 				
 				// Vérification du matériel
 				var materiels = mockedCalls[0].data.materiel.split(",");
