@@ -214,7 +214,7 @@ require(["lib/stacktrace", "lib/davis.min", "RestManager", "text!../templates/fo
 	function chargerInterfaceConnection(dialogConnexion) {
 		// Suppression de l'interface actuelle
 		$("#main_interface_hook").empty();
-		dialogConnexion.show("Connexion", function(success) {
+		dialogConnexion.show("Connexion à l'emploi du temps", function(success) {
 			if(success) {
 				Davis.location.assign("agenda");
 			}
