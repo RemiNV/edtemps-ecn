@@ -30,11 +30,54 @@
 		<div id="toast"></div>
 		<div id="bulle_information"></div>
 	
+		<div id="div_chargement_application" style="width: 400px; height: 100px; margin: auto;" >
+			<!-- Contenu supprimé en JavaScript -->
+			<h3><img style="position: relative; top: 30px;" src="img/spinner_chargement.gif" alt="Chargement" />Chargement de l'application...</h3>
+		</div>
+	
 		<div id="connection_dialog">
+			
+			<div id="colonne_gauche">
+				<img src="img/icone_appli.png" alt="Emploi du temps ECN" />
+			</div>
+			
+			<div id="main_content">
+			
+				<div id="formulaire_connexion">
+					<h1>Connexion à l'emploi du temps</h1>
+					<!-- IFrame recevant le résultat du formulaire pour pouvoir faire un submit -> le navigateur propose de mémoriser les identifiants -->
+					<iframe name="dummy_iframe" id="dummy_iframe" style="display: none"></iframe>
+					<!--  <form method="post" action="templates/blank.html" target="dummy_iframe"> -->
+					<form method="post" action="templates/blank.html" target="dummy_iframe" id="form_connexion">
+						<table id="table_connexion">
+							<tr>
+								<td><label for="txt_identifiant">Identifiant</label></td>
+								<td><input type="text" id="txt_identifiant" name="username" /></td>
+							</tr>
+							<tr>
+								<td><label for="txt_password">Mot de passe</label></td>
+								<td><input type="password" id="txt_password" name="password" /></td>
+							</tr>
+						</table>
+						
+						<div class="message_alerte" id="msg_erreur" style="display: none">Identifiants invalides</div>
+						
+						<div id="msg_connexion" style="display: none"><img class="img_baseline" src="img/spinner_chargement_outer_small.gif" alt="chargement" />Connexion...</div>
+						
+						<input type="submit" value="Connexion" id="btn_connexion" />
+					</form>
+				</div>
+			</div>
+		
+		
+			<!-- 
 			<div style="width: 400px; height: 100px; margin: auto;" >
-				<!-- Contenu remplacé en JavaScript -->
+				<!-- Contenu remplacé en JavaScript -- >
+				
 				<h3><img style="position: relative; top: 30px;" src="img/spinner_chargement.gif" alt="Chargement" />Chargement de l'application...</h3>
 			</div>
+			
+			-->
 		</div>
 	
 		<div id="main_interface_hook">

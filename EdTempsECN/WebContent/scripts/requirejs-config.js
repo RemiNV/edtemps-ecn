@@ -12,7 +12,8 @@ var require = {
 		jquerymaskedinput: "lib/jquery.maskedinput.min",
 		text: "lib/text",
 		jqueryquicksearch: "lib/jquery.quicksearch",
-		underscore: "lib/underscore-min"
+		underscore: "lib/underscore-min",
+		davis: "lib/davis.min"
 	},
 
 	/* Configuration des bibliothèques non AMD (non compatibles avec 
@@ -20,15 +21,15 @@ var require = {
 	 * Voir http://requirejs.org/docs/api.html#config-shim (11/10/2013) */
 	shim: {
 		/* Bibliothèque Davis (plugin hashrouting nécessitant Davis)
-		 * Utilisation future : require(["lib/davis.min"], function(Davis) { ... }); */
-		"lib/davis.min": {
+		 * Utilisation future : require(["davis"], function(Davis) { ... }); */
+		"davis": {
 			deps: ["jquery"], // jquery nécessaire pour davis.js, et bibliothèque de base
 			exports: "Davis" // Utilisation du nom "Davis" en argument de la fonction le récupérant
 		},
 		
 		"lib/davis.hashrouting": {
-			deps: ["lib/davis.min"], // jquery nécessaire pour davis.js, et bibliothèque de base
-			exports: "DavisHashrouting" // Utilisation du nom "Davis" en argument de la fonction le récupérant
+			deps: ["davis"], // jquery nécessaire pour davis.js, et bibliothèque de base
+			exports: "Davis" // Utilisation du nom "Davis" en argument de la fonction le récupérant
 		},
 		
 		"jqueryui": {

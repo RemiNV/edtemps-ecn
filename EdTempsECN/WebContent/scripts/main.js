@@ -1,8 +1,15 @@
 
-/**
- * Définition du reporting d'erreurs
- */
-require(["lib/stacktrace"], function(stacktrace) {
+/* Fonction d'entrée du programme. 
+ * Le plugin davis est appelé par le mot-clé "davis" (configuré dans index.html)
+ * Placer jquery en dernier dans la liste (ne se charge pas dans les arguments de la fonction) */
+require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion", 
+         "lib/davis.hashrouting", "jquery"], function(stacktrace, Davis, RestManager, DialogConnexion) {
+	/* Davis est chargé de manière locale avec le mot-clé "Davis" dans cette fonction (passé en argument) : 
+	 * le plugin est configuré pour être chargé de cette manière dans le index.html
+	 * 
+	 * jquery est accessible de manière globale par $ (mais il faut tout de même préciser la dépendance
+	 * dans les arguments de require() !), pour ne pas avoir de problème de dépendances (avec jQuery UI notamment) */
+
 	// Gestion d'erreurs signalées au serveur
 	window.onerror = function(message, url, lineNb, colNb, e) {
 		// Chrome supporte le passage de l'exception javascript
@@ -42,23 +49,8 @@ require(["lib/stacktrace"], function(stacktrace) {
 			throw e;
 		}
 	};
-});
 
-
-/* Fonction d'entrée du programme. 
- * Le plugin davis est appelé par le mot-clé "davis" (configuré dans index.html)
- * Placer jquery en dernier dans la liste (ne se charge pas dans les arguments de la fonction) */
-require(["lib/stacktrace", "lib/davis.min", "RestManager", "text!../templates/formulaire_connexion.html", "DialogConnexion", 
-         "lib/davis.hashrouting", "jquery"], function(stacktrace, Davis, RestManager, htmlFormulaireConnexion, DialogConnexion) {
-	/* Davis est chargé de manière locale avec le mot-clé "Davis" dans cette fonction (passé en argument) : 
-	 * le plugin est configuré pour être chargé de cette manière dans le index.html
-	 * 
-	 * jquery est accessible de manière globale par $ (mais il faut tout de même préciser la dépendance
-	 * dans les arguments de require() !), pour ne pas avoir de problème de dépendances (avec jQuery UI notamment) */
-
-	
 	var currentPage = { nom: null, manager: null };
-	
 	var restManager = new RestManager();
 	
 	/** Remplace toutes les infobulles par celle de jQuery UI */
@@ -101,11 +93,16 @@ require(["lib/stacktrace", "lib/davis.min", "RestManager", "text!../templates/fo
 		
 		// Initialisation de la dialog de connexion
 		var jqDialog = $("#connection_dialog");
-		$(htmlFormulaireConnexion).appendTo(jqDialog.empty());
 		var dialogConnexion = new DialogConnexion(restManager, jqDialog);
 		
 		/*** Routes de l'application ***/
-		this.app = Davis(function() {
+		this.app = new Davis.App();
+		
+		this.app.configure(function(config) {
+			config.formSelector = "form.davis";
+		});
+		
+		var initApp = function() {
 			
 			// Page principale
 			var routePagePrincipale = function(req) {
@@ -148,7 +145,7 @@ require(["lib/stacktrace", "lib/davis.min", "RestManager", "text!../templates/fo
 						req.redirect(req.params["target"]); // Déjà connecté : redirection
 					}
 					else {
-						chargerInterfaceConnection(dialogConnexion);
+						chargerInterfaceConnection(dialogConnexion, req.params["target"]);
 					}
 				});
 			});
@@ -174,12 +171,17 @@ require(["lib/stacktrace", "lib/davis.min", "RestManager", "text!../templates/fo
 			this.get("/", function(req) {
 				req.redirect("connexion/agenda");
 			});
-		});
+		};
 		
+		initApp.call(app);
+		
+		$("#div_chargement_application").remove();
+
 		this.app.start();
 		
 		// Parsing de la position actuelle
-		Davis.location.assign(Davis.location.current());
+		var currentLocation = Davis.location.current();
+		app.lookupRoute("get", currentLocation).run(new Davis.Request(currentLocation));
 	};
 	
 	/**
@@ -211,12 +213,17 @@ require(["lib/stacktrace", "lib/davis.min", "RestManager", "text!../templates/fo
 		});
 	};
 	
-	function chargerInterfaceConnection(dialogConnexion) {
+	function chargerInterfaceConnection(dialogConnexion, target) {
 		// Suppression de l'interface actuelle
 		$("#main_interface_hook").empty();
 		dialogConnexion.show("Connexion", function(success) {
 			if(success) {
-				Davis.location.assign("agenda");
+				if(target) {
+					Davis.location.assign(target);
+				}
+				else {
+					Davis.location.assign("agenda");
+				}
 			}
 		});
 		

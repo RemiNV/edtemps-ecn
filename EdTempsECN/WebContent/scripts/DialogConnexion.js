@@ -40,11 +40,12 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		});
 		
 		var me = this;
-		
+
 		// Callback de connexion
-		jqDialog.find("#btn_connexion").click(function(event) {
+		jqDialog.find("#form_connexion").submit(function(event) {
 			
-			event.preventDefault();
+			// On n'appelle pas preventDefault : le submit se fait dans une iframe cachée
+			// (pour déclencher le "se souvenir des identifiants ?" du navigateur)
 			var username = jqDialog.find("#txt_identifiant").val();
 			
 			// Enregistrement du username pour les reconnexions
@@ -86,7 +87,6 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 					break;
 				}
 				
-				
 				me.connectionCallback(resultCode == RestManager.resultCode_Success);
 			});
 		});
@@ -118,6 +118,7 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		
 		this.connectionSuccess = false;
 		this.connectionCallback = connectionCallback;
+
 		this.jqDialog.dialog("option", "title", title);
 		this.jqDialog.dialog("open");
 	};
