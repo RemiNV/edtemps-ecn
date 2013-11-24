@@ -612,3 +612,54 @@ input.valide {
 .input_autocomplete:not([disabled]) {
 	background-color: transparent;
 }
+
+/** Dialog de détails d'un événement */
+#dialog_details_evenement {
+	
+}
+
+.ui-dialog-titlebar.dialog_details_evenement_header, #dialog_details_evenement.ui-dialog-content {
+	padding: 15px;
+	background-color: white;
+}
+
+.ui-dialog-titlebar.dialog_details_evenement_header { 
+	background-image: none;
+	color: black;
+	border-radius: 2px 2px 0px 0px;
+	cursor: default;
+}
+
+#dialog_details_evenement.ui-dialog-content {
+	border-radius: 0px 0px 2px 2px;
+}
+
+#dialog_details_evenement table tr {
+	height: 1.7em;
+}
+
+#dialog_details_evenement table tr td:first-child {
+	padding-right: 10px;
+}
+
+.dialog_details_evenement_arrow_outer {
+	border-top: 9px solid #B9B9B9;
+	border-left: 9px solid transparent;
+	border-right: 9px solid transparent;
+	width: 0px;
+	height: 0px;
+	position: absolute;
+	bottom: -10px;
+	left: 243px;
+}
+
+.dialog_details_evenement_arrow_inner {
+	border-top: 8px solid white;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	width: 0px;
+	height: 0px;
+	position: absolute;
+	bottom: -8px;
+	left: 244px;
+}
