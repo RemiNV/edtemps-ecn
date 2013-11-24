@@ -294,3 +294,31 @@ ul.button_nav li:last-child {
 #liste_utilisateurs td.form_supprimer_utilisateur {
 	width: 20px;
 }
+
+
+
+/**
+ * Page de gestion des types d'utilisateurs
+ */
+
+#types_utilisateurs_liste {
+	width: 200px;
+}
+
+#types_utilisateurs_liste tr {
+	cursor: pointer;
+}
+
+#types_utilisateurs_liste tr:hover {
+	background-color: red;
+}
+
+#types_utilisateurs_modifier {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 280px;
+	top: 200px;
+	height: 170px;
+	width: 680px;
+	padding: 10px;
+}
