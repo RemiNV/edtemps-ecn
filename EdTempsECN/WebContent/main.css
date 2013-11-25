@@ -470,6 +470,11 @@ table.liste_materiel th {
 }
 
 /* Dialog d'ajout d'évènement */
+
+#dialog_ajout_evenement > table {
+	border-spacing: 2px 10px;
+}
+
 #btn_rechercher_salle_evenement {
 	margin-left: 10px;
 }

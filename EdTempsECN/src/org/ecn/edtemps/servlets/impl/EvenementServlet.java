@@ -151,8 +151,8 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			}
 			
 			// TODO : autoriser un administrateur à faire ceci
-			// Interdiction de demander des calendriers dont on est pas propriétaire
-			if(paramsEvenement.idCalendriers != null && !droitsCalendriersNouveau.estProprietaire) {
+			// Si modification des calendriers : doit être propriétaire des anciens et des nouveaux (aussi pour création de l'événement)
+			if(paramsEvenement.idCalendriers != null && (!droitsCalendriersNouveau.estProprietaire || !droitsCalendriersAncien.estProprietaire)) {
 				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous n'êtes pas propriétaire de tous les calendriers de l'évènement");
 			}
 			
