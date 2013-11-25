@@ -11,7 +11,40 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement) {
 		var me = this;
 		
+		// Dialog de détails des événements
 		var templateDialogDetails = _.template(tplDialogDetailsEvenement);
+		
+		var closeDialogDetailsCallback = function(event) {
+			if(!jqDialogDetailsEvenement.dialog("isOpen")) {
+				return;
+			}
+			
+			// On n'est pas à l'intérieur d'une dialog
+			var jqTarget = $(event.target);
+			console.log(jqTarget.closest(".ui-dialog"));
+			if(!jqTarget.is(".ui_dialog, .fc-event") 
+					&& jqTarget.closest(".ui-dialog").length == 0
+					&& jqTarget.closest(".fc-event").length == 0) {
+				jqDialogDetailsEvenement.dialog("close");
+				return false;
+			}
+		};
+		
+		jqDialogDetailsEvenement.dialog({
+			autoOpen: false,
+			draggable: false,
+			width: 500,
+			open: function(){
+				$(document).bind("click", closeDialogDetailsCallback);
+			},
+			close: function() {
+				$(document).unbind("click", closeDialogDetailsCallback);
+			}
+		});
+		
+		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");
+		
+		
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
@@ -48,6 +81,11 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			events: eventsSource,
 			dayClick: function(date, allDay, jsEvent, view) {
 				
+				// La dialog de détails se fermera juste après ce listener (clic en-dehors)
+				if(jqDialogDetailsEvenement.dialog("isOpen")) {
+					return;
+				}
+				
 				// Durée d'1h par défaut
 				var dateFin = new Date(date.getTime() + 1000 * 3600);
 				
@@ -76,8 +114,8 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 					
 					// Remplissage du template
 					jqDialogDetailsEvenement.html(templateDialogDetails({
-						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy mm:ss"),
-						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy mm:ss"),
+						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy hh:mm"),
+						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy hh:mm"),
 						strSalles: event.strSalle,
 						proprietaires: event.responsables,
 						intervenants: event.intervenants

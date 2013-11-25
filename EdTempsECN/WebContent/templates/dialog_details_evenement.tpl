@@ -25,7 +25,7 @@
 					%>, <%
 				}
 				%>
-				<span title="<%= prop.email %>"><%= prop.prenom + " " + prop.nom %></span>
+				<span title="<%= prop.email ? prop.email : '' %>"><%= prop.prenom + " " + prop.nom %></span>
 				<%
 			});
 			%>
@@ -43,7 +43,7 @@
 					%>, <%
 				}
 				%>
-				<span title="<%= prop.email %>"><%= prop.prenom + " " + prop.nom %></span>
+				<span title="<%= prop.email ? prop.email : '' %>"><%= prop.prenom + " " + prop.nom %></span>
 				<%
 			});
 			%></td>
