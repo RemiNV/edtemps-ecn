@@ -161,7 +161,6 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @param width Paramètre width du MultiWidget
 	 */
 	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength, forceFirstValue, width) {
-		
 		return {
 			getValFunction: function(jqElem) {
 				var val = parseInt(jqElem.attr("data-val"));

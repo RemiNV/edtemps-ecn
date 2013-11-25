@@ -122,7 +122,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
 		Boolean estCours = jsonGroupe.getBoolean("estCours");
 		JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
-		List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayList(jsonIdProprietaires);
+		List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdProprietaires);
 		
 		// Vérification que l'objet est bien complet
 		if (StringUtils.isBlank(nom) || rattachementAutorise == null || estCours == null || CollectionUtils.isEmpty(listeIdProprietaires)) {
@@ -172,7 +172,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		Boolean rattachementAutorise = jsonGroupe.getBoolean("rattachementAutorise");
 		Boolean estCours = jsonGroupe.getBoolean("estCours");
 		JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
-		List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayList(jsonIdProprietaires);
+		List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdProprietaires);
 		
 		// Vérification que l'objet est bien complet
 		if (StringUtils.isBlank(nom) || rattachementAutorise == null || estCours == null || CollectionUtils.isEmpty(listeIdProprietaires)) {

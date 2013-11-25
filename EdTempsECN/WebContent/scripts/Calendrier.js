@@ -11,7 +11,64 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement) {
 		var me = this;
 		
+		// Dialog de détails des événements
 		var templateDialogDetails = _.template(tplDialogDetailsEvenement);
+		
+		var closeDialogDetailsCallback = function(event) {
+			if(!jqDialogDetailsEvenement.dialog("isOpen")) {
+				return;
+			}
+			
+			// On n'est pas à l'intérieur d'une dialog
+			var jqTarget = $(event.target);
+			if(!jqTarget.is(".ui_dialog, .fc-event") 
+					&& jqTarget.closest(".ui-dialog").length == 0
+					&& jqTarget.closest(".fc-event").length == 0) {
+				jqDialogDetailsEvenement.dialog("close");
+				return false;
+			}
+		};
+		
+		jqDialogDetailsEvenement.dialog({
+			autoOpen: false,
+			draggable: false,
+			width: 500,
+			open: function(){
+				$(document).bind("click", closeDialogDetailsCallback);
+			},
+			close: function() {
+				$(document).unbind("click", closeDialogDetailsCallback);
+			}
+		});
+		
+		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");
+		
+		jqDialogDetailsEvenement.find("#btnModifierEvenement").click(function() {
+			// TODO : remplir
+		});
+		
+		jqDialogDetailsEvenement.find("#btnSupprimerEvenement").click(function() {
+			
+			if(!confirm("Etes-vous sûr(e) de vouloir supprimer l'événement : " + evenementDialogDetailsOuverte.title + " ?")) {
+				return;
+			}
+			
+			evenementGestion.supprimerEvenement(evenementDialogDetailsOuverte, function(resultCode) {
+				if(resultCode == RestManager.resultCode_Success) {
+					jqDialogDetailsEvenement.dialog("close");
+					me.refetchEvents();
+				}
+				else if(resultCode == RestManager.resultCode_NetworkError) {
+					window.showToast("Echec de la suppression de cet événement : vérifiez votre connexion");
+				}
+				else {
+					window.showToast("Echec de la suppression de cet événement");
+				}
+			});
+		});
+		
+		// Mémorise l'événement pour lequel la dialog dialogDetailsEvenement est ouverte
+		var evenementDialogDetailsOuverte;
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
@@ -48,6 +105,11 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			events: eventsSource,
 			dayClick: function(date, allDay, jsEvent, view) {
 				
+				// La dialog de détails se fermera juste après ce listener (clic en-dehors)
+				if(jqDialogDetailsEvenement.dialog("isOpen")) {
+					return;
+				}
+				
 				// Durée d'1h par défaut
 				var dateFin = new Date(date.getTime() + 1000 * 3600);
 				
@@ -60,11 +122,22 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				
 				jqElement.click(function() {
 					
+					evenementDialogDetailsOuverte = event;
+					
 					jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar")
 						.css("color", event.color);
 					
-					console.log("event : ", event);
+					// Remplissage du template
+					jqDialogDetailsEvenement.find("#dialog_details_evenement_hook").html(templateDialogDetails({
+						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy hh:mm"),
+						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy hh:mm"),
+						strSalles: event.strSalle,
+						proprietaires: event.responsables,
+						intervenants: event.intervenants,
+						editable: event.editable
+					}));
 					
+					// Positionnement de la dialog
 					jqDialogDetailsEvenement.dialog("option", {
 						position: {
 							my: "center bottom",
@@ -73,18 +146,6 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 						},
 						title: event.title
 					});
-					
-					
-					// Remplissage du template
-					jqDialogDetailsEvenement.html(templateDialogDetails({
-						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy mm:ss"),
-						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy mm:ss"),
-						strSalles: event.strSalle,
-						strProprietaires: "afaire",
-						strIntervenants: "afaire",
-						strCalendriers: "afaire"
-						
-					}));
 					
 					jqDialogDetailsEvenement.dialog("open");
 				});

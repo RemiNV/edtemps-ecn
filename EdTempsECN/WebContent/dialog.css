@@ -173,6 +173,7 @@
 }
 
 .ui-autocomplete {
+	position: absolute;
 	padding: 2px;
 	background-color: white;
 	border: solid 1px gray;

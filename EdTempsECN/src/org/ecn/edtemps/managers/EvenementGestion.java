@@ -245,51 +245,42 @@ public class EvenementGestion {
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @throws EdtempsException
 	 */
-	public void supprimerEvenement(int idEvenement, boolean createTransaction) throws EdtempsException {
-		try {
-			// Début transaction si nécessaire
-			if (createTransaction) {
-				_bdd.startTransaction();
-			}
-			
-			// Supprimer l'association aux intervenants de l'événement
-			_bdd.executeRequest(
-					"DELETE FROM edt.intervenantevenement "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'association au matériel n�cessaire pour l'événement
-			_bdd.executeRequest(
-					"DELETE FROM edt.necessitemateriel "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'association aux intervenants de l'évenement
-			_bdd.executeRequest(
-					"DELETE FROM edt.responsabletevenement "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'asosciation aux salles de l'événement
-			_bdd.executeRequest(
-					"DELETE FROM edt.alieuensalle "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'association aux calendriers
-			_bdd.executeRequest(
-					"DELETE FROM edt.evenementappartient "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'évenement
-			_bdd.executeRequest(
-					"DELETE FROM edt.evenement "
-					 + "WHERE eve_id = " + idEvenement);
+	public void supprimerEvenement(int idEvenement, boolean createTransaction) throws DatabaseException {
+	
+		// Début transaction si nécessaire
+		if (createTransaction) {
+			_bdd.startTransaction();
+		}
+		
+		// Supprimer l'association aux intervenants de l'événement
+		_bdd.executeRequest(
+				"DELETE FROM edt.intervenantevenement "
+				 + "WHERE eve_id = " + idEvenement);
+		
+		// Supprimer l'association aux responsables de l'évenement
+		_bdd.executeRequest(
+				"DELETE FROM edt.responsableevenement "
+				 + "WHERE eve_id = " + idEvenement);
+		
+		// Supprimer l'asosciation aux salles de l'événement
+		_bdd.executeRequest(
+				"DELETE FROM edt.alieuensalle "
+				 + "WHERE eve_id = " + idEvenement);
+		
+		// Supprimer l'association aux calendriers
+		_bdd.executeRequest(
+				"DELETE FROM edt.evenementappartient "
+				 + "WHERE eve_id = " + idEvenement);
+		
+		// Supprimer l'évenement
+		_bdd.executeRequest(
+				"DELETE FROM edt.evenement "
+				 + "WHERE eve_id = " + idEvenement);
 
-			
-			// fin transaction si nécessaire
-			if (createTransaction){
-				_bdd.commit();
-			}
-			
-		} catch (DatabaseException e){
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		
+		// fin transaction si nécessaire
+		if (createTransaction){
+			_bdd.commit();
 		}
 	}
 	

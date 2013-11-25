@@ -122,10 +122,16 @@ public class CalendrierGestion {
 						);
 			// nom du groupe unique = nom du calendrier
 			req.setString(1, nom); 
-			// On effectue la requete et récupère l'id du calendrier créé
+			// On effectue la requete et récupère l'id du gpe de paricipant créé
 			ResultSet req_ligneCreee = req.executeQuery();
 			req_ligneCreee.next();
 			int idGroupeCree = req_ligneCreee.getInt(1);
+			
+			// On lie le calendrier au groupe unique
+			_bdd.executeRequest(
+					"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id, cal_id) "
+					+ "VALUES (" + idGroupeCree + ", " + idCalendrier + ")"
+					);
 			
 			// Définition des propriétaires du calendrier et du groupe unique associé
 			Iterator<Integer> itr = idProprietaires.iterator();
@@ -135,11 +141,13 @@ public class CalendrierGestion {
 						"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
 						+ "VALUES (" + idProprietaire + ", " + idCalendrier + ")"
 						);
+				/* SUPPRIMER POUR EVITER REDONDANCE DANS LA BBD
 				_bdd.executeRequest(
 						"INSERT INTO edt.proprietairegroupeparticipant "
 						+ "(utilisateur_id, groupeparticipant_id) "
 						+ "VALUES (" + idProprietaire + ", " + idGroupeCree	+ ")"
 				);
+				*/
 			}
 			
 			// Fin transaction
@@ -298,8 +306,21 @@ public class CalendrierGestion {
 				
 			}
 			
-			// Executer la requete
+			// Executer la requete de modification du calendrier
 			requete.executeUpdate();
+			
+			// Requete préparée pour la modification du groupe unique associé
+			PreparedStatement requeteGpe = _bdd.getConnection().prepareStatement(
+					"UPDATE edt.groupeparticipant AS gp "
+					+ "SET (groupeparticipant_nom) = (?) "
+					+ "FROM edt.calendrierappartientgroupe AS cag "
+					+ "WHERE gp.groupeparticipant_id = cag.groupeparticipant_id "
+					+ "AND cag.cal_id = " + calId.getId() + " "
+					+ "AND gp.groupeparticipant_estcalendrierunique = TRUE");
+			// Ajout du nom du groupe unique à la requete préparée
+			requeteGpe.setString(1, calId.getNom());
+			// Executer la requete de modification du groupe unique associé
+			requeteGpe.executeUpdate();
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
 			_bdd.executeRequest("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
@@ -349,11 +370,28 @@ public class CalendrierGestion {
 					"DELETE FROM edt.proprietairecalendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
+			// Trouver l'id du groupe unique associé 
+			PreparedStatement requeteIdGpe = _bdd.getConnection().prepareStatement(
+					  "SELECT gp.groupeparticipant_id "
+					+ "FROM  edt.groupeparticipant AS gp "
+					+ "INNER JOIN edt.calendrierappartientgroupe AS cag "
+					+ "ON gp.groupeparticipant_id = cag.groupeparticipant_id "
+					+ "WHERE gp.groupeparticipant_estcalendrierunique = TRUE "
+					+ "AND cag.cal_id = " + idCalendrier
+					);
+			int idGroupeUnique = _bdd.recupererId(requeteIdGpe, "groupeparticipant_id");
+			if (idGroupeUnique == -1) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID groupe unique associé au calendrier à supprimer non existant ou non unique"); 
+			}
 			// Supprimer dépendance avec les groupes de participants
 			_bdd.executeRequest(
 					"DELETE FROM edt.calendrierAppartientGroupe "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
+			// Supprimer les abonnements au groupe unique 
+			_bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
+			// Supprime le groupe unique
+			_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
 			/* Supprimer les événements associés au calendrier
 			 * 		1 - Récupération des id des evenements associés
 			 * 		2 - Suppression du lien entre les evenements et le calendrier
@@ -492,7 +530,8 @@ public class CalendrierGestion {
 				"LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = calendrier.cal_id " +
 				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
 					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours)" +
-				"GROUP BY calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle");
+				"GROUP BY calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle " +
+				"ORDER BY calendrier.cal_nom");
 		
 		try {
 			ArrayList<CalendrierComplet> res = new ArrayList<CalendrierComplet>();
