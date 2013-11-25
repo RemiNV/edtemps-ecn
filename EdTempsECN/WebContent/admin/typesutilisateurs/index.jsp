@@ -25,53 +25,26 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Gestion des types d'utilisateurs</h1>			
 
-			<div id="content" style="min-height: 300px;">
+			<div id="content" style="min-height: 320px;">
 
 				<table id="types_utilisateurs_liste" class="tableau_liste">
-					<tr><th>Types d'utilisateurs</th></tr>
+					<tr>
+						<th>Types d'utilisateurs</th>
+						<th colspan="2">Actions</th>
+					</tr>
 					<%
 						BddGestion bdd = new BddGestion();
 						UtilisateurGestion gestionUtilisateurs = new UtilisateurGestion(bdd);
 						Map<Integer, String> typesUtilisateurs = gestionUtilisateurs.getListeTypesUtilisateur();
 						for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-							out.write("<tr><td onclick='afficheMultiSelect("+type.getKey()+", &apos;"+type.getValue()+"&apos;)'>"+type.getValue()+"</td></tr>");
+							out.write("<tr>");
+							out.write("<td>"+type.getValue()+"</td>");
+							out.write("<td class='liste_types_utilisateurs_modifier'><a href='"+request.getContextPath()+"/admin/typesutilisateurs/modifier.jsp?id="+type.getKey()+"'><img alt='Modifier' title='Modifier' src='"+request.getContextPath()+"/img/modifier.png' /></a></td>");
+							out.write("<td class='liste_types_utilisateurs_supprimer'><form onsubmit='return confirmationSupprimerType()' action='"+request.getContextPath()+"/administrateur/typesutilisateurs/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+type.getKey()+"' /></form></td>");
+							out.write("</tr>");
 						}
 					%>
 				</table>
-				
-				<div id="types_utilisateurs_modifier">
-					<p id="types_utilisateurs_modifier_titre"> Cliquez sur un type dans la liste de gauche pour en afficher les droits.</p>
-					<%
-						// Récupération de la liste des actions disponibles
-						AdministrateurGestion gestionAdministrateurs = new AdministrateurGestion(bdd);
-						Map<Integer, String> toutesLesActionsPossibles = gestionAdministrateurs.listerActionsEdtemps();
-
-						for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-						
-							// Récupération pour ce type des actions autorisées
-							List<Integer> actionsAutoriseesPourCeType = gestionAdministrateurs.getListeActionsTypeUtilisateurs(type.getKey()); 
-						
-						%>
-							<form action="" method="POST" onsubmit="return validationModificationType()">
-								<select multiple="multiple" id="types_utilisateurs_modifier_form_<%=type.getKey() %>" name="types_utilisateurs_modifier_form_<%=type.getKey() %>" class="types_utilisateurs_modifier_select">
-									<%
-									for (Map.Entry<Integer, String> action : toutesLesActionsPossibles.entrySet()) {
-										if (actionsAutoriseesPourCeType.contains(action.getKey())) {
-											out.write("<option value='"+action.getKey()+"' selected>"+action.getValue()+"</option>");
-										} else {
-											out.write("<option value='"+action.getKey()+"'>"+action.getValue()+"</option>");
-										}
-									}
-									%>
-								</select>
-							</form>
-					<%	}	%>
-				</div>
-
-				
-				
-				
-				
 				
 			</div>
 

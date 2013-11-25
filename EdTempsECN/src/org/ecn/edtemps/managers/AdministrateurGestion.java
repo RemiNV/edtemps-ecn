@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 
 
@@ -132,7 +133,7 @@ public class AdministrateurGestion {
 
 	
 	/**
-	 * Supprime un administrateur
+	 * Supprimer un administrateur
 	 * @param id Identifiant de l'administrateur à supprimer
 	 * @throws DatabaseException 
 	 */
@@ -144,7 +145,7 @@ public class AdministrateurGestion {
 
 
 	/**
-	 * Lister les actions de l'emploi du temps (pour lesquels on peut définir un droit)
+	 * Lister les actions de l'emploi du temps
 	 * @return la liste des actions sous forme d'une map : identifiant <> libellé
 	 * @throws DatabaseException 
 	 */
@@ -194,6 +195,53 @@ public class AdministrateurGestion {
 			
 			return (resultat);
 			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+	}
+
+	
+	/**
+	 * Modifier les drois pour un type d'utilisateur
+	 * @param idType identifiant du type d'utilisateur
+	 * @param listeIdDroits liste des identifiants des actions autorisées
+	 * @throws DatabaseException
+	 */
+	public void modifierDroitsTypeUtilisateurs(int idType, List<Integer> listeIdDroits) throws DatabaseException {
+		
+			// Démarre une transaction
+			bdd.startTransaction();
+			
+			// Supprime les anciens droits
+			bdd.executeRequest("DELETE FROM edt.aledroitde WHERE type_id="+idType);
+			
+			// Ajoute les nouveaux droits
+			if (CollectionUtils.isNotEmpty(listeIdDroits)) {
+				StringBuilder requete = new StringBuilder("INSERT INTO edt.aledroitde (type_id, droits_id) VALUES ");
+				for (Integer idDroit : listeIdDroits) {
+					requete.append("("+idType+","+idDroit+"), ");
+				}
+				
+				// Exécute la requête (en supprimant les deux derniers caractères : ', '
+				bdd.executeRequest(requete.toString().substring(0, requete.length()-1));
+			}
+
+			// Commit la transaction
+			bdd.commit();
+	}
+	
+
+	/**
+	 * Ajouter un type d'utilisateur
+	 * @param nom Nom du type d'utilisateur
+	 * @throws DatabaseException
+	 */
+	public void ajouterTypeUtilisateurs(String nom) throws DatabaseException {
+		
+		try {
+			PreparedStatement requete = bdd.getConnection().prepareStatement("");
+			requete.execute();
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

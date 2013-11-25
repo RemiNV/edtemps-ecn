@@ -302,27 +302,22 @@ ul.button_nav li:last-child {
  */
 
 #types_utilisateurs_liste {
-	width: 200px;
+	width: 100%;
 }
 
-#types_utilisateurs_liste tr {
-	cursor: pointer;
-}
-
-#types_utilisateurs_liste tr:hover {
-	background-color: red;
-}
-
-#types_utilisateurs_modifier {
-	box-shadow: 0 0 7px #555;
-	position: absolute;
-	margin-left: 230px;
-	top: 200px;
-	width: 720px;
-	padding: 10px;
-}
-
-.titre_mutli-select {
+.titre_multi-select {
 	height: 20px;
 	margin: 0px 0px 5px 5px;
+}
+
+#types_utilisateurs_liste .liste_types_utilisateurs_modifier {
+	border-right: none;
+	width: 40px;
+	text-align: center;
+}
+
+#types_utilisateurs_liste .liste_types_utilisateurs_supprimer {
+	border-left: none;
+	width: 40px;
+	text-align: center;
 }
