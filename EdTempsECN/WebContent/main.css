@@ -583,6 +583,10 @@ input.valide {
 }
 
 /** Multiwidget */
+.multiwidget {
+	position: relative; /* Nécessaire pour mettre le menu autocomplete en absolute */ 
+}
+
 .multiwidget_line {
 	position: relative;
 }

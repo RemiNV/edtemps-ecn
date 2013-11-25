@@ -25,6 +25,10 @@ define([ "jquery", "jqueryui" ], function() {
 	 */
 	var MultiWidget = function(jqControl, options) {
 		
+		MultiWidget.nextId++;
+		
+		this.multiWidgetId = "multiwidget_" + MultiWidget.nextId;
+		
 		var me = this;
 		
 		this.getValFunction = options.getValFunction;
@@ -37,7 +41,7 @@ define([ "jquery", "jqueryui" ], function() {
 		}
 		
 		// Wrapping du contrôle dans une div globale
-		jqControl.addClass("multiwidget_entry").wrap("<div class='multiwidget'></div>");
+		jqControl.addClass("multiwidget_entry").wrap("<div class='multiwidget' id='" + this.multiWidgetId + "'></div>");
 		this.jqDiv = jqControl.parent();
 		
 		// Wrapping de chaque ligne
@@ -62,7 +66,7 @@ define([ "jquery", "jqueryui" ], function() {
 	
 		// Initialisation de la première ligne
 		if(options.initControl) {
-			options.initControl(jqControl);
+			options.initControl(jqControl, this.multiWidgetId);
 		}
 		
 		if(options.forceFirstValue) {
@@ -75,6 +79,8 @@ define([ "jquery", "jqueryui" ], function() {
 			}
 		}
 	};
+	
+	MultiWidget.nextId = 0;
 	
 	/**
 	 * Remplace les valeurs du widget par celles fournies.
@@ -110,7 +116,7 @@ define([ "jquery", "jqueryui" ], function() {
 		this.jqDiv.append(newLine);
 		
 		if(this.initControl) {
-			this.initControl(newLine.find(".multiwidget_entry"));
+			this.initControl(newLine.find(".multiwidget_entry"), this.multiWidgetId);
 		}
 	};
 	
@@ -161,7 +167,6 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @param width Paramètre width du MultiWidget
 	 */
 	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength, forceFirstValue, width) {
-		
 		return {
 			getValFunction: function(jqElem) {
 				var val = parseInt(jqElem.attr("data-val"));
@@ -182,11 +187,12 @@ define([ "jquery", "jqueryui" ], function() {
 			},
 			forceFirstValue: forceFirstValue,
 			width: width,
-			initControl: function(jqElem) {
+			initControl: function(jqElem, multiWidgetId) {
 				var inputAutocompletion = $("<input type='text' disabled='disabled' class='input_autocomplete_overlay' />");
 				inputAutocompletion.css("width", jqElem.css("width"));
 				jqElem.autocomplete({
 					source: source,
+					appendTo: "#" + multiWidgetId,
 					autoFocus: true,
 					delay: 0,
 					minLength: minLength,
@@ -216,6 +222,9 @@ define([ "jquery", "jqueryui" ], function() {
 						inputAutocompletion.val("");
 						jqElem.val(jqElem.attr("data-label"));
 						return false;
+					},
+					create: function(event, ui) {
+						$("#" + multiWidgetId + " .ui-menu").css("position", "absolute");
 					}
 				}).data("ui-autocomplete")._renderItem = function (ul, item) {
 					return $("<li>")
