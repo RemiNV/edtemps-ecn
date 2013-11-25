@@ -543,7 +543,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					// Listeners pour les boutons "supprimer"
 					$(".tbl_mes_calendriers_boutons_supprimer").click(function() {
 						if(confirm("Etes-vous sur de vouloir supprimer le calendrier '" + $(this).parent().siblings().first().text()+"' ?")) {
-							me.calendrierGestion.supprimerCalendrier($(this).parent().parent().attr("data-id"), function () {
+							me.calendrierGestion.supprimerCalendrier($(this).parent().parent().attr("data-id"), function (resultCode) {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Le calendrier a été supprimé avec succès.");
 									me.afficheListeMesCalendriers();

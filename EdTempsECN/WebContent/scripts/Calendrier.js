@@ -138,6 +138,13 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 						editable: event.editable
 					}));
 					
+					if(event.editable) {
+						jqDialogDetailsEvenement.find(".boutons_valider").css("display", "block");
+					}
+					else {
+						jqDialogDetailsEvenement.find(".boutons_valider").css("display", "none");
+					}
+					
 					// Positionnement de la dialog
 					jqDialogDetailsEvenement.dialog("option", {
 						position: {

@@ -151,7 +151,8 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			}
 			
 			// TODO : autoriser un administrateur à faire ceci
-			if(!droitsCalendriersAncien.estProprietaire || !droitsCalendriersNouveau.estProprietaire) {
+			// Interdiction de demander des calendriers dont on est pas propriétaire
+			if(paramsEvenement.idCalendriers != null && !droitsCalendriersNouveau.estProprietaire) {
 				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous n'êtes pas propriétaire de tous les calendriers de l'évènement");
 			}
 			
@@ -190,6 +191,14 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		}
 	}
 	
+	protected JsonArray getJsonArrayOrNull(JsonObject object, String key) {
+		return object.containsKey(key) && !object.isNull(key) ? object.getJsonArray(key) : null;
+	}
+	
+	protected JsonNumber getJsonNumberOrNull(JsonObject object, String key) {
+		return object.containsKey(key) && !object.isNull(key) ? object.getJsonNumber(key) : null;
+	}
+	
 	protected ParamsAjouterModifierEvenement getParamsAjouterModifier(String strEvenement) throws JsonException, ClassCastException {
 		
 		JsonReader reader = Json.createReader(new StringReader(strEvenement));
@@ -197,18 +206,19 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		
 		jsonEvenement = reader.readObject();
 		
-		JsonNumber jsonDebut = jsonEvenement.getJsonNumber("dateDebut");
-		JsonNumber jsonFin = jsonEvenement.getJsonNumber("dateFin");
-		JsonArray jsonIdCalendriers = jsonEvenement.getJsonArray("calendriers");
-		JsonArray jsonIdSalles = jsonEvenement.getJsonArray("salles");
-		JsonArray jsonIdIntervenants = jsonEvenement.getJsonArray("intervenants");
-		JsonArray jsonIdResponsables = jsonEvenement.getJsonArray("responsables");
-		JsonArray jsonIdEvenementsSallesALiberer = jsonEvenement.getJsonArray("evenementsSallesALiberer");
-		JsonNumber jsonIdEvenement = jsonEvenement.getJsonNumber("id"); // Uniquement pour la modification
+		JsonNumber jsonDebut = getJsonNumberOrNull(jsonEvenement, "dateDebut"); 
+		JsonNumber jsonFin = getJsonNumberOrNull(jsonEvenement, "dateFin");
+		JsonArray jsonIdCalendriers = getJsonArrayOrNull(jsonEvenement, "calendriers");
+		JsonArray jsonIdSalles = getJsonArrayOrNull(jsonEvenement, "salles");
+		JsonArray jsonIdIntervenants = getJsonArrayOrNull(jsonEvenement, "intervenants");
+		JsonArray jsonIdResponsables = getJsonArrayOrNull(jsonEvenement, "responsables");
+		JsonArray jsonIdEvenementsSallesALiberer = getJsonArrayOrNull(jsonEvenement, "evenementsSallesALiberer"); 
+					
+		JsonNumber jsonIdEvenement = getJsonNumberOrNull(jsonEvenement, "id");
 		
 		ParamsAjouterModifierEvenement res = new ParamsAjouterModifierEvenement();
 		
-		res.nom = jsonEvenement.getString("nom", null);
+		res.nom = jsonEvenement.containsKey("nom") && !jsonEvenement.isNull("nom") ? jsonEvenement.getString("nom") : null;
 		
 		res.dateDebut = jsonDebut == null ? null : new Date(jsonDebut.longValue());
 		res.dateFin = jsonFin == null ? null : new Date(jsonFin.longValue());
