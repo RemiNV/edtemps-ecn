@@ -44,7 +44,8 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");
 		
 		jqDialogDetailsEvenement.find("#btnModifierEvenement").click(function() {
-			// TODO : remplir
+			jqDialogDetailsEvenement.dialog("close");
+			dialogAjoutEvenement.showEdit(evenementDialogDetailsOuverte);
 		});
 		
 		jqDialogDetailsEvenement.find("#btnSupprimerEvenement").click(function() {

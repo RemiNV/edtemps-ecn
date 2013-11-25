@@ -184,10 +184,11 @@ define(["RestManager"], function(RestManager) {
 			var strSalles = evenements[i].salles.join(", ");
 			
 			var estProprietaire = this.estProprietaire(evenements[i]);
-			
+			// TODO : remplacer "title" avec plus de texte (matière ? salle ?)
 			res.push({
 				id: evenements[i].id,
 				title: evenements[i].nom,
+				nom: evenements[i].nom,
 				start: new Date(evenements[i].dateDebut),
 				end: new Date(evenements[i].dateFin),
 				salles: evenements[i].salles,
@@ -247,10 +248,11 @@ define(["RestManager"], function(RestManager) {
 		
 			// Est-ce que l'utilisateur est propriétaire
 			var estProprietaire = this.estProprietaire(evenements[i]);
-			
+			// TODO : remplacer "title" avec plus de texte (matière ? salle ?)
 			res[i] = {
 				id: evenements[i].id,
 				title: evenements[i].nom,
+				nom: evenements[i].nom,
 				start: new Date(evenements[i].dateDebut),
 				end: new Date(evenements[i].dateFin),
 				salles: evenements[i].salles,
@@ -473,7 +475,7 @@ define(["RestManager"], function(RestManager) {
 	 */
 	EvenementGestion.prototype.modifierEvenement = function(id, callback, dateDebut, dateFin, nom, idCalendriers, 
 			idSalles, idIntervenants, idResponsables, idEvenementsSallesALiberer) {
-		
+
 		var me = this;
 		this.restManager.effectuerRequete("POST", "evenement/modifier", {
 			token: me.restManager.getToken(),

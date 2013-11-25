@@ -32,6 +32,24 @@ define(["RestManager"], function(RestManager) {
 	};
 	
 	/**
+	 * Transforme au format autocomplete une liste d'utilisateurs (fonction statique)
+	 * @param {Utilisateur[]} utilisateurs Utilisateurs au format nom, prenom, email...
+	 * @return {Object[]} Objet avec attributs label, value, title 
+	 */
+	UtilisateurGestion.makeUtilisateursAutocomplete = function(utilisateurs) {
+		var res = new Array();
+		for (var i=0, maxI=utilisateurs.length; i<maxI; i++) {
+			res.push({
+					label: utilisateurs[i].prenom + " " + utilisateurs[i].nom,
+					value: utilisateurs[i].id,
+					tooltip: utilisateurs[i].email
+			});
+		}
+		
+		return res;
+	};
+	
+	/**
 	 * Récupère une liste des utilisateurs potentiellement propriétaires, au format autocomplete (objets avec attributs label, value)
 	 * 
 	 * @param callback Fonction appelée une fois la requête effectuée. Prend les arguments resultCode et proprietaires
@@ -41,16 +59,7 @@ define(["RestManager"], function(RestManager) {
 		this.recupererProprietairesPotentiels(function(resultCode, utilisateurs) {
 			
 			if(resultCode == RestManager.resultCode_Success) {
-				var res = new Array();
-				for (var i=0, maxI=utilisateurs.length; i<maxI; i++) {
-					var label_value = {
-							label: utilisateurs[i].prenom + " " + utilisateurs[i].nom,
-							value: utilisateurs[i].id,
-							tooltip: utilisateurs[i].email
-					};
-					
-					res.push(label_value);
-				}
+				var res = UtilisateurGestion.makeUtilisateursAutocomplete(utilisateurs);
 				
 				callback(resultCode, res);
 			}
@@ -59,7 +68,6 @@ define(["RestManager"], function(RestManager) {
 			}
 		});	
 	};
-
 	
 	return UtilisateurGestion;
 });
