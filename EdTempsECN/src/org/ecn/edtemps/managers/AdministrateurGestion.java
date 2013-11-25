@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 
 
@@ -132,7 +134,7 @@ public class AdministrateurGestion {
 
 	
 	/**
-	 * Supprime un administrateur
+	 * Supprimer un administrateur
 	 * @param id Identifiant de l'administrateur à supprimer
 	 * @throws DatabaseException 
 	 */
@@ -144,7 +146,7 @@ public class AdministrateurGestion {
 
 
 	/**
-	 * Lister les actions de l'emploi du temps (pour lesquels on peut définir un droit)
+	 * Lister les actions de l'emploi du temps
 	 * @return la liste des actions sous forme d'une map : identifiant <> libellé
 	 * @throws DatabaseException 
 	 */
@@ -200,4 +202,98 @@ public class AdministrateurGestion {
 		
 	}
 
+	
+	/**
+	 * Modifier les drois pour un type d'utilisateur
+	 * @param idType identifiant du type d'utilisateur
+	 * @param listeIdDroits liste des identifiants des actions autorisées
+	 * @throws DatabaseException
+	 */
+	public void modifierDroitsTypeUtilisateurs(int idType, List<Integer> listeIdDroits) throws DatabaseException {
+		
+			// Démarre une transaction
+			bdd.startTransaction();
+			
+			// Supprime les anciens droits
+			bdd.executeRequest("DELETE FROM edt.aledroitde WHERE type_id="+idType);
+			
+			// Ajoute les nouveaux droits
+			if (CollectionUtils.isNotEmpty(listeIdDroits)) {
+				StringBuilder requete = new StringBuilder("INSERT INTO edt.aledroitde (type_id, droits_id) VALUES ");
+				for (Integer idDroit : listeIdDroits) {
+					requete.append("("+idType+","+idDroit+"), ");
+				}
+				
+				// Exécute la requête (en supprimant les deux derniers caractères : ', '
+				bdd.executeRequest(requete.toString().substring(0, requete.length()-1));
+			}
+
+			// Commit la transaction
+			bdd.commit();
+	}
+	
+
+	/**
+	 * Ajouter un type d'utilisateur
+	 * @param nom Nom du type d'utilisateur
+	 * @throws DatabaseException
+	 */
+	public void ajouterTypeUtilisateurs(String nom) throws DatabaseException {
+		
+		if(StringUtils.isBlank(nom)) {
+			throw new DatabaseException("Le nom du type d'utilisateur doit être spécifié");
+		}
+
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new DatabaseException("Le nom du type d'utilisateur doit être alphanumérique");
+		}
+
+		try {
+
+			// Démarre une transaction
+			bdd.startTransaction();
+
+			// Vérifie que le nom n'est pas déjà en base de données
+			PreparedStatement nomDejaPris = bdd.getConnection().prepareStatement("SELECT * FROM edt.typeutilisateur WHERE type_libelle=?");
+			nomDejaPris.setString(1, nom);
+			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+			if (nomDejaPrisResult.next()) {
+				throw new DatabaseException("Le nom du type d'utilisateur doit être alphanumérique");
+			}
+
+			// Ajouter le type
+			PreparedStatement ajout = bdd.getConnection().prepareStatement("INSERT INTO edt.typeutilisateur (type_libelle) VALUES (?)");
+			ajout.setString(1, nom);
+			ajout.execute();
+			
+			// Termine une transaction
+			bdd.commit();
+				
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+	}
+	
+
+	/**
+	 * Supprimer un type d'utilisateur
+	 * @param typeId Identifiant du type à supprimer
+	 * @throws DatabaseException
+	 */
+	public void supprimerTypeUtilisateurs(int typeId) throws DatabaseException {
+
+		// Démarre une transaction
+		bdd.startTransaction();
+
+		// Supprimer les liens avec les utilisateurs
+		bdd.executeRequest("DELETE FROM edt.estdetype WHERE type_id="+typeId);
+
+		// Supprimer le type
+		bdd.executeRequest("DELETE FROM edt.typeutilisateur WHERE type_id="+typeId);
+		
+		// Termine une transaction
+		bdd.commit();
+
+	}
 }

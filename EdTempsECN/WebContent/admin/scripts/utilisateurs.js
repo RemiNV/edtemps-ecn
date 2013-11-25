@@ -51,7 +51,7 @@ function filtrerText(idFiltreText, classTri) {
     
 }
 
-/*
+/**
  * Affiche la demande de confirmation de suppression
  */
 function confirmationSupprimerUtilisateur() {

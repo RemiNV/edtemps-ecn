@@ -140,7 +140,12 @@
       <servlet-name>Utilisateurs</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurUtilisateurServlet</servlet-class>
   </servlet>
-  
+
+  <servlet>
+      <servlet-name>TypesUtilisateurs</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurTypesUtilisateursServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -274,6 +279,11 @@
   <servlet-mapping>
       <servlet-name>Utilisateurs</servlet-name>
       <url-pattern>/administrateur/utilisateurs/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>TypesUtilisateurs</servlet-name>
+      <url-pattern>/administrateur/typesutilisateurs/*</url-pattern>
   </servlet-mapping>
   
 </web-app>
