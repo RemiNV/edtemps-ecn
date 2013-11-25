@@ -156,7 +156,11 @@ public class AdministrateurServlet extends HttpServlet {
 		logger.error("Suppression d'un administrateur");
 
 		// Récupération de l'identifiant de l'administrateur à supprimer
-		int id = Integer.valueOf(req.getParameter("supprimer_administrateur_id"));
+		Integer id = req.getParameter("supprimer_administrateur_id")!="" ? Integer.valueOf(req.getParameter("supprimer_administrateur_id")) : null;
+		if (id == null) {
+			logger.error("Identifiant de l'administrateur erroné");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
 		
 		// Exécute la requête de suppression avec le manager
 		BddGestion bdd = new BddGestion();

@@ -110,7 +110,12 @@ public class AdministrateurTypesUtilisateursServlet extends HttpServlet {
 		logger.error("Modifier les droits d'un type d'utilisateur");
 		
 		// Récupération des données du formulaire
-		int id = Integer.valueOf(req.getParameter("modifier_type_utilisateurs_form_id"));
+		Integer id = req.getParameter("modifier_type_utilisateurs_form_id")!="" ? Integer.valueOf(req.getParameter("modifier_type_utilisateurs_form_id")) : null;
+		if (id == null) {
+			logger.error("Identifiant du type d'utilisateur erroné");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		
 		String nom = req.getParameter("modifier_type_utilisateurs_form_nom");
 		String[] listeDroits = req.getParameterValues("modifier_type_utilisateurs_form_droits");
 
@@ -144,7 +149,11 @@ public class AdministrateurTypesUtilisateursServlet extends HttpServlet {
 		logger.error("Supprimer un type d'utilisateur");
 
 		// Récupération de l'identifiant du type à supprimer
-		int id = Integer.valueOf(req.getParameter("supprimer_types_utilisateurs_id"));
+		Integer id = req.getParameter("supprimer_types_utilisateurs_id")!="" ? Integer.valueOf(req.getParameter("supprimer_types_utilisateurs_id")) : null;
+		if (id == null) {
+			logger.error("Identifiant du type d'utilisateur erroné");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
 		
 		// Supprime le type d'utilisateurs
 		BddGestion bdd = new BddGestion();
