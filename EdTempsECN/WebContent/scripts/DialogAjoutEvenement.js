@@ -31,6 +31,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		this.multiWidgetProprietaires = null;
 		this.multiWidgetIntervenants = null;
 		this.multiWidgetCalendriers = null;
+		this.evenementEdit = null;
 		this.listeCalendriers = new Array(); /* Liste des calendriers récupérée en base de données */
 		this.rechercheDisponibiliteSalles = {
 			versionSalles: 0, // Incrémenté à chaque changement des salles pour ignorer le résultat de la recherche effectué entre-temps
@@ -331,9 +332,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
 			
-			this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
-					formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer,
-					function(resultCode) {
+			var callbackFunction = function(resultCode) {
 				
 				// Masquage du message d'attente
 				me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
@@ -350,12 +349,21 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 					window.showToast("Erreur d'enregistrement de l'événement ; vérifiez votre connexion");
 				}
 				else if(resultCode == RestManager.resultCode_SalleOccupee) {
-					window.showToast("Erreur d'ajout de l'événement ; salle(s) occupée(s) pendant ce créneau");
+					window.showToast("Erreur d'enregistrement de l'événement ; salle(s) occupée(s) pendant ce créneau");
 				}
 				else {
 					window.showToast("Erreur d'enregistrement de l'événement ; code retour " + resultCode);
 				}
-			});
+			};
+			
+			if(this.evenementEdit) {
+				this.evenementGestion.modifierEvenement(this.evenementEdit.id, callbackFunction, formData.dateDebut, formData.dateFin, formData.nom, 
+						formData.calendriers, formData.salles, formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer);
+			}
+			else {
+				this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
+						formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer, callbackFunction);
+			}
 		}
 	};
 	
@@ -565,20 +573,15 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 					selectCalendriers.html(strRemplissageSelect);
 					
 					me.multiWidgetCalendriers = new MultiWidget(selectCalendriers, {
-						setFunction: function(jqControl, value) {
-							if(value == null) { // On n'accepte pas une valeur vide
-								jqControl.val(jqControl.find("option:first").val());
-							}
-							else {
-								jqControl.val(value);
-							}
-						}, 
 						getValFunction: function(jqControl) {
 							return parseInt(jqControl.val());
 						},
 						width: 250
 					});
 					
+					if(me.evenementEdit) {
+						me.multiWidgetCalendriers.setValues(me.evenementEdit.calendriers);
+					}
 				}
 				
 				me.listeCalendriers = data;
@@ -594,6 +597,20 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 				callback(false);
 			}
 		});
+	};
+	
+	DialogAjoutEvenement.prototype.remplirValeursProprietairesIntervenants = function() {
+		// Suppression de l'utilisateur de la liste de responsables (déjà indiqué comme obligatoire)
+		var valProprietaires = new Array();
+		var proprietaires = this.evenementEdit.responsables;
+		for(var i=0, maxI = proprietaires.length; i<maxI; i++) {
+			if(proprietaires[i].id != this.restManager.getUserId()) {
+				valProprietaires.push(proprietaires[i]);
+			}
+		}
+		
+		this.multiWidgetProprietaires.setValues(UtilisateurGestion.makeUtilisateursAutocomplete(valProprietaires));
+		this.multiWidgetIntervenants.setValues(UtilisateurGestion.makeUtilisateursAutocomplete(this.evenementEdit.intervenants));
 	};
 	
 	/**
@@ -612,6 +629,11 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 				
 				me.multiWidgetIntervenants = new MultiWidget(me.jqDialog.find("#input_intervenants_evenement"), 
 						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, null, 250));
+				
+				if(me.evenementEdit) {
+					// Remplissage effectué à la fin de init()
+					me.remplirValeursProprietairesIntervenants();
+				}
 				
 				callback(true);
 			}
@@ -643,6 +665,8 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	 * @param {SalleRemplissageAjoutEvenement} salles salles à pré-remplir.
 	 */
 	DialogAjoutEvenement.prototype.show = function(dateDebut, dateFin, salles) {
+		
+		this.evenementEdit = null;
 		
 		if(!this.initAppele) {
 			this.init();
@@ -677,6 +701,29 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		this.jqDialog.dialog("open");
 	};
 	
+	DialogAjoutEvenement.prototype.showEdit = function(evenementEdit) {
+		this.evenementEdit = evenementEdit;
+		
+		if(!this.initAppele) {
+			this.init();
+		}
+		
+		this.jqDialog.find("#txt_nom_evenement").val(evenementEdit.nom);
+		this.jqDialog.find("#tbl_materiel td.quantite input").val("0");
+		
+		this.jqDialog.find("#date_evenement").val($.fullCalendar.formatDate(evenementEdit.start, "dd/MM/yyyy"));
+		this.jqDialog.find("#heure_debut").val($.fullCalendar.formatDate(evenementEdit.start, "HH:mm"));
+		this.jqDialog.find("#heure_fin").val($.fullCalendar.formatDate(evenementEdit.end, "HH:mm"));
+		
+		this.setSalles(evenementEdit.salles);
+		
+		if(this.multiWidgetIntervenants && this.multiWidgetProprietaires) {
+			this.remplirValeursProprietairesIntervenants();
+		}
+		
+		this.jqDialog.dialog("open");
+	};
+	
 	/**
 	 * Initialisation de la boîte de dialogue d'ajout d'évènement, ne l'affiche pas.
 	 * Doit être appelé uniquement une fois.
@@ -687,7 +734,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		// this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
 		// TODO : remettre la désactivation du bouton
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
-		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Chargement des options de matériel...");
+		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Chargement des options...");
 		
 		// Les remplissages s'effectueront dans un ordre "aléatoire" (asynchrone)
 		var succesChargementGlobal = true;

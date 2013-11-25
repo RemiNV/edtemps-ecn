@@ -155,6 +155,12 @@ public class EvenementServlet extends RequiresConnectionServlet {
 				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous n'êtes pas propriétaire de tous les calendriers de l'évènement");
 			}
 			
+			// L'utilisateur ne peut pas ajouter une événement sans se lister comme responsable
+			// TODO : autoriser ceci pour utilisateur avec les droits suffisants
+			if(paramsEvenement.idResponsables != null && !paramsEvenement.idResponsables.contains(userId)) {
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous devez être un des propriétaires de l'événement");
+			}
+			
 			bdd.startTransaction();
 			
 			// Libération des salles déjà occupées pour un cours
