@@ -411,9 +411,9 @@ public class SalleGestion {
 		}
 	}
 	
-	
 	/**
-	 * Indique si des salles sont libres pendant un créneau donné
+	 * Indique si des salles sont libres pendant un créneau donné.
+	 * 
 	 * @param idSalles ID des salles à vérifier
 	 * @param dateDebut Début du créneau
 	 * @param dateFin Fin du créneau
@@ -421,14 +421,34 @@ public class SalleGestion {
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
 	public boolean sallesLibres(List<Integer> idSalles, Date dateDebut, Date dateFin) throws DatabaseException {
+		return sallesLibres(idSalles, dateDebut, dateFin, null);
+	}
+	
+	/**
+	 * Indique si des salles sont libres pendant un créneau donné.
+	 * Une valeur null pour idEvenementIgnorer n'ignore aucun événement
+	 * 
+	 * @param idSalles ID des salles à vérifier
+	 * @param dateDebut Début du créneau
+	 * @param dateFin Fin du créneau
+	 * @param idEvenementIgnorer Evénement à ignorer en recherchant la disponibilité (si on modifie un événement notamment)
+	 * @return true si toutes les salles sont libres ; false sinon
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	public boolean sallesLibres(List<Integer> idSalles, Date dateDebut, Date dateFin, Integer idEvenementIgnorer) throws DatabaseException {
 		try {
 			
 			String strIdSalles = StringUtils.join(idSalles, ",");
 			
-			PreparedStatement statement = _bdd.getConnection().prepareStatement(
-					"SELECT COUNT(evenement.eve_id) FROM edt.evenement " +
+			String requete = "SELECT COUNT(evenement.eve_id) FROM edt.evenement " +
 					"INNER JOIN edt.alieuensalle ON alieuensalle.eve_id=evenement.eve_id AND alieuensalle.salle_id IN (" + strIdSalles + ") " +
-					"WHERE evenement.eve_datedebut < ? AND evenement.eve_datefin > ?");
+					"WHERE evenement.eve_datedebut < ? AND evenement.eve_datefin > ?";
+			
+			if(idEvenementIgnorer != null) {
+				requete += " AND evenement.eve_id <> " + idEvenementIgnorer;
+			}
+			
+			PreparedStatement statement = _bdd.getConnection().prepareStatement(requete);
 			
 			statement.setTimestamp(1, new java.sql.Timestamp(dateFin.getTime()));
 			statement.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));

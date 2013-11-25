@@ -155,7 +155,7 @@ public class EvenementGestion {
 			// Vérification de la disponibilité de la salle
 			if(!idSalles.isEmpty()) {
 				SalleGestion salleGestion = new SalleGestion(_bdd);
-				if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin)) {
+				if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin, id)) {
 					throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
 				}
 			}

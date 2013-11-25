@@ -338,7 +338,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 				me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
 				
 				if(resultCode === RestManager.resultCode_Success) {
-					window.showToast("Evènement ajouté avec succès");
+					window.showToast("Evènement enregistré avec succès");
 					me.jqDialog.dialog("close");
 					
 					// Mise à jour du calendrier
