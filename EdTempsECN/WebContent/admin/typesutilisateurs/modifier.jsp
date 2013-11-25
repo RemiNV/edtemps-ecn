@@ -6,6 +6,22 @@
 <%@page import="org.ecn.edtemps.models.identifie.*"%>
 <%@page import="java.util.*"%>
 
+<%
+	Integer id = null; 
+	try {
+		id = Integer.valueOf(request.getParameter("modifier_types_utilisateurs_id"));
+	} catch (NumberFormatException e) {
+		response.sendRedirect("index.jsp");
+	}
+
+	BddGestion bdd = new BddGestion();
+	AdministrateurGestion gestionAdministrateurs = new AdministrateurGestion(bdd);
+	UtilisateurGestion gestionUtilisateurs = new UtilisateurGestion(bdd);
+	Map<Integer, String> typesUtilisateurs = gestionUtilisateurs.getListeTypesUtilisateur();
+	Map<Integer, String> toutesLesActionsPossibles = gestionAdministrateurs.listerActionsEdtemps();
+	List<Integer> actionsAutoriseesPourCeType = gestionAdministrateurs.getListeActionsTypeUtilisateurs(id); 
+%>
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -23,37 +39,18 @@
 		<jsp:include page="../includes/menu.jsp" />
 
 		<div id="main_content">
-			<h1>Espace d'administration &rarr; Gestion des types d'utilisateurs</h1>			
+			<h1>Espace d'administration &rarr; Modification du type d'utilisateurs '<%=typesUtilisateurs.get(id) %>'</h1>
 
-			<div id="content" style="min-height: 320px;">
+			<div id="content">
 
-				<table id="types_utilisateurs_liste" class="tableau_liste">
-					<tr><th>Types d'utilisateurs</th></tr>
-					<%
-						BddGestion bdd = new BddGestion();
-						UtilisateurGestion gestionUtilisateurs = new UtilisateurGestion(bdd);
-						Map<Integer, String> typesUtilisateurs = gestionUtilisateurs.getListeTypesUtilisateur();
-						for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-							out.write("<tr><td onclick='afficheMultiSelect("+type.getKey()+", &apos;"+type.getValue()+"&apos;)'>"+type.getValue()+"</td></tr>");
-						}
-					%>
-				</table>
-				
-				<div id="types_utilisateurs_modifier">
-					<p id="types_utilisateurs_modifier_titre"> Cliquez sur un type dans la liste de gauche pour en afficher les droits.</p>
-					<%
-						// Récupération de la liste des actions disponibles
-						AdministrateurGestion gestionAdministrateurs = new AdministrateurGestion(bdd);
-						Map<Integer, String> toutesLesActionsPossibles = gestionAdministrateurs.listerActionsEdtemps();
-
-						for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-						
-							// Récupération pour ce type des actions autorisées
-							List<Integer> actionsAutoriseesPourCeType = gestionAdministrateurs.getListeActionsTypeUtilisateurs(type.getKey()); 
-						
-						%>
-							<form action="<%=request.getContextPath() %>/administrateur/typesutilisateurs/modifierDroits" method="POST" onsubmit="return validationModificationType()" id="types_utilisateurs_modifier_form_<%=type.getKey() %>">
-								<select multiple="multiple" id="types_utilisateurs_modifier_form_select_<%=type.getKey() %>" name="types_utilisateurs_modifier_form_select" class="types_utilisateurs_modifier_select">
+				<form action="<%=request.getContextPath() %>/administrateur/typesutilisateurs/modifierDroits" method="POST" id="modifier_type_utilisateurs_form" onsubmit="return validationModifierType()">
+					<input type="hidden" name="modifier_type_utilisateurs_form_id" value="<%=id %>" />
+					<table>
+						<tr><td><label for="modifier_type_utilisateurs_form_nom">Nom du type d'utilisateurs :</label></td><td><input type="text" id="modifier_type_utilisateurs_form_nom" name="modifier_type_utilisateurs_form_nom" value="<%=typesUtilisateurs.get(id) %>" /></td></tr>
+						<tr>
+							<td><label for="modifier_type_utilisateurs_form_droits">Sélectionnez les droits du type :</label></td>
+							<td>
+								<select multiple="multiple" id="modifier_type_utilisateurs_form_droits" name="modifier_type_utilisateurs_form_droits">
 									<%
 									for (Map.Entry<Integer, String> action : toutesLesActionsPossibles.entrySet()) {
 										if (actionsAutoriseesPourCeType.contains(action.getKey())) {
@@ -64,19 +61,23 @@
 									}
 									%>
 								</select>
-								<input type="submit" class="button types_utilisateurs_modifier_form_submit" value="Enregistrer" id="types_utilisateurs_modifier_form_submit_<%=type.getKey() %>" />
-							</form>
-					<%	}	%>
-					<p id="types_utilisateurs_modifier_form_information">Pensez à cliquer sur le bouton Enregistrer pour sauver vos modifications.</p>
-				</div>
-
-				
-				
-				
-				
-				
+							</td>
+						</tr>
+						<tr><td colspan="2"><input type="button" class="button" onclick="document.location.href='<%=request.getContextPath() %>/admin/typesutilisateurs/index.jsp'" value="Annuler" /><input type="submit" class="button" value="Enregistrer" /></td></tr>
+					</table>
+					
+					<table style="display: none">
+					<%
+						for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
+							if (type.getKey()!=id) {
+								out.write("<tr><td class='liste_types_nom'>"+type.getValue()+"</td></tr>");
+							}
+						}
+					%>
+					</table>
+					
+				</form>
 			</div>
-
 		</div>
 
 	</body>
