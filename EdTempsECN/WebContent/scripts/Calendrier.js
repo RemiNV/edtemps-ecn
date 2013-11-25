@@ -101,8 +101,17 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 					jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar")
 						.css("color", event.color);
 					
-					console.log("event : ", event);
+					// Remplissage du template
+					jqDialogDetailsEvenement.html(templateDialogDetails({
+						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy hh:mm"),
+						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy hh:mm"),
+						strSalles: event.strSalle,
+						proprietaires: event.responsables,
+						intervenants: event.intervenants,
+						editable: event.editable
+					}));
 					
+					// Positionnement de la dialog
 					jqDialogDetailsEvenement.dialog("option", {
 						position: {
 							my: "center bottom",
@@ -111,16 +120,6 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 						},
 						title: event.title
 					});
-					
-					// Remplissage du template
-					jqDialogDetailsEvenement.html(templateDialogDetails({
-						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy hh:mm"),
-						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy hh:mm"),
-						strSalles: event.strSalle,
-						proprietaires: event.responsables,
-						intervenants: event.intervenants
-						
-					}));
 					
 					jqDialogDetailsEvenement.dialog("open");
 				});

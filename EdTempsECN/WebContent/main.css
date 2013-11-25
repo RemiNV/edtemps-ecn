@@ -663,3 +663,8 @@ input.valide {
 	bottom: -8px;
 	left: 244px;
 }
+
+/** Modifications fullcalendar */
+.fc-event {
+	cursor: pointer; /* Même les événements non draggable ont une popup */
+}
