@@ -500,6 +500,27 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	/**
+	 * Suppression d'un évènement en base de données. Effectue la purge du cache.
+	 * 
+	 * @param {Object} event Evénement à supprimer. Doit contenir les propriétés id, start, end
+	 * @param {function} callback Fonction appelée une fois la suppression effectuée. Prend un argument resultCode.
+	 */
+	EvenementGestion.prototype.supprimerEvenement = function(event, callback) {
+		var me = this;
+		this.restManager.effectuerRequete("POST", "evenement/supprimer", {
+			token: this.restManager.getToken(),
+			idEvenement: event.id
+		}, function(response) {
+			
+			if(response.resultCode === RestManager.resultCode_Success) {
+				me.invalidateCache(event.start, event.end);
+			}
+			
+			callback(response.resultCode);
+		});
+	};
+	
 	
 	return EvenementGestion;
 });

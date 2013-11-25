@@ -44,7 +44,32 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 		
 		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");
 		
+		jqDialogDetailsEvenement.find("#btnModifierEvenement").click(function() {
+			// TODO : remplir
+		});
 		
+		jqDialogDetailsEvenement.find("#btnSupprimerEvenement").click(function() {
+			
+			if(!confirm("Etes-vous sûr(e) de vouloir supprimer l'événement : " + evenementDialogDetailsOuverte.title + " ?")) {
+				return;
+			}
+			
+			evenementGestion.supprimerEvenement(evenementDialogDetailsOuverte, function(resultCode) {
+				if(resultCode == RestManager.resultCode_Success) {
+					jqDialogDetailsEvenement.dialog("close");
+					me.refetchEvents();
+				}
+				else if(resultCode == RestManager.resultCode_NetworkError) {
+					window.showToast("Echec de la suppression de cet événement : vérifiez votre connexion");
+				}
+				else {
+					window.showToast("Echec de la suppression de cet événement");
+				}
+			});
+		});
+		
+		// Mémorise l'événement pour lequel la dialog dialogDetailsEvenement est ouverte
+		var evenementDialogDetailsOuverte;
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
@@ -98,11 +123,13 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				
 				jqElement.click(function() {
 					
+					evenementDialogDetailsOuverte = event;
+					
 					jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar")
 						.css("color", event.color);
 					
 					// Remplissage du template
-					jqDialogDetailsEvenement.html(templateDialogDetails({
+					jqDialogDetailsEvenement.find("#dialog_details_evenement_hook").html(templateDialogDetails({
 						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy hh:mm"),
 						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy hh:mm"),
 						strSalles: event.strSalle,
