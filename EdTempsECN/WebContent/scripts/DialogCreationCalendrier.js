@@ -1,7 +1,7 @@
 /**
  * @module DialogCreationCalendrier
  */
-define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" ], function(RestManager, CalendrierGestion, MultiWidget) {
+define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion", "jquerymaskedinput" ], function(RestManager, CalendrierGestion, MultiWidget, UtilisateurGestion) {
 
 	/**
 	 * @constructor
@@ -11,6 +11,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 		this.restManager = restManager;
 		this.ecranParametres = ecranParametres;
 		this.calendrierGestion = new CalendrierGestion(this.restManager);
+		this.utilisateurGestion = new UtilisateurGestion(this.restManager);
 		this.jqDialog = jqDialog;
 		// Accès direct aux champs du formulaire
 		this.nom = jqDialog.find("#form_creer_calendrier_nom");
@@ -18,7 +19,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 		this.matiere = jqDialog.find("#form_creer_calendrier_matiere");
 		// Liste des propriétaires potentiels = de tous les utilisateurs
 		this.listeProprietairesPotentiels = new Array(); //pour l'autocomplete JqueryUI
-		this.listeProprietairesPotentielsIndexeeParID = new Array(); //tableau indexé par l'ID des utilisateurs, et contenant leur nom
+		this.listeProprietairesPotentielsIndex = new Array(); //pour compléter les autocomplete
 		this.initAppele = false;
 		this.multiWidgetProprietaires = null;
 	};
@@ -40,20 +41,38 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 		});
 		
 		// Récupérer propriétaires potentiels
-		me.recupererProprietairesPotentiels(function(success) {
-			if (success) {
+		this.utilisateurGestion.recupererProprietairesPotentielsAutocomplete(function(resultCode, utilisateurs) {
+			if (resultCode == RestManager.resultCode_Success) {
+				// Enregistrement des utilisateurs potentiels récupérés dans une variable, pour accès futur
+				me.listeProprietairesPotentiels = utilisateurs;
+				// Création d'un autre tableau des proprietaires potentiels, indexé par id_utilisateur
+				for (var i=0, maxI=utilisateurs.length; i<maxI; i++) {
+					var user = new Object();
+					user.label = utilisateurs[i].label;
+					user.tooltip = utilisateurs[i].tooltip;
+					me.listeProprietairesPotentielsIndex[utilisateurs[i].value] = user;
+				}
+				console.log(me.listeProprietairesPotentielsIndex);
 				// Création des autocomplete pour les propriétaires
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#form_creer_calendrier_input_proprietaire"), 
 						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 3, { label: "Vous-même", value: me.restManager.getUserId() }, 225));
-				// On remplir les proprietaires
-				$.each(proprietaires, function(indiceArray, idProprietaire) {
-					if (localStorage && localStorage["userId"] != idProprietaire) {
-					  me.multiWidgetProprietaires.ajouterLigne();
-					  var nouveauChampProprietaire = me.multiWidgetProprietaires.jqDiv.find(".multiwidget_entry:last");
-					  nouveauChampProprietaire.attr("data-val", idProprietaire);
-					  nouveauChampProprietaire.val(me.listeProprietairesPotentielsIndexeeParID[idProprietaire]);
+				// On remplir les proprietaires (dans le cas d'une modification de calendrier)
+				var listeProprietairesCalendrier = new Array();
+				for (var i=0, maxI=proprietaires.length; i<maxI; i++) {
+					var user = new Object();
+					var idProprio = proprietaires[i];
+					user.label = me.listeProprietairesPotentielsIndex[idProprio].label;
+					user.value = idProprio;
+					user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
+					if (user.value!=me.restManager.getUserId()) {
+						listeProprietairesCalendrier.push(user);
 					}
-				});
+				}
+				me.multiWidgetProprietaires.setValues(listeProprietairesCalendrier);
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
+			} else {
+				window.showToast(data.resultCode + " Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; votre session a peut-être expiré ?");
 			}
 		});
 		
@@ -114,14 +133,18 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 				this.matiere.val(calendrierAModifier.matiere); 
 				this.type.val(calendrierAModifier.type);
 				// On remplir les proprietaires
-				$.each(calendrierAModifier.proprietaires, function(indiceArray, idProprietaire) {
-					if (localStorage && localStorage["userId"] != idProprietaire) {
-					  me.multiWidgetProprietaires.ajouterLigne();
-					  var nouveauChampProprietaire = me.multiWidgetProprietaires.jqDiv.find(".multiwidget_entry:last");
-					  nouveauChampProprietaire.attr("data-val", idProprietaire);
-					  nouveauChampProprietaire.val(me.listeProprietairesPotentielsIndexeeParID[idProprietaire]);
+				var listeProprietairesCalendrier = new Array();
+				for (var i=0, maxI=calendrierAModifier.proprietaires.length; i<maxI; i++) {
+					var user = new Object();
+					var idProprio = calendrierAModifier.proprietaires[i];
+					user.label = me.listeProprietairesPotentielsIndex[idProprio].label;
+					user.value = idProprio;
+					user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
+					if (user.value!=me.restManager.getUserId()) {
+						listeProprietairesCalendrier.push(user);
 					}
-				});
+				}
+				me.multiWidgetProprietaires.setValues(listeProprietairesCalendrier);
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Modifier le calendrier");
@@ -257,10 +280,12 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 			if (casModifier) {
 				this.calendrierGestion.modifierCalendrier(idCal, nom, matiere, type, idProprietairesJson, function(resultCode) {
 					if(resultCode == RestManager.resultCode_Success) {
-						// afficher message
-						window.showToast("Le calendrier a bien été modifié");
 						// recharger les calendriers de l'utilisateur
 						me.ecranParametres.afficheListeMesCalendriers();
+						// fermer dialog
+						me.jqDialog.dialog("close");
+						// afficher message
+						window.showToast("Le calendrier a bien été modifié");
 					}
 					else {
 						// afficher message
@@ -286,47 +311,6 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "jquerymaskedinput" 
 			}
 			
 		}
-	};
-
-
-	/**
-	 * Remplir la liste des utilisateurs potentiellement propriétaires
-	 * 
-	 * @param callback
-	 */
-	DialogCreationCalendrier.prototype.recupererProprietairesPotentiels = function(callback) {
-		var me = this;
-		
-		// Récupération de la liste des propriétaires potentiels
-		this.restManager.effectuerRequete("POST", "proprietairespotentiels", {
-			token: this.restManager.getToken()
-		}, function(data) {
-			if (data.resultCode == RestManager.resultCode_Success) {
-				
-				// Création du tableau des valeurs pour le plugin Autocomplete de Jquery UI
-				var utilisateurs = data.data.listeUtilisateurs;
-				for (var i=0, maxI=utilisateurs.length; i<maxI; i++) {
-					var label_value = {
-							label: utilisateurs[i].prenom + " " + utilisateurs[i].nom + " (" + (utilisateurs[i].email != null ? utilisateurs[i].email : "email inconnu") + ")",
-							value: utilisateurs[i].id
-					};
-					
-					me.listeProprietairesPotentiels.push(label_value);
-					// Création d'un autre tableau, indexé par les ID des utilisateurs
-					me.listeProprietairesPotentielsIndexeeParID[utilisateurs[i].id] = label_value.label;
-				}
-				
-				// Appelle la méthode de retour
-				callback(true);	
-			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
-				callback(false);
-			} else {
-				window.showToast(data.resultCode + " Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; votre session a peut-être expiré ?");
-				callback(false, 0);
-			}
-		});
-
 	};
 
 	return DialogCreationCalendrier;
