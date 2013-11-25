@@ -743,4 +743,34 @@ public class UtilisateurGestion {
 		
 	}
 	
+
+	/**
+	 * Récupère la liste des types d'utilisateurs auxquels est rattaché un utilisateur
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return la liste des identifiants des types auxquels l'utilisateur est rattaché
+	 * @throws DatabaseException
+	 */
+	public List<Integer> getListeTypes(int idUtilisateur) throws DatabaseException {
+
+		List<Integer> resultat = new ArrayList<Integer>();
+		
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT typeutilisateur.type_id "
+					+ "FROM edt.typeutilisateur "
+					+ "INNER JOIN edt.estdetype ON estdetype.type_id = typeutilisateur.type_id "
+					+ "WHERE utilisateur_id = " + idUtilisateur);
+			while(reponse.next()) {
+				resultat.add(reponse.getInt("type_id"));
+			}
+			
+			reponse.close();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return resultat;
+		
+	}
 }
