@@ -21,7 +21,6 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			
 			// On n'est pas à l'intérieur d'une dialog
 			var jqTarget = $(event.target);
-			console.log(jqTarget.closest(".ui-dialog"));
 			if(!jqTarget.is(".ui_dialog, .fc-event") 
 					&& jqTarget.closest(".ui-dialog").length == 0
 					&& jqTarget.closest(".fc-event").length == 0) {
