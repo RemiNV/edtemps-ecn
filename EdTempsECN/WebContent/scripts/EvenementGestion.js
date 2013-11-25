@@ -458,7 +458,7 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Modification d'un évènement en base de données.
-	 * Les paramètres peuvent être null (ou non renseignés) pour indiquer "aucune modification" (sauf l'ID d'évènement).
+	 * Les paramètres peuvent être null ou non précisés pour indiquer "aucune modification" (sauf l'ID d'évènement).
 	 * <b>Ne pas oublier d'invalider le cache d'évènements</b> via EvenementGestion.invalidateCache() une fois
 	 * l'évènement modifié, pendant l'ancienne période de l'évènement (la nouvelle est automatiquement invalidée) 
 	 * 
