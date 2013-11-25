@@ -530,7 +530,8 @@ public class CalendrierGestion {
 				"LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = calendrier.cal_id " +
 				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
 					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours)" +
-				"GROUP BY calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle");
+				"GROUP BY calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle " +
+				"ORDER BY calendrier.cal_nom");
 		
 		try {
 			ArrayList<CalendrierComplet> res = new ArrayList<CalendrierComplet>();
