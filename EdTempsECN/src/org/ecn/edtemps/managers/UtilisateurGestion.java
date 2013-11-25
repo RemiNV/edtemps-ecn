@@ -652,23 +652,21 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public List<UtilisateurIdentifie> getListeUtilisateurs() throws DatabaseException {
-		ResultSet reponse = bdd.executeRequest("" +
-				"SELECT * FROM edt.utilisateur" +
-				" LEFT JOIN edt.estdetype ON estdetype.utilisateur_id=utilisateur.utilisateur_id" +
-				" ORDER BY utilisateur.utilisateur_prenom");
+		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur ORDER BY utilisateur.utilisateur_prenom");
 
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
 
 		try {
 			while(reponse.next()) {
 				int id = reponse.getInt("utilisateur_id");
-				int type = reponse.getInt("type_id");
 				String nom = reponse.getString("utilisateur_nom");
 				String prenom = reponse.getString("utilisateur_prenom");
 				String email = reponse.getString("utilisateur_email");
 				
 				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email);
-				utilisateur.setType(type);
+
+				// Récupération des types de l'utilisateur
+				utilisateur.setType(this.getListeTypes(id));
 				
 				res.add(utilisateur);
 			}

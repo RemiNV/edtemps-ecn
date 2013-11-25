@@ -51,7 +51,15 @@
 							out.write("<td class='data-collumn-prenom'>"+utilisateur.getPrenom()+"</td>");
 							out.write("<td class='data-collumn-nom'>"+utilisateur.getNom()+"</td>");
 							out.write("<td class='data-collumn-mail'>"+(utilisateur.getEmail()==null ? "-" : utilisateur.getEmail() )+"</td>");
-							out.write("<td class='data-collumn-type'>"+(utilisateur.getType()==0 ? "-" : typesUtilisateurs.get(utilisateur.getType()))+"</td>");
+							if (utilisateur.getType().isEmpty()) {
+								out.write("<td class='data-collumn-type'>-</td>");
+							} else {
+								StringBuilder nomsTypes = new StringBuilder();
+								for (Integer idType : utilisateur.getType()) {
+									nomsTypes.append(typesUtilisateurs.get(idType)+", ");
+								}
+								out.write("<td class='data-collumn-type'>"+nomsTypes.toString().substring(0, nomsTypes.length()-2)+"</td>");
+							}
 							out.write("<td class='form_modifier_utilisateur'><form action='"+request.getContextPath()+"/admin/utilisateurs/modifier.jsp' method='POST'><input src='"+request.getContextPath()+"/img/modifier.png' type='image' title='Modifier' /><input type='hidden' name='id' value='"+utilisateur.getId()+"' /><input type='hidden' name='nom' value='"+utilisateur.getNom()+"' /><input type='hidden' name='prenom' value='"+utilisateur.getPrenom()+"' /></form></td>");
 							out.write("<td class='form_supprimer_utilisateur'><form onsubmit='return confirmationSupprimerUtilisateur()' action='"+request.getContextPath()+"/administrateur/utilisateurs/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+utilisateur.getId()+"' /></form></td>");
 							out.write("</tr>");

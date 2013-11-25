@@ -1,5 +1,7 @@
 package org.ecn.edtemps.models;
 
+import java.util.List;
+
 /**
  * Classe modèle d'un utiliateur
  * 
@@ -10,7 +12,7 @@ public class Utilisateur {
 	protected String nom;
 	protected String prenom;
 	protected String email;
-	protected int type;
+	protected List<Integer> type;
 	
 
 	/**
@@ -44,10 +46,10 @@ public class Utilisateur {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public int getType() {
+	public List<Integer> getType() {
 		return type;
 	}
-	public void setType(int type) {
+	public void setType(List<Integer> type) {
 		this.type = type;
 	}
 

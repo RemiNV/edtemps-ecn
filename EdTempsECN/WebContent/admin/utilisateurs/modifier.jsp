@@ -25,7 +25,7 @@
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/multi-select.css" />
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery.multi-select.js"></script>
-		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/utilisateurs.js"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/utilisateursModifier.js"></script>
 	</head>
 	
 	<body>
