@@ -1,6 +1,9 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -106,9 +109,25 @@ public class AdministrateurTypesUtilisateursServlet extends HttpServlet {
 	public void doModifierDroits(HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
 		logger.error("Modifier les droits d'un type d'utilisateur");
 		
-		String nom = req.getParameter("types_utilisateurs_modifier_form_select");
-		System.out.println(nom);
+		// Récupération des données du formulaire
+		int id = Integer.valueOf(req.getParameter("modifier_type_utilisateurs_form_id"));
+		String nom = req.getParameter("modifier_type_utilisateurs_form_nom");
+		String[] listeDroits = req.getParameterValues("modifier_type_utilisateurs_form_droits");
+
+		// Récupération des droits
+		List<Integer> droits = new ArrayList<Integer>();
+		if (listeDroits!=null) {
+			List<String> droitsStr = Arrays.asList();
+			for (String droit : droitsStr) {
+				droits.add(Integer.valueOf(droit));
+			}
+		}
 		
+		// Supprime le type d'utilisateurs
+		BddGestion bdd = new BddGestion();
+		AdministrateurGestion gestionnaireAdministrateurs = new AdministrateurGestion(bdd);
+		gestionnaireAdministrateurs.modifierDroitsTypeUtilisateurs(id, droits, nom);
+
 		// Redirige vers la page de liste
 		resp.sendRedirect(req.getContextPath()+"/admin/typesutilisateurs/index.jsp");
 	}

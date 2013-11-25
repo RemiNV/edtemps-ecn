@@ -25,7 +25,7 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Gestion des types d'utilisateurs</h1>			
 
-			<div id="content" style="min-height: 320px;">
+			<div id="content" style="min-height: 330px;">
 
 				<div id="ajouter_type_utilisateurs">
 					<p class="formulaire_zone_titre">Ajouter un type d'utilisateurs :</p>
@@ -44,9 +44,12 @@
 								UtilisateurGestion gestionUtilisateurs = new UtilisateurGestion(bdd);
 								Map<Integer, String> typesUtilisateurs = gestionUtilisateurs.getListeTypesUtilisateur();
 
+								StringBuilder selectType = new StringBuilder();
 								for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-									out.write("<option value='"+type.getKey()+"'>"+type.getValue()+"</option>");
+									selectType.append("<option value='"+type.getKey()+"'>"+type.getValue()+"</option>");
 								}
+								
+								out.write(selectType.toString());
 							%>
 						</select>
 						<input type="submit" value="Modifier" class="button" style="height: 22px; padding-top: 2px;" />
@@ -57,11 +60,7 @@
 					<p class="formulaire_zone_titre">Supprimer un type d'utilisateurs :</p>
 					<form action="<%=request.getContextPath() %>/administrateur/typesutilisateurs/supprimer" method="POST" onsubmit="return confirmationSupprimerType()">
 						<select name="supprimer_types_utilisateurs_id" id="supprimer_types_utilisateurs_id">
-							<%
-								for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-									out.write("<option value='"+type.getKey()+"'>"+type.getValue()+"</option>");
-								}
-							%>
+							<% out.write(selectType.toString()); %>
 						</select>
 						<input type="submit" value="Supprimer" class="button" style="height: 22px; padding-top: 2px;" />
 					</form>
@@ -74,9 +73,7 @@
 					</tr>
 					<%
 						for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-							out.write("<tr>");
-							out.write("<td class='liste_types_nom'>"+type.getValue()+"</td>");
-							out.write("</tr>");
+							out.write("<tr><td class='liste_types_nom'>"+type.getValue()+"</td></tr>");
 						}
 					%>
 				</table>

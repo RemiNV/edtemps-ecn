@@ -207,16 +207,42 @@ public class AdministrateurGestion {
 	 * Modifier les drois pour un type d'utilisateur
 	 * @param idType identifiant du type d'utilisateur
 	 * @param listeIdDroits liste des identifiants des actions autorisées
+	 * @param nom Nouveau nom du type
 	 * @throws DatabaseException
 	 */
-	public void modifierDroitsTypeUtilisateurs(int idType, List<Integer> listeIdDroits) throws DatabaseException {
+	public void modifierDroitsTypeUtilisateurs(int idType, List<Integer> listeIdDroits, String nom) throws DatabaseException {
 		
+		if(StringUtils.isBlank(nom)) {
+			throw new DatabaseException("Le nom du type d'utilisateur doit être spécifié");
+		}
+
+		if(!StringUtils.isAlphanumericSpace(nom)) {
+			throw new DatabaseException("Le nom du type d'utilisateur doit être alphanumérique");
+		}
+
+		try {
+
 			// Démarre une transaction
 			bdd.startTransaction();
+		
+			// Vérifie que le nom n'est pas déjà en base de données
+			PreparedStatement nomDejaPris = bdd.getConnection().prepareStatement("SELECT type_id FROM edt.typeutilisateur WHERE type_libelle=?");
+			nomDejaPris.setString(1, nom);
+			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+			if (nomDejaPrisResult.next()) {
+				if (nomDejaPrisResult.getInt("type_id")!=idType) {
+					throw new DatabaseException("Le nom du type d'utilisateur doit être unique");
+				}
+			}
+		
+			// Modifie le nom du type
+			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement("UPDATE edt.typeutilisateur SET type_libelle=? WHERE type_id="+idType);
+			requetePreparee.setString(1, nom);
+			requetePreparee.execute();
 			
 			// Supprime les anciens droits
 			bdd.executeRequest("DELETE FROM edt.aledroitde WHERE type_id="+idType);
-			
+	
 			// Ajoute les nouveaux droits
 			if (CollectionUtils.isNotEmpty(listeIdDroits)) {
 				StringBuilder requete = new StringBuilder("INSERT INTO edt.aledroitde (type_id, droits_id) VALUES ");
@@ -225,11 +251,16 @@ public class AdministrateurGestion {
 				}
 				
 				// Exécute la requête (en supprimant les deux derniers caractères : ', '
-				bdd.executeRequest(requete.toString().substring(0, requete.length()-1));
+				bdd.executeRequest(requete.toString().substring(0, requete.length()-2));
 			}
-
+		
 			// Commit la transaction
 			bdd.commit();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
 	}
 	
 
