@@ -1,11 +1,11 @@
-/*
+/**
  * Affiche la demande de confirmation de suppression de matériel
  */
 function confirmationSupprimerMateriel() {
 	return confirm("Etes-vous sur de vouloir supprimer ce materiel ?");
 }
 
-/*
+/**
  * Validation du formulaire d'ajout d'un matériel
  */
 function validationAjouterMateriel() {

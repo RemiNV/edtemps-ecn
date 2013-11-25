@@ -302,7 +302,7 @@ ul.button_nav li:last-child {
  */
 
 #types_utilisateurs_liste {
-	width: 100%;
+	width: 450px;
 }
 
 .titre_multi-select {
@@ -310,14 +310,32 @@ ul.button_nav li:last-child {
 	margin: 0px 0px 5px 5px;
 }
 
-#types_utilisateurs_liste .liste_types_utilisateurs_modifier {
-	border-right: none;
-	width: 40px;
-	text-align: center;
+#ajouter_type_utilisateurs {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 200px;
+	height: 70px;
+	width: 460px;
+	padding: 10px;
 }
 
-#types_utilisateurs_liste .liste_types_utilisateurs_supprimer {
-	border-left: none;
-	width: 40px;
-	text-align: center;
+#modifier_type_utilisateurs {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 300px;
+	height: 60px;
+	width: 460px;
+	padding: 10px;
+}
+
+#supprimer_type_utilisateurs {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 390px;
+	height: 110px;
+	width: 460px;
+	padding: 10px;
 }

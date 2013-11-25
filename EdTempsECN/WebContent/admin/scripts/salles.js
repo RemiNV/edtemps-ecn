@@ -14,14 +14,14 @@ $(document).ready(function() {
 	$(".salle_quantite_materiel input").mask("?9999", { placeholder: "" });
 });
 
-/*
+/**
  * Affiche la demande de confirmation de suppression de salles
  */
 function confirmationSupprimerSalle() {
 	return confirm("Etes-vous sur de vouloir supprimer la salle ?");
 }
 
-/*
+/**
  * Validation du formulaire d'ajout d'une salle
  */
 function validationAjouterSalle() {
@@ -71,7 +71,7 @@ function validationAjouterSalle() {
 }
 
 
-/*
+/**
  * Validation du formulaire de modification d'une salle
  */
 function validationModifierSalle() {
@@ -107,7 +107,7 @@ function validationModifierSalle() {
 	return valid;
 }
 
-/*
+/**
  * Affiche/Cache le formulaire d'ajout de salle
  */
 function afficheCacheFormulaireAjouterSalle() {
@@ -124,7 +124,7 @@ function afficheCacheFormulaireAjouterSalle() {
 	}
 }
 
-/*
+/**
  * Fabrique et affiche le nom de la salle à partir des champs batiment, niveau et numéro
  */
 function afficheNomSalle() {
@@ -133,7 +133,7 @@ function afficheNomSalle() {
 	}
 }
 
-/*
+/**
  * Dévérouille le champ nom pour le modifier manuellement
  */
 function activeChampNom() {

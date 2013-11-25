@@ -31,12 +31,14 @@
 						<th width="200">Nom</th>
 						<th width="300">Adresse mail</th>
 						<th width="200">Type</th>
+						<th width="200" colspan="2">Actions</th>
 					</tr>
 					<tr>
 						<td><input type="text" id="filtre_prenom" placeholder="Filtrer par prénom" /></td>
 						<td><input type="text" id="filtre_nom" placeholder="Filtrer par nom" /></td>
 						<td><input type="text" id="filtre_mail" placeholder="Filtrer par adresse mail" /></td>
 						<td><input type="text" id="filtre_type" placeholder="Filtrer par type" /></td>
+						<td colspan="2"></td>
 					</tr>
 					<%
 						BddGestion bdd = new BddGestion();
