@@ -684,19 +684,27 @@ public class UtilisateurGestion {
 	/**
 	 * Modifie le type d'un utilisateur
 	 * @param userId Identifiant de l'utilisateur
-	 * @param typeId Identifiant du nouveau type de l'utilisateur
+	 * @param listeIdentifiants Liste des identifiants des types de l'utilisateur
 	 * @throws DatabaseException 
 	 */
-	public void modifierTypeUtilisateur(int userId, int typeId) throws DatabaseException {
-		
+	public void modifierTypeUtilisateur(int userId, List<Integer> listeIdentifiantsTypes) throws DatabaseException {
+
 		// Démarre une transaction
 		bdd.startTransaction();
 		
-		// Supprime le type actuel de l'utilisateur
+		// Supprime les types actuels de l'utilisateur
 		bdd.executeRequest("DELETE FROM edt.estdetype WHERE utilisateur_id="+userId);
 		
-		// Ajoute le nouveau type
-		bdd.executeRequest("INSERT INTO edt.estdetype (utilisateur_id, type_id) VALUES ("+userId+", "+typeId+")");
+		// Ajoute les nouveaux types
+		if (CollectionUtils.isNotEmpty(listeIdentifiantsTypes)) {
+			StringBuilder requete = new StringBuilder("INSERT INTO edt.estdetype (utilisateur_id, type_id) VALUES ");
+			for (Integer idType : listeIdentifiantsTypes) {
+				requete.append("("+userId+", "+idType+"), ");
+			}
+			
+			// Exécute la requête (en supprimant les deux derniers caractères : ', '
+			bdd.executeRequest(requete.toString().substring(0, requete.length()-2));
+		}
 		
 		// Commit la transaction
 		bdd.commit();

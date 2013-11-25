@@ -117,7 +117,7 @@ public class AdministrateurTypesUtilisateursServlet extends HttpServlet {
 		// Récupération des droits
 		List<Integer> droits = new ArrayList<Integer>();
 		if (listeDroits!=null) {
-			List<String> droitsStr = Arrays.asList();
+			List<String> droitsStr = Arrays.asList(listeDroits);
 			for (String droit : droitsStr) {
 				droits.add(Integer.valueOf(droit));
 			}

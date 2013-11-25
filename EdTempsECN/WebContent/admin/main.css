@@ -292,7 +292,11 @@ ul.button_nav li:last-child {
 }
 
 #liste_utilisateurs td.form_supprimer_utilisateur {
-	width: 20px;
+	border-left: none;
+}
+
+#liste_utilisateurs td.form_modifier_utilisateur {
+	border-right: none;
 }
 
 
