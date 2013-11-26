@@ -20,6 +20,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		// Liste des propriétaires potentiels = de tous les utilisateurs
 		this.listeProprietairesPotentiels = new Array(); //pour l'autocomplete JqueryUI
 		this.listeProprietairesPotentielsIndex = new Array(); //pour compléter les autocomplete
+		this.listeGroupesParents = new Array();
 		this.initAppele = false;
 		this.multiWidgetProprietaires = null;
 	};
@@ -40,7 +41,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			}
 		});
 		
-		// Récupérer propriétaires potentiels
+		// Récupérer propriétaires potentiels et remplir les proprietaires du calendrier à modifier (si modification)
 		this.utilisateurGestion.recupererProprietairesPotentielsAutocomplete(function(resultCode, utilisateurs) {
 			if (resultCode == RestManager.resultCode_Success) {
 				// Enregistrement des utilisateurs potentiels récupérés dans une variable, pour accès futur
@@ -52,7 +53,6 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 					user.tooltip = utilisateurs[i].tooltip;
 					me.listeProprietairesPotentielsIndex[utilisateurs[i].value] = user;
 				}
-				console.log(me.listeProprietairesPotentielsIndex);
 				// Création des autocomplete pour les propriétaires
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#form_creer_calendrier_input_proprietaire"), 
 						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 3, { label: "Vous-même", value: me.restManager.getUserId() }, 225));
@@ -76,15 +76,54 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			}
 		});
 		
+		// Remplir les groupes parents potentiels
+		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				// on crée une chaine contenant un select avec tous les parents disponibles
+				var str = "<select class='form_creer_calendrier_parent'><option value='-1'>---</option>";
+				for (var i=0; i<data.data.listeGroupes.length; i++) {
+					str += "<option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"</option>";
+				}
+				str += "</select>";
+				// on stocke les groupes parents potentiels dans une variable
+				me.listeGroupesParents = str;
+				// on affiche la première liste déroulante de parents potentiels avec le bouton 'ajout groupe parent'
+				str = "<div>" + 
+					    str +
+				      "<img src='img/ajout.png' alt='Ajouter un parent' " +
+				      "id='form_creer_calendrier_ajout_parent' class='multiwidget_btn' />" +
+				      "</div>";
+				me.jqDialog.find('#form_creer_calendrier_parents').append(str);
+				
+		// FONCTION Remplir Groupes Parents
+		//if (parentId) {
+			me.jqDialog.find("#form_creer_calendrier_parent option[value=4]").prop('selected', true);
+		//}
+				
+				// Listener bouton "Ajouter rattachement"
+				me.jqDialog.find("#form_creer_calendrier_ajout_parent").click(function() {
+					me.ajouterGroupeParent();
+				});
+				
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; vérifiez votre connexion.");
+			} else {
+				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
+			}
+		});
+
+		
 		// Listener bouton "Annuler"
 		this.jqDialog.find("#form_creer_calendrier_annuler").click(function() {
 			me.jqDialog.dialog("close");
 		});
 		
-		// Affiche dialog de création d'un calendrier
+		// Crée la boite de dialog de création/modification d'un calendrier
 		this.jqDialog.dialog({
 			autoOpen: false,
-			width: 440,
+			width: 500,
 			modal: true,
 			show: {
 				effect: "fade",
@@ -100,7 +139,13 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 				me.matiere.val("");
 				me.type.val("");
 				// on réinitialise les propriétaires	
-				me.reinitialiserProprietaires();
+				if(me.multiWidgetProprietaires != null) {
+					me.multiWidgetProprietaires.clear();
+				}
+				// on réinitialse les groupes parents
+				me.jqDialog.find(".form_creer_calendrier_parent:not(:first)").remove();
+				me.jqDialog.find(".form_creer_calendrier_supprimer_parent").remove();
+				me.jqDialog.find(".form_creer_calendrier_parent option[value=-1]").prop('selected', true);
 				// on désactive le bouton valider
 				me.jqDialog.find("#form_creer_calendrier_valider").unbind( "click" );
 			}
@@ -227,12 +272,23 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	
 	
 	/**
-	 * Méthode qui reinitialise le contrôle "proprietaires"
+	 * Méthode qui ajoute une ligne "groupe parent"
 	 */
-	DialogCreationCalendrier.prototype.reinitialiserProprietaires = function() {
-		if(this.multiWidgetProprietaires != null) {
-			this.multiWidgetProprietaires.clear();
-		}
+	DialogCreationCalendrier.prototype.ajouterGroupeParent = function() {
+		var me = this;
+		// on affiche une nouvelle liste déroulante de groupes parcipants potentiels
+		var str = "<div>" + 
+			       me.listeGroupesParents +
+			      "<img src='img/corbeille.png' alt='Supprimer un parent' " +
+			      "class='form_creer_calendrier_supprimer_parent multiwidget_btn' />" +
+			      "</div>";
+		me.jqDialog.find('#form_creer_calendrier_parents').append(str);
+		// listener bouton suppression
+		me.jqDialog.find(".form_creer_calendrier_supprimer_parent").click(function() {
+			$(this).prev().remove();
+			$(this).remove();
+		});
+	
 	};
 	
 	/**
