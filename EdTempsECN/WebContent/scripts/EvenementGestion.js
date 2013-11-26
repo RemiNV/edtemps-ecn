@@ -81,17 +81,19 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Fonction générique de récupération d'évènements. Utilisable pour la récupération de : 
-	 * - Evènements de mes abonnements
-	 * - Evènements dont je suis propriétaire
-	 * - Evènements d'une salle
+	 * - Evénements de mes abonnements
+	 * - Evénements dont je suis intervenant
+	 * - Evénements d'une salle
+	 * - Evénements d'un groupe
 	 * 
 	 * @param url URL à laquelle faire la requête
 	 * @param dateDebut Début de la fenêtre de recherche
 	 * @param dateFin Fin de la fenêtre de recherche
 	 * @param callback Fonction à appeler pour fournir le résultat de la requête (paramètres resultCode et data)
 	 * @param idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 * @param idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
 	 */
-	EvenementGestion.prototype.queryEvenements = function(url, dateDebut, dateFin, callback, idSalle) {
+	EvenementGestion.prototype.queryEvenements = function(url, dateDebut, dateFin, callback, idSalle, idGroupe) {
 		
 		var params = {
 			token: this.restManager.getToken(),
@@ -101,6 +103,10 @@ define(["RestManager"], function(RestManager) {
 		
 		if(idSalle) {
 			params.idSalle = idSalle;
+		}
+		
+		if(idGroupe) {
+			params.idGroupe = idGroupe;
 		}
 		
 		this.restManager.effectuerRequete("GET", url, params, function(data) {
@@ -192,7 +198,6 @@ define(["RestManager"], function(RestManager) {
 		var res = new Array();
 		
 		for(var i=0, maxI = evenements.length; i<maxI; i++) {
-			var strSalles = evenements[i].salles.join(", ");
 			
 			var estProprietaire = this.estProprietaire(evenements[i]);
 			// TODO : remplacer "title" avec plus de texte (matière ? salle ?)
@@ -283,8 +288,10 @@ define(["RestManager"], function(RestManager) {
 	 * @param parsingMethod Méthode à utiliser pour convertir les évènements retournés par le serveur au format fullCalendar
 	 * @param ignoreCache Ignorer les évènements stockés en cache et forcer la requête vers le serveur
 	 * @param callback Fonction de rappel à appeler avec les résultats. Prend les paramètres resultCode et evenements (tableau des évènements)
+	 * @param idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 * @param idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
 	 */
-	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, parsingMethod, ignoreCache, callback) {
+	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, parsingMethod, ignoreCache, callback, idSalle, idGroupe) {
 		var me = this;
 		
 		// Récupération depuis le cache si disponible
@@ -307,7 +314,7 @@ define(["RestManager"], function(RestManager) {
 				else {
 					callback(resultCode);
 				}
-			});
+			}, idSalle, idGroupe);
 		}
 	};
 	
@@ -335,6 +342,12 @@ define(["RestManager"], function(RestManager) {
 		var me = this;
 		this.getEvenements("mesevenements", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, 
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback);
+	};
+	
+	EvenementGestion.prototype.getEvenementsGroupe = function(start, end, idGroupe, ignoreCache, callback) {
+		var me = this;
+		this.getEvenements("evenementsgroupe", EvenementGestion.CACHE_MODE_GROUPE, start, end, 
+				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, idGroupe);
 	};
 	
 	// TODO : ajouter getEvenementsSalle (même style d'appel)
@@ -396,7 +409,7 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Invalidation du cache pendant un intervalle donné. Tous les modes de cache sont concernés
-	 * (MODE_MES_EVENEMENTS, MODE_MES_ABONNEMENTS...)
+	 * (CACHE_MODE_MES_EVENEMENTS, CACHE_MODE_MES_ABONNEMENTS...)
 	 * 
 	 * @param dateDebut début de la fenêtre à invalider
 	 * @param dateFin fin de la fenêtre à invalider
@@ -418,6 +431,14 @@ define(["RestManager"], function(RestManager) {
 		invalidateMode(EvenementGestion.CACHE_MODE_SALLE);
 		invalidateMode(EvenementGestion.CACHE_MODE_MES_EVENEMENTS);
 		invalidateMode(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS);
+	};
+	
+	/**
+	 * Suppression de tout le cache d'un mode donné
+	 * @param modeCache Mode de cache concerné (CACHE_MODE_MES_EVENEMENTS, CACHE_MODE_MES_ABONNEMENTS...)
+	 */
+	EvenementGestion.prototype.clearCache = function(modeCache) {
+		this.cachedEvents[modeCache] = new Array();
 	};
 	
 	/**

@@ -21,6 +21,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.initListeGroupesFait = false;
 		this.initListeSallesFait = false;
 		
+		this.idGroupeSelectionne = 0;
+		
 		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
 		
 		this.calendrier = null;
@@ -81,7 +83,6 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		switch(vue) {
 		case "vue_groupe":
 			$("#nav_vue_agenda #tab_vue_groupe").addClass("selected");
-			$("#choix_salle").css("display", "none");
 			$("#choix_groupe").css("display", "block");
 			this.initListeGroupes();
 			this.mode = EcranAccueil.MODE_GROUPE;
@@ -89,25 +90,32 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		case "vue_salle":
 			$("#nav_vue_agenda #tab_vue_salle").addClass("selected");
 			$("#choix_salle").css("display", "block");
-			$("#choix_groupe").css("display", "none");
 			this.initListeSalles();
 			this.mode = EcranAccueil.MODE_SALLE;
 			break;
 		
 		case "mes_evenements":
-			$("#choix_salle").css("display", "none");
-			$("#choix_groupe").css("display", "none");
 			$("#nav_vue_agenda #tab_mes_evenements").addClass("selected");
 			this.mode = EcranAccueil.MODE_MES_EVENEMENTS;
 			break;
 			
 		case "mes_abonnements":
 		default:
-			$("#choix_salle").css("display", "none");
-			$("#choix_groupe").css("display", "none");
 			$("#nav_vue_agenda #tab_mes_abonnements").addClass("selected");
 			this.mode = EcranAccueil.MODE_MES_ABONNEMENTS;
 			break;
+		}
+		
+		if(vue != "vue_groupe" && this.listeGroupesParticipants) {
+			this.listeGroupesParticipants.clear();
+		}
+		
+		if(vue != "vue_salle") {
+			$("#choix_salle").css("display", "none");
+		}
+		
+		if(vue != "vue_groupe") {
+			$("#choix_groupe").css("display", "none");
 		}
 		
 		if(this.calendrier != null) {
@@ -130,6 +138,11 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				var groupes = data.data;
 				var lstGroupes = $("#select_choix_groupe");
 				
+				lstGroupes.append(optionTpl({
+					value: 0,
+					label: "(Choisissez un groupe)"
+				}));
+				
 				for(var i=0, maxI=groupes.length; i<maxI; i++) {
 					lstGroupes.append(optionTpl({
 						value: groupes[i].id,
@@ -137,7 +150,16 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 					}));
 				}
 				
-				lstGroupes.combobox();
+				lstGroupes.combobox({
+					select: function(event, ui) {
+						
+						me.idGroupeSelectionne = parseInt(ui.item.value);
+						
+						// Suppression du cache (on change de groupe -> événements plus valides)
+						me.evenementGestion.clearCache(EvenementGestion.CACHE_MODE_GROUPE);
+						me.calendrier.refetchEvents();
+					}
+				});
 				$("#message_chargement_groupes").css("display", "none");
 				me.initListeGroupesFait = true;
 			}
@@ -155,7 +177,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			return;
 		}
 		
-		// TODO : écrire
+		// TODO : écrire (ressemblera beaucoup à initListeGroupes)
 		
 		// TODO : assignation à mettre dans le succès du callback de la requête
 		// this.initListeSallesFait = true;
@@ -182,19 +204,25 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			break;
 			
 		case EcranAccueil.MODE_MES_EVENEMENTS:
-			
-			if(this.listeGroupesParticipants) {
-				this.listeGroupesParticipants.clear();
-			}
-			
 			this.remplirMesEvenements(start, end, callback);
 			break;
 			
-		default: 
-			
-			if(this.listeGroupesParticipants) {
-				this.listeGroupesParticipants.clear();
+		case EcranAccueil.MODE_GROUPE:
+			if(!this.initListeGroupesFait) {
+				callback(new Array());
+				return;
 			}
+			
+			if(this.idGroupeSelectionne !== 0) {
+				this.remplirEvenementsGroupe(start, end, callback);
+			}
+			else {
+				callback(new Array());
+			}
+			
+			break;
+			
+		default: 
 			// TODO : gérer les autres modes d'affichage
 			callback(new Array());
 		
@@ -229,7 +257,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	
 	/**
 	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
-	 * pour les évènements dont l'utilisateur est propriétaire
+	 * pour les évènements dans lesquels l'utilisateur est intervenant
 	 * 
 	 * @param dateDebut date de début de la période
 	 * @param dateFin date de fin de la période
@@ -244,10 +272,35 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(data));
 			}
 			else if(resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
+				window.showToast("Impossible de charger vos évènements ; vérifiez votre connexion.");
 			}
 			else {
-				window.showToast("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
+				window.showToast("Erreur de chargement de vos événements");
+			}
+		});
+	};
+	
+	/**
+	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
+	 * pour les évènements d'un groupe
+	 * 
+	 * @param dateDebut date de début de la période
+	 * @param dateFin date de fin de la période
+	 * @param idGroupe ID du groupe dont les événements sont à récupérer
+	 * @param callbackCalendrier callback de fullcalendar
+	 */
+	EcranAccueil.prototype.remplirEvenementsGroupe = function(dateDebut, dateFin, callbackCalendrier) {
+		var me = this;
+		this.evenementGestion.getEvenementsGroupe(dateDebut, dateFin, this.idGroupeSelectionne, false, function(resultCode, data) {
+			if(resultCode == RestManager.resultCode_Success) {
+				// Filtrage et passage à fullcalendar
+				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(data));
+			}
+			else if(resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Impossible de charger les événements ; vérifiez votre connexion.");
+			}
+			else {
+				window.showToast("Erreur de chargement des évènements");
 			}
 		});
 	};

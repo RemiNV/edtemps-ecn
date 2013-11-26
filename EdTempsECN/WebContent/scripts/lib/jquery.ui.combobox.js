@@ -1,7 +1,7 @@
 /**
- * Combobox : widget créé à partir de jQuery UI autocomplete et button.
- * Pas une bibliothèque, mais fait partie des demos de jQuery UI Autocomplete.
- * Fonctionne avec jquery 1.10.2 & jqueryUI 1.10.3
+ * Combobox : widget créé à partir de jQuery UI autocomplete
+ * Pas une bibliothèque, fait partie des démos de jQueryUI autocomplete,
+ * Modifié pour s'intégrer aux feuilles de style de la page
  */
 (function( $ ) {
 	$.widget( "custom.combobox", {
@@ -22,15 +22,11 @@
 			this.input = $( "<input>" )
 				.appendTo( this.wrapper )
 				.val( value )
-				.attr( "title", "" )
-				.addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+				.addClass( "custom-combobox-input" )
 				.autocomplete({
 					delay: 0,
 					minLength: 0,
 					source: $.proxy( this, "_source" )
-				})
-				.tooltip({
-					tooltipClass: "ui-state-highlight"
 				});
 
 			this._on( this.input, {
@@ -49,19 +45,12 @@
 			var input = this.input,
 				wasOpen = false;
 
-			$( "<a>" )
+			$( "<span>" )
 				.attr( "tabIndex", -1 )
 				.attr( "title", "Show All Items" )
-				.tooltip()
 				.appendTo( this.wrapper )
-				.button({
-					icons: {
-						primary: "ui-icon-triangle-1-s"
-					},
-					text: false
-				})
-				.removeClass( "ui-corner-all" )
-				.addClass( "custom-combobox-toggle ui-corner-right" )
+				.append($("<span class='arrow_down'></span>"))
+				.addClass( "custom-combobox-toggle" )
 				.mousedown(function() {
 					wasOpen = input.autocomplete( "widget" ).is( ":visible" );
 				})
@@ -116,13 +105,8 @@
 
 			// Remove invalid value
 			this.input
-				.val( "" )
-				.attr( "title", value + " didn't match any item" )
-				.tooltip( "open" );
+				.val( "" );
 			this.element.val( "" );
-			this._delay(function() {
-				this.input.tooltip( "close" ).attr( "title", "" );
-			}, 2500 );
 			this.input.data( "ui-autocomplete" ).term = "";
 		},
 

@@ -43,6 +43,9 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 		
 		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");
 		
+		// Mémorise l'événement pour lequel la dialog dialogDetailsEvenement est ouverte
+		var evenementDialogDetailsOuverte = null;
+		
 		jqDialogDetailsEvenement.find("#btnModifierEvenement").click(function() {
 			jqDialogDetailsEvenement.dialog("close");
 			dialogAjoutEvenement.showEdit(evenementDialogDetailsOuverte);
@@ -66,10 +69,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 					window.showToast("Echec de la suppression de cet événement");
 				}
 			});
-		});
-		
-		// Mémorise l'événement pour lequel la dialog dialogDetailsEvenement est ouverte
-		var evenementDialogDetailsOuverte;
+		});		
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
