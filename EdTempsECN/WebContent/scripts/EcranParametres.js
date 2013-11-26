@@ -45,10 +45,10 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					me.initMesAbonnements(); //NE MARCHE PAS CORRECTEMENT 
 				}
 				else if (ui.newPanel.get(0).id == "parametres/mes_agendas"){
-					this.afficheListeMesCalendriers();
+					me.afficheListeMesCalendriers();
 				}
 				else if (ui.newPanel.get(0).id == "parametres/mes_groupes"){
-					this.afficheListeMesGroupes();
+					me.afficheListeMesGroupes();
 				}
 			},
 			active: idTabs[tab]
