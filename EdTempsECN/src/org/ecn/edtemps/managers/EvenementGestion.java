@@ -382,6 +382,7 @@ public class EvenementGestion {
 				"WHERE calendrierappartientgroupe.groupeparticipant_id = " + idGroupe + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
+		// TODO : gérer les parents/enfants
 		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
 		return res;
 	}
