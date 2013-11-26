@@ -379,7 +379,7 @@ public class EvenementGestion {
 				"FROM edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
 				"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
-				"WHERE calendrierappartientgroupe.cal_id = " + idGroupe + " "
+				"WHERE calendrierappartientgroupe.groupeparticipant_id = " + idGroupe + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
 		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
