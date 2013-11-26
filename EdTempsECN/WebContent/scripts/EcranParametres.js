@@ -40,15 +40,15 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		$("#tabs").tabs({
 			activate: function(event, ui) {
 				Davis.location.replace(ui.newPanel.get(0).id);
-				// Initialisation de l'onglet correspondant
+				// Rechargement des abonnements/groupes/calendriers au changement d'onglet
 				if (ui.newPanel.get(0).id == "parametres/mes_abonnements"){	 
 					me.initMesAbonnements(); //NE MARCHE PAS CORRECTEMENT 
 				}
 				else if (ui.newPanel.get(0).id == "parametres/mes_agendas"){
-					me.initMesCalendriers();
+					this.afficheListeMesCalendriers();
 				}
 				else if (ui.newPanel.get(0).id == "parametres/mes_groupes"){
-					me.initMesGroupes();
+					this.afficheListeMesGroupes();
 				}
 			},
 			active: idTabs[tab]
