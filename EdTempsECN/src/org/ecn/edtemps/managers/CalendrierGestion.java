@@ -195,7 +195,7 @@ public class CalendrierGestion {
 			return new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
 		}
 		else {
-			throw new DatabaseException();
+			throw new DatabaseException("Le calendrier d'id="+id+" n'a pas de propriétaire");
 		}
 	}
 	

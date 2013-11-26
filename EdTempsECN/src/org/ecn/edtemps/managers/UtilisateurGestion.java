@@ -652,23 +652,21 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public List<UtilisateurIdentifie> getListeUtilisateurs() throws DatabaseException {
-		ResultSet reponse = bdd.executeRequest("" +
-				"SELECT * FROM edt.utilisateur" +
-				" LEFT JOIN edt.estdetype ON estdetype.utilisateur_id=utilisateur.utilisateur_id" +
-				" ORDER BY utilisateur.utilisateur_prenom");
+		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur ORDER BY utilisateur.utilisateur_prenom");
 
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
 
 		try {
 			while(reponse.next()) {
 				int id = reponse.getInt("utilisateur_id");
-				int type = reponse.getInt("type_id");
 				String nom = reponse.getString("utilisateur_nom");
 				String prenom = reponse.getString("utilisateur_prenom");
 				String email = reponse.getString("utilisateur_email");
 				
 				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email);
-				utilisateur.setType(type);
+
+				// Récupération des types de l'utilisateur
+				utilisateur.setType(this.getListeTypes(id));
 				
 				res.add(utilisateur);
 			}
@@ -684,19 +682,27 @@ public class UtilisateurGestion {
 	/**
 	 * Modifie le type d'un utilisateur
 	 * @param userId Identifiant de l'utilisateur
-	 * @param typeId Identifiant du nouveau type de l'utilisateur
+	 * @param listeIdentifiants Liste des identifiants des types de l'utilisateur
 	 * @throws DatabaseException 
 	 */
-	public void modifierTypeUtilisateur(int userId, int typeId) throws DatabaseException {
-		
+	public void modifierTypeUtilisateur(int userId, List<Integer> listeIdentifiantsTypes) throws DatabaseException {
+
 		// Démarre une transaction
 		bdd.startTransaction();
 		
-		// Supprime le type actuel de l'utilisateur
+		// Supprime les types actuels de l'utilisateur
 		bdd.executeRequest("DELETE FROM edt.estdetype WHERE utilisateur_id="+userId);
 		
-		// Ajoute le nouveau type
-		bdd.executeRequest("INSERT INTO edt.estdetype (utilisateur_id, type_id) VALUES ("+userId+", "+typeId+")");
+		// Ajoute les nouveaux types
+		if (CollectionUtils.isNotEmpty(listeIdentifiantsTypes)) {
+			StringBuilder requete = new StringBuilder("INSERT INTO edt.estdetype (utilisateur_id, type_id) VALUES ");
+			for (Integer idType : listeIdentifiantsTypes) {
+				requete.append("("+userId+", "+idType+"), ");
+			}
+			
+			// Exécute la requête (en supprimant les deux derniers caractères : ', '
+			bdd.executeRequest(requete.toString().substring(0, requete.length()-2));
+		}
 		
 		// Commit la transaction
 		bdd.commit();
@@ -743,4 +749,34 @@ public class UtilisateurGestion {
 		
 	}
 	
+
+	/**
+	 * Récupère la liste des types d'utilisateurs auxquels est rattaché un utilisateur
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return la liste des identifiants des types auxquels l'utilisateur est rattaché
+	 * @throws DatabaseException
+	 */
+	public List<Integer> getListeTypes(int idUtilisateur) throws DatabaseException {
+
+		List<Integer> resultat = new ArrayList<Integer>();
+		
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT typeutilisateur.type_id "
+					+ "FROM edt.typeutilisateur "
+					+ "INNER JOIN edt.estdetype ON estdetype.type_id = typeutilisateur.type_id "
+					+ "WHERE utilisateur_id = " + idUtilisateur);
+			while(reponse.next()) {
+				resultat.add(reponse.getInt("type_id"));
+			}
+			
+			reponse.close();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return resultat;
+		
+	}
 }

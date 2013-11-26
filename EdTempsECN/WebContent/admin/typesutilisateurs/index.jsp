@@ -25,54 +25,59 @@
 		<div id="main_content">
 			<h1>Espace d'administration &rarr; Gestion des types d'utilisateurs</h1>			
 
-			<div id="content" style="min-height: 300px;">
+			<div id="content" style="min-height: 330px;">
 
+				<div id="ajouter_type_utilisateurs">
+					<p class="formulaire_zone_titre">Ajouter un type d'utilisateurs :</p>
+					<form action="<%=request.getContextPath() %>/administrateur/typesutilisateurs/ajouter" method="POST" onsubmit="return validationAjouterType()">
+						<input type="text" name="ajouter_type_utilisateurs_nom" id="ajouter_type_utilisateurs_nom" size="50" placeholder="Nom du type d'utilisateurs que vous souhaitez ajouter" />
+						<input type="submit" value="Ajouter" class="button" style="height: 22px; padding-top: 2px;" />
+					</form>
+				</div>
+
+				<div id="modifier_type_utilisateurs">
+					<p class="formulaire_zone_titre">Modifier un type d'utilisateurs :</p>
+					<form action="<%=request.getContextPath() %>/admin/typesutilisateurs/modifier.jsp" method="POST">
+						<select name="modifier_types_utilisateurs_id" id="modifier_types_utilisateurs_id">
+							<%
+								BddGestion bdd = new BddGestion();
+								UtilisateurGestion gestionUtilisateurs = new UtilisateurGestion(bdd);
+								Map<Integer, String> typesUtilisateurs = gestionUtilisateurs.getListeTypesUtilisateur();
+
+								StringBuilder selectType = new StringBuilder();
+								for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
+									selectType.append("<option value='"+type.getKey()+"'>"+type.getValue()+"</option>");
+								}
+								
+								out.write(selectType.toString());
+							%>
+						</select>
+						<input type="submit" value="Modifier" class="button" style="height: 22px; padding-top: 2px;" />
+					</form>
+				</div>
+				
+				<div id="supprimer_type_utilisateurs">
+					<p class="formulaire_zone_titre">Supprimer un type d'utilisateurs :</p>
+					<form action="<%=request.getContextPath() %>/administrateur/typesutilisateurs/supprimer" method="POST" onsubmit="return confirmationSupprimerType()">
+						<select name="supprimer_types_utilisateurs_id" id="supprimer_types_utilisateurs_id">
+							<% out.write(selectType.toString()); %>
+						</select>
+						<input type="submit" value="Supprimer" class="button" style="height: 22px; padding-top: 2px;" />
+					</form>
+					<p class="information">Attention! Supprimer un type d'utilisateur entraîne la suppression de ce type pour tous les utilisateurs liés.</p>
+				</div>
+			
 				<table id="types_utilisateurs_liste" class="tableau_liste">
-					<tr><th>Types d'utilisateurs</th></tr>
+					<tr>
+						<th>Types d'utilisateurs</th>
+					</tr>
 					<%
-						BddGestion bdd = new BddGestion();
-						UtilisateurGestion gestionUtilisateurs = new UtilisateurGestion(bdd);
-						Map<Integer, String> typesUtilisateurs = gestionUtilisateurs.getListeTypesUtilisateur();
 						for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-							out.write("<tr><td onclick='afficheMultiSelect("+type.getKey()+", &apos;"+type.getValue()+"&apos;)'>"+type.getValue()+"</td></tr>");
+							out.write("<tr><td class='liste_types_nom'>"+type.getValue()+"</td></tr>");
 						}
 					%>
 				</table>
-				
-				<div id="types_utilisateurs_modifier">
-					<p id="types_utilisateurs_modifier_titre"> Cliquez sur un type dans la liste de gauche pour en afficher les droits.</p>
-					<%
-						// Récupération de la liste des actions disponibles
-						AdministrateurGestion gestionAdministrateurs = new AdministrateurGestion(bdd);
-						Map<Integer, String> toutesLesActionsPossibles = gestionAdministrateurs.listerActionsEdtemps();
 
-						for (Map.Entry<Integer, String> type : typesUtilisateurs.entrySet()) {
-						
-							// Récupération pour ce type des actions autorisées
-							List<Integer> actionsAutoriseesPourCeType = gestionAdministrateurs.getListeActionsTypeUtilisateurs(type.getKey()); 
-						
-						%>
-							<form action="" method="POST" onsubmit="return validationModificationType()">
-								<select multiple="multiple" id="types_utilisateurs_modifier_form_<%=type.getKey() %>" name="types_utilisateurs_modifier_form_<%=type.getKey() %>" class="types_utilisateurs_modifier_select">
-									<%
-									for (Map.Entry<Integer, String> action : toutesLesActionsPossibles.entrySet()) {
-										if (actionsAutoriseesPourCeType.contains(action.getKey())) {
-											out.write("<option value='"+action.getKey()+"' selected>"+action.getValue()+"</option>");
-										} else {
-											out.write("<option value='"+action.getKey()+"'>"+action.getValue()+"</option>");
-										}
-									}
-									%>
-								</select>
-							</form>
-					<%	}	%>
-				</div>
-
-				
-				
-				
-				
-				
 			</div>
 
 		</div>

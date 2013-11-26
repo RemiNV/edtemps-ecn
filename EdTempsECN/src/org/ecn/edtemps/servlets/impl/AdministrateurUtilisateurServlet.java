@@ -1,6 +1,9 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -80,17 +83,26 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 		logger.error("Modifer le type d'un utilisateur");
 
 		// Récupération des valeurs du formulaire
-		Integer typeId = req.getParameter("user_type")!="" ? Integer.valueOf(req.getParameter("user_type")) : null;
-		Integer userId = req.getParameter("user_id")!="" ? Integer.valueOf(req.getParameter("user_id")) : null;
+		Integer userId = req.getParameter("modifier_utilisateur_id")!="" ? Integer.valueOf(req.getParameter("modifier_utilisateur_id")) : null;
 		if (userId == null) {
 			logger.error("Identifiant de l'utilisateur erroné");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		}
+		String[] listeTypes = req.getParameterValues("modifier_utilisateur_types");
 
+		// Récupération des droits
+		List<Integer> types = new ArrayList<Integer>();
+		if (listeTypes!=null) {
+			List<String> listeTypesStr = Arrays.asList(listeTypes);
+			for (String idType : listeTypesStr) {
+				types.add(Integer.valueOf(idType));
+			}
+		}
+		
 		// Exécute la requête de modification avec le manager
 		BddGestion bdd = new BddGestion();
 		UtilisateurGestion gestionnaireUtilisateurs = new UtilisateurGestion(bdd);
-		gestionnaireUtilisateurs.modifierTypeUtilisateur(userId, typeId);
+		gestionnaireUtilisateurs.modifierTypeUtilisateur(userId, types);
 		bdd.close();
 
 		// Redirige vers la page de liste des utilisateurs

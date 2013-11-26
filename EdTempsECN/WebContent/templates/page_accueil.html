@@ -161,6 +161,10 @@
 		<ul id="lst_evenements_salles_occupees">
 		</ul>
 	</div>
+	
+	<div id="notes_pas_proprietaire_calendrier" class="message_alerte" style="display: none">
+		Vous n'êtes pas propriétaire de tous les calendriers : ils ne seront pas modifiés.
+	</div>
 
 	<div class="boutons_valider">
 		<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Valider" />
@@ -175,5 +179,11 @@
 
 <!-- Dialog d'affichage des détails d'un événement -->
 <div id="dialog_details_evenement" title="Détails de l'événement">
+	<div id="dialog_details_evenement_hook">
 	<!-- Contenu rempli à partir du template dialog_details_evenement.tpl -->
+	</div>
+	<div class="boutons_valider">
+		<input type="button" class="button" value="Modifier" id="btnModifierEvenement" />
+		<input type="button" class="button" value="Supprimer" id="btnSupprimerEvenement" />
+	</div>
 </div>

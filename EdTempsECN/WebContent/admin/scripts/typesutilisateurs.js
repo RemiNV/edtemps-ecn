@@ -1,30 +1,93 @@
 $(document).ready(function() {
 
-	$(".types_utilisateurs_modifier_select").multiSelect({
+	$("#modifier_type_utilisateurs_form_droits").multiSelect({
 		afterInit: function(ms){
 			$(".ms-container").css("width", 720);
-			$(".ms-container").css("margin-top", 0);
-			ms.hide();
 		},
-		selectableHeader: "<p class='titre_mutli-select'>Toutes les actions :</p>",
-		selectionHeader: "<p class='titre_mutli-select'>Actions autoris&eacute;es pour '<span></span>' :</p>"
+		selectableHeader: "<p class='titre_multi-select'>Toutes les actions :</p>",
+		selectionHeader: "<p class='titre_multi-select'>Actions autoris&eacute;es :</p>"
 	});
-
+	
 });
 
+
 /**
- * Affiche le multi select pour le type voulu
- * @param typeId L'identifiant du type
- * @param typeNom Nom du type
+ * Confirmation de suppression
  */
-function afficheMultiSelect(typeId, typeNom) {
-	$.each($(".ms-container"), function () {
-		if ($(this).attr("id")=="ms-types_utilisateurs_modifier_form_"+typeId) {
-			$(this).show();
-			$(this).find(".titre_mutli-select span").html(typeNom);
-		} else {
-			$(this).hide();
+function confirmationSupprimerType() {
+	return confirm("Etes-vous sur de vouloir supprimer ce type d'utilisateur ?");
+}
+
+
+/**
+ * Validation du formulaire d'ajout
+ */
+function validationAjouterType() {
+	var valid = true;
+
+	var jqNom = $("#ajouter_type_utilisateurs_nom");
+
+	// Vérifie que le nom n'est pas déjà utilisé
+	var nomDejaUtilise = false;
+	$.each($(".liste_types_nom"), function() {
+		if (jqNom.val()==$(this).html()) {
+			nomDejaUtilise = true;
 		}
 	});
-	$("#types_utilisateurs_modifier_titre").hide();
+	
+	// Champ nom
+	if (jqNom.val()=="") {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Le nom est obligatoire");
+		valid = false;
+	} else if (!/^[a-z \u00C0-\u00FF0-9]+$/i.test(jqNom.val())) {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Le nom doit uniquement comporter des caracteres alphanumeriques");
+		valid = false;
+	} else if (nomDejaUtilise) {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Ce nom est deja utilise");
+		valid = false;
+	} else {
+		jqNom.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
+	}
+
+	return valid;
+}
+
+
+/**
+ * Validation du formulaire d'ajout
+ */
+function validationModifierType() {
+	var valid = true;
+
+	var jqNom = $("#modifier_type_utilisateurs_form_nom");
+
+	// Vérifie que le nom n'est pas déjà utilisé
+	var nomDejaUtilise = false;
+	$.each($(".liste_types_nom"), function() {
+		if (jqNom.val()==$(this).html()) {
+			nomDejaUtilise = true;
+		}
+	});
+	
+	// Champ nom
+	if (jqNom.val()=="") {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Le nom est obligatoire");
+		valid = false;
+	} else if (!/^[a-z \u00C0-\u00FF0-9]+$/i.test(jqNom.val())) {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Le nom doit uniquement comporter des caracteres alphanumeriques");
+		valid = false;
+	} else if (nomDejaUtilise) {
+		jqNom.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
+		jqNom.attr("title", "Ce nom est deja utilise");
+		valid = false;
+	} else {
+		jqNom.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
+	}
+
+	return valid;
 }

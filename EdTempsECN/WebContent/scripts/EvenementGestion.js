@@ -184,10 +184,11 @@ define(["RestManager"], function(RestManager) {
 			var strSalles = evenements[i].salles.join(", ");
 			
 			var estProprietaire = this.estProprietaire(evenements[i]);
-			
+			// TODO : remplacer "title" avec plus de texte (matière ? salle ?)
 			res.push({
 				id: evenements[i].id,
 				title: evenements[i].nom,
+				nom: evenements[i].nom,
 				start: new Date(evenements[i].dateDebut),
 				end: new Date(evenements[i].dateFin),
 				salles: evenements[i].salles,
@@ -247,10 +248,11 @@ define(["RestManager"], function(RestManager) {
 		
 			// Est-ce que l'utilisateur est propriétaire
 			var estProprietaire = this.estProprietaire(evenements[i]);
-			
+			// TODO : remplacer "title" avec plus de texte (matière ? salle ?)
 			res[i] = {
 				id: evenements[i].id,
 				title: evenements[i].nom,
+				nom: evenements[i].nom,
 				start: new Date(evenements[i].dateDebut),
 				end: new Date(evenements[i].dateFin),
 				salles: evenements[i].salles,
@@ -456,7 +458,7 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Modification d'un évènement en base de données.
-	 * Les paramètres peuvent être null (ou non renseignés) pour indiquer "aucune modification" (sauf l'ID d'évènement).
+	 * Les paramètres peuvent être null ou non précisés pour indiquer "aucune modification" (sauf l'ID d'évènement).
 	 * <b>Ne pas oublier d'invalider le cache d'évènements</b> via EvenementGestion.invalidateCache() une fois
 	 * l'évènement modifié, pendant l'ancienne période de l'évènement (la nouvelle est automatiquement invalidée) 
 	 * 
@@ -473,7 +475,7 @@ define(["RestManager"], function(RestManager) {
 	 */
 	EvenementGestion.prototype.modifierEvenement = function(id, callback, dateDebut, dateFin, nom, idCalendriers, 
 			idSalles, idIntervenants, idResponsables, idEvenementsSallesALiberer) {
-		
+
 		var me = this;
 		this.restManager.effectuerRequete("POST", "evenement/modifier", {
 			token: me.restManager.getToken(),
@@ -494,6 +496,27 @@ define(["RestManager"], function(RestManager) {
 				// Invalidation du cache pendant le nouvel intervalle de l'évènement modifié
 				// L'ancien intervalle n'est pas invalidé et doit être fait par l'appelant
 				me.invalidateCache(dateDebut, dateFin);
+			}
+			
+			callback(response.resultCode);
+		});
+	};
+	
+	/**
+	 * Suppression d'un évènement en base de données. Effectue la purge du cache.
+	 * 
+	 * @param {Object} event Evénement à supprimer. Doit contenir les propriétés id, start, end
+	 * @param {function} callback Fonction appelée une fois la suppression effectuée. Prend un argument resultCode.
+	 */
+	EvenementGestion.prototype.supprimerEvenement = function(event, callback) {
+		var me = this;
+		this.restManager.effectuerRequete("POST", "evenement/supprimer", {
+			token: this.restManager.getToken(),
+			idEvenement: event.id
+		}, function(response) {
+			
+			if(response.resultCode === RestManager.resultCode_Success) {
+				me.invalidateCache(event.start, event.end);
 			}
 			
 			callback(response.resultCode);

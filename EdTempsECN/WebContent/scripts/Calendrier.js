@@ -21,7 +21,6 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			
 			// On n'est pas à l'intérieur d'une dialog
 			var jqTarget = $(event.target);
-			console.log(jqTarget.closest(".ui-dialog"));
 			if(!jqTarget.is(".ui_dialog, .fc-event") 
 					&& jqTarget.closest(".ui-dialog").length == 0
 					&& jqTarget.closest(".fc-event").length == 0) {
@@ -44,7 +43,33 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 		
 		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");
 		
+		jqDialogDetailsEvenement.find("#btnModifierEvenement").click(function() {
+			jqDialogDetailsEvenement.dialog("close");
+			dialogAjoutEvenement.showEdit(evenementDialogDetailsOuverte);
+		});
 		
+		jqDialogDetailsEvenement.find("#btnSupprimerEvenement").click(function() {
+			
+			if(!confirm("Etes-vous sûr(e) de vouloir supprimer l'événement : " + evenementDialogDetailsOuverte.title + " ?")) {
+				return;
+			}
+			
+			evenementGestion.supprimerEvenement(evenementDialogDetailsOuverte, function(resultCode) {
+				if(resultCode == RestManager.resultCode_Success) {
+					jqDialogDetailsEvenement.dialog("close");
+					me.refetchEvents();
+				}
+				else if(resultCode == RestManager.resultCode_NetworkError) {
+					window.showToast("Echec de la suppression de cet événement : vérifiez votre connexion");
+				}
+				else {
+					window.showToast("Echec de la suppression de cet événement");
+				}
+			});
+		});
+		
+		// Mémorise l'événement pour lequel la dialog dialogDetailsEvenement est ouverte
+		var evenementDialogDetailsOuverte;
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
@@ -98,11 +123,29 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				
 				jqElement.click(function() {
 					
+					evenementDialogDetailsOuverte = event;
+					
 					jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar")
 						.css("color", event.color);
 					
-					console.log("event : ", event);
+					// Remplissage du template
+					jqDialogDetailsEvenement.find("#dialog_details_evenement_hook").html(templateDialogDetails({
+						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy hh:mm"),
+						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy hh:mm"),
+						strSalles: event.strSalle,
+						proprietaires: event.responsables,
+						intervenants: event.intervenants,
+						editable: event.editable
+					}));
 					
+					if(event.editable) {
+						jqDialogDetailsEvenement.find(".boutons_valider").css("display", "block");
+					}
+					else {
+						jqDialogDetailsEvenement.find(".boutons_valider").css("display", "none");
+					}
+					
+					// Positionnement de la dialog
 					jqDialogDetailsEvenement.dialog("option", {
 						position: {
 							my: "center bottom",
@@ -111,16 +154,6 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 						},
 						title: event.title
 					});
-					
-					// Remplissage du template
-					jqDialogDetailsEvenement.html(templateDialogDetails({
-						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy hh:mm"),
-						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy hh:mm"),
-						strSalles: event.strSalle,
-						proprietaires: event.responsables,
-						intervenants: event.intervenants
-						
-					}));
 					
 					jqDialogDetailsEvenement.dialog("open");
 				});

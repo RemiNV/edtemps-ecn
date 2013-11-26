@@ -18,6 +18,7 @@ import org.ecn.edtemps.models.Materiel;
 import org.ecn.edtemps.models.Salle;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.SalleRecherche;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -158,7 +159,7 @@ public class SalleGestionTest {
 		la salle d'id 5 est déjà occupée pour un événement entre cesdeux dates,
 		la salle d'id 4 est occupée le même jour mais pas dans ce créneau horaire*/
 		ArrayList<Materiel> materiels = new ArrayList<Materiel>();
-		ArrayList<SalleRecherche> sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, materiels, 10, false, true);
+		ArrayList<SalleRecherche> sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, materiels, 10, false, true, null);
 		boolean salle5 = false;
 		boolean salle4 = false;
 		boolean salle1  = false;
@@ -179,7 +180,7 @@ public class SalleGestionTest {
 		la salle 4 libre dans le cas précédent ne doit plus être proposée car elle ne contient que 2 ordinateurs alors que 10 sont demandés */
 		Materiel materiel1 = new Materiel(1, "Ordinateur", 9);
 		materiels.add(materiel1);
-		sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, materiels, 10, false, true);
+		sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, materiels, 10, false, true, null);
 		salle5 = false;
 		salle4 = false;
 		salle1  = false;
@@ -200,7 +201,7 @@ public class SalleGestionTest {
 		 * dans le premier cas la salle 5 n'apparait pas, dans le deuxième cas la salle 5 apparait*/
 		a = dfm.parse("2013-10-23 16:00:00");
 		b = dfm.parse("2013-10-23 19:00:00");
-		sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, new ArrayList<Materiel>(), 10, false, true);
+		sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, new ArrayList<Materiel>(), 10, false, true, null);
 		salle5 = false;
 		for (int i=0; i<sallesRecherchees.size(); i++){
 			if (sallesRecherchees.get(i).getId()==5){
@@ -208,7 +209,7 @@ public class SalleGestionTest {
 			}
 		}
 		assertFalse(salle5); // salle 5 occupée
-		sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, new ArrayList<Materiel>(), 10, true, true);
+		sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, new ArrayList<Materiel>(), 10, true, true, null);
 		salle5 = false;
 		for (int i=0; i<sallesRecherchees.size(); i++){
 			if (sallesRecherchees.get(i).getId()==5){
@@ -216,6 +217,16 @@ public class SalleGestionTest {
 			}
 		}
 		assertTrue(salle5); // salle 5 occupée mais pas par un cours
+		
+		
+		/* Test de recherche d'une salle en ignorant un événement */
+		a = dfm.parse("2013-10-21 08:00:00");
+		b = dfm.parse("2013-10-21 12:00:00");
+		sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, new ArrayList<Materiel>(), 1, false, true, null);
+		int salleSansIgnorerEvenement = sallesRecherchees.size();
+		sallesRecherchees = salleGestionnaire.rechercherSalle(a, b, new ArrayList<Materiel>(), 1, false, true, 4);
+		Assert.assertEquals(salleSansIgnorerEvenement+1, sallesRecherchees.size());
+		
 	}
 	
 	@Test

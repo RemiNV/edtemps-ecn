@@ -57,7 +57,9 @@ define([ "jquery", "jqueryui" ], function() {
 		
 		// Listener dupliqué par "clone"
 		jqBtnSupprimer.click(function() {
-			$(this).parent().remove();
+			if(!$(this).siblings(".multiwidget_entry").attr("disabled")) {
+				$(this).parent().remove();
+			}
 		});
 	
 		// Initialisation de la première ligne
@@ -101,7 +103,22 @@ define([ "jquery", "jqueryui" ], function() {
 				jqNewElem.val(values[i]);
 			}
 		}
-		
+	};
+	
+	/**
+	 * Définit le multiwidget comme en lecture seule
+	 * @param {boolean} disabled Le multiwidget doit être mis en lecture seule
+	 */
+	MultiWidget.prototype.setDisabled = function(disabled) {
+		if(disabled) {
+			this.jqDiv.find(".multiwidget_entry").attr("disabled", "disabled");
+		}
+		else if(this.forceFirstValue) {
+			this.jqDiv.find(".multiwidget_entry:not(:first)").removeAttr("disabled");
+		}
+		else {
+			this.jqDiv.find(".multiwidget_entry").removeAttr("disabled");
+		}
 	};
 	
 	MultiWidget.prototype.ajouterLigne = function() {
@@ -161,7 +178,6 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @param width Paramètre width du MultiWidget
 	 */
 	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength, forceFirstValue, width) {
-		
 		return {
 			getValFunction: function(jqElem) {
 				var val = parseInt(jqElem.attr("data-val"));

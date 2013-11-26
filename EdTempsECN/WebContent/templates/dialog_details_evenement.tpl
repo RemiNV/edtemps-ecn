@@ -49,11 +49,6 @@
 			%></td>
 		</tr>
 	</table>
-
-	<div class="boutons_valider">
-		<input type="button" class="button" value="Modifier" id="btnModifierEvenement" />
-		<input type="button" class="button" value="Supprimer" id="btnSupprimerEvenement" />
-	</div>
 </div>
 <div class="dialog_details_evenement_arrow_outer"></div>
 <div class="dialog_details_evenement_arrow_inner"></div>
