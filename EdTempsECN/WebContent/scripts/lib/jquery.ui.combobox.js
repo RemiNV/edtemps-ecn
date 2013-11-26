@@ -25,6 +25,7 @@
 				.addClass( "custom-combobox-input" )
 				.autocomplete({
 					delay: 0,
+					autoFocus: true,
 					minLength: 0,
 					source: $.proxy( this, "_source" )
 				});
