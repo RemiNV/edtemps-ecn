@@ -169,6 +169,17 @@ define(["RestManager"], function(RestManager) {
 		return false;
 	};
 	
+	var makeStrSalle = function(salles) {
+		var strSalles = "";
+		for(var j=0, maxj = salles.length; j<maxj; j++) {
+			if(j != 0)
+				strSalles += ", ";
+			strSalles += salles[j].nom;
+		}
+		
+		return strSalles;
+	};
+	
 	/**
 	 * Retourne un tableau d'évènements compatibles fullCalendar à partir d'évènements renvoyés par le serveur
 	 * (format complet, avec matières et types, classe EvenementComplet)
@@ -192,7 +203,7 @@ define(["RestManager"], function(RestManager) {
 				start: new Date(evenements[i].dateDebut),
 				end: new Date(evenements[i].dateFin),
 				salles: evenements[i].salles,
-				strSalle: strSalles,
+				strSalle: makeStrSalle(evenements[i].salles),
 				calendriers: evenements[i].calendriers,
 				intervenants: evenements[i].intervenants,
 				responsables: evenements[i].responsables,
@@ -222,14 +233,6 @@ define(["RestManager"], function(RestManager) {
 		
 		var res = new Array();
 		for(var i=0, max = evenements.length; i<max; i++) {
-			// Chaîne de salles
-			var strSalles = "";
-			for(var j=0, maxj = evenements[i].salles.length; j<maxj; j++) {
-				if(j != 0)
-					strSalles += ", ";
-				strSalles += evenements[i].salles[j].nom;
-			}
-			
 			// Récupération des types et matières pour cet évènement
 			var types = new Array();
 			var matieres = new Array();
@@ -256,7 +259,7 @@ define(["RestManager"], function(RestManager) {
 				start: new Date(evenements[i].dateDebut),
 				end: new Date(evenements[i].dateFin),
 				salles: evenements[i].salles,
-				strSalle: strSalles,
+				strSalle: makeStrSalle(evenements[i].salles),
 				calendriers: evenements[i].calendriers,
 				intervenants: evenements[i].intervenants,
 				responsables: evenements[i].responsables,

@@ -469,8 +469,8 @@ public class EvenementGestion {
 	
 	
 	/**
-	 * Liste les évènements liés à un responsable
-	 * @param idResponsable identifiant de l'utilisateur responsable des évènements à récupérer
+	 * Liste les évènements liés à un intervenant
+	 * @param idResponsable identifiant de l'utilisateur intervenant dans les évènements à récupérer
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @param dateDebut
 	 * @param dateFin
@@ -478,12 +478,12 @@ public class EvenementGestion {
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException
 	 */
-	public ArrayList<EvenementComplet> listerEvenementsResponsable(int idResponsable, Date dateDebut, Date dateFin, 
+	public ArrayList<EvenementComplet> listerEvenementsIntervenant(int idIntervenant, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
 		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 				"FROM edt.evenement " +
-				"INNER JOIN edt.responsableevenement ON evenement.eve_id = responsableevenement.eve_id " +
-				"WHERE responsableevenement.utilisateur_id = " + idResponsable + " "
+				"INNER JOIN edt.intervenantevenement ON evenement.eve_id = intervenantevenement.eve_id " +
+				"WHERE intervenantevenement.utilisateur_id = " + idIntervenant + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
 		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);

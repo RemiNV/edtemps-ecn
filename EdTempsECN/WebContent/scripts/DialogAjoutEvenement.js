@@ -307,7 +307,9 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 				effectif = 0;
 			}
 			
-			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, formData.calendrierCours, null, function(succes) {
+			var idEvenementIgnorer = this.evenementEdit ? this.evenementEdit.id : null;
+			
+			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, formData.calendrierCours, idEvenementIgnorer, function(succes) {
 				if(succes) {
 					me.jqDialog.find("#btn_rechercher_salle_evenement").removeAttr("disabled");
 					me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
@@ -641,10 +643,12 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			if(resultCode == RestManager.resultCode_Success) {
 				
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#input_proprietaires_evenement"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, { label: "vous-même", value: me.restManager.getUserId() }, 250));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, { label: "moi-même", value: me.restManager.getUserId() }, 250));
 				
 				me.multiWidgetIntervenants = new MultiWidget(me.jqDialog.find("#input_intervenants_evenement"), 
 						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, null, 250));
+				
+				me.multiWidgetIntervenants.setValues([{ label: "moi-même", value: me.restManager.getUserId() }]);
 				
 				if(me.evenementEdit) {
 					// Remplissage effectué à la fin de init()
@@ -717,7 +721,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		}
 		
 		if(this.multiWidgetIntervenants && this.multiWidgetProprietaires) {
-			this.multiWidgetIntervenants.clear();
+			this.multiWidgetIntervenants.setValues([{ label: "moi-même", value: this.restManager.getUserId() }]);
 			this.multiWidgetProprietaires.clear();
 		}
 		
