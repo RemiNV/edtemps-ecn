@@ -72,8 +72,8 @@
   </servlet>
   
   <servlet>
-      <servlet-name>EvenementsResponsable</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.impl.EvenementsResponsableServlet</servlet-class>
+      <servlet-name>EvenementsIntervenant</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.EvenementsIntervenantServlet</servlet-class>
   </servlet>
   
   <servlet>
@@ -212,7 +212,7 @@
   </servlet-mapping>
   
   <servlet-mapping>
-      <servlet-name>EvenementsResponsable</servlet-name>
+      <servlet-name>EvenementsIntervenant</servlet-name>
       <url-pattern>/mesevenements</url-pattern>
   </servlet-mapping>
   

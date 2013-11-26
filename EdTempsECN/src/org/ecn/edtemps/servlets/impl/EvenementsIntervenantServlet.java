@@ -14,11 +14,11 @@ import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
 /**
- * Servlet de récupération des évènements dont l'utilisateur est responsable
+ * Servlet de récupération des évènements pour lequel l'utilisateur est intervenant
  * 
  * @author Remi
  */
-public class EvenementsResponsableServlet extends QueryWithIntervalServlet {
+public class EvenementsIntervenantServlet extends QueryWithIntervalServlet {
 
 	private static final long serialVersionUID = -5366981082475128273L;
 
@@ -27,7 +27,7 @@ public class EvenementsResponsableServlet extends QueryWithIntervalServlet {
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
 		// Récupération des calendriers dont l'utilisateur est propriétaire
-		List<EvenementComplet> evenements = evenementGestion.listerEvenementsResponsable(userId, dateDebut, dateFin, true);
+		List<EvenementComplet> evenements = evenementGestion.listerEvenementsIntervenant(userId, dateDebut, dateFin, true);
 		
 		bdd.close();
 		

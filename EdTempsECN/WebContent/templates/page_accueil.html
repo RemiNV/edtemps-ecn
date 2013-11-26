@@ -3,7 +3,7 @@
 		<img src="img/icone_appli.png" alt="Emploi du temps ECN" id="logoAppli" />
 	</div>
 	
-	<span class="button" id="btn_ajout_evenement">+ Evénement</span>
+	<span class="button" id="btn_ajout_evenement">+ &Eacute;vénement</span>
 	
 	<div id="bloc_vos_agendas">
 		Vos agendas : <a href="#parametres/mes_abonnements" id="btn_gerer_agendas" class="button">Gérer</a>
@@ -18,7 +18,7 @@
 	
 	<ul id="nav_vue_agenda" class="button_nav">
 		<li class="selected" id="tab_mes_abonnements"><a href="#agenda/mes_abonnements">Mes abonnements</a></li>
-		<li id="tab_mes_evenements"><a href="#agenda/mes_evenements">Mes événements</a></li>
+		<li id="tab_mes_evenements"><a href="#agenda/mes_evenements">&Eacute;vénements dans lesquels j'interviens</a></li>
 		<li id="tab_vue_groupe"><a href="#agenda/vue_groupe">Vue groupe</a></li>
 		<li id="tab_vue_salle"><a href="#agenda/vue_salle">Vue salle</a></li>
 	</ul>
@@ -109,15 +109,15 @@
 		</tr>
 		<!-- Elements à masquer selon les droits de l'utilisateur -->
 		<tr id="choix_proprietaire">
-			<td>Propriétaires</td>
+			<td>Propriétaires <img alt="aide" class="help_icon" title="Donne les droits d'administration (modification/suppression)<br/>sur cet événement" src="img/help.png" /></td>
 			<td><input type="text" id="input_proprietaires_evenement" /></td>
 		</tr>
 		<tr id="choix_intervenants">
-			<td>Intervenants</td>
+			<td>Intervenants <img alt="aide" class="help_icon" title="L'événement s'affichera dans la page &quot;&Eacute;vénements dans lesquels j'interviens&quot;<br/>de ces utilisateurs" src="img/help.png" /></td>
 			<td><input type="text" id="input_intervenants_evenement" /></td>
 		</tr>
 		<tr>
-			<td>Rattachement aux calendriers : </td>
+			<td>Calendriers : </td>
 			<td id="calendriers_evenement">
 				<select class="select_calendriers"></select>
 			</td>
