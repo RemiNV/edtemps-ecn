@@ -122,9 +122,14 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		bdd.close();
 	}
 	
-	/** Fonction de création d'un calendrier 
+	/** Fonction de création d'un calendrier
+	 *  
+	 * @param casModifier
+	 * @param userId
+	 * @param calendrierGestion
+	 * @param req
+	 * @throws EdtempsException
 	 * 
-	 * @throws EdtempsException 
 	 */
 	private void creationOuModificationCalendrier(boolean casModifier, int userId, CalendrierGestion calendrierGestion, HttpServletRequest req) throws EdtempsException {
 		
@@ -150,20 +155,33 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		  idProprietaires.add(Integer.parseInt(s)); 
 		}
 		
+		// Récupération des ID des groupes parents (via parsing manuel du JSON)
+		ArrayList<Integer> idGroupesParents = new ArrayList<Integer>();
+		String stringIdGroupesParents = req.getParameter("idGroupesParents");
+		//Parsing manuel de la chaine JSON. Ex de chaine : "["1","2","33"]"
+		stringIdGroupesParents = stringIdGroupesParents.replace("[", "");
+		stringIdGroupesParents = stringIdGroupesParents.replace("]", "");
+		stringIdGroupesParents = stringIdGroupesParents.replace("\"", "");
+		String[] tableauIdGroupesParents = stringIdGroupesParents.split(",");
+		//Ajout des id à la liste des propriétaires
+		for (String s : tableauIdGroupesParents) {
+		  idGroupesParents.add(Integer.parseInt(s)); 
+		}
+		
 		// Cas de MODIFICATION d'un calendrier
 		if (casModifier) {
 			int id = Integer.parseInt(req.getParameter("id"));
 			// Création d'un calendrier identifié, contenant les informations récupérées
 			CalendrierIdentifie cal = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
 			// Modification du calendrier = modification de la ligne correspondante dans la BDD
-			calendrierGestion.modifierCalendrier(cal);
+			calendrierGestion.modifierCalendrier(cal, idGroupesParents);
 		}
 		// Cas de CREATION d'un calendrier
 		else {
 			// Création d'un calendrier contenant les informations récupérées
 			Calendrier cal = new Calendrier(nom, type, matiere, idProprietaires);
 			// Création du calendrier = ajout du calendrier dans la BDD
-			calendrierGestion.sauverCalendrier(cal);
+			calendrierGestion.sauverCalendrier(cal, idGroupesParents);
 		}
 	}
 

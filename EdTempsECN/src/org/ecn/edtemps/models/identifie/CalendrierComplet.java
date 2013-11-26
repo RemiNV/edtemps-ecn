@@ -1,4 +1,7 @@
+
 package org.ecn.edtemps.models.identifie;
+
+import java.util.List;
 
 import javax.json.JsonObjectBuilder;
 
@@ -8,12 +11,15 @@ import org.ecn.edtemps.json.JSONUtils;
  * Calendrier avec des champs en plus qui sont utiles uniquement dans certains cas.
  * Par exemple le champ estCours qui permet de savoir si le calendrier est attaché à au moins un groupe de participants qui est un cours
  * 
- * @author Joffrey
+ * @author Maxime TERRADE
  */
 public class CalendrierComplet extends CalendrierIdentifie {
 
 	/** Booléen pour savoir si le calendrier est rattaché à un groupe qui est un groupe de cours */
 	protected boolean estCours;
+	
+	/** Liste contenant les id des groupes rattachés aux calendriers (hormis le groupe unique) */
+	protected List<Integer> idGroupesParents;
 	
 	/**
 	 * Constructeur
@@ -22,10 +28,13 @@ public class CalendrierComplet extends CalendrierIdentifie {
 	 * 			Calendrier identifié
 	 * @param estCours
 	 * 			VRAI si le calendrier est rattaché à un groupe qui est un cours
+	 * @param idGroupesParticipants
+	 * 			liste des id des groupes auxquels est rattaché le calendrier (hormis le groupe unique)
 	 */
-	public CalendrierComplet(CalendrierIdentifie calendrier, boolean estCours) {
+	public CalendrierComplet(CalendrierIdentifie calendrier, boolean estCours, List<Integer> idGroupesParents) {
 		super(calendrier.getNom(), calendrier.getType(), calendrier.getMatiere(), calendrier.getIdProprietaires(), calendrier.getId());
 		this.estCours = estCours;
+		this.idGroupesParents = idGroupesParents;
 	}
 	
 	@Override
@@ -33,7 +42,7 @@ public class CalendrierComplet extends CalendrierIdentifie {
 		JsonObjectBuilder builder = super.makeObjectBuilder();
 		
 		return builder.add("estCours", this.estCours)
-			.add("proprietaires", JSONUtils.getJsonIntArray(this.idProprietaires));
+			.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents));
 	}
 
 }
