@@ -4,8 +4,8 @@
  * @module EcranAccueil
  */
 define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "GroupeGestion", 
-        "DialogAjoutEvenement", "RestManager", "jquery", "jqueryui"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
-        		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager) {
+        "DialogAjoutEvenement", "RestManager", "underscore", "jquery", "jqueryui", "jquerycombobox"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
+        		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager, _) {
 	
 	/**
 	 * @constructor
@@ -18,6 +18,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.evenementGestion = new EvenementGestion(this.restManager);
 		this.groupeGestion = new GroupeGestion(this.restManager);
 		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
+		this.initListeGroupesFait = false;
+		this.initListeSallesFait = false;
 		
 		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
 		
@@ -79,20 +81,30 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		switch(vue) {
 		case "vue_groupe":
 			$("#nav_vue_agenda #tab_vue_groupe").addClass("selected");
+			$("#choix_salle").css("display", "none");
+			$("#choix_groupe").css("display", "block");
+			this.initListeGroupes();
 			this.mode = EcranAccueil.MODE_GROUPE;
 			break;
 		case "vue_salle":
 			$("#nav_vue_agenda #tab_vue_salle").addClass("selected");
+			$("#choix_salle").css("display", "block");
+			$("#choix_groupe").css("display", "none");
+			this.initListeSalles();
 			this.mode = EcranAccueil.MODE_SALLE;
 			break;
 		
 		case "mes_evenements":
+			$("#choix_salle").css("display", "none");
+			$("#choix_groupe").css("display", "none");
 			$("#nav_vue_agenda #tab_mes_evenements").addClass("selected");
 			this.mode = EcranAccueil.MODE_MES_EVENEMENTS;
 			break;
 			
 		case "mes_abonnements":
 		default:
+			$("#choix_salle").css("display", "none");
+			$("#choix_groupe").css("display", "none");
 			$("#nav_vue_agenda #tab_mes_abonnements").addClass("selected");
 			this.mode = EcranAccueil.MODE_MES_ABONNEMENTS;
 			break;
@@ -102,6 +114,53 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			this.calendrier.refetchEvents();
 		}
 	};
+	
+	EcranAccueil.prototype.initListeGroupes = function() {
+		if(this.initListeGroupesFait) {
+			return;
+		}
+		
+		var me = this;
+		this.restManager.effectuerRequete("GET", "groupeparticipants/lister", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				// Utilisation d'un template compilé pour accélérer (j'imagine ?) la génération des lignes
+				var optionTpl = _.template("<option value='<%= value %>'><%= label %></option>");
+				var groupes = data.data;
+				var lstGroupes = $("#select_choix_groupe");
+				
+				for(var i=0, maxI=groupes.length; i<maxI; i++) {
+					lstGroupes.append(optionTpl({
+						value: groupes[i].id,
+						label: groupes[i].nom
+					}));
+				}
+				
+				lstGroupes.combobox();
+				$("#message_chargement_groupes").css("display", "none");
+				me.initListeGroupesFait = true;
+			}
+			else if(data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Echec de la récupération des groupes ; vérifiez votre connexion");
+			}
+			else {
+				window.showToast("Erreur lors de la récupération des groupes");
+			}
+		});
+	};
+	
+	EcranAccueil.prototype.initListeSalles = function() {
+		if(this.initListeSallesFait) {
+			return;
+		}
+		
+		// TODO : écrire
+		
+		// TODO : assignation à mettre dans le succès du callback de la requête
+		// this.initListeSallesFait = true;
+	};
+	
 	
 	/**
 	 * Fonction appelée par fullCalendar lorsque le mécanisme de "fetch" est déclenché
