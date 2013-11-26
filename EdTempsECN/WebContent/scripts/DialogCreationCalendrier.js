@@ -69,43 +69,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		});
 		
 		// Remplir les groupes parents potentiels
-		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
-			token: this.restManager.getToken()
-		}, function(data) {
-			if (data.resultCode == RestManager.resultCode_Success) {
-				// on crée une chaine contenant un select avec tous les parents disponibles
-				var str = "<select class='form_creer_calendrier_parent'><option value='-1'>---</option>";
-				for (var i=0; i<data.data.listeGroupes.length; i++) {
-					str += "<option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"</option>";
-				}
-				str += "</select>";
-				// on stocke les groupes parents potentiels dans une variable
-				me.listeGroupesParents = str;
-				// on affiche la première liste déroulante de parents potentiels avec le bouton 'ajout groupe parent'
-				str = "<div>" + 
-					    str +
-				      "<img src='img/ajout.png' alt='Ajouter un parent' " +
-				      "id='form_creer_calendrier_ajout_parent' class='multiwidget_btn' />" +
-				      "</div>";
-				me.jqDialog.find('#form_creer_calendrier_parents').append(str);
-					
-				// Remplir groupes parents 
-				if (groupesParents.length != 0) {
-					me.remplirGroupesParents(groupesParents);
-				}
-				
-				// Listener bouton "Ajouter rattachement"
-				me.jqDialog.find("#form_creer_calendrier_ajout_parent").click(function() {
-					me.ajouterGroupeParent();
-				});
-				
-			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; vérifiez votre connexion.");
-			} else {
-				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
-			}
-		});
-
+		me.remplirGroupesParents(groupesParents);
 		
 		// Listener bouton "Annuler"
 		this.jqDialog.find("#form_creer_calendrier_annuler").click(function() {
@@ -134,10 +98,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 				if(me.multiWidgetProprietaires != null) {
 					me.multiWidgetProprietaires.clear();
 				}
-				// on réinitialse les groupes parents
-				me.jqDialog.find(".form_creer_calendrier_parent:not(:first)").remove();
-				me.jqDialog.find(".form_creer_calendrier_supprimer_parent").remove();
-				me.jqDialog.find(".form_creer_calendrier_parent option[value=-1]").prop('selected', true);
+				// on ne réinitialise pas les groupes parents : ils le seront à la réouverture du dialog
 				// on désactive le bouton valider
 				me.jqDialog.find("#form_creer_calendrier_valider").unbind( "click" );
 			}
@@ -188,6 +149,10 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			if(!this.initAppele) {
 				this.init("","", new Array(), new Array()); //Matière = Aucune, Type = Aucun, pas de propriétaires et groupes parents
 				this.initAppele = true;
+			}
+			else {
+				// Mise à jour des groupes parents potentiels
+				this.remplirGroupesParents(new Array());
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Création d'un nouveau calendrier");
@@ -275,18 +240,56 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	};
 	
 	/**
-	 * Méthode qui remplit les groupes parents d'un calendrier à modifier 
+	 * Méthode qui charge le contenu des combobox groupes parents 
+	 * Elle affiche par ailleurs les groupes parents existants (dans le cas d'une modification)
 	 * 
 	 * @param groupesParents (tableau) : id des groupes parents du calendrier
+	 * 			S'il est vide, il n'y a aucun parent ou il s'agit d'une fenetre de création de calendrier
 	 */
 	DialogCreationCalendrier.prototype.remplirGroupesParents = function(groupesParents) {
 		var me = this;
-		me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParents[0] + "]").prop('selected', true);
-		for (var i=1, maxI=groupesParents.length; i<maxI; i++) {
-			me.ajouterGroupeParent();
-			me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParents[i] + "]").prop('selected', true);
-		}
-	
+		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				// on crée une chaine contenant un select avec tous les parents disponibles
+				var str = "<select class='form_creer_calendrier_parent'><option value='-1'>---</option>";
+				for (var i=0; i<data.data.listeGroupes.length; i++) {
+					str += "<option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"</option>";
+				}
+				str += "</select>";
+				// on stocke les groupes parents potentiels dans une variable
+				me.listeGroupesParents = str;
+				// on affiche la première liste déroulante de parents potentiels avec le bouton 'ajout groupe parent'
+				str = "<div>" + 
+					    str +
+				      "<img src='img/ajout.png' alt='Ajouter un parent' " +
+				      "id='form_creer_calendrier_ajout_parent' class='multiwidget_btn' />" +
+				      "</div>";
+				me.jqDialog.find('#form_creer_calendrier_parents').html(str);
+					
+				// Remplir groupes parents 
+				if (groupesParents.length != 0) {
+					me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParents[0] + "]").prop('selected', true);
+					for (var i=1, maxI=groupesParents.length; i<maxI; i++) {
+						me.ajouterGroupeParent();
+						me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParents[i] + "]").prop('selected', true);
+					}
+				
+				}
+				
+				// Listener bouton "Ajouter rattachement"
+				me.jqDialog.find("#form_creer_calendrier_ajout_parent").click(function() {
+					me.ajouterGroupeParent();
+				});
+				
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; vérifiez votre connexion.");
+			} else {
+				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
+			}
+		});
+		
 	};
 	
 	/**

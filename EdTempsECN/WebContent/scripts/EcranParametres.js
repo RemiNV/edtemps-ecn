@@ -35,11 +35,21 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	 * @param {string} tab Onglet à afficer : "mes_abonnements", "mes_agendas" ou "mes_groupes"
 	 */
 	EcranParametres.prototype.init = function(tab) {
-		
+		var me = this;
 		// Initialisaion de la navigation par tabs
 		$("#tabs").tabs({
 			activate: function(event, ui) {
 				Davis.location.replace(ui.newPanel.get(0).id);
+				// Initialisation de l'onglet correspondant
+				if (ui.newPanel.get(0).id == "parametres/mes_abonnements"){	 
+					me.initMesAbonnements(); //NE MARCHE PAS CORRECTEMENT 
+				}
+				else if (ui.newPanel.get(0).id == "parametres/mes_agendas"){
+					me.initMesCalendriers();
+				}
+				else if (ui.newPanel.get(0).id == "parametres/mes_groupes"){
+					me.initMesGroupes();
+				}
 			},
 			active: idTabs[tab]
 		});
@@ -57,13 +67,8 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		});
 		
 		this.initMesAbonnements();
-
-		// A voir : est qu'on fait tout au démarrage de la page "Paramètres" ou lorsqu'on clique sur un onglet
-		// -> tout au démarrage => 1 seul requete si on veut
 		this.initMesCalendriers();
-		
 		this.initMesGroupes();
-		
 	};
 
 	/**
@@ -235,7 +240,6 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	 * @param {string} tab Onglet à afficher : "mes_abonnement", "mes_agendas" ou "mes_groupes" 
 	 */
 	EcranParametres.prototype.showTab = function(tab) {
-		
 		$("#tabs").tabs("option", "active", idTabs[tab]);
 	};
 	
