@@ -307,7 +307,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 				effectif = 0;
 			}
 			
-			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, formData.calendrierCours, function(succes) {
+			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, formData.calendrierCours, null, function(succes) {
 				if(succes) {
 					me.jqDialog.find("#btn_rechercher_salle_evenement").removeAttr("disabled");
 					me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");

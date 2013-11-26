@@ -285,26 +285,18 @@ public class SalleGestion {
 
 	/**
 	 * Listing des salles disponibles pour la création d'un nouvel événement
-	 * 
-	 * @param dateDebut
-	 *			date de début de l'événement
-	 * @param dateFin
-	 *			date de fin de l'événement
-	 * @param materiels
-	 *			liste de matériel nécessaire dans la salle recherchée
-	 * @param capacite
-	 *			nombre de personne que la salle doit pouvoir accueillir
-	 *
+	 * @param dateDebut Date de début de l'événement
+	 * @param dateFin Date de fin de l'événement
+	 * @param materiels Liste de matériel nécessaire dans la salle recherchée
+	 * @param capacite Nombre de personne que la salle doit pouvoir accueillir
 	 * @param sallesOccupeesNonCours Renvoyer aussi les salles occupées par des évènements autres que des cours
-	 *
 	 * @param createTransaction Nécessité de créer les transactions dans cette méthode, sinon appeler dans une transaction
-	 *
+	 * @param idEvenementIgnorer Evénement à ignorer en recherchant la disponibilité (si on modifie un événement notamment)
 	 * @return Liste des salles disponibles
-	 * 
 	 * @throws DatabaseException
 	 */
 	public ArrayList<SalleRecherche> rechercherSalle(Date dateDebut, Date dateFin, ArrayList<Materiel> materiels, 
-			int capacite, boolean sallesOccupeesNonCours, boolean createTransaction) throws DatabaseException {
+			int capacite, boolean sallesOccupeesNonCours, boolean createTransaction, Integer idEvenementIgnorer) throws DatabaseException {
 
 		String requeteString =
 		"SELECT salle.salle_id, salle.salle_batiment, salle.salle_niveau, salle.salle_nom, salle.salle_numero, salle.salle_capacite, " +
@@ -326,6 +318,11 @@ public class SalleGestion {
 		requeteString += " LEFT JOIN edt.alieuensalle ON alieuensalle.salle_id = salle.salle_id "
 				+ "LEFT JOIN edt.evenement ON evenement.eve_id = alieuensalle.eve_id " 
 				+ "AND (evenement.eve_datedebut < ?) AND (evenement.eve_datefin > ?) ";
+		
+		// S'il faut ignorer un événement
+		if (idEvenementIgnorer!=null && idEvenementIgnorer>0) {
+			requeteString += "AND (evenement.eve_id <> "+idEvenementIgnorer+") ";
+		}
 		
 		// Lien avec les groupes de participants : repérer si l'évènement de la salle est un cours
 		if(sallesOccupeesNonCours) {
