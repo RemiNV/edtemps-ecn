@@ -42,7 +42,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 				Davis.location.replace(ui.newPanel.get(0).id);
 				// Rechargement des abonnements/groupes/calendriers au changement d'onglet
 				if (ui.newPanel.get(0).id == "parametres/mes_abonnements"){	 
-					me.initMesAbonnements(); //NE MARCHE PAS CORRECTEMENT 
+					me.initMesAbonnements();
 				}
 				else if (ui.newPanel.get(0).id == "parametres/mes_agendas"){
 					me.afficheListeMesCalendriers();
@@ -188,6 +188,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 						});
 					}
 				});	
+				$("#select-abonnements").multiSelect('refresh');
 				
 				// Mise en forme des abonnements indirectes à ce groupe (=> parcours des abonnements directs)
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
