@@ -2,6 +2,7 @@ package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.json.Json;
@@ -24,6 +25,7 @@ import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.models.identifie.GroupeComplet;
+import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
@@ -48,17 +50,10 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	@Override
 	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/ajouter") && !pathInfo.equals("/modifier") && !pathInfo.equals("/supprimer") && !pathInfo.equals("/get") ) {
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-			bdd.close();
-			return;
-		}
 
 		try {
-
-			// Renvoies vers les différentes fonctionnalités
+			// Renvoie vers les différentes fonctionnalités
 			switch (pathInfo) {
 				case "/ajouter":
 					doAjouterGroupeParticipants(userId, bdd, req, resp);
@@ -69,9 +64,8 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 				case "/supprimer":
 					doSupprimerGroupeParticipants(bdd, req, resp);
 					break;
-				case "/get":
-					doGetGroupeParticipants(bdd, req, resp);
-					break;
+				default: // Fonctionnalité non supportée
+					resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			}
 
 			// Ferme l'accès à la base de données
@@ -81,11 +75,46 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format de l'objet JSON 'groupe de participants' incorrect", null));
 			bdd.close();
 		} catch(EdtempsException e) {
-			logger.error("Erreur lors de l'ajout/modification/suppression/récupération d'un groupe de participants", e);
+			logger.error("Erreur lors de l'ajout/modification/suppression d'un groupe de participants", e);
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 			bdd.close();
 		}
+	}
+	
+	/**
+	 * Méthode générale du servlet appelée par la requête GET
+	 * Elle redirige vers les différentes fonctionnalités possibles
+	 * 
+	 * @param userId Identifiant de l'utilisateur qui a fait la requête
+	 * @param bdd Gestionnaire de la base de données
+	 * @param req Requête
+	 * @param resp Réponse pour le client
+	 */
+	@Override
+	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		String pathInfo = req.getPathInfo();
 
+		try {
+			// Renvoie vers les différentes fonctionnalités
+			switch (pathInfo) {
+				case "/get":
+					doGetGroupeParticipants(bdd, req, resp);
+					break;
+				case "/lister":
+					doListerGroupesParticipants(bdd, req, resp);
+					break;
+				default: // Fonctionnalité non supportée
+					resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+			}
+
+			// Ferme l'accès à la base de données
+			bdd.close();
+		
+		} catch(EdtempsException e) {
+			logger.error("Erreur lors de l'opération de récupération/listing d'un groupe de participants", e);
+			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			bdd.close();
+		}
 	}
 
 	
@@ -219,6 +248,20 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		GroupeComplet groupe = groupeGestion.getGroupeComplet(Integer.valueOf(req.getParameter("id")));
 		JsonValue data = Json.createObjectBuilder().add("groupe", groupe.toJson()).build();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe récupéré", data));
+	}
+	
+	/**
+	 * Listing de tous les groupes de participants
+	 * @param bdd Gestionnaire de la base de données
+	 * @param req Requête
+	 * @param resp Réponse à compléter
+	 * @throws EdtempsException
+	 * @throws IOException
+	 */
+	protected void doListerGroupesParticipants(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		ArrayList<GroupeIdentifie> groupes = groupeGestion.listerGroupes(true, false);
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupes récupérés", JSONUtils.getJsonArray(groupes)));
 	}
 
 }

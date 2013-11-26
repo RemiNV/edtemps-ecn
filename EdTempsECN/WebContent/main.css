@@ -145,6 +145,10 @@ ul.button_nav li:last-child {
 	text-align: right;
 }
 
+.spinner_chargement {
+	vertical-align: bottom;
+}
+
 table.liste_materiel {
 	border-collapse: collapse;
 	font-size: 0.9em;
@@ -679,4 +683,12 @@ input.valide {
 /** Modifications fullcalendar */
 .fc-event {
 	cursor: pointer; /* Même les événements non draggable ont une popup */
+}
+
+/** Choix du groupe et de la salle pour les vues groupe et salle */
+#choix_groupe, #choix_salle {
+	clear: left;
+	position: relative;
+	top: 15px;
+	height: 0px;
 }

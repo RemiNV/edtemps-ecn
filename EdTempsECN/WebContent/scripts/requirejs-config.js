@@ -14,7 +14,8 @@ var require = {
 		underscore: "lib/underscore-min",
 		davis: "lib/davis.min",
 		underscore: "lib/underscore-min",
-		jqueryquicksearch: "lib/jquery.quicksearch" // Bibliothèque effectuant le tri dans le jquerymultiselect
+		jqueryquicksearch: "lib/jquery.quicksearch", // Bibliothèque effectuant le tri dans le jquerymultiselect
+		jquerycombobox: "lib/jquery.ui.combobox"
 	},
 
 	/* Configuration des bibliothèques non AMD (non compatibles avec 
@@ -51,6 +52,10 @@ var require = {
 		
 		"jquerymaskedinput": {
 			deps: ["jquery"]
+		},
+		
+		"jquerycombobox": {
+			deps: ["jqueryui"]
 		},
 		
 		"underscore": {

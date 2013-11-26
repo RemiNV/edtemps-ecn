@@ -24,6 +24,26 @@
 	</ul>
 	
 	<span id="btn_chercher_salle" class="button">Chercher une salle libre</span>
+	
+	<div id="choix_groupe" style="display: none">
+		Afficher les événements du groupe : 
+		<select id="select_choix_groupe">
+		</select>
+		<span id="message_chargement_groupes">
+			<img src="img/spinner_chargement_small.gif" class="spinner_chargement" alt="chargement" />Chargement des groupes...
+		</span>
+	</div>
+	
+	<div id="choix_salle" style="display: none">
+		Afficher les événements de la salle :
+		<select id="select_choix_salle">
+		</select>
+		<span id="message_chargement_salles">
+			<img src="img/spinner_chargement_small.gif" class="spinner_chargement" alt="chargement" />Chargement des salles...
+		</span>
+	</div>
+	
+	
 	<div id="recherche_salle_libre">
 		<div id="form_chercher_salle" title="Formulaire de recherche d'une salle libre">
 			<form>
@@ -56,7 +76,7 @@
 					</table>
 					
 					<div id="form_chercher_salle_chargement" style="display: none">
-						<img src="img/spinner_chargement_outer_small.gif" alt="chargement" />
+						<img src="img/spinner_chargement_outer_small.gif" class="spinner_chargement" alt="chargement" />
 						<span id="form_chercher_salle_message_chargement"></span>
 					</div>
 				</div>
@@ -171,7 +191,7 @@
 	</div>
 	
 	<div id="dialog_ajout_evenement_chargement" style="display: none">
-		<img src="img/spinner_chargement_outer_small.gif" alt="chargement" />
+		<img src="img/spinner_chargement_outer_small.gif" class="spinner_chargement" alt="chargement" />
 		<span id="dialog_ajout_evenement_message_chargement"></span>
 	</div>
 
