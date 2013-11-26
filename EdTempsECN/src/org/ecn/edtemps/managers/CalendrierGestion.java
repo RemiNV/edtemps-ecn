@@ -604,8 +604,8 @@ public class CalendrierGestion {
 				// récupération des parents du calendrier
 				ResultSet rs_idGroupesParents = _bdd.executeRequest(
 						"SELECT cag.groupeparticipant_id, cag.groupeparticipant_id_tmp "
-						+ "FROM edt.calendrierappartientgroupe AS cag "
-						+ "LEFT JOIN edt.groupeparticipant AS gp ON gp.groupeparticipant_id = cag.groupeparticipant_id "
+						+ "FROM edt.calendrierappartientgroupe cag "
+						+ "LEFT JOIN edt.groupeparticipant gp ON gp.groupeparticipant_id = cag.groupeparticipant_id "
 						+ "WHERE cal_id = " + calendrier.getId()
 						+ "AND (gp.groupeparticipant_estCalendrierUnique = FALSE OR gp.groupeparticipant_id IS NULL)"
 				);
