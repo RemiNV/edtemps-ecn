@@ -276,9 +276,13 @@ table.liste_materiel th {
 	display: none;
 }
 
-#form_creer_calendrier label{
+#form_creer_calendrier label {
 	margin-left: 20px;
-	margin-right: 20px; 	
+	margin-right: 40px;	
+}
+
+#form_creer_calendrier_table td {
+	padding-top: 10px; 	
 }
 
 #form_creer_calendrier_boutons {
@@ -288,7 +292,10 @@ table.liste_materiel th {
 
 #form_creer_calendrier_nom, #form_creer_calendrier_matiere, #form_creer_calendrier_type {
 	width: 250px;
-	margin-bottom: 5px;
+}
+
+.form_creer_calendrier_parent {
+	width: 225px;
 }
 
 #btn_creer_calendrier {

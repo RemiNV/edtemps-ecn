@@ -20,6 +20,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		// Liste des propriétaires potentiels = de tous les utilisateurs
 		this.listeProprietairesPotentiels = new Array(); //pour l'autocomplete JqueryUI
 		this.listeProprietairesPotentielsIndex = new Array(); //pour compléter les autocomplete
+		this.listeGroupesParents = new Array();
 		this.initAppele = false;
 		this.multiWidgetProprietaires = null;
 	};
@@ -28,7 +29,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	/**
 	 * Initialise la boîte de dialogue de création d'un calendrier
 	 */
-	DialogCreationCalendrier.prototype.init = function(matiere, type, proprietaires) {
+	DialogCreationCalendrier.prototype.init = function(matiere, type, proprietaires, groupesParents) {
 		var me = this;
 
 		// Remplir les combobox matieres et types
@@ -40,7 +41,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			}
 		});
 		
-		// Récupérer propriétaires potentiels
+		// Récupérer propriétaires potentiels et remplir les proprietaires du calendrier à modifier (si modification)
 		this.utilisateurGestion.recupererProprietairesPotentielsAutocomplete(function(resultCode, utilisateurs) {
 			if (resultCode == RestManager.resultCode_Success) {
 				// Enregistrement des utilisateurs potentiels récupérés dans une variable, pour accès futur
@@ -52,23 +53,14 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 					user.tooltip = utilisateurs[i].tooltip;
 					me.listeProprietairesPotentielsIndex[utilisateurs[i].value] = user;
 				}
-				console.log(me.listeProprietairesPotentielsIndex);
 				// Création des autocomplete pour les propriétaires
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#form_creer_calendrier_input_proprietaire"), 
 						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 3, { label: "Vous-même", value: me.restManager.getUserId() }, 225));
 				// On remplir les proprietaires (dans le cas d'une modification de calendrier)
-				var listeProprietairesCalendrier = new Array();
-				for (var i=0, maxI=proprietaires.length; i<maxI; i++) {
-					var user = new Object();
-					var idProprio = proprietaires[i];
-					user.label = me.listeProprietairesPotentielsIndex[idProprio].label;
-					user.value = idProprio;
-					user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
-					if (user.value!=me.restManager.getUserId()) {
-						listeProprietairesCalendrier.push(user);
-					}
+				if (proprietaires.length != 0) {
+					me.remplirProprietaires(proprietaires);
 				}
-				me.multiWidgetProprietaires.setValues(listeProprietairesCalendrier);
+				
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
 			} else {
@@ -76,15 +68,18 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			}
 		});
 		
+		// Remplir les groupes parents potentiels
+		me.remplirGroupesParents(groupesParents);
+		
 		// Listener bouton "Annuler"
 		this.jqDialog.find("#form_creer_calendrier_annuler").click(function() {
 			me.jqDialog.dialog("close");
 		});
 		
-		// Affiche dialog de création d'un calendrier
+		// Crée la boite de dialog de création/modification d'un calendrier
 		this.jqDialog.dialog({
 			autoOpen: false,
-			width: 440,
+			width: 500,
 			modal: true,
 			show: {
 				effect: "fade",
@@ -100,7 +95,10 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 				me.matiere.val("");
 				me.type.val("");
 				// on réinitialise les propriétaires	
-				me.reinitialiserProprietaires();
+				if(me.multiWidgetProprietaires != null) {
+					me.multiWidgetProprietaires.clear();
+				}
+				// on ne réinitialise pas les groupes parents : ils le seront à la réouverture du dialog
 				// on désactive le bouton valider
 				me.jqDialog.find("#form_creer_calendrier_valider").unbind( "click" );
 			}
@@ -125,26 +123,17 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		if (casModifier) {
 			// Si pas déjà fait, initialiser la boite de dialogue (listeners, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires); 
+				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires, calendrierAModifier.groupesParents); 
 				this.initAppele = true;
 			}
 			else {
 				// On met affiche la matiere / le type du calendrier
 				this.matiere.val(calendrierAModifier.matiere); 
 				this.type.val(calendrierAModifier.type);
-				// On remplir les proprietaires
-				var listeProprietairesCalendrier = new Array();
-				for (var i=0, maxI=calendrierAModifier.proprietaires.length; i<maxI; i++) {
-					var user = new Object();
-					var idProprio = calendrierAModifier.proprietaires[i];
-					user.label = me.listeProprietairesPotentielsIndex[idProprio].label;
-					user.value = idProprio;
-					user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
-					if (user.value!=me.restManager.getUserId()) {
-						listeProprietairesCalendrier.push(user);
-					}
-				}
-				me.multiWidgetProprietaires.setValues(listeProprietairesCalendrier);
+				// On remplit les proprietaires
+				this.remplirProprietaires(calendrierAModifier.proprietaires);
+				// On remplit les groupes parents
+				this.remplirGroupesParents(calendrierAModifier.groupesParents);
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Modifier le calendrier");
@@ -158,8 +147,12 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		else {
 			// Si pas déjà fait, initialiser la boite de dialogue (listener, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				this.init("","", new Array()); //Matière = Aucune et type = Aucun
+				this.init("","", new Array(), new Array()); //Matière = Aucune, Type = Aucun, pas de propriétaires et groupes parents
 				this.initAppele = true;
+			}
+			else {
+				// Mise à jour des groupes parents potentiels
+				this.remplirGroupesParents(new Array());
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Création d'un nouveau calendrier");
@@ -227,13 +220,100 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	
 	
 	/**
-	 * Méthode qui reinitialise le contrôle "proprietaires"
+	 * Méthode qui ajoute une ligne "groupe parent"
 	 */
-	DialogCreationCalendrier.prototype.reinitialiserProprietaires = function() {
-		if(this.multiWidgetProprietaires != null) {
-			this.multiWidgetProprietaires.clear();
-		}
+	DialogCreationCalendrier.prototype.ajouterGroupeParent = function() {
+		var me = this;
+		// on affiche une nouvelle liste déroulante de groupes parcipants potentiels
+		var str = "<div>" + 
+			       me.listeGroupesParents +
+			      "<img src='img/corbeille.png' alt='Supprimer un parent' " +
+			      "class='form_creer_calendrier_supprimer_parent multiwidget_btn' />" +
+			      "</div>";
+		me.jqDialog.find('#form_creer_calendrier_parents').append(str);
+		// listener bouton suppression
+		me.jqDialog.find(".form_creer_calendrier_supprimer_parent").click(function() {
+			$(this).prev().remove();
+			$(this).remove();
+		});
+	
 	};
+	
+	/**
+	 * Méthode qui charge le contenu des combobox groupes parents 
+	 * Elle affiche par ailleurs les groupes parents existants (dans le cas d'une modification)
+	 * 
+	 * @param groupesParents (tableau) : id des groupes parents du calendrier
+	 * 			S'il est vide, il n'y a aucun parent ou il s'agit d'une fenetre de création de calendrier
+	 */
+	DialogCreationCalendrier.prototype.remplirGroupesParents = function(groupesParents) {
+		var me = this;
+		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if (data.resultCode == RestManager.resultCode_Success) {
+				// on crée une chaine contenant un select avec tous les parents disponibles
+				var str = "<select class='form_creer_calendrier_parent'><option value='-1'>---</option>";
+				for (var i=0; i<data.data.listeGroupes.length; i++) {
+					str += "<option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"</option>";
+				}
+				str += "</select>";
+				// on stocke les groupes parents potentiels dans une variable
+				me.listeGroupesParents = str;
+				// on affiche la première liste déroulante de parents potentiels avec le bouton 'ajout groupe parent'
+				str = "<div>" + 
+					    str +
+				      "<img src='img/ajout.png' alt='Ajouter un parent' " +
+				      "id='form_creer_calendrier_ajout_parent' class='multiwidget_btn' />" +
+				      "</div>";
+				me.jqDialog.find('#form_creer_calendrier_parents').html(str);
+					
+				// Remplir groupes parents 
+				if (groupesParents.length != 0) {
+					me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParents[0] + "]").prop('selected', true);
+					for (var i=1, maxI=groupesParents.length; i<maxI; i++) {
+						me.ajouterGroupeParent();
+						me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParents[i] + "]").prop('selected', true);
+					}
+				
+				}
+				
+				// Listener bouton "Ajouter rattachement"
+				me.jqDialog.find("#form_creer_calendrier_ajout_parent").click(function() {
+					me.ajouterGroupeParent();
+				});
+				
+			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; vérifiez votre connexion.");
+			} else {
+				window.showToast("Erreur de récupération de la liste des groupes parents disponibles ; votre session a peut-être expiré ?");
+			}
+		});
+		
+	};
+	
+	/**
+	 * Méthode qui remplit les propriétaires d'un calendrier à modifier 
+	 * 
+	 * @param proprietaires (tableau) : id des proprietaires du calendrier
+	 */
+	DialogCreationCalendrier.prototype.remplirProprietaires = function(proprietaires) {
+		var me = this;
+		var listeProprietairesCalendrier = new Array();
+		for (var i=0, maxI=proprietaires.length; i<maxI; i++) {
+			var user = new Object();
+			var idProprio = proprietaires[i];
+			user.label = me.listeProprietairesPotentielsIndex[idProprio].label;
+			user.value = idProprio;
+			user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
+			if (user.value!=me.restManager.getUserId()) {
+				listeProprietairesCalendrier.push(user);
+			}
+		}
+		me.multiWidgetProprietaires.setValues(listeProprietairesCalendrier);
+	};
+	
+	
 	
 	/**
 	 * Méthode qui vérifie que le formulaire est remplit correctement
@@ -275,10 +355,19 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			//Récupérer les id des proprio
 			var idProprietaires = me.multiWidgetProprietaires.val();
 			var idProprietairesJson = JSON.stringify(idProprietaires);
+			//Récupérer les id des groupes parents
+			var idGroupesParents = new Array();
+			this.jqDialog.find(".form_creer_calendrier_parent").each(function() {
+				var val = $(this).val(); 
+				if(val != -1) {
+					idGroupesParents.push(val);
+				}
+			});
+			var idGroupesParentsJson = JSON.stringify(idGroupesParents);
 				
 			// Cas d'un MODIFICATION d'un calendrier
 			if (casModifier) {
-				this.calendrierGestion.modifierCalendrier(idCal, nom, matiere, type, idProprietairesJson, function(resultCode) {
+				this.calendrierGestion.modifierCalendrier(idCal, nom, matiere, type, idProprietairesJson, idGroupesParentsJson, function(resultCode) {
 					if(resultCode == RestManager.resultCode_Success) {
 						// recharger les calendriers de l'utilisateur
 						me.ecranParametres.afficheListeMesCalendriers();
@@ -295,7 +384,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			}
 			// Cas de la CREATION d'un calendrier
 			else {
-				this.calendrierGestion.creerCalendrier(nom, matiere, type, idProprietairesJson, function(resultCode) {
+				this.calendrierGestion.creerCalendrier(nom, matiere, type, idProprietairesJson, idGroupesParentsJson, function(resultCode) {
 					if(resultCode == RestManager.resultCode_Success) {
 						// afficher message
 						window.showToast("Le calendrier a bien été créé");

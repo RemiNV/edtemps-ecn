@@ -44,11 +44,12 @@ define([], function() {
 	 * @param nom : String
 	 * @param matiere : String
 	 * @param type : String
-	 * @param idProprietaires : liste d'ID
+	 * @param idProprietaires : liste d'ID 
+	 * @param idGroupesParents : liste d'ID
 	 * @param callback : Fonction appelée une fois la requete de création effectuée
 	 *
 	 */
-	CalendrierGestion.prototype.creerCalendrier = function(nom_arg, matiere_arg, type_arg, idProprietaires_arg, callback) {
+	CalendrierGestion.prototype.creerCalendrier = function(nom_arg, matiere_arg, type_arg, idProprietaires_arg, idGroupesParents_arg, callback) {
 		var me = this;
 		this.restManager.effectuerRequete(
 			"POST",
@@ -58,7 +59,8 @@ define([], function() {
 			  matiere: matiere_arg,
 			  nom: nom_arg,
 			  type: type_arg, 
-			  idProprietaires: idProprietaires_arg
+			  idProprietaires: idProprietaires_arg,
+			  idGroupesParents: idGroupesParents_arg
 			},
 			function(data){callback(data.resultCode);}
 		);
@@ -72,10 +74,11 @@ define([], function() {
 	 * @param matiere : String
 	 * @param type : String
 	 * @param idProprietaires : liste d'ID
+	 * @param idGroupesParents : liste d'ID
 	 * @param callback : Fonction appelée une fois la requete de création effectuée
 	 *
 	 */
-	CalendrierGestion.prototype.modifierCalendrier = function(id_arg, nom_arg, matiere_arg, type_arg, idProprietaires_arg, callback) {
+	CalendrierGestion.prototype.modifierCalendrier = function(id_arg, nom_arg, matiere_arg, type_arg, idProprietaires_arg, idGroupesParents_arg, callback) {
 		var me = this;
 		this.restManager.effectuerRequete(
 			"POST",
@@ -86,7 +89,8 @@ define([], function() {
 			  matiere: matiere_arg,
 			  nom: nom_arg,
 			  type: type_arg, 
-			  idProprietaires: idProprietaires_arg
+			  idProprietaires: idProprietaires_arg,
+			  idGroupesParents: idGroupesParents_arg
 			},
 			function(data){callback(data.resultCode);}
 		);
