@@ -127,14 +127,20 @@ CREATE TABLE edt.Calendrier (
                 CONSTRAINT cal_id PRIMARY KEY (cal_id)
 );
 
-
 ALTER SEQUENCE edt.calendrier_cal_id_seq OWNER TO "edtemps-ecn";
 
+
+CREATE SEQUENCE edt.calendrierappartientgroupe_id_seq;
+
 CREATE TABLE edt.CalendrierAppartientGroupe (
-                groupeParticipant_id INTEGER NOT NULL,
+				calendrierappartientgroupe_id INTEGER NOT NULL DEFAULT nextval('edt.calendrierappartientgroupe_id_seq'),
+				groupeParticipant_id INTEGER,
+				groupeParticipant_id_tmp INTEGER,
                 cal_id INTEGER NOT NULL,
-                CONSTRAINT groupeparticipant_id_cal_id PRIMARY KEY (groupeParticipant_id, cal_id)
+                CONSTRAINT calendrierappartientgroupe_id PRIMARY KEY (calendrierappartientgroupe_id)
 );
+
+ALTER SEQUENCE edt.calendrierappartientgroupe_id_seq OWNER TO "edtemps-ecn";
 
 
 CREATE TABLE edt.EvenementAppartient (
@@ -292,6 +298,13 @@ NOT DEFERRABLE;
 
 ALTER TABLE edt.CalendrierAppartientGroupe ADD CONSTRAINT groupeparticipant_calendrierappartiengroupe_fk
 FOREIGN KEY (groupeParticipant_id)
+REFERENCES edt.GroupeParticipant (groupeParticipant_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE edt.CalendrierAppartientGroupe ADD CONSTRAINT groupeparticipanttmp_calendrierappartiengroupe_fk
+FOREIGN KEY (groupeParticipant_id_tmp)
 REFERENCES edt.GroupeParticipant (groupeParticipant_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION

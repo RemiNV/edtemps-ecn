@@ -9,6 +9,7 @@ DROP SEQUENCE IF EXISTS edt.utilisateur_utilisateur_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.typeutilisateur_type_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.droits_droits_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.administrateurs_admin_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS edt.calendrierappartientgroupe_id_seq CASCADE;
 
 DROP TABLE IF EXISTS edt.salle CASCADE;
 DROP TABLE IF EXISTS edt.materiel CASCADE;
