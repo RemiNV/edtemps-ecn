@@ -46,7 +46,8 @@ public class CalendrierComplet extends CalendrierIdentifie {
 		JsonObjectBuilder builder = super.makeObjectBuilder();
 		
 		return builder.add("estCours", this.estCours)
-			.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents));
+			.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents))
+			.add("groupesParentsTmp", JSONUtils.getJsonIntArray(this.idGroupesParentsTmp));
 	}
 
 	public List<Integer> getIdGroupesParentsTmp() {
