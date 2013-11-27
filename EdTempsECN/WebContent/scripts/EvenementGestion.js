@@ -350,7 +350,11 @@ define(["RestManager"], function(RestManager) {
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, idGroupe);
 	};
 	
-	// TODO : ajouter getEvenementsSalle (même style d'appel)
+	EvenementGestion.prototype.getEvenementsSalle = function(start, end, idSalle, ignoreCache, callback) {
+		var me = this;
+		this.getEvenements("listerevenements/salle", EvenementGestion.CACHE_MODE_SALLE, start, end, 
+				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, idSalle);
+	};
 	
 	/**
 	 * Enregistrement des évènements récupérés pour un intervalle donné

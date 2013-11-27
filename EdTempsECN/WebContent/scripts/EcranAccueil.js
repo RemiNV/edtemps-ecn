@@ -22,6 +22,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.initListeSallesFait = false;
 		
 		this.idGroupeSelectionne = 0;
+		this.idSalleSelectionee = 0;
 		
 		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
 		
@@ -176,11 +177,50 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		if(this.initListeSallesFait) {
 			return;
 		}
-		
-		// TODO : écrire (ressemblera beaucoup à initListeGroupes)
-		
-		// TODO : assignation à mettre dans le succès du callback de la requête
-		// this.initListeSallesFait = true;
+
+		var me = this;
+		this.restManager.effectuerRequete("GET", "salles", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				// Utilisation d'un template compilé pour accélérer (j'imagine ?) la génération des lignes
+				var optionTpl = _.template("<option value='<%= value %>'><%= label %></option>");
+				var salles = data.data;
+				var lstSalles = $("#select_choix_salle");
+				
+				lstSalles.append(optionTpl({
+					value: 0,
+					label: "(Choisissez une salle)"
+				}));
+				
+				for(var i=0, maxI=salles.length; i<maxI; i++) {
+					lstSalles.append(optionTpl({
+						value: salles[i].id,
+						label: salles[i].nom
+					}));
+				}
+				
+				lstSalles.combobox({
+					select: function(event, ui) {
+						
+						me.idSalleSelectionee = parseInt(ui.item.value);
+						
+						// Suppression du cache (on change de salle -> événements plus valides)
+						me.evenementGestion.clearCache(EvenementGestion.CACHE_MODE_SALLE);
+						me.calendrier.refetchEvents();
+					}
+				});
+				$("#message_chargement_salles").css("display", "none");
+				
+				me.initListeSallesFait = true;
+			}
+			else if(data.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Echec de la récupération des salles ; vérifiez votre connexion");
+			}
+			else {
+				window.showToast("Erreur lors de la récupération des salles");
+			}
+		});
 	};
 	
 	
@@ -192,7 +232,30 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.onCalendarFetchEvents = function(start, end, callback) {
 
-		switch(this.mode) {
+		switch(this.mode) {	
+		case EcranAccueil.MODE_MES_EVENEMENTS:
+			this.remplirMesEvenements(start, end, callback);
+			break;
+			
+		case EcranAccueil.MODE_GROUPE:
+			if(!this.initListeGroupesFait || this.idGroupeSelectionne === 0) {
+				callback(new Array());
+				return;
+			}
+			
+			this.remplirEvenementsGroupe(start, end, callback);
+			break;
+			
+		case EcranAccueil.MODE_SALLE:
+			if(!this.initListeSallesFait || this.idSalleSelectionee === 0) {
+				callback(new Array());
+				return;
+			}
+			
+			this.remplirEvenementsSalle(start, end, callback);
+			break;
+			
+		default:
 		case EcranAccueil.MODE_MES_ABONNEMENTS:
 			if(!this.abonnementsRecuperes) { // Récupération des abonnements (premier affichage de la page)
 				this.remplirMesAbonnements(start, end, callback);
@@ -202,30 +265,23 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				this.listeGroupesParticipants.afficherBlocVosAgendas(); // Ne fait rien si déjà appelé
 			}
 			break;
-			
-		case EcranAccueil.MODE_MES_EVENEMENTS:
-			this.remplirMesEvenements(start, end, callback);
-			break;
-			
-		case EcranAccueil.MODE_GROUPE:
-			if(!this.initListeGroupesFait) {
-				callback(new Array());
-				return;
-			}
-			
-			if(this.idGroupeSelectionne !== 0) {
-				this.remplirEvenementsGroupe(start, end, callback);
-			}
-			else {
-				callback(new Array());
-			}
-			
-			break;
-			
-		default: 
-			// TODO : gérer les autres modes d'affichage
-			callback(new Array());
-		
+		}
+	};
+	
+	/**
+	 * Callback générique appelé après la récupération d'événements,
+	 * pour les fournir à fullcalendar
+	 */
+	var callbackRemplirEvenements = function(resultCode, data, callbackCalendrier) {
+		if(resultCode == RestManager.resultCode_Success) {
+			// Filtrage et passage à fullcalendar
+			callbackCalendrier(this.calendrier.filtrerMatiereTypeRespo(data));
+		}
+		else if(resultCode == RestManager.resultCode_NetworkError) {
+			window.showToast("Impossible de charger vos évènements ; vérifiez votre connexion.");
+		}
+		else {
+			window.showToast("Erreur de chargement de vos événements");
 		}
 	};
 	
@@ -244,12 +300,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				
 				// Filtrage et passage à fullcalendar
 				var evenementsGroupesActifs = me.listeGroupesParticipants.filtrerEvenementsGroupesActifs(data);
-				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(evenementsGroupesActifs));
-			}
-			else if(resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Erreur de chargement de vos évènements ; vérifiez votre connexion.");
+				callbackRemplirEvenements.apply(me, [resultCode, evenementsGroupesActifs, callbackCalendrier]);
 			}
 			else {
+				callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]);
 				window.showToast("Erreur de chargement de vos évènements. Votre session a peut-être expiré ?");
 			}
 		});
@@ -264,20 +318,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 * @param callbackCalendrier callback de fullcalendar
 	 */
 	EcranAccueil.prototype.remplirMesEvenements = function(dateDebut, dateFin, callbackCalendrier) {
-		
 		var me = this;
-		this.evenementGestion.getMesEvenements(dateDebut, dateFin, false, function(resultCode, data) {
-			if(resultCode == RestManager.resultCode_Success) {
-				// Filtrage et passage à fullcalendar
-				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(data));
-			}
-			else if(resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Impossible de charger vos évènements ; vérifiez votre connexion.");
-			}
-			else {
-				window.showToast("Erreur de chargement de vos événements");
-			}
-		});
+		this.evenementGestion.getMesEvenements(dateDebut, dateFin, false, 
+				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
 	};
 	
 	/**
@@ -286,23 +329,26 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 * 
 	 * @param dateDebut date de début de la période
 	 * @param dateFin date de fin de la période
-	 * @param idGroupe ID du groupe dont les événements sont à récupérer
 	 * @param callbackCalendrier callback de fullcalendar
 	 */
 	EcranAccueil.prototype.remplirEvenementsGroupe = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
-		this.evenementGestion.getEvenementsGroupe(dateDebut, dateFin, this.idGroupeSelectionne, false, function(resultCode, data) {
-			if(resultCode == RestManager.resultCode_Success) {
-				// Filtrage et passage à fullcalendar
-				callbackCalendrier(me.calendrier.filtrerMatiereTypeRespo(data));
-			}
-			else if(resultCode == RestManager.resultCode_NetworkError) {
-				window.showToast("Impossible de charger les événements ; vérifiez votre connexion.");
-			}
-			else {
-				window.showToast("Erreur de chargement des évènements");
-			}
-		});
+		this.evenementGestion.getEvenementsGroupe(dateDebut, dateFin, this.idGroupeSelectionne, false, 
+				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
+	};
+	
+	/**
+	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
+	 * pour les évènements d'une salle
+	 * 
+	 * @param dateDebut date de début de la période
+	 * @param dateFin date de fin de la période
+	 * @param callbackCalendrier callback de fullcalendar
+	 */
+	EcranAccueil.prototype.remplirEvenementsSalle = function(dateDebut, dateFin, callbackCalendrier) {
+		var me = this;
+		this.evenementGestion.getEvenementsSalle(dateDebut, dateFin, this.idSalleSelectionee, false, 
+				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
 	};
 
 	/**

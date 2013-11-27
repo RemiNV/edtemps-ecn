@@ -145,6 +145,11 @@
       <servlet-name>TypesUtilisateurs</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurTypesUtilisateursServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+      <servlet-name>ListingSalles</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.SallesServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
@@ -284,6 +289,11 @@
   <servlet-mapping>
       <servlet-name>TypesUtilisateurs</servlet-name>
       <url-pattern>/administrateur/typesutilisateurs/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>ListingSalles</servlet-name>
+      <url-pattern>/salles</url-pattern>
   </servlet-mapping>
   
 </web-app>
