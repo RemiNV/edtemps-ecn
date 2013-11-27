@@ -595,7 +595,22 @@ public class GroupeGestion {
 				int parentId = resGroupes.getInt("groupeparticipant_id_parent");
 				boolean abonnementObligatoire = resGroupes.getBoolean("abonnementgroupeparticipant_obligatoire");
 				boolean estCalendrierUnique = resGroupes.getBoolean("groupeparticipant_estcalendrierunique");
-				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, estCalendrierUnique, abonnementObligatoire));
+				List<Integer> rattachementsDuCalendrier = new ArrayList<Integer>();
+				if (estCalendrierUnique) {
+					ResultSet rs_rattachements = _bdd.executeRequest(
+							"SELECT * FROM edt.calendrierappartientgroupe " +
+							"WHERE cal_id IN (" +
+									"SELECT cal_id " +
+								     "FROM edt.calendrierappartientgroupe " +
+								     "WHERE groupeparticipant_id = " + id + " " +
+								     ") " +
+							"AND groupeparticipant_id != " + id
+					);
+					while(rs_rattachements.next()) {
+						rattachementsDuCalendrier.add(rs_rattachements.getInt("groupeparticipant_id"));
+					}
+				}
+				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, estCalendrierUnique, abonnementObligatoire, rattachementsDuCalendrier));
 			}
 			
 			return res;
@@ -631,7 +646,22 @@ public class GroupeGestion {
 				int parentId = resGroupes.getInt("groupeparticipant_id_parent");
 				boolean abonnementObligatoire = resGroupes.getBoolean("abonnementgroupeparticipant_obligatoire");
 				boolean estCalendrierUnique = resGroupes.getBoolean("groupeparticipant_estcalendrierunique");
-				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, estCalendrierUnique, abonnementObligatoire));
+				List<Integer> rattachementsDuCalendrier = new ArrayList<Integer>();
+				if (estCalendrierUnique) {
+					ResultSet rs_rattachements = _bdd.executeRequest(
+							"SELECT * FROM edt.calendrierappartientgroupe " +
+							"WHERE cal_id IN (" +
+									"SELECT cal_id " +
+								     "FROM edt.calendrierappartientgroupe " +
+								     "WHERE groupeparticipant_id = " + id + " " +
+								     ") " +
+							"AND groupeparticipant_id != " + id
+					);
+					while(rs_rattachements.next()) {
+						rattachementsDuCalendrier.add(rs_rattachements.getInt("groupeparticipant_id"));
+					}
+				}
+				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, estCalendrierUnique, abonnementObligatoire, rattachementsDuCalendrier));
 			}
 			
 			return res;
