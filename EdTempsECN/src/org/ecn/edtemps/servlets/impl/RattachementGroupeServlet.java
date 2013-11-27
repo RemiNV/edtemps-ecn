@@ -18,7 +18,7 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
-import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
+import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
@@ -96,7 +96,7 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	protected void doListerMesDemandesDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws SQLException, IOException, EdtempsException {
 		GroupeGestion gestionnaireGroupes = new GroupeGestion(bdd);
 		List<GroupeComplet> listeGroupes = gestionnaireGroupes.listerDemandesDeRattachementGroupes(userId);
-		List<CalendrierIdentifie> listeCalendriers = gestionnaireGroupes.listerDemandesDeRattachementCalendriers(userId);
+		List<CalendrierComplet> listeCalendriers = gestionnaireGroupes.listerDemandesDeRattachementCalendriers(userId);
 		JsonObject data = Json.createObjectBuilder()
 				.add("listeGroupes", JSONUtils.getJsonArray(listeGroupes))
 				.add("listeCalendriers", JSONUtils.getJsonArray(listeCalendriers)).build();

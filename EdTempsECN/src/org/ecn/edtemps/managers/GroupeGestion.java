@@ -12,10 +12,11 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
-import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
+import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
+import org.ecn.edtemps.models.inflaters.CalendrierCompletInflater;
 import org.ecn.edtemps.models.inflaters.GroupeCompletInflater;
 import org.ecn.edtemps.models.inflaters.GroupeIdentifieInflater;
 
@@ -805,9 +806,9 @@ public class GroupeGestion {
 	 * @throws SQLException
 	 * @throws EdtempsException 
 	 */
-	public List<CalendrierIdentifie> listerDemandesDeRattachementCalendriers(int userId) throws SQLException, EdtempsException {
+	public List<CalendrierComplet> listerDemandesDeRattachementCalendriers(int userId) throws SQLException, EdtempsException {
 		
-		List<CalendrierIdentifie> calendriersEnAttenteDeValidation = new ArrayList<CalendrierIdentifie>();
+		List<CalendrierComplet> calendriersEnAttenteDeValidation = new ArrayList<CalendrierComplet>();
 
 		// Démarre une transaction
 		_bdd.startTransaction();
@@ -819,9 +820,8 @@ public class GroupeGestion {
 				"FROM edt.proprietairegroupeparticipant WHERE proprietairegroupeparticipant.utilisateur_id="+userId+")");
 
 		// Récupère et traite le résultat
-		CalendrierGestion calGestion = new CalendrierGestion(_bdd);
 		while (requete.next()) {
-			calendriersEnAttenteDeValidation.add(calGestion.getCalendrier(requete.getInt(1)));
+			calendriersEnAttenteDeValidation.add(new CalendrierCompletInflater().inflateCalendrier(requete, _bdd));
 		}
 		requete.close();
 		
