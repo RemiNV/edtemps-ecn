@@ -72,13 +72,8 @@
   </servlet>
   
   <servlet>
-      <servlet-name>EvenementsIntervenant</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.impl.EvenementsIntervenantServlet</servlet-class>
-  </servlet>
-  
-  <servlet>
-      <servlet-name>EvenementsGroupe</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.impl.EvenementsGroupeServlet</servlet-class>
+      <servlet-name>ListerEvenements</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.ListerEvenementsServlet</servlet-class>
   </servlet>
   
   <servlet>
@@ -217,13 +212,8 @@
   </servlet-mapping>
   
   <servlet-mapping>
-      <servlet-name>EvenementsIntervenant</servlet-name>
-      <url-pattern>/mesevenements</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-      <servlet-name>EvenementsGroupe</servlet-name>
-      <url-pattern>/evenementsgroupe</url-pattern>
+      <servlet-name>ListerEvenements</servlet-name>
+      <url-pattern>/listerevenements/*</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

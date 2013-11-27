@@ -388,11 +388,31 @@ public class GroupeGestion {
 	 */
 	protected static void completerParentsEnfantsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
 		// Ajout des parents et enfants
-		int nbInsertions = -1;
-		
-		// Parents : utilisation d'une requête préparée pour accélérer les traitements consécutifs
 		PreparedStatement statementParents;
 		try {
+			
+			// Enfants : utilisation d'une requête préparée pour accélérer les traitements consécutifs
+			int nbInsertions = -1;
+			PreparedStatement statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"SELECT DISTINCT enfant.groupeparticipant_id," +
+					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
+					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant enfant " +
+					"INNER JOIN " + nomTable + " parent " +
+					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
+					"LEFT JOIN " + nomTable + " deja_inseres " +
+					"ON deja_inseres.groupeparticipant_id=enfant.groupeparticipant_id " +
+					"WHERE deja_inseres.groupeparticipant_id IS NULL");
+			
+			while(nbInsertions != 0) {
+				nbInsertions = statementEnfants.executeUpdate();
+			}
+			
+			nbInsertions = -1;
+			
+			// Puis parents (sinon ajoute les enfants des parents !)
 			statementParents = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
@@ -410,24 +430,7 @@ public class GroupeGestion {
 				nbInsertions = statementParents.executeUpdate();
 			}
 			
-			// Enfants
-			nbInsertions = -1;
-			PreparedStatement statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
-					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-					"SELECT DISTINCT enfant.groupeparticipant_id," +
-					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
-					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
-					"FROM edt.groupeparticipant enfant " +
-					"INNER JOIN " + nomTable + " parent " +
-					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
-					"LEFT JOIN " + nomTable + " deja_inseres " +
-					"ON deja_inseres.groupeparticipant_id=enfant.groupeparticipant_id " +
-					"WHERE deja_inseres.groupeparticipant_id IS NULL");
 			
-			while(nbInsertions != 0) {
-				nbInsertions = statementEnfants.executeUpdate();
-			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

@@ -340,13 +340,13 @@ define(["RestManager"], function(RestManager) {
 	
 	EvenementGestion.prototype.getMesEvenements = function(start, end, ignoreCache, callback) {
 		var me = this;
-		this.getEvenements("mesevenements", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, 
+		this.getEvenements("listerevenements/intervenant", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, 
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback);
 	};
 	
 	EvenementGestion.prototype.getEvenementsGroupe = function(start, end, idGroupe, ignoreCache, callback) {
 		var me = this;
-		this.getEvenements("evenementsgroupe", EvenementGestion.CACHE_MODE_GROUPE, start, end, 
+		this.getEvenements("listerevenements/groupe", EvenementGestion.CACHE_MODE_GROUPE, start, end, 
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, idGroupe);
 	};
 	
