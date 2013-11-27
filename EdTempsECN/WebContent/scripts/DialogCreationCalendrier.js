@@ -358,7 +358,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			//Récupérer les id des groupes parents
 			var idGroupesParents = new Array();
 			this.jqDialog.find(".form_creer_calendrier_parent").each(function() {
-				var val = $(this).val(); 
+				var val = parseInt($(this).val()); 
 				if(val != -1) {
 					idGroupesParents.push(val);
 				}

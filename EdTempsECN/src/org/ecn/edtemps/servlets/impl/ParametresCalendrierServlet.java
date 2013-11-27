@@ -1,6 +1,7 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,32 +143,16 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		// Récupération Type du calendrier
 		String type = req.getParameter("type");
 		
-		// Récupération des ID des propriétaires (via parsing manuel du JSON)
-		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
+		// Récupération des ID des propriétaires 
 		String stringIdProprietaires = req.getParameter("idProprietaires");
-		//Parsing manuel de la chaine JSON. Ex de chaine : "["1","2","33"]"
-		stringIdProprietaires = stringIdProprietaires.replace("[", "");
-		stringIdProprietaires = stringIdProprietaires.replace("]", "");
-		stringIdProprietaires = stringIdProprietaires.replace("\"", "");
-		String[] tableauIdProprietaires = stringIdProprietaires.split(",");
-		//Ajout des id à la liste des propriétaires
-		for (String s : tableauIdProprietaires) {
-		  idProprietaires.add(Integer.parseInt(s)); 
-		}
+		ArrayList<Integer> idProprietaires = JSONUtils.getIntegerArrayList(
+			     Json.createReader(new StringReader(stringIdProprietaires)).readArray());
 		
 		// Récupération des ID des groupes parents (via parsing manuel du JSON)
-		ArrayList<Integer> idGroupesParents = new ArrayList<Integer>();
 		String stringIdGroupesParents = req.getParameter("idGroupesParents");
-		//Parsing manuel de la chaine JSON. Ex de chaine : "["1","2","33"]"
-		stringIdGroupesParents = stringIdGroupesParents.replace("[", "");
-		stringIdGroupesParents = stringIdGroupesParents.replace("]", "");
-		stringIdGroupesParents = stringIdGroupesParents.replace("\"", "");
-		String[] tableauIdGroupesParents = stringIdGroupesParents.split(",");
-		//Ajout des id à la liste des propriétaires
-		for (String s : tableauIdGroupesParents) {
-		  idGroupesParents.add(Integer.parseInt(s)); 
-		}
-		
+		ArrayList<Integer> idGroupesParents = JSONUtils.getIntegerArrayList(
+			     Json.createReader(new StringReader(stringIdGroupesParents)).readArray());
+		System.out.println("dindon");
 		// Cas de MODIFICATION d'un calendrier
 		if (casModifier) {
 			int id = Integer.parseInt(req.getParameter("id"));
