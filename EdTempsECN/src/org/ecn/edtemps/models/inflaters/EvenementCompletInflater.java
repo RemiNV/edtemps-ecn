@@ -22,6 +22,9 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 	public EvenementComplet inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, 
 			ArrayList<SalleIdentifie> salles, ArrayList<UtilisateurIdentifie> intervenants, 
 			ArrayList<UtilisateurIdentifie> responsables, int id, ResultSet reponse, BddGestion bdd) throws DatabaseException {
+		
+		long tempsDebut = System.nanoTime();
+		
 		// Récupération des types et matières (calendriers)
 		ResultSet reponseCalendriers = bdd.executeRequest("SELECT matiere.matiere_nom, typecalendrier.typecal_libelle " +
 				"FROM edt.calendrier " +
@@ -43,6 +46,8 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
+		
+		System.out.println("Temps : " + (System.nanoTime() - tempsDebut));
 		
 		return new EvenementComplet(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, 
 				id, matieres, types);

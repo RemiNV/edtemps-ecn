@@ -367,7 +367,7 @@ public class EvenementGestion {
 	}
 	
 	/**
-	 * Liste les évènements liés à un groupe d'utilisateurs
+	 * Liste les évènements liés à un groupe d'utilisateurs. <b>Les événements des groupes parents et enfants sont aussi renvoyés.</b>
 	 * @param idGroupe groupe dont les évènements sont à récupérer
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * 
@@ -375,15 +375,26 @@ public class EvenementGestion {
 	 * @throws DatabaseException
 	 */
 	public ArrayList<EvenementComplet> listerEvenementsGroupe(int idGroupe, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
+		
+		if(createTransaction) {
+			_bdd.startTransaction();
+		}
+		
+		GroupeGestion.makeTempTableListeParentsEnfants(_bdd, idGroupe);
+		
 		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
-				"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
-				"WHERE calendrierappartientgroupe.groupeparticipant_id = " + idGroupe + " "
-				+ "AND evenement.eve_datefin >= ? "
-				+ "AND evenement.eve_datedebut <= ?";
-		// TODO : gérer les parents/enfants
-		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
+				"INNER JOIN edt.calendrierappartientgroupe cap ON cap.cal_id = evenementappartient.cal_id " +
+				"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS + " tmpParentsEnfants ON tmpParentsEnfants.groupeparticipant_id = cap.groupeparticipant_id "
+				+ "WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?";
+
+		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), false);
+		
+		if(createTransaction) {
+			_bdd.commit();
+		}
+		
 		return res;
 	}
 	

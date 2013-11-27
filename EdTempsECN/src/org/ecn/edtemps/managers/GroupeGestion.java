@@ -29,6 +29,8 @@ public class GroupeGestion {
 	protected BddGestion _bdd;
 
 	public static final String NOM_TEMPTABLE_ABONNEMENTS = "tmp_requete_abonnements_groupe";
+	public static final String NOM_TEMPTABLE_PARENTSENFANTS = "tmp_requete_parents_enfants_groupe";
+	
 
 	/**
 	 * Initialise un gestionnaire de groupes de participants
@@ -365,6 +367,71 @@ public class GroupeGestion {
 		// Termine la transaction
 		_bdd.commit();
 	}
+	
+	/**
+	 * Créé une table temporaire de listing de groupes
+	 * @param bdd Gestionnaire de base de données
+	 * @param nomTable Nom de la table à créer
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	protected static void makeTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
+		bdd.executeRequest("CREATE TEMP TABLE " + nomTable + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
+			"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_id_parent_tmp INTEGER, groupeparticipant_estcours BOOLEAN, " +
+			"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL) ON COMMIT DROP");
+	}
+	
+	/**
+	 * Itère sur les parents et enfants des lignes d'une temporaire de groupes pour les ajouter à cette même table
+	 * @param bdd Gestionnaire de base de données
+	 * @param nomTable Nom de la table temporaire à utiliser
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	protected static void completerParentsEnfantsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
+		// Ajout des parents et enfants
+		int nbInsertions = -1;
+		
+		// Parents : utilisation d'une requête préparée pour accélérer les traitements consécutifs
+		PreparedStatement statementParents;
+		try {
+			statementParents = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"SELECT DISTINCT parent.groupeparticipant_id," +
+					"parent.groupeparticipant_nom, parent.groupeparticipant_rattachementautorise," +
+					"parent.groupeparticipant_id_parent, parent.groupeparticipant_id_parent_tmp, parent.groupeparticipant_estcours, parent.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant parent " +
+					"INNER JOIN " + nomTable + " enfant " +
+					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
+					"LEFT JOIN " + nomTable + " deja_inseres " +
+					"ON deja_inseres.groupeparticipant_id=parent.groupeparticipant_id " +
+					"WHERE deja_inseres.groupeparticipant_id IS NULL");
+			
+			while(nbInsertions != 0) {
+				nbInsertions = statementParents.executeUpdate();
+			}
+			
+			// Enfants
+			nbInsertions = -1;
+			PreparedStatement statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"SELECT DISTINCT enfant.groupeparticipant_id," +
+					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
+					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant enfant " +
+					"INNER JOIN " + nomTable + " parent " +
+					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
+					"LEFT JOIN " + nomTable + " deja_inseres " +
+					"ON deja_inseres.groupeparticipant_id=enfant.groupeparticipant_id " +
+					"WHERE deja_inseres.groupeparticipant_id IS NULL");
+			
+			while(nbInsertions != 0) {
+				nbInsertions = statementEnfants.executeUpdate();
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
 
 	
 	/**
@@ -378,12 +445,10 @@ public class GroupeGestion {
 	 */
 	public static void makeTempTableListeGroupesAbonnement(BddGestion bdd, int idUtilisateur) throws DatabaseException {
 		// Création d'une table temporaire pour les résultats
-		bdd.executeRequest("CREATE TEMP TABLE " + NOM_TEMPTABLE_ABONNEMENTS + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
-				"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_id_parent_tmp INTEGER, groupeparticipant_estcours BOOLEAN, " +
-				"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL) ON COMMIT DROP");
+		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
 		
 		// Ajout des abonnements directs
-		bdd.executeRequest("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
+		bdd.executeRequest("INSERT INTO " + NOM_TEMPTABLE_ABONNEMENTS + "(groupeparticipant_id," +
 				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 				"SELECT groupeparticipant.groupeparticipant_id," +
@@ -393,50 +458,33 @@ public class GroupeGestion {
 				"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
 				"AND abonnegroupeparticipant.utilisateur_id=" + idUtilisateur);
 		
-		// Ajout des parents et enfants
-		int nbInsertions = -1;
+		completerParentsEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
+	}
+	
+	/**
+	 * Créé une table temporaire de groupes d'utilisateur étant parents ou enfants du groupe fourni. Le groupe lui-même est aussi listé.
+	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
+	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
+	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
+	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_PARENTSENFANTS}
+	 * @param idGroupe ID du groupe pour lequel les parents et enfants sont à lister.
+	 * @throws DatabaseException
+	 */
+	public static void makeTempTableListeParentsEnfants(BddGestion bdd, int idGroupe) throws DatabaseException {
+		// Création de la table temporaire
+		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
 		
-		// Parents : utilisation d'une requête préparée pour accélérer les traitements consécutifs
-		PreparedStatement statementParents;
-		try {
-			statementParents = bdd.getConnection().prepareStatement("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
-					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-					"SELECT DISTINCT parent.groupeparticipant_id," +
-					"parent.groupeparticipant_nom, parent.groupeparticipant_rattachementautorise," +
-					"parent.groupeparticipant_id_parent, parent.groupeparticipant_id_parent_tmp, parent.groupeparticipant_estcours, parent.groupeparticipant_estcalendrierunique " +
-					"FROM edt.groupeparticipant parent " +
-					"INNER JOIN tmp_requete_abonnements_groupe enfant " +
-					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
-					"LEFT JOIN tmp_requete_abonnements_groupe deja_inseres " +
-					"ON deja_inseres.groupeparticipant_id=parent.groupeparticipant_id " +
-					"WHERE deja_inseres.groupeparticipant_id IS NULL");
-			
-			while(nbInsertions != 0) {
-				nbInsertions = statementParents.executeUpdate();
-			}
-			
-			// Enfants
-			nbInsertions = -1;
-			PreparedStatement statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO tmp_requete_abonnements_groupe(groupeparticipant_id," +
-					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-					"SELECT DISTINCT enfant.groupeparticipant_id," +
-					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
-					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
-					"FROM edt.groupeparticipant enfant " +
-					"INNER JOIN tmp_requete_abonnements_groupe parent " +
-					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
-					"LEFT JOIN tmp_requete_abonnements_groupe deja_inseres " +
-					"ON deja_inseres.groupeparticipant_id=parent.groupeparticipant_id " +
-					"WHERE deja_inseres.groupeparticipant_id IS NULL");
-			
-			while(nbInsertions != 0) {
-				nbInsertions = statementEnfants.executeUpdate();
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
+		// Ajout de l'objet en question
+		bdd.executeRequest("INSERT INTO " + NOM_TEMPTABLE_PARENTSENFANTS + "(groupeparticipant_id," +
+				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+				"SELECT groupeparticipant.groupeparticipant_id," +
+				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
+				"FROM edt.groupeparticipant " +
+				"WHERE groupeparticipant.groupeparticipant_id = " + idGroupe);
+		
+		completerParentsEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
 	}
 	
 	/**
