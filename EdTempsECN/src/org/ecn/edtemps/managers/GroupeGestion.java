@@ -814,10 +814,15 @@ public class GroupeGestion {
 		_bdd.startTransaction();
 
 		// Récupère les calendriers qui sont en attente de rattachement
-		ResultSet requete = _bdd.executeRequest("SELECT cal_id FROM edt.calendrierappartientgroupe " +
-				"WHERE calendrierappartientgroupe.groupeparticipant_id_tmp IN " +
-				"(SELECT proprietairegroupeparticipant.groupeparticipant_id " +
-				"FROM edt.proprietairegroupeparticipant WHERE proprietairegroupeparticipant.utilisateur_id="+userId+")");
+		ResultSet requete = _bdd.executeRequest("SELECT A.cal_id, C.cal_nom, M.matiere_nom, T.typecal_libelle," +
+				" FALSE AS estcours " + // "met estCours à False : valeur inutile dans cette méthode donc pour éviter la surcharge on met une valeur par défaut
+				" FROM edt.calendrierappartientgroupe A" +
+				" INNER JOIN edt.calendrier C ON C.cal_id=A.cal_id" +
+				" LEFT JOIN edt.matiere M ON M.matiere_id=C.matiere_id" +
+				" LEFT JOIN edt.typecalendrier T ON T.typecal_id=C.typecal_id" +
+				" WHERE A.groupeparticipant_id_tmp IN" +
+				" (SELECT P.groupeparticipant_id" +
+				" FROM edt.proprietairegroupeparticipant P WHERE P.utilisateur_id="+userId+")");
 
 		// Récupère et traite le résultat
 		while (requete.next()) {
