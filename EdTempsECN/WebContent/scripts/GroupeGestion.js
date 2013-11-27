@@ -106,15 +106,15 @@ define(["RestManager"], function(RestManager) {
 
 	
 	/**
-	 * Récupérer les groupes en attente de rattachement pour l'utilisateur en cours
+	 * Récupérer les groupes et les calendriers en attente de rattachement pour l'utilisateur en cours
 	 * @param callback
 	 */
-	GroupeGestion.prototype.queryGroupesEnAttenteRattachement = function(callback) {
+	GroupeGestion.prototype.queryGroupesEtCalendriersEnAttenteRattachement = function(callback) {
 		this.restManager.effectuerRequete("POST", "rattachementgroupe/listermesdemandes", {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
-				callback(data.resultCode, data.data.listeGroupes);
+				callback(data.resultCode, data.data.listeGroupes, data.data.listeCalendriers);
 			} else {
 				callback(data.resultCode);
 			}
