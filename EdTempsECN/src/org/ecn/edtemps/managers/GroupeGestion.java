@@ -829,12 +829,12 @@ public class GroupeGestion {
 	}
 	
 	/**
-	 * Décide du rattachement (accepté ou refusé) à un groupe de participant
+	 * Décide du rattachement (accepté ou refusé) d'un groupe à un groupe de participant
 	 * @param accepte VRAI si le rattachement est accepté
 	 * @param groupeId Identifiant du groupe dont le rattachement a été décidé
 	 * @throws DatabaseException 
 	 */
-	public void deciderRattachement(boolean accepte, int groupeId) throws DatabaseException {
+	public void deciderRattachementGroupe(boolean accepte, int groupeId) throws DatabaseException {
 		
 		// Démarre une transaction
 		_bdd.startTransaction();
@@ -844,6 +844,35 @@ public class GroupeGestion {
 			_bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent=groupeparticipant_id_parent_tmp, groupeparticipant_id_parent_tmp=NULL WHERE groupeparticipant_id="+groupeId);
 		} else {
 			_bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent_tmp=NULL WHERE groupeparticipant_id="+groupeId);
+		}
+
+		// Termine la transaction
+		_bdd.commit();
+
+	}
+	
+
+	/**
+	 * Décide du rattachement (accepté ou refusé) d'un calendrier à un groupe de participant
+	 * @param accepte VRAI si le rattachement est accepté
+	 * @param groupeIdParent Identifiant du groupe parent
+	 * @param calendrierId Identifiant du calendrier qui demande le rattachement
+	 * @throws DatabaseException 
+	 */
+	public void deciderRattachementCalendrier(boolean accepte, int groupeIdParent, int calendrierId) throws DatabaseException {
+		
+		// Démarre une transaction
+		_bdd.startTransaction();
+
+		// Décide le rattachement
+		if (accepte) {
+			_bdd.executeUpdate("UPDATE edt.calendrierappartientgroupe" +
+					" SET groupeparticipant_id=groupeparticipant_id_tmp, groupeparticipant_id_tmp=NULL" +
+					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
+		} else {
+			_bdd.executeUpdate("UPDATE edt.calendrierappartientgroupe" +
+					" SET groupeparticipant_id_tmp=NULL" +
+					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
 		}
 
 		// Termine la transaction

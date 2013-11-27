@@ -116,7 +116,7 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		Boolean choix = Boolean.valueOf(req.getParameter("etat"));
 		Integer groupeId = Integer.valueOf(req.getParameter("id"));
-		groupeGestion.deciderRattachement(choix, groupeId);
+		groupeGestion.deciderRattachementGroupe(choix, groupeId);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement "+(choix ? "accepté" : "refusé"), null));
 	}
 
@@ -130,6 +130,11 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	 * @throws IOException
 	 */
 	protected void doDeciderDemandeDeRattachementCalendrier(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		Boolean choix = Boolean.valueOf(req.getParameter("etat"));
+		Integer groupeIdParent = Integer.valueOf(req.getParameter("groupeIdParent"));
+		Integer calendrierId = Integer.valueOf(req.getParameter("calendrierId"));
+		groupeGestion.deciderRattachementCalendrier(choix, groupeIdParent, calendrierId);
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement "+(choix ? "accepté" : "refusé"), null));
 	}
 }
