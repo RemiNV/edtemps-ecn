@@ -450,7 +450,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		// Cacher la bulle d'information
 		$("#bulle_information").html("").hide();
 		
-		this.groupeGestion.queryGroupesEnAttenteRattachement(function(resultCode, data) {
+		this.groupeGestion.queryGroupesEtCalendriersEnAttenteRattachement(function(resultCode, data) {
 			var nbGroupes = data.length;
 
 			// Ajout des boutons "Gérer" et mise en surbrillance les lignes

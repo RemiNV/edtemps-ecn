@@ -18,9 +18,13 @@ public class CalendrierComplet extends CalendrierIdentifie {
 	/** Booléen pour savoir si le calendrier est rattaché à un groupe qui est un groupe de cours */
 	protected boolean estCours;
 	
-	/** Liste contenant les id des groupes rattachés aux calendriers (hormis le groupe unique) */
+	/** Liste contenant les id des groupes auxquels le calendrier est rattaché (hormis le groupe unique) */
 	protected List<Integer> idGroupesParents;
-	
+
+	/** Liste contenant les id des groupes auxquels le calendrier est en attente de rattachement (hormis le groupe unique) */
+	protected List<Integer> idGroupesParentsTmp;
+
+
 	/**
 	 * Constructeur
 	 * 
@@ -43,6 +47,14 @@ public class CalendrierComplet extends CalendrierIdentifie {
 		
 		return builder.add("estCours", this.estCours)
 			.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents));
+	}
+
+	public List<Integer> getIdGroupesParentsTmp() {
+		return idGroupesParentsTmp;
+	}
+
+	public void setIdGroupesParentsTmp(List<Integer> idGroupesParentsTmp) {
+		this.idGroupesParentsTmp = idGroupesParentsTmp;
 	}
 
 }
