@@ -123,13 +123,13 @@ define(["RestManager"], function(RestManager) {
 
 
 	/**
-	 * Décider du sort d'un rattachement de groupe (accepté ou refusé)
+	 * Décider du sort d'un rattachement d'un groupe à un autre (accepté ou refusé)
 	 * @param etat VRAI si le rattachement est accepté, FAUX sinon
-	 * @param groupeId identifiant du groupe pour lequel le rattachement a été accepté
+	 * @param groupeId identifiant du groupe pour lequel le rattachement a été décidé
 	 * @param callback
 	 */
-	GroupeGestion.prototype.queryDeciderRattachement = function(etat, groupeId, callback) {
-		this.restManager.effectuerRequete("POST", "rattachementgroupe/decider", {
+	GroupeGestion.prototype.queryDeciderRattachementGroupe = function(etat, groupeId, callback) {
+		this.restManager.effectuerRequete("POST", "rattachementgroupe/decidergroupe", {
 			token: this.restManager.getToken(), id: groupeId, etat: etat
 		}, function(data) {
 			callback(data.resultCode);

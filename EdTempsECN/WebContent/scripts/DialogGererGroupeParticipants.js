@@ -104,7 +104,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 	DialogGererGroupeParticipants.prototype.deciderRattachement = function(choix, groupeId) {
 		var me=this;
 		
-		this.groupeGestion.queryDeciderRattachement(choix, groupeId, function (resultCode) {
+		this.groupeGestion.queryDeciderRattachementGroupe(choix, groupeId, function (resultCode) {
 			if (resultCode == RestManager.resultCode_Success) {
 				window.showToast("Votre choix a été enregistré");
 				

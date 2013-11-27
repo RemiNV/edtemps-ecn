@@ -12,6 +12,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
+import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
@@ -766,13 +767,13 @@ public class GroupeGestion {
 	
 	
 	/**
-	 * Lister les groupes qui sont en attente de rattachement, pour un utilisateur
+	 * Récupérer la liste des groupes qui sont en attente de rattachement pour un utilisateur donné
 	 * @param userId Identifiant de l'utilisateur
-	 * @return la liste des groupes
+	 * @return liste des groupes
 	 * @throws DatabaseException
 	 * @throws SQLException
 	 */
-	public List<GroupeComplet> listerDemandesDeRattachement(int userId) throws DatabaseException, SQLException {
+	public List<GroupeComplet> listerDemandesDeRattachementGroupes(int userId) throws DatabaseException, SQLException {
 		
 		List<GroupeComplet> groupesEnAttenteDeValidation = new ArrayList<GroupeComplet>();
 
@@ -796,6 +797,36 @@ public class GroupeGestion {
 		return groupesEnAttenteDeValidation;
 	}
 	
+
+	/**
+	 * Récupérer la liste des calendriers qui sont en attente de rattachement pour un utilisateur donné
+	 * @param userId Identifiant de l'utilisateur
+	 * @return liste des groupes
+	 * @throws SQLException
+	 * @throws EdtempsException 
+	 */
+	public List<CalendrierIdentifie> listerDemandesDeRattachementCalendriers(int userId) throws SQLException, EdtempsException {
+		
+		List<CalendrierIdentifie> calendriersEnAttenteDeValidation = new ArrayList<CalendrierIdentifie>();
+
+		// Démarre une transaction
+		_bdd.startTransaction();
+
+		// Récupère les calendriers qui sont en attente de rattachement
+		ResultSet requete = _bdd.executeRequest("SELECT cal_id FROM edt.calendrierappartientgroupe " +
+				"WHERE calendrierappartientgroupe.groupeparticipant_id_tmp IN " +
+				"(SELECT proprietairegroupeparticipant.groupeparticipant_id " +
+				"FROM edt.proprietairegroupeparticipant WHERE proprietairegroupeparticipant.utilisateur_id="+userId+")");
+
+		// Récupère et traite le résultat
+		CalendrierGestion calGestion = new CalendrierGestion(_bdd);
+		while (requete.next()) {
+			calendriersEnAttenteDeValidation.add(calGestion.getCalendrier(requete.getInt(1)));
+		}
+		requete.close();
+		
+		return calendriersEnAttenteDeValidation;
+	}
 	
 	/**
 	 * Décide du rattachement (accepté ou refusé) à un groupe de participant
