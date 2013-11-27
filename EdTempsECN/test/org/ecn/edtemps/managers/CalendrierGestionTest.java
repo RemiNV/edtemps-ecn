@@ -85,10 +85,10 @@ public class CalendrierGestionTest {
 		lstProprietaires.add(idUser1);
 		lstProprietaires.add(idUser2);
 		
-		Calendrier calendrier = new Calendrier("caltest123'soleil", typesCalendrier.values().iterator().next(), matieres.values().iterator().next(), lstProprietaires);
+		Calendrier calendrier = new Calendrier("caltest123soleil", typesCalendrier.values().iterator().next(), matieres.values().iterator().next(), lstProprietaires);
 		
 		// Ajout à la bdd
-		int idCal = calendrierGestion.sauverCalendrier(calendrier);
+		int idCal = calendrierGestion.sauverCalendrier(calendrier, new ArrayList<Integer>(0));
 		
 		// Récupération du calendrier ajouté
 		CalendrierIdentifie calAjoute = calendrierGestion.getCalendrier(idCal);
