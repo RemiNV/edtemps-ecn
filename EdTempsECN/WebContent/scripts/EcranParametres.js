@@ -91,6 +91,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					gpe = data.groupesNonAbonnements[i];
 					html += '<option value="' + gpe.id + '"'
 						+ ' idparent="' + gpe.parentId + '"'
+						+ ' rattachementsDuCalendrier="' + gpe.rattachementsDuCalendrier + '"'
 						+ ' selected="selected">' 
 						+ gpe.nom ;
 					// Information groupeUnique
@@ -111,8 +112,9 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					if (gpe.abonnementObligatoire) {
 						html += ' disabled="disabled"';
 					}
-					html += ' idparent="' + gpe.parentId + '"';
-					html += '>' + gpe.nom ;
+					html += ' idparent="' + gpe.parentId + '"'
+					      + ' rattachementsDuCalendrier="' + gpe.rattachementsDuCalendrier + '"'
+					      + '>' + gpe.nom ;
 					// Information GroupeUnique
 					if (gpe.estCalendrierUnique) {
 						html += " (Calendrier)";
@@ -145,19 +147,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 							// Si aucune erreur, on remet à jour les abonnements indirects 
 							// NB : le déplacement de l'élément d'une liste à l'autre est fait par la bibliothèque
 							if(resultCode == RestManager.resultCode_Success) {
-								// On supprime les infos bulles de tous les agendas disponibles
-								$( '.ms-selection li' ).each(function() {
-									$(this).removeClass("abonnement_indirect");
-									$(this).removeAttr("title");
-								});		
-								// On ajoute les infos-bulles sur les groupes liés (parent ou fils) aux abonnements directs (= éléments <li> ayant la classe .ms-selectable, tout en étant affichés) 
-								$( '.ms-selectable li' ).each(function() {
-									if ( $(this).css("display")  != "none") {
-										var idGpe = $(this).attr("id").replace("-selectable", "");
-										var nomGpe = $(this).text();
-										me.afficheAbonnementsIndirectes(idGpe, nomGpe);
-									}
-								});	
+								me.miseAJourAbonnementsIndirectes();
 							}
 							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les abonnements de l'utilisateur
 							else {
@@ -174,8 +164,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 							// Si aucune erreur, on modifie seulement les abonnements indirects 
 							// NB : le déplacement de l'élément d'une liste à l'autre est fait par la bibliothèque 
 							if(resultCode == RestManager.resultCode_Success) {
-								var nomGroupe = $("#" + idgroupe + "-selectable").text();
-								me.afficheAbonnementsIndirectes(idgroupe, nomGroupe);	
+								me.miseAJourAbonnementsIndirectes();	
 						 	}
 							// En cas d'erreur, on affiche un message et replace l'élément sélectionné dans les "Agendas disponibles"
 							else {
@@ -194,6 +183,11 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 				for (var i = 0, maxI=data.groupesAbonnements.length ; i < maxI ; i++) {
 					me.afficheAbonnementsIndirectes(data.groupesAbonnements[i].id, data.groupesAbonnements[i].nom);
 				}
+				// On ajoute les infos-bulles "abonnements indirectes" sur les calendriers
+				for (var i = 0, maxI=data.groupesNonAbonnements.length ; i < maxI ; i++) {
+					me.afficheRattachementsAuCalendrier(data.groupesNonAbonnements[i].id, data.groupesNonAbonnements[i].rattachementsDuCalendrier);
+				}
+				
 			}
 			
 			else if(resultCode == RestManager.resultCode_NetworkError) {
@@ -289,15 +283,97 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	};
 	
 	/**
+	 * Permet la mise à jour des infobulles "abonné indirectement" 
+	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
+	 *
+	 * @param : id
+	 * @param : nom
+	 */
+	EcranParametres.prototype.miseAJourAbonnementsIndirectes = function() {
+		var me = this;
+		// On supprime les infos bulles de tous les agendas disponibles
+		$( '.ms-selection li' ).each(function() {
+			$(this).removeClass("abonnement_indirect");
+			$(this).removeAttr("title");
+		});		
+		// On ajoute les infos-bulles sur les groupes liés (parent ou fils) aux abonnements directs (= éléments <li> ayant la classe .ms-selectable, tout en étant affichés) 
+		$( '.ms-selectable li' ).each(function() {
+			if ( $(this).css("display")  != "none") {
+				var idGpe = $(this).attr("id").replace("-selectable", "");
+				var nomGpe = $(this).text().replace(" (Groupe)", "");
+				me.afficheAbonnementsIndirectes(idGpe, nomGpe);
+			}
+		});	
+		// On ajoute les infos-bulles sur les calendriers
+		$( '.ms-selection li' ).each(function() {
+			if ( $(this).css("display")  != "none") {
+				var idGpe = $(this).attr("id").replace("-selection", "");
+				var idRattachementsString = $(this).attr("rattachementsducalendrier");
+				if (idRattachementsString != "") {
+					var idRattachements = idRattachementsString.split(",");
+					me.afficheRattachementsAuCalendrier(idGpe, idRattachements);
+				}
+			}
+		});	
+	};
+	
+	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux parents et fils du groupe ayant l'id "id"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
 	 *
 	 * @param : id
+	 * @param : nom
 	 */
 	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id, nom) {
 		this.afficheAbonnementsIndirectesFils(id, nom);
 		this.afficheAbonnementsIndirectesParent(id, nom);
 	};
+	
+	/**
+	 * Permet d'ajouter l'info "abonné indirectement" sur le calendrier en argument
+	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
+	 *
+	 * @param id : id du calendrier (pour pouvoir lui ajouter la classe "abonnement_indirect" et le title si besoin)
+	 * @param parentsId : chaine contenant les id des parents séparés par des virgules
+	 */
+	EcranParametres.prototype.afficheRattachementsAuCalendrier = function (id, parentsId) {
+		// Calendrier auquel ajouter la classe "abonnement_indirect"
+		var calendrier = $( "#" + id + "-selection");
+		// Infobulle du calendrier (si il en a déjà une)
+		var infobulle = calendrier.attr("title");
+		// Parcourt des parents
+		for (var i=0; i<parentsId.length; i++) {
+			// Pour chaque parent, on regarder si il a la classe "abonnement_indirect"
+			var parentDansMenuAbonnementsDisponibles = $("#"+parentsId[i]+"-selection");
+			if ( parentDansMenuAbonnementsDisponibles.hasClass("abonnement_indirect") ) {
+				var infobulleGroupeParent = parentDansMenuAbonnementsDisponibles.attr("title").replace("Abonnement indirect via ", "");
+				//On ajoute la classe "abonnement_indirect" au calendrier 
+				calendrier.addClass("abonnement_indirect");
+				//On ajoute l'infobulle au calendrier 
+				if (infobulle == undefined) {
+					calendrier.attr("title", "Abonnement indirect via " + infobulleGroupeParent);
+				}	
+				else {
+					calendrier.attr("title", infobulle + " / " + infobulleGroupeParent);
+				}
+			}
+			// Pour chaque parent, on regarder si c'est un abonnement direct
+			var parentDansMenuMesAbonnements = $("#"+parentsId[i]+"-selectable");
+			if ( parentDansMenuMesAbonnements.css("display")  != "none" ) {
+				var nomGroupeParent = parentDansMenuMesAbonnements.text().replace(" (Groupe)", "");
+				//On ajoute la classe "abonnement_indirect" au calendrier 
+				calendrier.addClass("abonnement_indirect");
+				//On ajoute l'infobulle au calendrier 
+				if (infobulle == undefined) {
+					calendrier.attr("title", "Abonnement indirect via "+ nomGroupeParent);
+				}	
+				else {
+					calendrier.attr("title", infobulle + " / " + nomGroupeParent);
+				}
+			}
+		}
+	};
+	
 	
 	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux parents du groupe ayant l'id "id"
