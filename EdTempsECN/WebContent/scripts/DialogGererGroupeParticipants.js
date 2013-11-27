@@ -18,17 +18,19 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		this.initAppele = false;
 	};
 
+	
 	/**
 	 * Affiche la boîte de dialogue de gestion d'un groupe de participants
-	 * @param listeGroupesEnAttenteDeValidation Liste des groupes en attente de validation du groupe à gérer
+	 * @param listeGroupes Liste des groupes en attente de validation
+	 * @param listeCalendriers Liste des calendriers en attente de validation
 	 */
-	DialogGererGroupeParticipants.prototype.show = function(listeGroupesEnAttenteDeValidation) {
+	DialogGererGroupeParticipants.prototype.show = function(listeGroupes, listeCalendriers) {
 		if(!this.initAppele) {
 			this.init();
 		}
 		
 		// Ecrit le contenu de la boîte de dialogue
-		this.chargerContenu(listeGroupesEnAttenteDeValidation);
+		this.chargerContenu(listeGroupes, listeCalendriers);
 		
 		// Ouvre la boîte de dialogue
 		this.jqDialog.dialog("open");
@@ -65,36 +67,63 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		this.initAppele = true;
 	};
 	
+	
 	/**
 	 * Ecrit le contenu de la boite de dialogue
-	 * @param listeGroupesEnAttenteDeValidation Liste des groupes en attente de validation du groupe à gérer
+	 * @param listeGroupes Liste des groupes en attente de validation
+	 * @param listeCalendriers Liste des calendriers en attente de validation
 	 */
-	DialogGererGroupeParticipants.prototype.chargerContenu = function(listeGroupesEnAttenteDeValidation) {
+	DialogGererGroupeParticipants.prototype.chargerContenu = function(listeGroupes, listeCalendriers) {
 		var me=this;
 		
-		// Préparation du template de remplissage
-		var listRattachementTemplate = 
+		// Ecriture de la partie sur les groupes
+		var listRattachementGroupesTemplate = 
 			"<% _.each(groupes, function(groupe) { %> <tr id='dialog_gerer_groupe_table_ligne_<%= groupe.id %>'>" +
 				"<td class='dialog_gerer_groupe_table_noms' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
-				"<td class='dialog_gerer_groupe_table_boutons'><input type='button' data-id='<%= groupe.id %>' class='button dialog_gerer_groupe_accepter' value='Accepter' /><input type='button' data-id='<%= groupe.id %>' class='button dialog_gerer_groupe_refuser' value='Refuser' /></td>" +
+				"<td class='dialog_gerer_groupe_table_boutons'>" +
+					"<input type='button' data-id='<%= groupe.id %>' class='button dialog_gerer_groupe_accepter' value='Accepter' />" +
+					"<input type='button' data-id='<%= groupe.id %>' class='button dialog_gerer_groupe_refuser' value='Refuser' />" +
+				"</td>" +
 			"</tr> <% }); %>";
-
-		// Ecriture du contenu de la dialogue
-		this.jqDialog.find("table").html(_.template(listRattachementTemplate, {groupes: listeGroupesEnAttenteDeValidation}));
+		this.jqDialog.find("#dialog_gerer_groupe_groupes").html(_.template(listRattachementGroupesTemplate, {groupes: listeGroupes}));
 		
 		// Listeners
-		this.jqDialog.find(".dialog_gerer_groupe_accepter").click(function (){
+		this.jqDialog.find("#dialog_gerer_groupe_groupes .dialog_gerer_groupe_accepter").click(function (){
 			me.deciderRattachement(true, $(this).attr("data-id"));
 		});
-		this.jqDialog.find(".dialog_gerer_groupe_refuser").click(function (){
+		this.jqDialog.find("#dialog_gerer_groupe_groupes .dialog_gerer_groupe_refuser").click(function (){
 			me.deciderRattachement(false, $(this).attr("data-id"));
 		});
-		this.jqDialog.find(".dialog_gerer_groupe_table_noms").click(function() {
+		this.jqDialog.find("#dialog_gerer_groupe_groupes .dialog_gerer_groupe_table_noms").click(function() {
 			me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
 		});
 
 
+		
+		// Ecriture de la partie sur les calendriers
+		var listRattachementCalendriersTemplate = 
+			"<% _.each(calendriers, function(calendrier) { %> <tr id='dialog_gerer_groupe_table_ligne_<%= calendrier.id %>'>" +
+				"<td class='dialog_gerer_groupe_table_noms' data-id='<%= calendrier.id %>'><%= calendrier.nom %></td>" +
+				"<td class='dialog_gerer_groupe_table_boutons'>" +
+					"<input type='button' data-id='<%= calendrier.id %>' class='button dialog_gerer_groupe_accepter' value='Accepter' />" +
+					"<input type='button' data-id='<%= calendrier.id %>' class='button dialog_gerer_groupe_refuser' value='Refuser' />" +
+				"</td>" +
+			"</tr> <% }); %>";
+		this.jqDialog.find("#dialog_gerer_groupe_calendriers").html(_.template(listRattachementCalendriersTemplate, {calendriers: listeCalendriers}));
+		
+		// Listeners
+		this.jqDialog.find("#dialog_gerer_groupe_calendriers .dialog_gerer_groupe_accepter").click(function (){
+			//me.deciderRattachement(true, $(this).attr("data-id"));
+		});
+		this.jqDialog.find("#dialog_gerer_groupe_calendriers .dialog_gerer_groupe_refuser").click(function (){
+			//me.deciderRattachement(false, $(this).attr("data-id"));
+		});
+		this.jqDialog.find("#dialog_gerer_groupe_calendriers .dialog_gerer_groupe_table_noms").click(function() {
+			//me.ecranParametres.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
+		});
+
 	};
+	
 	
 	/**
 	 * Fait le lien avec le serveur et met à jour la boite de dialogue

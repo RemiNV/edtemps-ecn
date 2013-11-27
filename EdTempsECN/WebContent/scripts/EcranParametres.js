@@ -21,6 +21,8 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
  		this.dialogGererGroupeParticipants = new DialogGererGroupeParticipants(this.restManager, this, $("#dialog_gerer_groupe"));
  		//Variable contenant les calendriers dont l'utilisateur est propriétaire
  		this.listeCalendriers = new Object();
+ 		//Variable contenant les groupes dont l'utilisateur est propriétaire
+ 		this.listeGroupes = new Object();
 	};
 	
 	var idTabs = {
@@ -449,31 +451,60 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 
 		// Cacher la bulle d'information
 		$("#bulle_information").html("").hide();
-		
-		this.groupeGestion.queryGroupesEtCalendriersEnAttenteRattachement(function(resultCode, data) {
-			var nbGroupes = data.length;
 
-			// Ajout des boutons "Gérer" et mise en surbrillance les lignes
+		this.groupeGestion.queryGroupesEtCalendriersEnAttenteRattachement(function(resultCode, listeGroupes, listeCalendriers) {
+			var nbGroupes = listeGroupes.length;
+			var nbCalendriers = listeCalendriers.length;
+			
+			
+			// Ajout des boutons "Gérer" et mise en surbrillance les lignes | pour les groupes en attente de rattachement
 			var dejaMisEnValeur = new Object();
-			if (nbGroupes > 0) {
-				for (var i=0; i<nbGroupes; i++) {
-					if (!dejaMisEnValeur[data[i].parentIdTmp]) {
-						$("#tbl_mes_groupes_ligne_"+data[i].parentIdTmp).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
-						$("#tbl_mes_groupes_ligne_"+data[i].parentIdTmp+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+data[i].parentIdTmp+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
-						dejaMisEnValeur[data[i].parentIdTmp] = true;
+			for (var i=0; i<nbGroupes; i++) {
+				var idGroupe = listeGroupes[i].parentIdTmp;
+				if (!dejaMisEnValeur[idGroupe]) {
+					$("#tbl_mes_groupes_ligne_"+idGroupe).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+					$("#tbl_mes_groupes_ligne_"+idGroupe+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+idGroupe+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
+					dejaMisEnValeur[idGroupe] = true;
+				}
+			}
+
+			// Ajout des boutons "Gérer" et mise en surbrillance les lignes | pour les calendriers en attente de rattachement
+			for (var i=0; i<nbCalendriers; i++) {
+				// Récupère l'identifiant du groupe concerné par ce calendrier
+				var idGroupe = null;
+				for (var j=0, maxJ=listeCalendriers[i].groupesParentsTmp.length; j<maxJ; j++) {
+					if (me.listeGroupes[listeCalendriers[i].groupesParentsTmp[j]]) {
+						idGroupe=listeCalendriers[i].groupesParentsTmp[j];
 					}
+				}
+				
+				// Met en valeur la ligne si ce n'est pas déjà fait
+				if (!dejaMisEnValeur[idGroupe]) {
+					$("#tbl_mes_groupes_ligne_"+idGroupe).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+					$("#tbl_mes_groupes_ligne_"+idGroupe+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+idGroupe+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
+					dejaMisEnValeur[idGroupe] = true;
 				}
 			}
 			
 			// Listeners pour les boutons gérer
 			$(".tbl_mes_groupes_boutons_gerer").click(function() {
-				var listeRattachementAttenteValidations = new Array();
-				for (var i=0, maxI=data.length; i<maxI; i++) {
-					if (data[i].parentIdTmp==$(this).attr("data-id")) {
-						listeRattachementAttenteValidations.push(data[i]);
+				var listeGroupesEnAttenteDeRattachement = new Array();
+				for (var i=0; i<nbGroupes; i++) {
+					if (listeGroupes[i].parentIdTmp==$(this).attr("data-id")) {
+						listeGroupesEnAttenteDeRattachement.push(listeGroupes[i]);
 					}
 				}
-				me.dialogGererGroupeParticipants.show(listeRattachementAttenteValidations);
+				
+				var listeCalendriersEnAttenteDeRattachement = new Array();
+				for (var i=0; i<nbCalendriers; i++) {
+					for (var j=0, maxJ=listeCalendriers[i].groupesParentsTmp; j<maxJ; j++) {
+						if ($(this).attr("data-id")==listeCalendriers[i].groupesParentsTmp[j]) {
+							listeCalendriersEnAttenteDeRattachement.push(listeCalendriers[i]);	
+						}
+					}
+				}
+				
+				me.dialogGererGroupeParticipants.show(listeGroupesEnAttenteDeRattachement, listeCalendriersEnAttenteDeRattachement);
 			});
 
 		});
@@ -500,6 +531,12 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 			if(resultCode == RestManager.resultCode_Success) {
 
 				if (data.listeGroupes.length>0) {
+
+					// Rempli la liste des groupes dans le tableau global
+					for (var i=0; i<data.listeGroupes.length; i++) {
+						me.listeGroupes[data.listeGroupes[i].id] = data.listeGroupes[i];
+					}
+					
 					// Ecriture du tableau dans la page
 					var listMesGroupesTemplate = 
 						"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>' <% if(groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
