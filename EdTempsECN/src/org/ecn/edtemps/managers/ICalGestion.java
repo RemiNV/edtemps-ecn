@@ -25,8 +25,8 @@ public class ICalGestion {
 	/** Gestionnaire de base de données */
 	private BddGestion bdd;
 	
-	/** Un peu plus de 5 événements par jour en 365 jours */
-	public static final int MAX_EVENEMENTS_ICAL = 1900;
+	/** Un peu plus de 8 événements par jour en 365 jours */
+	public static final int MAX_EVENEMENTS_ICAL = 3000;
 	
 	/**
 	 * Initialise un gestionnaire d'export ICal
