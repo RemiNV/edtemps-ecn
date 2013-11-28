@@ -12,6 +12,7 @@ import net.fortuna.ical4j.model.property.Version;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.MaxRowCountExceededException;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 
 /**
@@ -23,6 +24,9 @@ public class ICalGestion {
 
 	/** Gestionnaire de base de données */
 	private BddGestion bdd;
+	
+	/** Un peu plus de 5 événements par jour en 365 jours */
+	public static final int MAX_EVENEMENTS_ICAL = 1900;
 	
 	/**
 	 * Initialise un gestionnaire d'export ICal
@@ -38,21 +42,22 @@ public class ICalGestion {
 	 * @param idUtilisateur
 	 * @return
 	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws MaxRowCountExceededException Nombre d'événements trop élevé
 	 */
-	public String genererICalAbonnements(int idUtilisateur) throws DatabaseException {
+	public String genererICalAbonnements(int idUtilisateur) throws DatabaseException, MaxRowCountExceededException {
 		
 		// Récupération des évènements
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
-		// On prend un an d'évènement centré sur la date actuelle
+		// On prend 1 an d'événements (10 mois plus tard, 2 mois plus tôt)
 		GregorianCalendar dateDebut = new GregorianCalendar();
-		dateDebut.add(GregorianCalendar.MONTH, -6);
+		dateDebut.add(GregorianCalendar.MONTH, -2);
 		
 		GregorianCalendar dateFin = new GregorianCalendar();
-		dateFin.add(GregorianCalendar.MONTH, 6);
+		dateFin.add(GregorianCalendar.MONTH, 10);
 		
-		
-		ArrayList<EvenementIdentifie> evenements = evenementGestion.listerEvenementsUtilisateur(idUtilisateur, dateDebut.getTime(), dateFin.getTime(), true, false);
+		// TODO : utiliser des EvenementComplet pour avoir matière et type (EvenementCompletInflater déjà optimisé pour gérer beaucoup d'événements)
+		ArrayList<EvenementIdentifie> evenements = evenementGestion.listerEvenementsUtilisateur(idUtilisateur, dateDebut.getTime(), dateFin.getTime(), true, false, MAX_EVENEMENTS_ICAL);
 		
 		Calendar calendar = new Calendar();
 		

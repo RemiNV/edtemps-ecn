@@ -33,7 +33,10 @@ public enum ResultCode {
 	SALLE_OCCUPEE(10),
 
 	/** Une valeur alphanumérique est requise */
-	ALPHANUMERIC_REQUIRED(11);
+	ALPHANUMERIC_REQUIRED(11),
+	
+	/** Une requête a été annulée car le nombre de résultats était trop important */
+	MAX_ROW_COUNT_EXCEEDED(12);
 
 	private int code;
 	
