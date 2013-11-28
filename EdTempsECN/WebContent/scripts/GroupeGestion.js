@@ -123,7 +123,7 @@ define(["RestManager"], function(RestManager) {
 
 
 	/**
-	 * Décider du sort d'un rattachement d'un groupe à un autre (accepté ou refusé)
+	 * Décider du sort du rattachement d'un groupe à un autre (accepté ou refusé)
 	 * @param etat VRAI si le rattachement est accepté, FAUX sinon
 	 * @param groupeId identifiant du groupe pour lequel le rattachement a été décidé
 	 * @param callback
@@ -131,6 +131,22 @@ define(["RestManager"], function(RestManager) {
 	GroupeGestion.prototype.queryDeciderRattachementGroupe = function(etat, groupeId, callback) {
 		this.restManager.effectuerRequete("POST", "rattachementgroupe/decidergroupe", {
 			token: this.restManager.getToken(), id: groupeId, etat: etat
+		}, function(data) {
+			callback(data.resultCode);
+		});
+	};
+	
+
+	/**
+	 * Décider du sort du rattachement d'un calendrier à un groupe (accepté ou refusé)
+	 * @param etat VRAI si le rattachement est accepté, FAUX sinon
+	 * @param calendrierId identifiant du calendrier demandeur
+	 * @param groupeId identifiant du groupe concerné
+	 * @param callback
+	 */
+	GroupeGestion.prototype.queryDeciderRattachementCalendrier = function(etat, calendrierId, groupeId, callback) {
+		this.restManager.effectuerRequete("POST", "rattachementgroupe/decidercalendrier", {
+			token: this.restManager.getToken(), calendrierId: calendrierId, groupeIdParent: groupeId, etat: etat
 		}, function(data) {
 			callback(data.resultCode);
 		});

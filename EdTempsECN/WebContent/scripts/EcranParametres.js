@@ -488,6 +488,8 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 			
 			// Listeners pour les boutons gérer
 			$(".tbl_mes_groupes_boutons_gerer").click(function() {
+
+				// Récupère la liste des groupes qui demandent le rattachement au groupe sélectionné
 				var listeGroupesEnAttenteDeRattachement = new Array();
 				for (var i=0; i<nbGroupes; i++) {
 					if (listeGroupes[i].parentIdTmp==$(this).attr("data-id")) {
@@ -495,16 +497,19 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					}
 				}
 				
+				// Récupère la liste des calendriers qui demandent le rattachement au groupe sélectionné
 				var listeCalendriersEnAttenteDeRattachement = new Array();
 				for (var i=0; i<nbCalendriers; i++) {
-					for (var j=0, maxJ=listeCalendriers[i].groupesParentsTmp; j<maxJ; j++) {
+					for (var j=0, maxJ=listeCalendriers[i].groupesParentsTmp.length; j<maxJ; j++) {
 						if ($(this).attr("data-id")==listeCalendriers[i].groupesParentsTmp[j]) {
 							listeCalendriersEnAttenteDeRattachement.push(listeCalendriers[i]);	
 						}
 					}
 				}
 				
-				me.dialogGererGroupeParticipants.show(listeGroupesEnAttenteDeRattachement, listeCalendriersEnAttenteDeRattachement);
+				// Appelle la boîte de dialogue de gestion
+				me.dialogGererGroupeParticipants.show(listeGroupesEnAttenteDeRattachement,
+						listeCalendriersEnAttenteDeRattachement, $(this).attr("data-id"));
 			});
 
 		});

@@ -572,9 +572,14 @@ input.valide {
 	margin-top: 10px;	
 }
 
+#dialog_gerer_groupe .dialog_gerer_groupe_titre {
+	font-weight: bold;
+}
+
 #dialog_gerer_groupe table {
 	border-collapse: collapse;
 	width: 100%;
+	margin-bottom: 20px;
 }
 
 #dialog_gerer_groupe table tr {
@@ -590,13 +595,6 @@ input.valide {
 	text-align: right;
 }
 
-#dialog_gerer_groupe table .dialog_gerer_groupe_table_noms {
-	cursor: pointer;	
-}
-
-#dialog_gerer_groupe table tr:hover {
-	background-color: white;
-}
 
 /** Multiwidget */
 .multiwidget_line {

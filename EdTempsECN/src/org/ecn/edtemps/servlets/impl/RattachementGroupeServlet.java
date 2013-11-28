@@ -132,8 +132,11 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	protected void doDeciderDemandeDeRattachementCalendrier(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		Boolean choix = Boolean.valueOf(req.getParameter("etat"));
-		Integer groupeIdParent = Integer.valueOf(req.getParameter("groupeIdParent"));
-		Integer calendrierId = Integer.valueOf(req.getParameter("calendrierId"));
+		Integer groupeIdParent = req.getParameter("groupeIdParent")==null ? null : Integer.valueOf(req.getParameter("groupeIdParent"));
+		Integer calendrierId = req.getParameter("calendrierId")==null ? null : Integer.valueOf(req.getParameter("calendrierId"));
+		if (calendrierId==null | groupeIdParent==null | choix==null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Les paramètres de la requêtes ne sont pas corrects, il faut un identifiant de groupe parent, un identifiant de calendrier et un choix.");
+		}
 		groupeGestion.deciderRattachementCalendrier(choix, groupeIdParent, calendrierId);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement "+(choix ? "accepté" : "refusé"), null));
 	}
