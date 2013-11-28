@@ -93,7 +93,7 @@ define(["RestManager"], function(RestManager) {
 	 * @param callback
 	 */
 	GroupeGestion.prototype.queryGetGroupeComplet = function(groupeId, callback) {
-		this.restManager.effectuerRequete("POST", "groupeparticipants/get", {
+		this.restManager.effectuerRequete("GET", "groupeparticipants/get", {
 			token: this.restManager.getToken(), id: groupeId
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
