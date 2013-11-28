@@ -526,24 +526,24 @@ input.valide {
 
 #tbl_mes_groupes tr {
 	border: solid 1px gray;
-	cursor: pointer;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_ligne_importante {
 	background-color: #FFDBDB;
 }
 
-#tbl_mes_groupes tr:hover {
-	background-color: #DDDDDD;
+#tbl_mes_groupes .tbl_mes_groupes_groupe:hover {
+	color: blue;
+	text-decoration: underline;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_groupe {
 	padding-left: 10px;
+	cursor: pointer;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons {
 	text-align: right;
-	width: 250px;
 }
 
 #tbl_mes_groupes .tbl_mes_groupes_boutons input {

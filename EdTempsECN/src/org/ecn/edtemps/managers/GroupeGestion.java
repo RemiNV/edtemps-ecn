@@ -884,4 +884,37 @@ public class GroupeGestion {
 		_bdd.commit();
 
 	}
+	
+	
+	/**
+	 * Supprimer le propriétaire d'un groupe de participants
+	 * @param proprietaireId Identifiant du propriétaire à supprimer
+	 * @param groupeId Identifiant
+	 * @throws DatabaseException 
+	 */
+	public void supprimerProprietaire(int proprietaireId, int groupeId) throws DatabaseException {
+
+		try {
+			
+			// Démarre une transaction
+			_bdd.startTransaction();
+	
+			// Vérifie qu'il y ait d'autres propriétaires sinon n'autorise pas la suppression
+			// Cela permet d'éviter d'avoir des groupes sans propriétaires
+			ResultSet res = _bdd.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant" +
+						" WHERE groupeparticipant_id="+groupeId+" AND utilisateur_id<>"+proprietaireId);
+			
+			if (res.next()) {
+				// Supprime le propriétaire pour le groupe
+				_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant" +
+						" WHERE utilisateur_id="+proprietaireId+" AND groupeparticipant_id="+groupeId);
+			}
+		
+			// Termine la transaction
+			_bdd.commit();
+
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
 }

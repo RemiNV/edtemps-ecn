@@ -533,11 +533,11 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 			// Suppression du message de chargement
 			$("#tbl_mes_groupes_chargement").css("display", "none");
 
-			if(resultCode == RestManager.resultCode_Success) {
+			if (resultCode == RestManager.resultCode_Success) {
 
 				if (data.listeGroupes.length>0) {
 
-					// Rempli la liste des groupes dans le tableau global
+					// Rempli la liste des groupes dans le tableau global (indexé par l'identifiant du groupe)
 					for (var i=0; i<data.listeGroupes.length; i++) {
 						me.listeGroupes[data.listeGroupes[i].id] = data.listeGroupes[i];
 					}
@@ -547,6 +547,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 						"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>' <% if(groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
 							"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
 							"<td class='tbl_mes_groupes_boutons'>" +
+								"<% if(groupe.proprietaires.length>1) { %><input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_plusproprietaire' value='Ne plus être propriétaire' /><% } %>" +
 								"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_modifier' value='Modifier' />" +
 								"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' />" +
 							"</td>" +
@@ -555,13 +556,27 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
 					
 					// Listeners pour les lignes
-					$(".tbl_mes_groupes_groupe").click(function() {
+					$("#tbl_mes_groupes .tbl_mes_groupes_groupe").click(function() {
 						me.dialogDetailGroupeParticipants.show($(this).attr("data-id"));
 					});
 
+					// Listeners pour les boutons "ne plus être propriétaire"
+					$("#tbl_mes_groupes .tbl_mes_groupes_boutons_plusproprietaire").click(function() {
+						if (confirm("Etes-vous sur de ne plus vouloir etre proprietaire du groupe '"+me.listeGroupes[$(this).attr("data-id")].nom+"' ?")) {
+							me.groupeGestion.queryNePlusEtreProprietaire($(this).attr("data-id"), function() {
+								if (resultCode == RestManager.resultCode_Success) {
+									window.showToast("Vous n'êtes plus propriétaire du groupe.");
+									me.afficheListeMesGroupes();
+								} else {
+									window.showToast("La modification du groupe a échoué ; vérifiez votre connexion.");
+								}
+							});
+						}
+					});
+					
 					// Listeners pour les boutons Supprimer
 					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
-						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+$(this).parents("tr").find(".tbl_mes_groupes_groupe").html()+"' ?")) {
+						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+me.listeGroupes[$(this).attr("data-id")].nom+"' ?")) {
 							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Le groupe a été supprimé avec succès.");

@@ -86,6 +86,20 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+
+	/**
+	 * Ne plus être propriétaire d'un groupe de participants
+	 * @param groupeId
+	 * @param callback
+	 */
+	GroupeGestion.prototype.queryNePlusEtreProprietaire = function(groupeId, callback) {
+		this.restManager.effectuerRequete("POST", "groupeparticipants/nePlusEtreProprietaire", {
+			token: this.restManager.getToken(), groupeId: groupeId
+		}, function(data) {
+			callback(data.resultCode);
+		});
+	};
+	
 	
 	/**
 	 * Récupérer un groupe de participants avec toutes les données complètes
