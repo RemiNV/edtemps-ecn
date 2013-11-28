@@ -56,7 +56,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 		
-		this.verifieGroupeEnAttenteRattachement();
+		this.verifieAttentesRattachements();
 	};
 	
 	EcranAccueil.prototype.rafraichirCalendrier = function() {
@@ -392,14 +392,15 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	
 	
 	/**
-	 * Vérifie s'il y a des groupes en attente de rattachement et s'il y en a l'information est affiché
+	 * Vérifie s'il y a des groupes ou des calendriers en attente de rattachement
+	 * S'il y en a l'information est affichée dans une bulle rouge
 	 */
-	EcranAccueil.prototype.verifieGroupeEnAttenteRattachement = function() {
+	EcranAccueil.prototype.verifieAttentesRattachements = function() {
 
-		this.groupeGestion.queryGroupesEnAttenteRattachement(function(resultCode, data) {
+		this.groupeGestion.queryGroupesEtCalendriersEnAttenteRattachement(function(resultCode, listeGroupes, listeCalendriers) {
 			
 			if(resultCode == RestManager.resultCode_Success) {
-				if (data.length>0) {
+				if (listeGroupes.length>0 || listeCalendriers.length>0) {
 					$("#bulle_information")
 						.html("<img id='bulle_information_fermer' src='img/fermer.png' title='Fermer' />")
 						.append("Vous avez des demandes de rattachement.<br/><span id='bulle_information_clique'>Cliquez pour les gérer.</span>")

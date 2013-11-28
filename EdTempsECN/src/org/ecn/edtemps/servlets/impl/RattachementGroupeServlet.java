@@ -12,13 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
+import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
@@ -35,22 +35,17 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	/**
 	 * Méthode générale du servlet appelée par la requête POST
 	 * Elle redirige vers les différentes méthodes possibles
-	 * 
-	 * @param userId
-	 * 			identifiant de l'utilisateur qui a fait la requête
-	 * @param bdd
-	 * 			gestionnaire de la base de données
-	 * @param req
-	 * 			requête
-	 * @param resp
-	 * 			réponse pour le client
+	 * @param userId Identifiant de l'utilisateur qui a fait la requête
+	 * @param bdd Gestionnaire de la base de données
+	 * @param req Requête
+	 * @param resp Réponse pour le client
 	 */
 	@Override
 	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
 		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/listermesdemandes") && !pathInfo.equals("/decider") ) {
+		if (!pathInfo.equals("/listermesdemandes") && !pathInfo.equals("/decidergroupe") && !pathInfo.equals("/decidercalendrier") ) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			bdd.close();
 			return;
@@ -63,12 +58,14 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 				case "/listermesdemandes":
 					doListerMesDemandesDeRattachement(userId, bdd, req, resp);
 					break;
-				case "/decider":
-					doDeciderDemandeDeRattachement(userId, bdd, req, resp);
+				case "/decidergroupe":
+					doDeciderDemandeDeRattachementGroupe(userId, bdd, req, resp);
+					break;
+				case "/decidercalendrier":
+					doDeciderDemandeDeRattachementCalendrier(userId, bdd, req, resp);
 					break;
 			}
 
-			// Ferme l'accès à la base de données
 			bdd.close();
 		
 		} catch(JsonException | ClassCastException e) {
@@ -93,18 +90,21 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	 * @param resp Réponse à compléter
 	 * @param requete Requête
 	 * @throws SQLException 
-	 * @throws DatabaseException 
 	 * @throws IOException 
+	 * @throws EdtempsException
 	 */
-	protected void doListerMesDemandesDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws SQLException, DatabaseException, IOException {
+	protected void doListerMesDemandesDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws SQLException, IOException, EdtempsException {
 		GroupeGestion gestionnaireGroupes = new GroupeGestion(bdd);
-		List<GroupeComplet> listeGroupes = gestionnaireGroupes.listerDemandesDeRattachement(userId);
-		JsonObject data = Json.createObjectBuilder().add("listeGroupes", JSONUtils.getJsonArray(listeGroupes)).build();
-		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Liste des groupes en attente de rattachement récupérée", data));
+		List<GroupeComplet> listeGroupes = gestionnaireGroupes.listerDemandesDeRattachementGroupes(userId);
+		List<CalendrierComplet> listeCalendriers = gestionnaireGroupes.listerDemandesDeRattachementCalendriers(userId);
+		JsonObject data = Json.createObjectBuilder()
+				.add("listeGroupes", JSONUtils.getJsonArray(listeGroupes))
+				.add("listeCalendriers", JSONUtils.getJsonArray(listeCalendriers)).build();
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "La liste des groupes et la liste des calendriers en attente de rattachement sont récupérées", data));
 	}
 	
 	/**
-	 * Décider une demande de rattachement
+	 * Décider une demande de rattachement d'un groupe
 	 * @param userId Identifiant de l'utilisateur qui fait la requête
 	 * @param bdd Gestionnaire de la base de données
 	 * @param resp Réponse à compléter
@@ -112,13 +112,32 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */
-	protected void doDeciderDemandeDeRattachement(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+	protected void doDeciderDemandeDeRattachementGroupe(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		Boolean choix = Boolean.valueOf(req.getParameter("etat"));
 		Integer groupeId = Integer.valueOf(req.getParameter("id"));
-		groupeGestion.deciderRattachement(choix, groupeId);
+		groupeGestion.deciderRattachementGroupe(choix, groupeId);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement "+(choix ? "accepté" : "refusé"), null));
-
 	}
 
+	/**
+	 * Décider une demande de rattachement pour un calendrier
+	 * @param userId Identifiant de l'utilisateur qui fait la requête
+	 * @param bdd Gestionnaire de la base de données
+	 * @param resp Réponse à compléter
+	 * @param requete Requête
+	 * @throws EdtempsException
+	 * @throws IOException
+	 */
+	protected void doDeciderDemandeDeRattachementCalendrier(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		Boolean choix = Boolean.valueOf(req.getParameter("etat"));
+		Integer groupeIdParent = req.getParameter("groupeIdParent")==null ? null : Integer.valueOf(req.getParameter("groupeIdParent"));
+		Integer calendrierId = req.getParameter("calendrierId")==null ? null : Integer.valueOf(req.getParameter("calendrierId"));
+		if (calendrierId==null | groupeIdParent==null | choix==null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Les paramètres de la requêtes ne sont pas corrects, il faut un identifiant de groupe parent, un identifiant de calendrier et un choix.");
+		}
+		groupeGestion.deciderRattachementCalendrier(choix, groupeIdParent, calendrierId);
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement "+(choix ? "accepté" : "refusé"), null));
+	}
 }

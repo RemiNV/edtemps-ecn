@@ -15,6 +15,8 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Calendrier;
 import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
+import org.ecn.edtemps.models.inflaters.CalendrierCompletInflater;
+import org.ecn.edtemps.models.inflaters.CalendrierIdentifieInflater;
 
 /** 
  * Classe de gestion des calendriers
@@ -172,43 +174,6 @@ public class CalendrierGestion {
 		} 	
 	}
 	
-	/**
-	 * Créé un calendrier à partir d'une ligne de base de données
-	 * 
-	 * Colonnes nécessaires : cal_id, cal_nom, matiere_nom (obtenu depuis la table matiere), typecal_libelle (obtenu depuis la table typecalendrier)
-	 * 
-	 * @param row ResultSet placé à la ligne de base de données à lire
-	 * @return CalendrierIdentifie créé
-	 * @throws EdtempsException 
-	 * @throws SQLException 
-	 */
-	private CalendrierIdentifie inflateCalendrierFromRow(ResultSet row) throws DatabaseException, SQLException {
-		
-		int id = row.getInt("cal_id");
-		 String nom = row.getString("cal_nom");
-		 String matiere = row.getString("matiere_nom");
-		 String type = row.getString("typecal_libelle");
-		
-
-		// Récupération des propriétaires du calendrier
-		ResultSet rs_proprios = _bdd.executeRequest(
-				"SELECT * FROM edt.proprietairecalendrier WHERE cal_id = " + id );
-		
-		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
-		while(rs_proprios.next()){
-			 idProprietaires.add(rs_proprios.getInt("utilisateur_id"));
-		}
-		
-		/* Si au moins un proprio existe, le ou les ajouter aux attibuts du Calendrier. 
-		 * Sinon, exception EdtempsException
-		 */
-		if (idProprietaires.size() != 0) {
-			return new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
-		}
-		else {
-			throw new DatabaseException("Le calendrier d'id="+id+" n'a pas de propriétaire");
-		}
-	}
 	
 	/**
 	 * Récupère le calendrier repéré par l'ID donné
@@ -231,7 +196,7 @@ public class CalendrierGestion {
 					+ "WHERE cal_id = " + idCalendrier );
 
 			if(rs_calendrier.next()){
-				 result = inflateCalendrierFromRow(rs_calendrier);
+				 result = new CalendrierIdentifieInflater().inflateCalendrier(rs_calendrier, _bdd);
 			}
 			else {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : pas de calendrier correspondant à l'idCalendrier en argument");
@@ -561,7 +526,7 @@ public class CalendrierGestion {
 			ArrayList<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
 			
 			while(results.next()) {
-				res.add(this.inflateCalendrierFromRow(results));
+				res.add(new CalendrierIdentifieInflater().inflateCalendrier(results, _bdd));
 			}
 			
 			if(createTransaction)
@@ -597,28 +562,14 @@ public class CalendrierGestion {
 		try {
 			ArrayList<CalendrierComplet> res = new ArrayList<CalendrierComplet>();
 			while (results.next()) {
-				CalendrierIdentifie calendrier = inflateCalendrierFromRow(results);
+				// Création du calendrier complet avec la ligne de base de données
+				CalendrierComplet calendrier = new CalendrierCompletInflater().inflateCalendrier(results, _bdd);
 				
-				boolean estCours = results.getBoolean("estcours");
+				// Rassemble tous les identifiants de groupes parents
+				calendrier.getIdProprietaires().addAll(calendrier.getIdGroupesParentsTmp());
 				
-				// récupération des parents du calendrier
-				ResultSet rs_idGroupesParents = _bdd.executeRequest(
-						"SELECT cag.groupeparticipant_id, cag.groupeparticipant_id_tmp "
-						+ "FROM edt.calendrierappartientgroupe cag "
-						+ "LEFT JOIN edt.groupeparticipant gp ON gp.groupeparticipant_id = cag.groupeparticipant_id "
-						+ "WHERE cal_id = " + calendrier.getId()
-						+ "AND (gp.groupeparticipant_estCalendrierUnique = FALSE OR gp.groupeparticipant_id IS NULL)"
-				);
-				List<Integer> idGroupesParents = new ArrayList<Integer>();
-			    while (rs_idGroupesParents.next()) {
-					int idGroupe = rs_idGroupesParents.getInt("groupeparticipant_id");
-					if (rs_idGroupesParents.wasNull()) {
-						idGroupe = rs_idGroupesParents.getInt("groupeparticipant_id_tmp");
-					}
-					idGroupesParents.add(idGroupe);
-			    }
-			    
-				res.add(new CalendrierComplet(calendrier, estCours, idGroupesParents));
+				// Ajoute le calendrier au résultat
+				res.add(calendrier);
 			}
 			
 			results.close();
@@ -701,7 +652,7 @@ public class CalendrierGestion {
 		try {
 			List<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
 			while(reponse.next()) {
-				res.add(inflateCalendrierFromRow(reponse));
+				res.add(new CalendrierIdentifieInflater().inflateCalendrier(reponse, _bdd));
 			}
 			
 			reponse.close();

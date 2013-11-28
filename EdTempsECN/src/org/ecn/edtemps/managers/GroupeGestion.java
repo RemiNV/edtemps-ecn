@@ -12,9 +12,11 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
+import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.GroupeIdentifieAbonnement;
+import org.ecn.edtemps.models.inflaters.CalendrierCompletInflater;
 import org.ecn.edtemps.models.inflaters.GroupeCompletInflater;
 import org.ecn.edtemps.models.inflaters.GroupeIdentifieInflater;
 
@@ -766,13 +768,13 @@ public class GroupeGestion {
 	
 	
 	/**
-	 * Lister les groupes qui sont en attente de rattachement, pour un utilisateur
+	 * Récupérer la liste des groupes qui sont en attente de rattachement pour un utilisateur donné
 	 * @param userId Identifiant de l'utilisateur
-	 * @return la liste des groupes
+	 * @return liste des groupes
 	 * @throws DatabaseException
 	 * @throws SQLException
 	 */
-	public List<GroupeComplet> listerDemandesDeRattachement(int userId) throws DatabaseException, SQLException {
+	public List<GroupeComplet> listerDemandesDeRattachementGroupes(int userId) throws DatabaseException, SQLException {
 		
 		List<GroupeComplet> groupesEnAttenteDeValidation = new ArrayList<GroupeComplet>();
 
@@ -796,14 +798,48 @@ public class GroupeGestion {
 		return groupesEnAttenteDeValidation;
 	}
 	
+
+	/**
+	 * Récupérer la liste des calendriers qui sont en attente de rattachement pour un utilisateur donné
+	 * @param userId Identifiant de l'utilisateur
+	 * @return liste des groupes
+	 * @throws SQLException
+	 * @throws EdtempsException 
+	 */
+	public List<CalendrierComplet> listerDemandesDeRattachementCalendriers(int userId) throws SQLException, EdtempsException {
+		
+		List<CalendrierComplet> calendriersEnAttenteDeValidation = new ArrayList<CalendrierComplet>();
+
+		// Démarre une transaction
+		_bdd.startTransaction();
+
+		// Récupère les calendriers qui sont en attente de rattachement
+		ResultSet requete = _bdd.executeRequest("SELECT A.cal_id, C.cal_nom, M.matiere_nom, T.typecal_libelle," +
+				" FALSE AS estcours " + // "met estCours à False : valeur inutile dans cette méthode donc pour éviter la surcharge on met une valeur par défaut
+				" FROM edt.calendrierappartientgroupe A" +
+				" INNER JOIN edt.calendrier C ON C.cal_id=A.cal_id" +
+				" LEFT JOIN edt.matiere M ON M.matiere_id=C.matiere_id" +
+				" LEFT JOIN edt.typecalendrier T ON T.typecal_id=C.typecal_id" +
+				" WHERE A.groupeparticipant_id_tmp IN" +
+				" (SELECT P.groupeparticipant_id" +
+				" FROM edt.proprietairegroupeparticipant P WHERE P.utilisateur_id="+userId+")");
+
+		// Récupère et traite le résultat
+		while (requete.next()) {
+			calendriersEnAttenteDeValidation.add(new CalendrierCompletInflater().inflateCalendrier(requete, _bdd));
+		}
+		requete.close();
+		
+		return calendriersEnAttenteDeValidation;
+	}
 	
 	/**
-	 * Décide du rattachement (accepté ou refusé) à un groupe de participant
+	 * Décide du rattachement (accepté ou refusé) d'un groupe à un groupe de participant
 	 * @param accepte VRAI si le rattachement est accepté
 	 * @param groupeId Identifiant du groupe dont le rattachement a été décidé
 	 * @throws DatabaseException 
 	 */
-	public void deciderRattachement(boolean accepte, int groupeId) throws DatabaseException {
+	public void deciderRattachementGroupe(boolean accepte, int groupeId) throws DatabaseException {
 		
 		// Démarre une transaction
 		_bdd.startTransaction();
@@ -818,5 +854,67 @@ public class GroupeGestion {
 		// Termine la transaction
 		_bdd.commit();
 
+	}
+	
+
+	/**
+	 * Décide du rattachement (accepté ou refusé) d'un calendrier à un groupe de participant
+	 * @param accepte VRAI si le rattachement est accepté
+	 * @param groupeIdParent Identifiant du groupe parent
+	 * @param calendrierId Identifiant du calendrier qui demande le rattachement
+	 * @throws DatabaseException 
+	 */
+	public void deciderRattachementCalendrier(boolean accepte, int groupeIdParent, int calendrierId) throws DatabaseException {
+		
+		// Démarre une transaction
+		_bdd.startTransaction();
+
+		// Décide le rattachement
+		if (accepte) {
+			_bdd.executeUpdate("UPDATE edt.calendrierappartientgroupe" +
+					" SET groupeparticipant_id=groupeparticipant_id_tmp, groupeparticipant_id_tmp=NULL" +
+					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
+		} else {
+			_bdd.executeUpdate("UPDATE edt.calendrierappartientgroupe" +
+					" SET groupeparticipant_id_tmp=NULL" +
+					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
+		}
+
+		// Termine la transaction
+		_bdd.commit();
+
+	}
+	
+	
+	/**
+	 * Supprimer le propriétaire d'un groupe de participants
+	 * @param proprietaireId Identifiant du propriétaire à supprimer
+	 * @param groupeId Identifiant
+	 * @throws DatabaseException 
+	 */
+	public void supprimerProprietaire(int proprietaireId, int groupeId) throws DatabaseException {
+
+		try {
+			
+			// Démarre une transaction
+			_bdd.startTransaction();
+	
+			// Vérifie qu'il y ait d'autres propriétaires sinon n'autorise pas la suppression
+			// Cela permet d'éviter d'avoir des groupes sans propriétaires
+			ResultSet res = _bdd.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant" +
+						" WHERE groupeparticipant_id="+groupeId+" AND utilisateur_id<>"+proprietaireId);
+			
+			if (res.next()) {
+				// Supprime le propriétaire pour le groupe
+				_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant" +
+						" WHERE utilisateur_id="+proprietaireId+" AND groupeparticipant_id="+groupeId);
+			}
+		
+			// Termine la transaction
+			_bdd.commit();
+
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 	}
 }
