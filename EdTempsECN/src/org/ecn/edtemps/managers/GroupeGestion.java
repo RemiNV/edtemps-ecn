@@ -511,7 +511,8 @@ public class GroupeGestion {
 					"SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, "
 					+ "groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique "
 					+ "FROM edt.groupeparticipant"
-					+ (rattachementAutorise ? " WHERE groupeparticipant_rattachementautorise = TRUE" : ""));
+					+ (rattachementAutorise ? " WHERE groupeparticipant_rattachementautorise = TRUE " : " ")
+					+ "ORDER BY groupeparticipant_nom");
 			
 			// Création d'objets "groupes identifiés" pour les groupes rencontrés dans la table
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
