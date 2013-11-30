@@ -115,6 +115,8 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			ParamsAjouterModifierEvenement paramsEvenement = getParamsAjouterModifier(strEvenement);
 			
 			EvenementGestion evenementGestion = new EvenementGestion(bdd);
+
+			bdd.startTransaction();
 			
 			// Récupération de l'ancien évènement (pour les modifications)
 			EvenementIdentifie oldEven = null;
@@ -155,13 +157,12 @@ public class EvenementServlet extends RequiresConnectionServlet {
 				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous n'êtes pas propriétaire de tous les calendriers de l'évènement");
 			}
 			
-			// L'utilisateur ne peut pas ajouter une événement sans se lister comme responsable
+			// Le créateur de l'événement doit être responsable
 			// TODO : autoriser ceci pour utilisateur avec les droits suffisants
-			if(paramsEvenement.idResponsables != null && !paramsEvenement.idResponsables.contains(userId)) {
-				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous devez être un des propriétaires de l'événement");
+			Integer idCreateur = estModif ? oldEven.getIdCreateur() : userId;
+			if(paramsEvenement.idResponsables != null && idCreateur != null && !paramsEvenement.idResponsables.contains(idCreateur)) {
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Le créateur de l'événement doit être un des propriétaires");
 			}
-			
-			bdd.startTransaction();
 			
 			// Libération des salles déjà occupées pour un cours
 			// TODO : avertir le propriétaire d'un évènement quand la salle qu'il a renseignée est libérée par un nouvel évènement

@@ -720,9 +720,11 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException 
 	 */
 	public void supprimerUtilisateur(int userId) throws DatabaseException {
-		// TODO : gérer la suppression des liens "créateur"
 		// Démarre une transaction
 		bdd.startTransaction();
+		
+		// Supprime les liens de créateur d'événement
+		bdd.executeRequest("UPDATE edt.evenement SET eve_createur=NULL WHERE eve_createur=" + userId);
 
 		// Supprime les abonnements de l'utilisateur
 		bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE utilisateur_id="+userId);

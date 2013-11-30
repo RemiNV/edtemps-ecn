@@ -84,6 +84,10 @@ public class Evenement {
 	public List<Integer> getIdCalendriers() {
 		return idCalendriers;
 	}
+	
+	public Integer getIdCreateur() {
+		return this.idCreateur;
+	}
 
 	public void setIdCalendriers(List<Integer> idCalendriers) {
 		this.idCalendriers = idCalendriers;
@@ -112,4 +116,5 @@ public class Evenement {
 	public void setResponsables(List<UtilisateurIdentifie> responsables) {
 		this.responsables = responsables;
 	}
+	
 }

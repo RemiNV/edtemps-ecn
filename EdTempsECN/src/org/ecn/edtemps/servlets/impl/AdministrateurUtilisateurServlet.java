@@ -60,11 +60,11 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 					break;
 			}
 		} catch (NumberFormatException e) {
-			logger.error("Erreur de cast des paramètres");
+			logger.error("Erreur de cast des paramètres", e);
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		} catch (EdtempsException e) {
-			logger.error("Erreur du gestionnaire");
+			logger.error("Erreur du gestionnaire", e);
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			return;
 		}
