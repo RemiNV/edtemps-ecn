@@ -47,6 +47,9 @@ public abstract class AbsEvenementInflater<T extends EvenementIdentifie> {
 			String nom = reponse.getString("eve_nom");
 			Date dateDebut = reponse.getTimestamp("eve_datedebut");
 			Date dateFin = reponse.getTimestamp("eve_datefin");
+			Integer idCreateur = reponse.getInt("eve_createur");
+			reponse.wasNull();
+			idCreateur = null;
 			
 			requetePreparee = bdd.getConnection().prepareStatement(
 					"SELECT cal_id "
@@ -66,7 +69,7 @@ public abstract class AbsEvenementInflater<T extends EvenementIdentifie> {
 			// Récupération des responsables
 			ArrayList<UtilisateurIdentifie> responsables = utilisateurGestion.getResponsablesEvenement(id);
 			
-			T res = inflate(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, id, reponse, bdd);
+			T res = inflate(nom, dateDebut, dateFin, idCalendriers, idCreateur, salles, intervenants, responsables, id, reponse, bdd);
 			
 			return res;
 			
@@ -75,7 +78,7 @@ public abstract class AbsEvenementInflater<T extends EvenementIdentifie> {
 		}
 	}
 	
-	protected abstract T inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, ArrayList<SalleIdentifie> salles, ArrayList<UtilisateurIdentifie> intervenants, 
+	protected abstract T inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, Integer idCreateur, ArrayList<SalleIdentifie> salles, ArrayList<UtilisateurIdentifie> intervenants, 
 			ArrayList<UtilisateurIdentifie> responsables, int id, ResultSet reponse, BddGestion bdd) throws DatabaseException;
 
 }

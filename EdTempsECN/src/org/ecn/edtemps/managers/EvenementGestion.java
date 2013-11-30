@@ -45,7 +45,7 @@ public class EvenementGestion {
 	 * 
 	 * @param evenement
 	 */
-	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
+	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, Integer idCreateur, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean startTransaction) throws EdtempsException {
 		
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
@@ -72,12 +72,19 @@ public class EvenementGestion {
 			
 			// On crée l'événement dans la base de données
 			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
-					+ "(eve_nom, eve_dateDebut, eve_dateFin) "
-					+ "VALUES (?, ?, ?) "
+					+ "(eve_nom, eve_dateDebut, eve_dateFin, eve_createur) "
+					+ "VALUES (?, ?, ?, ?) "
 				    + "RETURNING eve_id");
 			req.setString(1, nom);
 			req.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
 			req.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
+			
+			if(idCreateur == null) {
+				req.setNull(4, java.sql.Types.INTEGER);
+			}
+			else {
+				req.setInt(4, idCreateur);
+			}
 			
 			ResultSet rsLigneCreee = req.executeQuery();
 			 
@@ -296,7 +303,7 @@ public class EvenementGestion {
 	 */
 	public EvenementIdentifie getEvenement(int idEvenement) throws DatabaseException {
 		ResultSet reponse = _bdd.executeRequest(
-				"SELECT eve_id, eve_nom, eve_datedebut, eve_datefin "
+				"SELECT eve_id, eve_nom, eve_datedebut, eve_datefin, evenement.eve_createur "
 				+ "FROM edt.evenement "
 				+ "WHERE eve_id=" + idEvenement);
 		
@@ -363,7 +370,7 @@ public class EvenementGestion {
 			GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
 		}
 		
-		String req = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String req = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
 				"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
@@ -396,7 +403,7 @@ public class EvenementGestion {
 		
 		GroupeGestion.makeTempTableListeParentsEnfants(_bdd, idGroupe);
 		
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
 				"INNER JOIN edt.calendrierappartientgroupe cap ON cap.cal_id = evenementappartient.cal_id " +
@@ -424,7 +431,7 @@ public class EvenementGestion {
 	 * @throws EdtempsException 
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementsSalleCoursOuPas(int idSalle, Date dateDebut, Date dateFin, boolean estCours, boolean createTransaction) throws EdtempsException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
 				"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id = evenement.eve_id " +
@@ -453,7 +460,7 @@ public class EvenementGestion {
 	 */
 	protected <T extends EvenementIdentifie> ArrayList<T> listerEvenementsSalle(int idSalle, Date dateDebut, Date dateFin, 
 			boolean createTransaction, AbsEvenementInflater<T> inflater) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
 				"WHERE alieuensalle.salle_id = " + idSalle +" "
@@ -506,7 +513,7 @@ public class EvenementGestion {
 	 */
 	public ArrayList<EvenementComplet> listerEvenementsIntervenant(int idIntervenant, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.intervenantevenement ON evenement.eve_id = intervenantevenement.eve_id " +
 				"WHERE intervenantevenement.utilisateur_id = " + idIntervenant + " "
@@ -528,7 +535,7 @@ public class EvenementGestion {
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementsCalendrier(int idCalendrier, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
 				"WHERE evenementappartient.cal_id = " + idCalendrier + " "

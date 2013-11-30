@@ -720,7 +720,7 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException 
 	 */
 	public void supprimerUtilisateur(int userId) throws DatabaseException {
-		
+		// TODO : gérer la suppression des liens "créateur"
 		// Démarre une transaction
 		bdd.startTransaction();
 

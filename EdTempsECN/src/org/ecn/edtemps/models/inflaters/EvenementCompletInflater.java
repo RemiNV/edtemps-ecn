@@ -33,7 +33,7 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 	}
 	
 	@Override
-	public EvenementComplet inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, 
+	public EvenementComplet inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, Integer idCreateur,
 			ArrayList<SalleIdentifie> salles, ArrayList<UtilisateurIdentifie> intervenants, 
 			ArrayList<UtilisateurIdentifie> responsables, int id, ResultSet reponse, BddGestion bdd) throws DatabaseException {
 		
@@ -84,7 +84,7 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 			}
 		}
 		
-		return new EvenementComplet(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, 
+		return new EvenementComplet(nom, dateDebut, dateFin, idCalendriers, idCreateur, salles, intervenants, responsables, 
 				id, matieres, types);
 	}
 

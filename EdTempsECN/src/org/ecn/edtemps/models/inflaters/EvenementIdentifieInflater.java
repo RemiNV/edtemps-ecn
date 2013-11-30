@@ -18,10 +18,10 @@ import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 public class EvenementIdentifieInflater extends AbsEvenementInflater<EvenementIdentifie> {
 
 	@Override
-	protected EvenementIdentifie inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, 
+	protected EvenementIdentifie inflate(String nom, Date dateDebut, Date dateFin, ArrayList<Integer> idCalendriers, Integer idCreateur, 
 			ArrayList<SalleIdentifie> salles, ArrayList<UtilisateurIdentifie> intervenants, 
 			ArrayList<UtilisateurIdentifie> responsables, int id, ResultSet reponse, BddGestion bdd) throws DatabaseException {
-		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, salles, intervenants, responsables, id);
+		return new EvenementIdentifie(nom, dateDebut, dateFin, idCalendriers, idCreateur, salles, intervenants, responsables, id);
 	}
 
 	
