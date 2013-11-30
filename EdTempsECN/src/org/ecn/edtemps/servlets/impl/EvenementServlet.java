@@ -259,7 +259,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
-		evenementGestion.sauverEvenement(params.nom, params.dateDebut, params.dateFin, params.idCalendriers, params.idSalles, 
+		evenementGestion.sauverEvenement(params.nom, params.dateDebut, params.dateFin, params.idCalendriers, userId, params.idSalles, 
 				params.idIntervenants, params.idResponsables, false);
 
 		// Succès
