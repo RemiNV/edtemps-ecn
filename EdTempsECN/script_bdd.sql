@@ -155,7 +155,7 @@ CREATE SEQUENCE edt.utilisateur_utilisateur_id_seq;
 CREATE TABLE edt.Utilisateur (
                 utilisateur_id INTEGER NOT NULL DEFAULT nextval('edt.utilisateur_utilisateur_id_seq'),
                 utilisateur_url_ical VARCHAR UNIQUE,
-                utilisateur_id_ldap INTEGER UNIQUE,
+                utilisateur_dn VARCHAR UNIQUE,
                 utilisateur_token VARCHAR UNIQUE,
                 utilisateur_token_expire TIMESTAMP,
 				utilisateur_nom TEXT NOT NULL,

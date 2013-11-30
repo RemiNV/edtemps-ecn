@@ -252,25 +252,30 @@ public class UtilisateurGestion {
 	/**
 	 * Récupération de l'ID d'un utilisateur connu dans la base de données depuis son ID LDAP.
 	 * L'utilisateur doit déjà avoir été enregistré sur le système emploi du temps
-	 * @param ldapId ID LDAP de l'utilisateur
+	 * @param dn dn LDAP de l'utilisateur
 	 * @return ID de l'utilisateur, ou null si il n'est pas présent dans la base
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	private Integer getUserIdFromLdapId(long ldapId) throws DatabaseException {
-		ResultSet results = bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + ldapId);
-		
-		Integer id = null;
+	private Integer getUserIdFromDN(String dn) throws DatabaseException {
 		
 		try {
+			PreparedStatement statement = bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_dn=?");
+			
+			statement.setString(1, dn);
+			
+			ResultSet results = statement.executeQuery();
+			
+			Integer id = null;
+
 			if(results.next()) {
 				id = results.getInt(1);
 			}
 			results.close();
+
+			return id;
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
-		
-		return id;
 	}
 	
 	/**
@@ -302,7 +307,7 @@ public class UtilisateurGestion {
 			
 			LDAPConnection connection = new LDAPConnection(socketFactoryConnection, ADRESSE_LDAP, PORT_LDAP, dn, pass);
 			
-			// Succès de la connexion : récupération de l'identifiant entier uid (uidnumber) de l'utilisateur
+			// Succès de la connexion : récupération des nom, prénom, mail de l'utilisateur
 			String filtre = "(uid=" + utilisateur + ")";
 			SearchRequest request = new SearchRequest("ou=people, dc=ec-nantes, dc=fr", SearchScope.SUB, filtre, "uidNumber", "sn", "givenName", "mail");
 			
@@ -313,11 +318,10 @@ public class UtilisateurGestion {
 			
 			// Entrée correspondant à l'utilisateur dans la recherche
 			if(lstResults.isEmpty()) {
-				logger.error("Erreur de récupération de l'ID LDAP de l'utilisateur : " + utilisateur);
-				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Impossible de récupérer l'ID LDAP de l'utilisateur.");
+				logger.error("Erreur de récupération des informations LDAP de l'utilisateur : " + utilisateur);
+				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Impossible de récupérer les informations LDAP de l'utilisateur.");
 			}
 			
-			// uiNumber LDAP de l'utilisateur récupéré
 			Long uidNumber = lstResults.get(0).getAttributeValueAsLong("uidNumber");
 			String nom = lstResults.get(0).getAttributeValue("sn");
 			String prenom = lstResults.get(0).getAttributeValue("givenName");
@@ -333,7 +337,7 @@ public class UtilisateurGestion {
 			
 			bdd.startTransaction();
 			
-			Integer userId = getUserIdFromLdapId(uidNumber);
+			Integer userId = getUserIdFromDN(dn);
 			
 			Connection conn = bdd.getConnection();
 			if(userId != null) { // Utilisateur déjà présent en base
@@ -354,9 +358,9 @@ public class UtilisateurGestion {
 				// Création d'un token ICal pour l'utilisateur
 				String tokenIcal = genererToken(uidNumber);
 				
-				PreparedStatement statement = conn.prepareStatement("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_nom, utilisateur_prenom, " +
+				PreparedStatement statement = conn.prepareStatement("INSERT INTO edt.utilisateur(utilisateur_dn, utilisateur_token, utilisateur_nom, utilisateur_prenom, " +
 						"utilisateur_email, utilisateur_token_expire, utilisateur_url_ical) VALUES(?, ?, ?, ?, ?, now() + interval '1 hour', ?) RETURNING utilisateur_id");
-				statement.setLong(1, uidNumber);
+				statement.setString(1, dn);
 				statement.setString(2, token);
 				statement.setString(3, nom);
 				statement.setString(4, prenom);
