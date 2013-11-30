@@ -107,7 +107,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			break;
 		}
 		
-		if(vue != "vue_groupe" && this.listeGroupesParticipants) {
+		if(vue != "mes_abonnements" && this.listeGroupesParticipants) {
 			this.listeGroupesParticipants.clear();
 		}
 		
