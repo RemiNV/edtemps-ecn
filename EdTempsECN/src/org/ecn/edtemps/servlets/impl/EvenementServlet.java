@@ -3,7 +3,9 @@ package org.ecn.edtemps.servlets.impl;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.json.Json;
@@ -41,6 +43,8 @@ public class EvenementServlet extends RequiresConnectionServlet {
 
 	private static final long serialVersionUID = 85479515540354619L;
 	private static Logger logger = LogManager.getLogger(EvenementServlet.class.getName());
+	public static final int MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE = 35; 
+	
 	
 	private static class ParamsAjouterModifierEvenement {
 		public String nom;
@@ -258,7 +262,17 @@ public class EvenementServlet extends RequiresConnectionServlet {
 			return;
 		}
 		
+		// Vérification que l'utilisateur n'a pas atteint son quota
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
+		
+		Date dateDebutFenetreQuota = new Date(params.dateDebut.getTime() - (1000 * 3600 * 84)); // -3.5 jours (84h)
+		Date dateFinFenetreQuota = new Date(params.dateDebut.getTime() + (1000 * 3600 * 84)); // +3.5 jours (84h)
+		
+		if(evenementGestion.getMaxNbEvenementsParCalendriersUtilisateur(userId, params.idCalendriers, dateDebutFenetreQuota, dateFinFenetreQuota) 
+				> MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE) {
+			throw new EdtempsException(ResultCode.QUOTA_EXCEEDED, "Vous ne pouvez pas créer plus de " + 
+				MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE + " événements par calendrier et par semaine glissante");
+		}
 		
 		evenementGestion.sauverEvenement(params.nom, params.dateDebut, params.dateFin, params.idCalendriers, userId, params.idSalles, 
 				params.idIntervenants, params.idResponsables, false);

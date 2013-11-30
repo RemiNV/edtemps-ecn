@@ -36,7 +36,10 @@ public enum ResultCode {
 	ALPHANUMERIC_REQUIRED(11),
 	
 	/** Une requête a été annulée car le nombre de résultats était trop important */
-	MAX_ROW_COUNT_EXCEEDED(12);
+	MAX_ROW_COUNT_EXCEEDED(12),
+	
+	/** L'utilisateur a dépassé son quota d'ajout */
+	QUOTA_EXCEEDED(13);
 
 	private int code;
 	

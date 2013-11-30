@@ -655,4 +655,44 @@ public class EvenementGestion {
 		}
 	}
 	
+	/**
+	 * Récupère le nombre maximum d'événements créés par l'utilisateur par calendriers, pendant la période donnée
+	 * @param userId ID de l'utilisateur créateur des événements
+	 * @param idCalendriers IDs des calendriers à examiner
+	 * @param dateDebut Date de début de la période de recherche
+	 * @param dateFin Date de fin de la période de recherche
+	 * @return Le nombre maximum d'événements créés par l'utilisateur par calendrier, pendant la fenêtre de recherche
+	 * @throws DatabaseException
+	 */
+	public int getMaxNbEvenementsParCalendriersUtilisateur(int userId, List<Integer> idCalendriers, Date dateDebut, Date dateFin) throws DatabaseException {
+		
+		if(idCalendriers.isEmpty()) {
+			return 0;
+		}
+		
+		String strCalendriers = StringUtils.join(idCalendriers, ",");
+
+		try {
+			
+			PreparedStatement statement = _bdd.getConnection().prepareStatement("SELECT MAX(sub.nombre) AS max FROM " +
+				"(SELECT COUNT(evenement.eve_id) AS nombre FROM edt.evenement " +
+				"INNER JOIN edt.evenementappartient ea ON ea.eve_id = evenement.eve_id " +
+				"WHERE evenement.eve_createur = ? AND evenement.eve_datedebut < ? AND evenement.eve_datefin > ? " +
+				"AND ea.cal_id IN (" + strCalendriers + ") " +
+				"GROUP BY ea.cal_id) sub");
+			
+			statement.setInt(1, userId);
+			statement.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
+			statement.setTimestamp(3, new java.sql.Timestamp(dateDebut.getTime()));
+			
+			ResultSet res = statement.executeQuery();
+			
+			res.next();
+			return res.getInt("max");
+		}
+		catch(SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
 }
