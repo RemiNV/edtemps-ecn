@@ -161,6 +161,9 @@
 
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
 		VALUES('Elèves ingénieur', false, null, true, false);
+		
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
+		SELECT 'Electifs', false, groupeparticipant.groupeparticipant_id, false, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
 
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
 		SELECT 'EI1', false, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
@@ -196,41 +199,17 @@
 	INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)
 		SELECT utilisateur.utilisateur_id, groupeparticipant.groupeparticipant_id
 		FROM edt.utilisateur CROSS JOIN edt.groupeparticipant
-		WHERE utilisateur.utilisateur_token='5' AND groupeparticipant.groupeparticipant_nom='Elèves ingénieur';
-
-	INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)
-		SELECT utilisateur.utilisateur_id, groupeparticipant.groupeparticipant_id
-		FROM edt.utilisateur CROSS JOIN edt.groupeparticipant
-		WHERE utilisateur.utilisateur_token='5' AND groupeparticipant.groupeparticipant_nom='EI1';
-
-	INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)
-		SELECT utilisateur.utilisateur_id, groupeparticipant.groupeparticipant_id
-		FROM edt.utilisateur CROSS JOIN edt.groupeparticipant
-		WHERE utilisateur.utilisateur_token='5' AND groupeparticipant.groupeparticipant_nom='EI1 Promo B';
-
-	INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)
-		SELECT utilisateur.utilisateur_id, groupeparticipant.groupeparticipant_id
-		FROM edt.utilisateur CROSS JOIN edt.groupeparticipant
-		WHERE utilisateur.utilisateur_token='5' AND groupeparticipant.groupeparticipant_nom='EI1 Groupe K';
-
-	INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)
-		SELECT utilisateur.utilisateur_id, groupeparticipant.groupeparticipant_id
-		FROM edt.utilisateur CROSS JOIN edt.groupeparticipant
-		WHERE utilisateur.utilisateur_token='5' AND groupeparticipant.groupeparticipant_nom='EI1 Groupe L';
-
-	INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)
-		SELECT utilisateur.utilisateur_id, groupeparticipant.groupeparticipant_id
-		FROM edt.utilisateur CROSS JOIN edt.groupeparticipant
-		WHERE utilisateur.utilisateur_token='5' AND groupeparticipant.groupeparticipant_nom='EI3';
-
-	INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)
-		SELECT utilisateur.utilisateur_id, groupeparticipant.groupeparticipant_id
-		FROM edt.utilisateur CROSS JOIN edt.groupeparticipant
-		WHERE utilisateur.utilisateur_token='5' AND groupeparticipant.groupeparticipant_nom='EI3 Info';
+		WHERE utilisateur.utilisateur_token='5' AND 
+			(groupeparticipant.groupeparticipant_nom='Elèves ingénieur' 
+			OR groupeparticipant.groupeparticipant_nom='Electifs'
+			OR groupeparticipant.groupeparticipant_nom='EI1'
+			OR groupeparticipant.groupeparticipant_nom='EI1 Promo B'
+			OR groupeparticipant.groupeparticipant_nom='EI1 Groupe K'
+			OR groupeparticipant.groupeparticipant_nom='EI1 Groupe L'
+			OR groupeparticipant.groupeparticipant_nom='EI3'
+			OR groupeparticipant.groupeparticipant_nom='EI3 Info');
 
 	/* Pas de propriétaire pour les groupes de calendrier unique : pas d'administration directe du groupe sans passer par son calendrier */
-	
-
 
 /* calendrierappartientgroupe */
 
@@ -250,7 +229,7 @@
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'dSIBAD TD'
-		AND groupeparticipant.groupeparticipant_nom='dSIBAD TD' LIMIT 1;
+		AND (groupeparticipant.groupeparticipant_nom='dSIBAD TD' OR groupeparticipant.groupeparticipant_nom='Electifs') LIMIT 2;
 
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
