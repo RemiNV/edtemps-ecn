@@ -520,7 +520,6 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			}
 		}
 		
-		// TODO : gérer plusieurs calendriers
 		// Vérifie si les calendriers sélectionnés pour le rattachement de l'événement contiennent des cours
 		res.calendrierCours = false;
 		var idCalendrierSelectionne = this.jqDialog.find("#calendriers_evenement .select_calendriers").val();
@@ -618,11 +617,14 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	};
 	
 	DialogAjoutEvenement.prototype.remplirValeursProprietairesIntervenants = function() {
-		// Suppression de l'utilisateur de la liste de responsables (déjà indiqué comme obligatoire)
+		// Ajout du créateur comme valeur non modifiable
 		var valProprietaires = new Array();
 		var proprietaires = this.evenementEdit.responsables;
 		for(var i=0, maxI = proprietaires.length; i<maxI; i++) {
-			if(proprietaires[i].id != this.restManager.getUserId()) {
+			if(proprietaires[i].id == this.evenementEdit.idCreateur) {
+				valProprietaires.push($.extend({}, proprietaires[i], { readOnly: true }));
+			}
+			else {
 				valProprietaires.push(proprietaires[i]);
 			}
 		}
@@ -643,16 +645,18 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			if(resultCode == RestManager.resultCode_Success) {
 				
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#input_proprietaires_evenement"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, { label: "moi-même", value: me.restManager.getUserId() }, 250));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, 250));
 				
 				me.multiWidgetIntervenants = new MultiWidget(me.jqDialog.find("#input_intervenants_evenement"), 
 						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, null, 250));
 				
-				me.multiWidgetIntervenants.setValues([{ label: "moi-même", value: me.restManager.getUserId() }]);
-				
 				if(me.evenementEdit) {
-					// Remplissage effectué à la fin de init()
+					// Remplissage effectué à la fin de init() (se termine après showEdit())
 					me.remplirValeursProprietairesIntervenants();
+				}
+				else { // Création d'événement
+					me.multiWidgetIntervenants.setValues([{ label: "moi-même", value: me.restManager.getUserId() }]);
+					me.multiWidgetProprietaires.setValues([{ label: "moi-même", value: me.restManager.getUserId(), readOnly: true }]);
 				}
 				
 				callback(true);
@@ -722,7 +726,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		
 		if(this.multiWidgetIntervenants && this.multiWidgetProprietaires) {
 			this.multiWidgetIntervenants.setValues([{ label: "moi-même", value: this.restManager.getUserId() }]);
-			this.multiWidgetProprietaires.clear();
+			this.multiWidgetProprietaires.setValues([{ label: "moi-même", value: this.restManager.getUserId(), readOnly: true}]);
 		}
 		
 		if(this.multiWidgetCalendriers) {

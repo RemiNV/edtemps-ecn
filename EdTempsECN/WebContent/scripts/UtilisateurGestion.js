@@ -42,7 +42,8 @@ define(["RestManager"], function(RestManager) {
 			res.push({
 					label: utilisateurs[i].prenom + " " + utilisateurs[i].nom,
 					value: utilisateurs[i].id,
-					tooltip: utilisateurs[i].email
+					tooltip: utilisateurs[i].email,
+					readOnly: utilisateurs[i].readOnly === true
 			});
 		}
 		

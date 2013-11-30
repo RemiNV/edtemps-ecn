@@ -93,6 +93,7 @@ CREATE TABLE edt.Evenement (
                 eve_nom VARCHAR,
                 eve_dateDebut TIMESTAMP,
                 eve_dateFin TIMESTAMP,
+				eve_createur INTEGER,
                 CONSTRAINT eve_id PRIMARY KEY (eve_id)
 );
 
@@ -313,6 +314,13 @@ NOT DEFERRABLE;
 ALTER TABLE edt.GroupeParticipant ADD CONSTRAINT groupeparticipant_groupeparticipant_fk
 FOREIGN KEY (groupeParticipant_id_parent)
 REFERENCES edt.GroupeParticipant (groupeParticipant_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE edt.evenement ADD CONSTRAINT evenement_eve_createur_fk
+FOREIGN KEY (eve_createur)
+REFERENCES edt.Utilisateur (utilisateur_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;

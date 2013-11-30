@@ -48,8 +48,10 @@ public abstract class AbsEvenementInflater<T extends EvenementIdentifie> {
 			Date dateDebut = reponse.getTimestamp("eve_datedebut");
 			Date dateFin = reponse.getTimestamp("eve_datefin");
 			Integer idCreateur = reponse.getInt("eve_createur");
-			reponse.wasNull();
-			idCreateur = null;
+			
+			if(reponse.wasNull()) {
+				idCreateur = null;	
+			}
 			
 			requetePreparee = bdd.getConnection().prepareStatement(
 					"SELECT cal_id "

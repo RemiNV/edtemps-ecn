@@ -55,7 +55,7 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 	 * @return Le builder créé et initialisé
 	 */
 	protected JsonObjectBuilder makeJsonObjectBuilder() {
-		return Json.createObjectBuilder()
+		JsonObjectBuilder builder = Json.createObjectBuilder()
 			.add("id", id)
 			.add("nom", nom)
 			.add("dateDebut", dateDebut.getTime())
@@ -64,6 +64,15 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 			.add("salles", JSONUtils.getJsonArray(salles))
 			.add("intervenants", JSONUtils.getJsonArray(intervenants))
 			.add("responsables", JSONUtils.getJsonArray(responsables));
+		
+		if(idCreateur != null) {
+			builder.add("idCreateur", idCreateur);
+		}
+		else {
+			builder.addNull("idCreateur");
+		}
+		
+		return builder;
 	}
 
 	@Override

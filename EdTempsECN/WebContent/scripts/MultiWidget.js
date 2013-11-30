@@ -10,7 +10,6 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @property {function} getValFunction - Fonction permettant de récupérer les valeurs d'un contrôle. Prend en paramètres le contrôle et renvoie sa valeur, ou null pour ne rien renvoyer dans le tableau de résultats
 	 * @property {function} initControl - Fonction d'initialisation de chaque contrôle, à l'ajout ou l'initialisation de la première ligne
 	 * @property {function} setFunction - Fonction d'assignation de valeur à un champ. Reçoit un objet jQuery et une valeur en paramètres. jQuery.val() utilisé si non fourni. La valeur peut être null pour une valeur vide.
-	 * @property {Object} forceFirstValue - Valeur à assigner au premier contrôle de la liste, qui sera désactivé ; objet avec les attributs label et value
 	 * @property {number} width - Largeur à assigner au contrôle
 	 */
 	
@@ -30,7 +29,6 @@ define([ "jquery", "jqueryui" ], function() {
 		this.getValFunction = options.getValFunction;
 		this.initControl = options.initControl;
 		this.setFunction = options.setFunction;
-		this.forceFirstValue = options.forceFirstValue;
 		
 		if(options.width) {
 			jqControl.css("width", options.width);
@@ -66,20 +64,12 @@ define([ "jquery", "jqueryui" ], function() {
 		if(options.initControl) {
 			options.initControl(jqControl);
 		}
-		
-		if(options.forceFirstValue) {
-			jqControl.attr("disabled", "disabled");
-			if(options.setFunction) {
-				options.setFunction(jqControl, options.forceFirstValue);
-			}
-			else {
-				jqControl.val(options.forceFirstValue);
-			}
-		}
 	};
 	
 	/**
 	 * Remplace les valeurs du widget par celles fournies.
+	 * Les valeurs peuvent être des objets quelconques (suivant le paramètres setFunction), mais si elles
+	 * contiennent un attribut readOnly = true, elles sont non modifiables.
 	 * @param {Object[]} values Valeurs à utiliser pour le widget
 	 */
 	MultiWidget.prototype.setValues = function(values) {
@@ -90,11 +80,14 @@ define([ "jquery", "jqueryui" ], function() {
 		for(var i=0; i<values.length; i++) {
 			
 			// Première ligne déjà renseignée
-			if(i != 0 || this.forceFirstValue) {
+			if(i != 0) {
 				this.ajouterLigne();
 			}
 				
 			var jqNewElem = this.jqDiv.find(".multiwidget_entry:last");
+			if(values[i].readOnly) {
+				jqNewElem.addClass("read_only").attr("disabled", "disabled");
+			}
 			
 			if(this.setFunction) {
 				this.setFunction(jqNewElem, values[i]);
@@ -113,11 +106,8 @@ define([ "jquery", "jqueryui" ], function() {
 		if(disabled) {
 			this.jqDiv.find(".multiwidget_entry").attr("disabled", "disabled");
 		}
-		else if(this.forceFirstValue) {
-			this.jqDiv.find(".multiwidget_entry:not(:first)").removeAttr("disabled");
-		}
 		else {
-			this.jqDiv.find(".multiwidget_entry").removeAttr("disabled");
+			this.jqDiv.find(".multiwidget_entry:not(.read_only)").removeAttr("disabled");
 		}
 	};
 	
@@ -157,13 +147,11 @@ define([ "jquery", "jqueryui" ], function() {
 		
 		var firstElem = this.jqDiv.find(".multiwidget_entry");
 		
-		if(!this.forceFirstValue) {
-			if(this.setFunction) {
-				this.setFunction(firstElem, null);
-			}
-			else {
-				firstElem.val("");
-			}
+		if(this.setFunction) {
+			this.setFunction(firstElem, null);
+		}
+		else {
+			firstElem.val("");
 		}
 	};
 	
@@ -174,10 +162,9 @@ define([ "jquery", "jqueryui" ], function() {
 	 * 
 	 * @param source Paramètre source de l'autocomplete
 	 * @param minLength Paramètre minLength de l'autocomplete
-	 * @param forceFirstValue Paramètre forceFirstValue du MultiWidget
 	 * @param width Paramètre width du MultiWidget
 	 */
-	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength, forceFirstValue, width) {
+	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength, width) {
 		return {
 			getValFunction: function(jqElem) {
 				var val = parseInt(jqElem.attr("data-val"));
@@ -196,7 +183,6 @@ define([ "jquery", "jqueryui" ], function() {
 						.attr("data-label", val.label);
 				}
 			},
-			forceFirstValue: forceFirstValue,
 			width: width,
 			initControl: function(jqElem) {
 				var inputAutocompletion = $("<input type='text' disabled='disabled' class='input_autocomplete_overlay' />");
