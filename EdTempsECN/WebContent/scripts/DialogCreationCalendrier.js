@@ -313,7 +313,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			user.value = idProprio;
 			user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
 			user.readOnly = false; // TODO : mettre une valeur correcte
-			// TODO : cette méthode pourrait utiliser UtilisateurGestion.makeUtilisateursAutocomplete
+			// TODO : cette méthode pourrait utiliser UtilisateurGestion.makeUtilisateursAutocomplete  (méthode statique)
 			if (user.value!=me.restManager.getUserId()) {
 				listeProprietairesCalendrier.push(user);
 			}
