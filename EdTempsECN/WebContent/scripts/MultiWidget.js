@@ -150,7 +150,7 @@ define([ "jquery", "jqueryui" ], function() {
 	MultiWidget.prototype.clear = function() {
 		this.jqDiv.find(".multiwidget_line:not(:first)").remove();
 		
-		var firstElem = this.jqDiv.find(".multiwidget_entry");
+		var firstElem = this.jqDiv.find(".multiwidget_entry").removeAttr("disabled");
 		
 		if(this.setFunction) {
 			this.setFunction(firstElem, null);

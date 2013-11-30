@@ -55,10 +55,13 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 				}
 				// Création des autocomplete pour les propriétaires
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#form_creer_calendrier_input_proprietaire"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 3, { label: "Vous-même", value: me.restManager.getUserId() }, 225));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 3, 225));
 				// On remplir les proprietaires (dans le cas d'une modification de calendrier)
 				if (proprietaires.length != 0) {
 					me.remplirProprietaires(proprietaires);
+				}
+				else {
+					me.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: me.restManager.getUserId(), readOnly: true }]);
 				}
 				
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
@@ -157,6 +160,10 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Création d'un nouveau calendrier");
 			this.jqDialog.find("#form_creer_calendrier_valider").attr("value", "Créer");
+			
+			if(me.multiWidgetProprietaires) {
+				me.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: me.restManager.getUserId(), readOnly: true }]);
+			}
 		}
 		
 		// Listener bouton "Valider"
@@ -166,7 +173,6 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		
 		// Ouverture de la boîte dialogue
 		this.jqDialog.dialog("open");
-
 	};
 
 
@@ -306,6 +312,8 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			user.label = me.listeProprietairesPotentielsIndex[idProprio].label;
 			user.value = idProprio;
 			user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
+			user.readOnly = false; // TODO : mettre une valeur correcte
+			// TODO : cette méthode pourrait utiliser UtilisateurGestion.makeUtilisateursAutocomplete
 			if (user.value!=me.restManager.getUserId()) {
 				listeProprietairesCalendrier.push(user);
 			}
