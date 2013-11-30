@@ -11,6 +11,7 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @property {function} initControl - Fonction d'initialisation de chaque contrôle, à l'ajout ou l'initialisation de la première ligne
 	 * @property {function} setFunction - Fonction d'assignation de valeur à un champ. Reçoit un objet jQuery et une valeur en paramètres. jQuery.val() utilisé si non fourni. La valeur peut être null pour une valeur vide.
 	 * @property {number} width - Largeur à assigner au contrôle
+	 * @property {boolean} disabled - Indique si le contrôle doit être en lecture seule
 	 */
 	
 	/**
@@ -29,6 +30,7 @@ define([ "jquery", "jqueryui" ], function() {
 		this.getValFunction = options.getValFunction;
 		this.initControl = options.initControl;
 		this.setFunction = options.setFunction;
+		this.disabled = options.disabled === true;
 		
 		if(options.width) {
 			jqControl.css("width", options.width);
@@ -50,7 +52,9 @@ define([ "jquery", "jqueryui" ], function() {
 		jqControl.after(jqBtnAjouter);
 		
 		jqBtnAjouter.click(function() {
-			me.ajouterLigne();
+			if(!me.disabled) {
+				me.ajouterLigne();
+			}
 		});
 		
 		// Listener dupliqué par "clone"
@@ -103,6 +107,7 @@ define([ "jquery", "jqueryui" ], function() {
 	 * @param {boolean} disabled Le multiwidget doit être mis en lecture seule
 	 */
 	MultiWidget.prototype.setDisabled = function(disabled) {
+		this.disabled = disabled;
 		if(disabled) {
 			this.jqDiv.find(".multiwidget_entry").attr("disabled", "disabled");
 		}
