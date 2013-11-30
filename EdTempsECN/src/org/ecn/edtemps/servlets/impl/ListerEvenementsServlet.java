@@ -29,23 +29,16 @@ public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 	String pathInfo = req.getPathInfo();
 	EvenementGestion evenementGestion = new EvenementGestion(bdd);
 			
-		try {
-			switch(pathInfo) {
-			case "/groupe":
-				int idGroupe = getIntParam(req, "idGroupe");
-				return JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true));
-			case "/intervenant":
-				return JSONUtils.getJsonArray(evenementGestion.listerEvenementsIntervenant(userId, dateDebut, dateFin, true));
-			case "/salle":
-				int idSalle = getIntParam(req, "idSalle");
-				return JSONUtils.getJsonArray(evenementGestion.listerEvenementCompletsSalle(idSalle, dateDebut, dateFin, true));
-			default:
-				return null;
-			}
-		}
-		catch(EdtempsException e) {
-			logger.error("Erreur lors de l'ajout/modification/suppression d'un évènement ; requête " + pathInfo, e);
-			bdd.close();
+		switch(pathInfo) {
+		case "/groupe":
+			int idGroupe = getIntParam(req, "idGroupe");
+			return JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true));
+		case "/intervenant":
+			return JSONUtils.getJsonArray(evenementGestion.listerEvenementsIntervenant(userId, dateDebut, dateFin, true));
+		case "/salle":
+			int idSalle = getIntParam(req, "idSalle");
+			return JSONUtils.getJsonArray(evenementGestion.listerEvenementCompletsSalle(idSalle, dateDebut, dateFin, true));
+		default:
 			return null;
 		}
 	}

@@ -277,6 +277,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			// Filtrage et passage à fullcalendar
 			callbackCalendrier(this.calendrier.filtrerMatiereTypeRespo(data));
 		}
+		else if(resultCode == RestManager.resultCode_MaxRowCountExceeded) {
+			window.showToast("&Eacute;vénements trop nombreux pour être affichés (plus de 100) ; vérifiez vos abonnements ou votre requête");
+		}
 		else if(resultCode == RestManager.resultCode_NetworkError) {
 			window.showToast("Impossible de charger vos évènements ; vérifiez votre connexion.");
 		}

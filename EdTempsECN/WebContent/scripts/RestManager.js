@@ -50,9 +50,10 @@ define(["jquery"], function() {
 	RestManager.resultCode_IdentificationError = 1;
 	RestManager.resultCode_LdapError = 3;
 	RestManager.resultCode_NameTaken = 8;
+	RestManager.resultCode_AuthorizationError = 9;
 	RestManager.resultCode_SalleOccupee = 10;
 	RestManager.resultCode_AlphanumericRequired = 11;
-	RestManager.resultCode_AuthorizationError = 9;
+	RestManager.resultCode_MaxRowCountExceeded = 12;
 	
 	/**
 	 * Enumération des actions possibles dans l'emploi du temps
