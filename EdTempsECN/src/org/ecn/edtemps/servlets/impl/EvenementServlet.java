@@ -269,7 +269,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		Date dateFinFenetreQuota = new Date(params.dateDebut.getTime() + (1000 * 3600 * 84)); // +3.5 jours (84h)
 		
 		if(evenementGestion.getMaxNbEvenementsParCalendriersUtilisateur(userId, params.idCalendriers, dateDebutFenetreQuota, dateFinFenetreQuota) 
-				> MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE) {
+				>= MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE) {
 			throw new EdtempsException(ResultCode.QUOTA_EXCEEDED, "Vous ne pouvez pas créer plus de " + 
 				MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE + " événements par calendrier et par semaine glissante");
 		}
