@@ -378,9 +378,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				user.tooltip = (groupe.proprietaires[i].email!=null) ? groupe.proprietaires[i].email : null;
 				user.readOnly = false; // TODO : mettre une valeur correcte
 				// TODO : cette méthode pourrait utiliser UtilisateurGestion.makeUtilisateursAutocomplete (méthode statique)
-				if (user.value!=this.restManager.getUserId()) {
-					listeProprietaires.push(user);
-				}
+				listeProprietaires.push(user);
 			}
 			this.multiWidgetProprietaires.setValues(listeProprietaires);
 
