@@ -621,6 +621,7 @@ input.valide {
 .input_autocomplete {
 	z-index: 2;
 	position: relative;
+	margin: 0;
 }
 
 .input_autocomplete:not([disabled]) {
