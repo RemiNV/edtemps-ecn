@@ -1,6 +1,7 @@
 package org.ecn.edtemps.managers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.PreparedStatement;
@@ -10,7 +11,9 @@ import java.util.List;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.managers.CalendrierGestion.DroitsCalendriers;
 import org.ecn.edtemps.models.Calendrier;
+import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,6 +110,72 @@ public class CalendrierGestionTest {
 		}
 		
 		assertTrue(thrown);
+	}
+	
+	@Test
+	public void testlisterCalendriersAbonnementsUtilisateur() throws Exception {
+		// utilisateur 2 abonné à 2 groupes de participants (1 groupe contenant 2 calendriers et un autre contenant 1 calendrier)
+		ArrayList<CalendrierIdentifie> calendriersIdentfies = this.calendrierGestion.listerCalendriersAbonnementsUtilisateur(2, true, false);
+		assertEquals(3, calendriersIdentfies.size());
+	}
+	
+	@Test
+	public void testlisterCalendriersUtilisateur() throws Exception {
+		// utilisateur 1 est propriétaire de 2 calendrier
+		ArrayList<CalendrierComplet> calendriers = this.calendrierGestion.listerCalendriersUtilisateur(1);
+		assertEquals(2, calendriers.size());
+	}
+	
+	@Test
+	public void testlisterCalendriersGroupeParticipants() throws Exception {
+		// groupe inscrit à 2 calendriers
+		List<CalendrierIdentifie> calendriersIdentifies = this.calendrierGestion.listerCalendriersGroupeParticipants(8);
+		assertEquals(2, calendriersIdentifies.size());
+		assertEquals(1, calendriersIdentifies.get(0).getId());
+		assertEquals(2, calendriersIdentifies.get(1).getId());
+		
+		// groupe insrit à 0 calendrier
+		calendriersIdentifies = this.calendrierGestion.listerCalendriersGroupeParticipants(1);
+		assertEquals(0, calendriersIdentifies.size());
+	}
+	
+	@Test
+	public void testgetDroitsCalendriers() throws Exception {
+		
+		List<Integer> calendriersIds = new ArrayList<Integer>();
+		//calendriers dont l'utilisateur est propriétaire et qui sont des cours
+		calendriersIds.add(1);
+		calendriersIds.add(2);
+		DroitsCalendriers droits = this.calendrierGestion.getDroitsCalendriers(1, calendriersIds);
+		assertTrue(droits.estProprietaire);
+		assertTrue(droits.contientCours);
+		
+		//calendriers dont l'utilisateur n'est pas propriétaire et qui sont des cours
+		droits = this.calendrierGestion.getDroitsCalendriers(2, calendriersIds);
+		assertFalse(droits.estProprietaire);
+		assertTrue(droits.contientCours);
+		
+		//calendrier dont l'utilisateur n'est pas propriétaire et qui n'est pas un cours
+		calendriersIds.clear();
+		calendriersIds.add(7);
+		droits = this.calendrierGestion.getDroitsCalendriers(1, calendriersIds);
+		assertFalse(droits.estProprietaire);
+		assertFalse(droits.contientCours);
+		
+		//calendrier dont l'utilisateur est pas propriétaire et qui n'est pas un cours
+		droits = this.calendrierGestion.getDroitsCalendriers(2, calendriersIds);
+		assertFalse(droits.estProprietaire);
+		assertFalse(droits.contientCours);
+	}
+	
+	@Test
+	public void testlisterTypesCalendrier() throws Exception {
+		assertEquals(3, this.calendrierGestion.listerTypesCalendrier().size());
+	}
+	
+	@Test
+	public void testlisterMatieres() throws Exception {
+		assertEquals(5, this.calendrierGestion.listerMatieres().size());
 	}
 
 }
