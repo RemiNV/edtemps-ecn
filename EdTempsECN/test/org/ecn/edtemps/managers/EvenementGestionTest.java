@@ -239,7 +239,8 @@ public class EvenementGestionTest {
 
 				
 		
-		
+		//TODO Le get ne renvoie pas d'erreur : il renvoie NULL lorsque l'évènement n'existe pas 
+		//-> le test ne fonctionne donc pas !!
 		//Suppression de l'evenement enregistré
 		evenementGestion.supprimerEvenement(idEvenementEnregistre, true);
 
