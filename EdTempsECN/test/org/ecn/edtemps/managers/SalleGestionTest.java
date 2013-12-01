@@ -25,7 +25,7 @@ import org.junit.Test;
 /**
  * Classe de test de SalleGestion
  * 
- * @author Joffrey
+ * @author Audrey
  */
 public class SalleGestionTest {
 
