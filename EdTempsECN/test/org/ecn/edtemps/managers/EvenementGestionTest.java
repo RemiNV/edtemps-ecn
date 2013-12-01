@@ -237,7 +237,6 @@ public class EvenementGestionTest {
 		this.comparerEvenements(evenementEnregistre, "EvenementTestJUnitModifie", dateDebut, dateFin, listeIdCal, listeIdSalles, listeIdIntervenants, listeIdResponsables);
 
 
-				
 		
 
 		//Suppression de l'evenement enregistré
@@ -250,6 +249,54 @@ public class EvenementGestionTest {
 	
 
 	
+	/**
+	 * Test de la méthode listerEvenementGroupe
+	 * Le test se base sur des données de test présente dans la base de données de test.
+	 */
+	@Test
+	public void testListerEvenementsGroupe() throws Exception {
 	
+		//méthode récupère les événements des groupes fils et parents !!
+		//-> créer un groupe de test avec deux calendriers contenant deux événements, avec un groupe parent et un groupe fils qui contiennent aussi des données.
+		//groupe contient des calendriers -> tester avec un groupe qui contient 2 calendriers ?
+		//groupe : 	groupe, calendrierAppartientGroupe
+		//evenement : evenement, responsableEvenement, evenementAppartient, aLieuEnSalle, intervenantsEvenement
+		//calendrier : calendrier
+		// nom groupe : testEvenementGestion, testEvenementGestionPere, testEvenementGestionFils
+		// nom calendrier : testEvenementGestion1, testEvenementGestion2, testEvenementGestionPere, testEvenementGestionFils
+		// nom evenement : testEvenementGestion1, testEvenementGestion2, testEvenementGestion3...
+		
+		//TODO : insérer les evenements, calendriers et groupe dans la base de données
+		
+		
+		
+		
+		//récupération de l'id du groupe
+		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
+						"SELECT groupeParticipant_id FROM edt.GroupeParticipant WHERE groupeparticipant_nom = 'TestEvenementGestion'");
+		int idGroupe = bdd.recupererId(requetePreparee, "groupeparticipant_id");
+		
+		
+		Date dateDebut = new Date(113, 10, 25, 16, 00, 00);
+		Date dateFin = new Date(113, 10, 25, 18, 00, 00);
+		
+		//Récupération des évenements correspondant au groupe de test : 6 évenements récupérés
+		ArrayList<EvenementComplet> listeEvenements = evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true);
+		
+		assertTrue(listeEvenements.size() == 6);
+		
+		for (EvenementComplet evenement : listeEvenements) {
+			switch (evenement.getNom()) {
+			case "testEvenementGestion1":
+				this.comparerEvenements(evenementRecup, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);
+				break;
+
+			default:
+				fail;
+				break;
+			}			}
+		}
+		
+	}
 
 }
