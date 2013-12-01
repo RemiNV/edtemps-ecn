@@ -191,7 +191,12 @@ define([ "jquery", "jqueryui" ], function() {
 			width: width,
 			initControl: function(jqElem) {
 				var inputAutocompletion = $("<input type='text' disabled='disabled' class='input_autocomplete_overlay' />");
-				inputAutocompletion.css("width", jqElem.css("width"));
+				var pos = jqElem.position();
+				inputAutocompletion.css({
+					width: jqElem.css("width"),
+					top: pos.top,
+					left: pos.left
+				});
 				jqElem.autocomplete({
 					source: source,
 					autoFocus: true,
