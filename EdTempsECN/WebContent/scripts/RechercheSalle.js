@@ -88,7 +88,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				me.jqRechercheSalleForm.find("#form_chercher_salle_message_chargement").html("Recherche...");
 
 				// Appel de la méthode de recherche de salle
-				me.getSalle(dateDebut, dateFin, me.jqCapacite.val(), listeMateriel, inclureSallesOccupees, function() {
+				me.getSalle(dateDebut, dateFin, me.jqCapacite.val(), listeMateriel, inclureSallesOccupees, null, function() {
 					// Supression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
 					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
 					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
@@ -340,31 +340,18 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	
 	/**
 	 * Méthode qui effectue la requête
-	 * 
-	 * @param dateDebut
-	 * 		date de début de l'événement (objet Date javascript)
-	 * 
-	 * @param dateFin
-	 * 		date de fin de l'événement (objet Date javascript)
-	 * 
-	 * @param effectif
-	 * 		effectif requis pour l'événement
-	 * 
-	 * @param materiels
-	 * 		liste du matériel nécessaire : une liste d'objets qui possèdent deux attributs : id et quantité
-	 * 
-	 * @param inclureSallesOccupees
-	 * 		VRAI si la recherche doit inclure les salles occupées par des événements autres que des cours
-	 * 
-	 * @param callbackChargement
-	 * 		méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
-	 * 		Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
-	 * 		par le paramètre suivant "callback". Un message d'erreur est déjà affiché dans cette méthode en cas d'erreur.
-	 * 
-	 * @param callback
-	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
+	 * @param dateDebut Date de début de l'événement (objet Date javascript)
+	 * @param dateFin Date de fin de l'événement (objet Date javascript)
+	 * @param effectif Effectif requis pour l'événement
+	 * @param materiels Liste du matériel nécessaire : une liste d'objets qui possèdent deux attributs : id et quantité
+	 * @param inclureSallesOccupees VRAI si la recherche doit inclure les salles occupées par des événements autres que des cours
+	 * @param idEvenementIgnorer identifiant d'un événement qu'il faut ignorer dans la recherche
+	 * @param callbackChargement méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
+	 * 	Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
+	 * 	par le paramètre suivant "callback". Un message d'erreur est déjà affiché dans cette méthode en cas d'erreur.
+	 * @param callback Méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
-	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, inclureSallesOccupees, callbackChargement, callback) {
+	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, inclureSallesOccupees, idEvenementIgnorer, callbackChargement, callback) {
 		var me = this;
 
 		// Création d'une chaine de caractère pour traiter la liste de matériel
@@ -381,7 +368,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		
 		// Appel de la méthode du serveur
 		this.restManager.effectuerRequete("GET", "recherchesallelibre", {
-			debut: dateDebut.getTime(), fin: dateFin.getTime(), effectif: effectif, materiel: listeMaterielQuantite, sallesOccupees: inclureSallesOccupees, token: this.restManager.getToken()
+			debut: dateDebut.getTime(), fin: dateFin.getTime(), effectif: effectif, materiel: listeMaterielQuantite,
+			sallesOccupees: inclureSallesOccupees, token: this.restManager.getToken(), idEvenementIgnorer: idEvenementIgnorer
 		}, function(response) {
 			if (response.resultCode == RestManager.resultCode_Success) {
 				callbackChargement(true);

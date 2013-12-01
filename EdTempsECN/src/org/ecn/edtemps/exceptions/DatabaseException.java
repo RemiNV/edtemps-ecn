@@ -13,6 +13,10 @@ public class DatabaseException extends EdtempsException {
 		super(ResultCode.DATABASE_ERROR);
 	}
 
+	public DatabaseException(String message) {
+		super(ResultCode.DATABASE_ERROR, message);
+	}
+
 	public DatabaseException(Throwable e) {
 		super(ResultCode.DATABASE_ERROR, e);
 	}

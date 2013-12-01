@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationException;
+import org.ecn.edtemps.exceptions.MaxRowCountExceededException;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.ICalGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
@@ -48,6 +49,9 @@ public class ICalServlet extends TokenServlet {
 		} catch (DatabaseException e) {
 			logger.error("Erreur de génération du calendrier ICal", e);
 			resp.getWriter().write("Erreur de génération du calendrier ICal. Code : " + e.getResultCode() + " message : " + e.getMessage());
+		} catch (MaxRowCountExceededException e) {
+			logger.warn("Trop d'événements dans un iCal", e);
+			resp.getWriter().write("Votre iCal contient trop d'événements ; allégez vos abonnements. Message : " + e.getMessage());
 		}
 		
 		bdd.close();

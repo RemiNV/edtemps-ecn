@@ -91,7 +91,11 @@ public class AdministrateurSalleServlet extends HttpServlet {
 		logger.error("Suppression d'une salle");
 
 		// Récupération de l'identifiant de la salle à supprimer dans la requête
-		int id = Integer.valueOf(req.getParameter("id"));
+		Integer id = req.getParameter("id")!="" ? Integer.valueOf(req.getParameter("id")) : null;
+		if (id == null) {
+			logger.error("Identifiant de la salle erroné");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
 		
 		// Exécute la requête de suppression avec le manager
 		BddGestion bdd = new BddGestion();

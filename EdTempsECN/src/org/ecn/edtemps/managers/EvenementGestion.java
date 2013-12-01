@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.MaxRowCountExceededException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
@@ -27,6 +28,9 @@ public class EvenementGestion {
 	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 	
+	/** Nombre maximum d'événements récupérables en une requête */
+	public static final int MAX_ROWS_QUERY_EVENEMENTS = 100;
+	
 	/**
 	 * Initialise un gestionnaire d'evenements
 	 * @param bdd Gestionnaire de base de données à utiliser
@@ -41,7 +45,7 @@ public class EvenementGestion {
 	 * 
 	 * @param evenement
 	 */
-	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
+	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, Integer idCreateur, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean startTransaction) throws EdtempsException {
 		
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
@@ -68,12 +72,19 @@ public class EvenementGestion {
 			
 			// On crée l'événement dans la base de données
 			PreparedStatement req = _bdd.getConnection().prepareStatement("INSERT INTO edt.evenement "
-					+ "(eve_nom, eve_dateDebut, eve_dateFin) "
-					+ "VALUES (?, ?, ?) "
+					+ "(eve_nom, eve_dateDebut, eve_dateFin, eve_createur) "
+					+ "VALUES (?, ?, ?, ?) "
 				    + "RETURNING eve_id");
 			req.setString(1, nom);
 			req.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
 			req.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
+			
+			if(idCreateur == null) {
+				req.setNull(4, java.sql.Types.INTEGER);
+			}
+			else {
+				req.setInt(4, idCreateur);
+			}
 			
 			ResultSet rsLigneCreee = req.executeQuery();
 			 
@@ -155,7 +166,7 @@ public class EvenementGestion {
 			// Vérification de la disponibilité de la salle
 			if(!idSalles.isEmpty()) {
 				SalleGestion salleGestion = new SalleGestion(_bdd);
-				if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin)) {
+				if(!salleGestion.sallesLibres(idSalles, dateDebut, dateFin, id)) {
 					throw new EdtempsException(ResultCode.SALLE_OCCUPEE, "Une des salles demandées n'est pas/plus libre");
 				}
 			}
@@ -245,51 +256,42 @@ public class EvenementGestion {
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @throws EdtempsException
 	 */
-	public void supprimerEvenement(int idEvenement, boolean createTransaction) throws EdtempsException {
-		try {
-			// Début transaction si nécessaire
-			if (createTransaction) {
-				_bdd.startTransaction();
-			}
-			
-			// Supprimer l'association aux intervenants de l'événement
-			_bdd.executeRequest(
-					"DELETE FROM edt.intervenantevenement "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'association au matériel n�cessaire pour l'événement
-			_bdd.executeRequest(
-					"DELETE FROM edt.necessitemateriel "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'association aux intervenants de l'évenement
-			_bdd.executeRequest(
-					"DELETE FROM edt.responsabletevenement "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'asosciation aux salles de l'événement
-			_bdd.executeRequest(
-					"DELETE FROM edt.alieuensalle "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'association aux calendriers
-			_bdd.executeRequest(
-					"DELETE FROM edt.evenementappartient "
-					 + "WHERE eve_id = " + idEvenement);
-			
-			// Supprimer l'évenement
-			_bdd.executeRequest(
-					"DELETE FROM edt.evenement "
-					 + "WHERE eve_id = " + idEvenement);
+	public void supprimerEvenement(int idEvenement, boolean createTransaction) throws DatabaseException {
+	
+		// Début transaction si nécessaire
+		if (createTransaction) {
+			_bdd.startTransaction();
+		}
+		
+		// Supprimer l'association aux intervenants de l'événement
+		_bdd.executeRequest(
+				"DELETE FROM edt.intervenantevenement "
+				 + "WHERE eve_id = " + idEvenement);
+		
+		// Supprimer l'association aux responsables de l'évenement
+		_bdd.executeRequest(
+				"DELETE FROM edt.responsableevenement "
+				 + "WHERE eve_id = " + idEvenement);
+		
+		// Supprimer l'asosciation aux salles de l'événement
+		_bdd.executeRequest(
+				"DELETE FROM edt.alieuensalle "
+				 + "WHERE eve_id = " + idEvenement);
+		
+		// Supprimer l'association aux calendriers
+		_bdd.executeRequest(
+				"DELETE FROM edt.evenementappartient "
+				 + "WHERE eve_id = " + idEvenement);
+		
+		// Supprimer l'évenement
+		_bdd.executeRequest(
+				"DELETE FROM edt.evenement "
+				 + "WHERE eve_id = " + idEvenement);
 
-			
-			// fin transaction si nécessaire
-			if (createTransaction){
-				_bdd.commit();
-			}
-			
-		} catch (DatabaseException e){
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		
+		// fin transaction si nécessaire
+		if (createTransaction){
+			_bdd.commit();
 		}
 	}
 	
@@ -301,7 +303,7 @@ public class EvenementGestion {
 	 */
 	public EvenementIdentifie getEvenement(int idEvenement) throws DatabaseException {
 		ResultSet reponse = _bdd.executeRequest(
-				"SELECT eve_id, eve_nom, eve_datedebut, eve_datefin "
+				"SELECT eve_id, eve_nom, eve_datedebut, eve_datefin, evenement.eve_createur "
 				+ "FROM edt.evenement "
 				+ "WHERE eve_id=" + idEvenement);
 		
@@ -319,79 +321,101 @@ public class EvenementGestion {
 		return res;
 	}
 	
-	
 	/**
-	 * Liste les évènements auxquels un utilisateur est abonné par l'intermédiaire de ses abonnements aux groupes, et donc aux calendriers
+	 * Liste les évènements auxquels un utilisateur est abonné par l'intermédiaire de ses abonnements aux groupes, et donc aux calendriers.
+	 * Le nombre d'événements est limité à MAX_ROWS_QUERY_EVENEMENTS.
+	 * 
 	 * @param idUtilisateur Utilisateur dont les évènements sont à récupérer
-	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
-	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
 	 * @param dateDebut
 	 * @param dateFin
+	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
+	 * @param maxNbEvenements Nombre maximum d'événements à renvoyer
 	 * 
 	 * @see GroupeGestion#makeTempTableListeGroupesAbonnement(BddGestion, int)
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws MaxRowCountExceededException nombre de résultats trop important
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, Date dateDebut, Date dateFin, 
-			boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException {
+			boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException, MaxRowCountExceededException {
+		return listerEvenementsUtilisateur(idUtilisateur, dateDebut, dateFin, createTransaction, reuseTempTableAbonnements, MAX_ROWS_QUERY_EVENEMENTS);
+	}
+	
+	/**
+	 * Liste les évènements auxquels un utilisateur est abonné par l'intermédiaire de ses abonnements aux groupes, et donc aux calendriers
+	 * @param idUtilisateur Utilisateur dont les évènements sont à récupérer
+	 * @param dateDebut
+	 * @param dateFin
+	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
+	 * @param maxNbEvenements Nombre maximum d'événements à renvoyer
+	 * 
+	 * @see GroupeGestion#makeTempTableListeGroupesAbonnement(BddGestion, int)
+	 * 
+	 * @return Liste d'évènements récupérés
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws MaxRowCountExceededException nombre de résultats trop important
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, Date dateDebut, Date dateFin, 
+			boolean createTransaction, boolean reuseTempTableAbonnements, int maxNbEvenements) throws DatabaseException, MaxRowCountExceededException {
 		
 		ArrayList<EvenementIdentifie> res = null;
 	
-		try {
-			if(createTransaction)
-				_bdd.startTransaction();
-			
-			if(!reuseTempTableAbonnements)
-				GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
-			
-			PreparedStatement req = _bdd.getConnection().prepareStatement("SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
-					"FROM edt.evenement " +
-					"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
-					"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
-					"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_ABONNEMENTS + " abonnements ON abonnements.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
-					"WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?");
-			
-			req.setTimestamp(1, new java.sql.Timestamp(dateDebut.getTime()));
-			req.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
-			
-			ResultSet reponse = req.executeQuery();
-			
-			res = new ArrayList<EvenementIdentifie>();
-			EvenementIdentifieInflater inflater = new EvenementIdentifieInflater();
-			while(reponse.next()) {
-				res.add(inflater.inflateEvenement(reponse, _bdd));
-			}
-			
-			reponse.close();
-			
-			if(createTransaction)
-				_bdd.commit();
-			
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
+		if(createTransaction)
+			_bdd.startTransaction();
+		
+		if(!reuseTempTableAbonnements) {
+			GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
 		}
+		
+		String req = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
+				"FROM edt.evenement " +
+				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
+				"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
+				"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_ABONNEMENTS + " abonnements ON abonnements.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
+				"WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?";
+		
+		res = listerEvenements(req, dateDebut, dateFin, new EvenementIdentifieInflater(), false, maxNbEvenements);
+		
+		if(createTransaction)
+			_bdd.commit();
 		
 		return res;
 	}
 	
 	/**
-	 * Liste les évènements liés à un groupe d'utilisateurs
+	 * Liste les évènements liés à un groupe d'utilisateurs. <b>Les événements des groupes parents et enfants sont aussi renvoyés.</b>
+	 * Le nombre d'événements est limité à MAX_ROWS_QUERY_EVENEMENTS
 	 * @param idGroupe groupe dont les évènements sont à récupérer
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException
+	 * @throws DatabaseException 
+	 * @throws MaxRowCountExceededException Nombre d'événements supérieur à MAX_ROWS_QUERY_EVENEMENTS
 	 */
-	public ArrayList<EvenementComplet> listerEvenementsGroupe(int idGroupe, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+	public ArrayList<EvenementComplet> listerEvenementsGroupe(int idGroupe, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException, MaxRowCountExceededException {
+		
+		if(createTransaction) {
+			_bdd.startTransaction();
+		}
+		
+		GroupeGestion.makeTempTableListeParentsEnfants(_bdd, idGroupe);
+		
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
-				"INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
-				"WHERE calendrierappartientgroupe.cal_id = " + idGroupe + " "
-				+ "AND evenement.eve_datefin >= ? "
-				+ "AND evenement.eve_datedebut <= ?";
-		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
+				"INNER JOIN edt.calendrierappartientgroupe cap ON cap.cal_id = evenementappartient.cal_id " +
+				"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS + " tmpParentsEnfants ON tmpParentsEnfants.groupeparticipant_id = cap.groupeparticipant_id "
+				+ "WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?";
+
+		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), false, MAX_ROWS_QUERY_EVENEMENTS);
+		
+		if(createTransaction) {
+			_bdd.commit();
+		}
+		
 		return res;
 	}
 	
@@ -404,10 +428,10 @@ public class EvenementGestion {
 	 * @param estCours Lister uniquement les évènements qui sont des cours (true) ou uniquement ceux qui n'en sont pas (false)
 	 * @param createTransaction Indique si il faut créer une transaction dans cette méthode, ou si elle sera déjà appelée dans une transaction
 	 * @return Liste des évènements trouvés
-	 * @throws DatabaseException  Erreur de communication avec la base de données
+	 * @throws EdtempsException 
 	 */
-	public ArrayList<EvenementIdentifie> listerEvenementsSalleCoursOuPas(int idSalle, Date dateDebut, Date dateFin, boolean estCours, boolean createTransaction) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+	public ArrayList<EvenementIdentifie> listerEvenementsSalleCoursOuPas(int idSalle, Date dateDebut, Date dateFin, boolean estCours, boolean createTransaction) throws EdtempsException {
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
 				"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id = evenement.eve_id " +
@@ -432,11 +456,11 @@ public class EvenementGestion {
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @param inflater
 	 * @return
-	 * @throws DatabaseException
+	 * @throws EdtempsException 
 	 */
 	protected <T extends EvenementIdentifie> ArrayList<T> listerEvenementsSalle(int idSalle, Date dateDebut, Date dateFin, 
 			boolean createTransaction, AbsEvenementInflater<T> inflater) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
 				"WHERE alieuensalle.salle_id = " + idSalle +" "
@@ -454,7 +478,7 @@ public class EvenementGestion {
 	 * @param dateFin
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException
+	 * @throws EdtempsException 
 	 */
 	public ArrayList<EvenementComplet> listerEvenementCompletsSalle(int idSalle, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
@@ -469,7 +493,7 @@ public class EvenementGestion {
 	 * @param dateFin
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException
+	 * @throws EdtempsException 
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementIdentifiesSalle(int idSalle, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
@@ -478,21 +502,21 @@ public class EvenementGestion {
 	
 	
 	/**
-	 * Liste les évènements liés à un responsable
-	 * @param idResponsable identifiant de l'utilisateur responsable des évènements à récupérer
+	 * Liste les évènements liés à un intervenant
+	 * @param idResponsable identifiant de l'utilisateur intervenant dans les évènements à récupérer
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @param dateDebut
 	 * @param dateFin
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException
+	 * @throws EdtempsException 
 	 */
-	public ArrayList<EvenementComplet> listerEvenementsResponsable(int idResponsable, Date dateDebut, Date dateFin, 
+	public ArrayList<EvenementComplet> listerEvenementsIntervenant(int idIntervenant, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
-				"INNER JOIN edt.responsableevenement ON evenement.eve_id = responsableevenement.eve_id " +
-				"WHERE responsableevenement.utilisateur_id = " + idResponsable + " "
+				"INNER JOIN edt.intervenantevenement ON evenement.eve_id = intervenantevenement.eve_id " +
+				"WHERE intervenantevenement.utilisateur_id = " + idIntervenant + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
 		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
@@ -507,11 +531,11 @@ public class EvenementGestion {
 	 * @param dateFin
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException
+	 * @throws EdtempsException 
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementsCalendrier(int idCalendrier, Date dateDebut, Date dateFin, 
 			boolean createTransaction) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
 				"WHERE evenementappartient.cal_id = " + idCalendrier + " "
@@ -551,7 +575,9 @@ public class EvenementGestion {
 	}
 	
 	/**
-	 * Liste les évènements correspondant à une requête préparée (pour obtenir les événements liés à un groupe, à une salle, à un calendrier, à un responsable)
+	 * Liste les évènements correspondant à une requête préparée (pour obtenir les événements liés à un groupe, à une salle, à un calendrier, à un responsable).
+	 * Le nombre d'événements renvoyé n'est pas vérifié (peut être très élevé), donc attention aux requêtes utilisées.
+	 * 
 	 * @param request requêre SQL pour obtenir les événements souhaités
 	 * @param dateDebut
 	 * @param dateFin
@@ -559,24 +585,59 @@ public class EvenementGestion {
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException
+	 * @throws DatabaseException Erreur de communication avec la BDD
 	 */
 	private <T  extends EvenementIdentifie> ArrayList<T> listerEvenements(String request, Date dateDebut, Date dateFin, 
 			AbsEvenementInflater<T> inflater, boolean createTransaction) throws DatabaseException {
+		try {
+			return listerEvenements(request, dateDebut, dateFin, inflater, createTransaction, -1);
+		}
+		catch(MaxRowCountExceededException e) {
+			throw new RuntimeException("La méthode listerEvenements n'est pas censée renvoyer une MaxRowCountExceededException avec le paramètre nbMaxEvenements à -1", e);
+		}
+	}
+	
+	/**
+	 * Liste les évènements correspondant à une requête préparée (pour obtenir les événements liés à un groupe, à une salle, à un calendrier, à un responsable)
+	 * @param request requêre SQL pour obtenir les événements souhaités
+	 * @param dateDebut
+	 * @param dateFin
+	 * @parm inflater Inflater permettant de créer l'objet voulu à partir des lignes de base de donnée
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @param nbMaxEvenements Indique le nombre maximum d'événements à renvoyer (comparé avec MAX_ROWS_QUERY_EVENEMENTS). -1 si la vérification ne doit pas être effectuée.
+	 * 
+	 * @return Liste d'évènements récupérés
+	 * @throws DatabaseException Erreur de communication avec la BDD
+	 * @throws EdtempsException Uniquement si le paramètre checkCount est true, est levé si le nombre d'événements excède MAX_ROWS_QUERY_EVENEMENTS
+	 */
+	private <T  extends EvenementIdentifie> ArrayList<T> listerEvenements(String request, Date dateDebut, Date dateFin, 
+			AbsEvenementInflater<T> inflater, boolean createTransaction, int nbMaxEvenements) throws DatabaseException, MaxRowCountExceededException {
 		
 		ArrayList<T> res = null;
 		try {
 			if(createTransaction){
 				_bdd.startTransaction();
 			}
-						
-			PreparedStatement req = _bdd.getConnection().prepareStatement(request);
+			
+
+			PreparedStatement req = _bdd.getConnection().prepareStatement(request, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 					
 			req.setTimestamp(1, new java.sql.Timestamp(dateDebut.getTime()));
 			req.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
 			
 			ResultSet reponse = req.executeQuery();
 			
+			if(nbMaxEvenements != -1) {
+				reponse.last();
+				int nbLignes = reponse.getRow();
+				reponse.beforeFirst();
+				
+				if(nbLignes > nbMaxEvenements) {
+					reponse.close();
+					throw new MaxRowCountExceededException(nbMaxEvenements, nbLignes);
+				}
+			}
+
 			res = new ArrayList<T>();
 			while(reponse.next()) {
 				res.add(inflater.inflateEvenement(reponse, _bdd));
@@ -590,6 +651,46 @@ public class EvenementGestion {
 			return res;
 			
 		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	/**
+	 * Récupère le nombre maximum d'événements créés par l'utilisateur par calendriers, pendant la période donnée
+	 * @param userId ID de l'utilisateur créateur des événements
+	 * @param idCalendriers IDs des calendriers à examiner
+	 * @param dateDebut Date de début de la période de recherche
+	 * @param dateFin Date de fin de la période de recherche
+	 * @return Le nombre maximum d'événements créés par l'utilisateur par calendrier, pendant la fenêtre de recherche
+	 * @throws DatabaseException
+	 */
+	public int getMaxNbEvenementsParCalendriersUtilisateur(int userId, List<Integer> idCalendriers, Date dateDebut, Date dateFin) throws DatabaseException {
+		
+		if(idCalendriers.isEmpty()) {
+			return 0;
+		}
+		
+		String strCalendriers = StringUtils.join(idCalendriers, ",");
+
+		try {
+			
+			PreparedStatement statement = _bdd.getConnection().prepareStatement("SELECT MAX(sub.nombre) AS max FROM " +
+				"(SELECT COUNT(evenement.eve_id) AS nombre FROM edt.evenement " +
+				"INNER JOIN edt.evenementappartient ea ON ea.eve_id = evenement.eve_id " +
+				"WHERE evenement.eve_createur = ? AND evenement.eve_datedebut < ? AND evenement.eve_datefin > ? " +
+				"AND ea.cal_id IN (" + strCalendriers + ") " +
+				"GROUP BY ea.cal_id) sub");
+			
+			statement.setInt(1, userId);
+			statement.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
+			statement.setTimestamp(3, new java.sql.Timestamp(dateDebut.getTime()));
+			
+			ResultSet res = statement.executeQuery();
+			
+			res.next();
+			return res.getInt("max");
+		}
+		catch(SQLException e) {
 			throw new DatabaseException(e);
 		}
 	}

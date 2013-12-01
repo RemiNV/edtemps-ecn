@@ -312,7 +312,9 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 			if (resultCode == RestManager.resultCode_Success) {
 				me.multiWidgetProprietaires = new MultiWidget(
 						me.jqCreationGroupeForm.find("#form_creer_groupe_proprietaire"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(utilisateurs, 1, { label: "Vous-même", value: me.restManager.getUserId() }, 230));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(utilisateurs, 1, 230));
+				
+				me.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: me.restManager.getUserId(), readOnly: true }]);
 
 				callback();
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
@@ -335,7 +337,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 		this.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").prop("checked", false);
 		this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", false);
 		if (this.multiWidgetProprietaires != null) {
-			this.multiWidgetProprietaires.clear();
+			this.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: this.restManager.getUserId(), readOnly: true }]);
 		}
 
 		// Enlève les bordures sur le champ nom
@@ -374,9 +376,9 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				user.label = groupe.proprietaires[i].prenom+" "+groupe.proprietaires[i].nom;
 				user.value = groupe.proprietaires[i].id;
 				user.tooltip = (groupe.proprietaires[i].email!=null) ? groupe.proprietaires[i].email : null;
-				if (user.value!=this.restManager.getUserId()) {
-					listeProprietaires.push(user);
-				}
+				user.readOnly = false; // TODO : mettre une valeur correcte
+				// TODO : cette méthode pourrait utiliser UtilisateurGestion.makeUtilisateursAutocomplete (méthode statique)
+				listeProprietaires.push(user);
 			}
 			this.multiWidgetProprietaires.setValues(listeProprietaires);
 

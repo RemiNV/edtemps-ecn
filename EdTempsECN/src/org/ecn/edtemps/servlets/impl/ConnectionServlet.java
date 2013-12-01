@@ -32,8 +32,6 @@ public class ConnectionServlet extends HttpServlet {
 	
 	/**
 	 * Connection d'un utilisateur
-	 * Format JSON des réponses en cas de succès (objet data) : 
-	 * (token: 'tokendeconnexion')
 	 */
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {

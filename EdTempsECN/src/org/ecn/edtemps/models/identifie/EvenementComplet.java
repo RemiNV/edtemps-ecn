@@ -26,6 +26,7 @@ public class EvenementComplet extends EvenementIdentifie {
 	 * @param dateDebut date de début de l'événement
 	 * @param dateFin date de fin de l'événement
 	 * @param idCalendriers identifiants des calendriers liés
+	 * @param idCreateur identifiant de l'utilisateur créateur de l'événement
 	 * @param salles salles occupées par l'événement
 	 * @param intervenants utilisateurs intervenants dans l'événement
 	 * @param responsables utilisateurs responsables de l'événement
@@ -34,10 +35,10 @@ public class EvenementComplet extends EvenementIdentifie {
 	 * @param types liste des types de l'événement
 	 */
 	public EvenementComplet(String nom, Date dateDebut, Date dateFin,
-			List<Integer> idCalendriers, List<SalleIdentifie> salles,
+			List<Integer> idCalendriers, Integer idCreateur, List<SalleIdentifie> salles,
 			List<UtilisateurIdentifie> intervenants,
 			List<UtilisateurIdentifie> responsables, int id, List<String> matieres, List<String> types) {
-		super(nom, dateDebut, dateFin, idCalendriers, salles, intervenants,
+		super(nom, dateDebut, dateFin, idCalendriers, idCreateur, salles, intervenants,
 				responsables, id);
 		
 		this.matieres = matieres;

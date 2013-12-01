@@ -81,17 +81,19 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Fonction générique de récupération d'évènements. Utilisable pour la récupération de : 
-	 * - Evènements de mes abonnements
-	 * - Evènements dont je suis propriétaire
-	 * - Evènements d'une salle
+	 * - Evénements de mes abonnements
+	 * - Evénements dont je suis intervenant
+	 * - Evénements d'une salle
+	 * - Evénements d'un groupe
 	 * 
 	 * @param url URL à laquelle faire la requête
 	 * @param dateDebut Début de la fenêtre de recherche
 	 * @param dateFin Fin de la fenêtre de recherche
 	 * @param callback Fonction à appeler pour fournir le résultat de la requête (paramètres resultCode et data)
 	 * @param idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 * @param idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
 	 */
-	EvenementGestion.prototype.queryEvenements = function(url, dateDebut, dateFin, callback, idSalle) {
+	EvenementGestion.prototype.queryEvenements = function(url, dateDebut, dateFin, callback, idSalle, idGroupe) {
 		
 		var params = {
 			token: this.restManager.getToken(),
@@ -101,6 +103,10 @@ define(["RestManager"], function(RestManager) {
 		
 		if(idSalle) {
 			params.idSalle = idSalle;
+		}
+		
+		if(idGroupe) {
+			params.idGroupe = idGroupe;
 		}
 		
 		this.restManager.effectuerRequete("GET", url, params, function(data) {
@@ -169,6 +175,17 @@ define(["RestManager"], function(RestManager) {
 		return false;
 	};
 	
+	var makeStrSalle = function(salles) {
+		var strSalles = "";
+		for(var j=0, maxj = salles.length; j<maxj; j++) {
+			if(j != 0)
+				strSalles += ", ";
+			strSalles += salles[j].nom;
+		}
+		
+		return strSalles;
+	};
+	
 	/**
 	 * Retourne un tableau d'évènements compatibles fullCalendar à partir d'évènements renvoyés par le serveur
 	 * (format complet, avec matières et types, classe EvenementComplet)
@@ -181,24 +198,26 @@ define(["RestManager"], function(RestManager) {
 		var res = new Array();
 		
 		for(var i=0, maxI = evenements.length; i<maxI; i++) {
-			var strSalles = evenements[i].salles.join(", ");
 			
 			var estProprietaire = this.estProprietaire(evenements[i]);
-			
+			// TODO : remplacer "title" avec plus de texte (matière ? salle ?)
 			res.push({
 				id: evenements[i].id,
 				title: evenements[i].nom,
+				nom: evenements[i].nom,
 				start: new Date(evenements[i].dateDebut),
 				end: new Date(evenements[i].dateFin),
+				idCreateur: evenements[i].idCreateur,
 				salles: evenements[i].salles,
-				strSalle: strSalles,
+				strSalle: makeStrSalle(evenements[i].salles),
 				calendriers: evenements[i].calendriers,
 				intervenants: evenements[i].intervenants,
 				responsables: evenements[i].responsables,
 				matieres: evenements[i].matieres,
 				types: evenements[i].types,
 				allDay: false,
-				editable: estProprietaire
+				editable: estProprietaire,
+				color: "#3a87ad"
 			});
 		}
 		
@@ -220,14 +239,6 @@ define(["RestManager"], function(RestManager) {
 		
 		var res = new Array();
 		for(var i=0, max = evenements.length; i<max; i++) {
-			// Chaîne de salles
-			var strSalles = "";
-			for(var j=0, maxj = evenements[i].salles.length; j<maxj; j++) {
-				if(j != 0)
-					strSalles += ", ";
-				strSalles += evenements[i].salles[j].nom;
-			}
-			
 			// Récupération des types et matières pour cet évènement
 			var types = new Array();
 			var matieres = new Array();
@@ -246,21 +257,24 @@ define(["RestManager"], function(RestManager) {
 		
 			// Est-ce que l'utilisateur est propriétaire
 			var estProprietaire = this.estProprietaire(evenements[i]);
-			
+			// TODO : remplacer "title" avec plus de texte (matière ? salle ?)
 			res[i] = {
 				id: evenements[i].id,
 				title: evenements[i].nom,
+				nom: evenements[i].nom,
 				start: new Date(evenements[i].dateDebut),
 				end: new Date(evenements[i].dateFin),
+				idCreateur: evenements[i].idCreateur,
 				salles: evenements[i].salles,
-				strSalle: strSalles,
+				strSalle: makeStrSalle(evenements[i].salles),
 				calendriers: evenements[i].calendriers,
 				intervenants: evenements[i].intervenants,
 				responsables: evenements[i].responsables,
 				matieres: matieres,
 				types: types,
 				allDay: false,
-				editable: estProprietaire
+				editable: estProprietaire,
+				color: "#3a87ad"
 			};
 		}
 	
@@ -276,8 +290,10 @@ define(["RestManager"], function(RestManager) {
 	 * @param parsingMethod Méthode à utiliser pour convertir les évènements retournés par le serveur au format fullCalendar
 	 * @param ignoreCache Ignorer les évènements stockés en cache et forcer la requête vers le serveur
 	 * @param callback Fonction de rappel à appeler avec les résultats. Prend les paramètres resultCode et evenements (tableau des évènements)
+	 * @param idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 * @param idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
 	 */
-	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, parsingMethod, ignoreCache, callback) {
+	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, parsingMethod, ignoreCache, callback, idSalle, idGroupe) {
 		var me = this;
 		
 		// Récupération depuis le cache si disponible
@@ -300,7 +316,7 @@ define(["RestManager"], function(RestManager) {
 				else {
 					callback(resultCode);
 				}
-			});
+			}, idSalle, idGroupe);
 		}
 	};
 	
@@ -326,11 +342,21 @@ define(["RestManager"], function(RestManager) {
 	
 	EvenementGestion.prototype.getMesEvenements = function(start, end, ignoreCache, callback) {
 		var me = this;
-		this.getEvenements("mesevenements", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, 
+		this.getEvenements("listerevenements/intervenant", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, 
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback);
 	};
 	
-	// TODO : ajouter getEvenementsSalle (même style d'appel)
+	EvenementGestion.prototype.getEvenementsGroupe = function(start, end, idGroupe, ignoreCache, callback) {
+		var me = this;
+		this.getEvenements("listerevenements/groupe", EvenementGestion.CACHE_MODE_GROUPE, start, end, 
+				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, idGroupe);
+	};
+	
+	EvenementGestion.prototype.getEvenementsSalle = function(start, end, idSalle, ignoreCache, callback) {
+		var me = this;
+		this.getEvenements("listerevenements/salle", EvenementGestion.CACHE_MODE_SALLE, start, end, 
+				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, idSalle);
+	};
 	
 	/**
 	 * Enregistrement des évènements récupérés pour un intervalle donné
@@ -389,7 +415,7 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Invalidation du cache pendant un intervalle donné. Tous les modes de cache sont concernés
-	 * (MODE_MES_EVENEMENTS, MODE_MES_ABONNEMENTS...)
+	 * (CACHE_MODE_MES_EVENEMENTS, CACHE_MODE_MES_ABONNEMENTS...)
 	 * 
 	 * @param dateDebut début de la fenêtre à invalider
 	 * @param dateFin fin de la fenêtre à invalider
@@ -411,6 +437,14 @@ define(["RestManager"], function(RestManager) {
 		invalidateMode(EvenementGestion.CACHE_MODE_SALLE);
 		invalidateMode(EvenementGestion.CACHE_MODE_MES_EVENEMENTS);
 		invalidateMode(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS);
+	};
+	
+	/**
+	 * Suppression de tout le cache d'un mode donné
+	 * @param modeCache Mode de cache concerné (CACHE_MODE_MES_EVENEMENTS, CACHE_MODE_MES_ABONNEMENTS...)
+	 */
+	EvenementGestion.prototype.clearCache = function(modeCache) {
+		this.cachedEvents[modeCache] = new Array();
 	};
 	
 	/**
@@ -454,7 +488,7 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Modification d'un évènement en base de données.
-	 * Les paramètres peuvent être null (ou non renseignés) pour indiquer "aucune modification" (sauf l'ID d'évènement).
+	 * Les paramètres peuvent être null ou non précisés pour indiquer "aucune modification" (sauf l'ID d'évènement).
 	 * <b>Ne pas oublier d'invalider le cache d'évènements</b> via EvenementGestion.invalidateCache() une fois
 	 * l'évènement modifié, pendant l'ancienne période de l'évènement (la nouvelle est automatiquement invalidée) 
 	 * 
@@ -471,7 +505,7 @@ define(["RestManager"], function(RestManager) {
 	 */
 	EvenementGestion.prototype.modifierEvenement = function(id, callback, dateDebut, dateFin, nom, idCalendriers, 
 			idSalles, idIntervenants, idResponsables, idEvenementsSallesALiberer) {
-		
+
 		var me = this;
 		this.restManager.effectuerRequete("POST", "evenement/modifier", {
 			token: me.restManager.getToken(),
@@ -492,6 +526,27 @@ define(["RestManager"], function(RestManager) {
 				// Invalidation du cache pendant le nouvel intervalle de l'évènement modifié
 				// L'ancien intervalle n'est pas invalidé et doit être fait par l'appelant
 				me.invalidateCache(dateDebut, dateFin);
+			}
+			
+			callback(response.resultCode);
+		});
+	};
+	
+	/**
+	 * Suppression d'un évènement en base de données. Effectue la purge du cache.
+	 * 
+	 * @param {Object} event Evénement à supprimer. Doit contenir les propriétés id, start, end
+	 * @param {function} callback Fonction appelée une fois la suppression effectuée. Prend un argument resultCode.
+	 */
+	EvenementGestion.prototype.supprimerEvenement = function(event, callback) {
+		var me = this;
+		this.restManager.effectuerRequete("POST", "evenement/supprimer", {
+			token: this.restManager.getToken(),
+			idEvenement: event.id
+		}, function(response) {
+			
+			if(response.resultCode === RestManager.resultCode_Success) {
+				me.invalidateCache(event.start, event.end);
 			}
 			
 			callback(response.resultCode);

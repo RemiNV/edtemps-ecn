@@ -61,7 +61,7 @@ public class CalendrierIdentifie extends Calendrier implements JSONAble {
 			builder.add("matiere", matiere);
 		}
 		else {
-			builder.addNull("type");
+			builder.addNull("matiere");
 		}
 		
 		return builder;

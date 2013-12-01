@@ -2,14 +2,74 @@
  * Module de gestion de l'interface du calendrier fullcalendar
  * @module Calendrier
  */
-define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager) {
+define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "underscore", "lib/fullcalendar.translated.min", "jqueryui"], function(RestManager, tplDialogDetailsEvenement, _) {
 
 	/**
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion) {
+	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement) {
 		var me = this;
+		
+		// Dialog de détails des événements
+		var templateDialogDetails = _.template(tplDialogDetailsEvenement);
+		
+		var closeDialogDetailsCallback = function(event) {
+			if(!jqDialogDetailsEvenement.dialog("isOpen")) {
+				return;
+			}
+			
+			// On n'est pas à l'intérieur d'une dialog
+			var jqTarget = $(event.target);
+			if(!jqTarget.is(".ui_dialog, .fc-event") 
+					&& jqTarget.closest(".ui-dialog").length == 0
+					&& jqTarget.closest(".fc-event").length == 0) {
+				jqDialogDetailsEvenement.dialog("close");
+				return false;
+			}
+		};
+		
+		jqDialogDetailsEvenement.dialog({
+			autoOpen: false,
+			draggable: false,
+			width: 500,
+			open: function(){
+				$(document).bind("click", closeDialogDetailsCallback);
+			},
+			close: function() {
+				$(document).unbind("click", closeDialogDetailsCallback);
+			}
+		});
+		
+		jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_details_evenement_header");
+		
+		// Mémorise l'événement pour lequel la dialog dialogDetailsEvenement est ouverte
+		var evenementDialogDetailsOuverte = null;
+		
+		jqDialogDetailsEvenement.find("#btnModifierEvenement").click(function() {
+			jqDialogDetailsEvenement.dialog("close");
+			dialogAjoutEvenement.showEdit(evenementDialogDetailsOuverte);
+		});
+		
+		jqDialogDetailsEvenement.find("#btnSupprimerEvenement").click(function() {
+			
+			if(!confirm("Etes-vous sûr(e) de vouloir supprimer l'événement : " + evenementDialogDetailsOuverte.title + " ?")) {
+				return;
+			}
+			
+			evenementGestion.supprimerEvenement(evenementDialogDetailsOuverte, function(resultCode) {
+				if(resultCode == RestManager.resultCode_Success) {
+					jqDialogDetailsEvenement.dialog("close");
+					me.refetchEvents();
+				}
+				else if(resultCode == RestManager.resultCode_NetworkError) {
+					window.showToast("Echec de la suppression de cet événement : vérifiez votre connexion");
+				}
+				else {
+					window.showToast("Echec de la suppression de cet événement");
+				}
+			});
+		});		
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();
@@ -46,6 +106,11 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 			events: eventsSource,
 			dayClick: function(date, allDay, jsEvent, view) {
 				
+				// La dialog de détails se fermera juste après ce listener (clic en-dehors)
+				if(jqDialogDetailsEvenement.dialog("isOpen")) {
+					return;
+				}
+				
 				// Durée d'1h par défaut
 				var dateFin = new Date(date.getTime() + 1000 * 3600);
 				
@@ -55,6 +120,43 @@ define(["RestManager", "lib/fullcalendar.translated.min"], function(RestManager)
 				if(event.loading) {
 					jqElement.append("<img src='img/spinner_chargement_outer_small.gif' class='spinner_evenement_loading' alt='Enregistrement...' />");
 				}
+				
+				jqElement.click(function() {
+					
+					evenementDialogDetailsOuverte = event;
+					
+					jqDialogDetailsEvenement.dialog("widget").find(".ui-dialog-titlebar")
+						.css("color", event.color);
+					
+					// Remplissage du template
+					jqDialogDetailsEvenement.find("#dialog_details_evenement_hook").html(templateDialogDetails({
+						strDateDebut: $.fullCalendar.formatDate(event.start, "dd/MM/yyyy hh:mm"),
+						strDateFin: $.fullCalendar.formatDate(event.end, "dd/MM/yyyy hh:mm"),
+						strSalles: event.strSalle,
+						proprietaires: event.responsables,
+						intervenants: event.intervenants,
+						editable: event.editable
+					}));
+					
+					if(event.editable) {
+						jqDialogDetailsEvenement.find(".boutons_valider").css("display", "block");
+					}
+					else {
+						jqDialogDetailsEvenement.find(".boutons_valider").css("display", "none");
+					}
+					
+					// Positionnement de la dialog
+					jqDialogDetailsEvenement.dialog("option", {
+						position: {
+							my: "center bottom",
+							at: "top-10",
+							of: jqElement
+						},
+						title: event.title
+					});
+					
+					jqDialogDetailsEvenement.dialog("open");
+				});
 			},
 			eventDragStop: function(event, jsEvent, ui, view) {
 				if(!event.pendingUpdates) { // L'évènement est synchronisé avec le serveur

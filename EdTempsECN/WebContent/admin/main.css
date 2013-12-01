@@ -48,7 +48,7 @@ h1 {
 
 #form_login form {
 	margin: 0px auto 20px auto;
-	width: 260px;
+	width: 280px;
 }
 
 #erreur_connexion {
@@ -292,5 +292,54 @@ ul.button_nav li:last-child {
 }
 
 #liste_utilisateurs td.form_supprimer_utilisateur {
-	width: 20px;
+	border-left: none;
+}
+
+#liste_utilisateurs td.form_modifier_utilisateur {
+	border-right: none;
+}
+
+
+
+/**
+ * Page de gestion des types d'utilisateurs
+ */
+
+#types_utilisateurs_liste {
+	width: 450px;
+}
+
+.titre_multi-select {
+	height: 20px;
+	margin: 20px 0px 5px 5px;
+}
+
+#ajouter_type_utilisateurs {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 200px;
+	height: 70px;
+	width: 460px;
+	padding: 10px;
+}
+
+#modifier_type_utilisateurs {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 300px;
+	height: 60px;
+	width: 460px;
+	padding: 10px;
+}
+
+#supprimer_type_utilisateurs {
+	box-shadow: 0 0 7px #555;
+	position: absolute;
+	margin-left: 480px;
+	top: 390px;
+	height: 110px;
+	width: 460px;
+	padding: 10px;
 }

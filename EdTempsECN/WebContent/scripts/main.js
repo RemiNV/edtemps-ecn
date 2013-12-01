@@ -77,6 +77,8 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 		.animate({ top: -40 }, 500);
 	};
 	
+	// TODO : ajouter une dialog permettant de faire un window.confirm plus joli
+	
 	function init() {
 		
 		/**

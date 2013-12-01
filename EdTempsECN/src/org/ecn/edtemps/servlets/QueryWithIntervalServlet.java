@@ -52,6 +52,7 @@ public abstract class QueryWithIntervalServlet extends RequiresConnectionServlet
 		}
 		catch(NumberFormatException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format des paramètres début et/ou fin incorrect", null));
+			bdd.close();
 			logger.info("Requête effectuée avec des paramètres début et/ou fin non numériques.");
 			return;
 		}
@@ -62,6 +63,7 @@ public abstract class QueryWithIntervalServlet extends RequiresConnectionServlet
 			data = doQuery(userId, bdd, dateDebut, dateFin, req);
 		} catch (EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			bdd.close();
 			logger.error("Erreur lors d'une requête nécessitant un intervalle", e);
 			return;
 		}

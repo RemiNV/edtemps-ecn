@@ -7,6 +7,7 @@ import javax.json.Json;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
@@ -34,14 +35,21 @@ public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 		String paramEffectif = req.getParameter("effectif");
 		String paramMateriel = req.getParameter("materiel");
 		String paramSallesOccupees = req.getParameter("sallesOccupees");
+		String paramEvenementIgnorer = req.getParameter("idEvenementIgnorer");
 
 		// Transformation de ces paramètres pour appeler la fonction de recherche
 		Integer capacite = null;
+		Integer idEvenementIgnorer = null;
 		ArrayList<Materiel> listeMateriel = new ArrayList<Materiel>();
 		boolean sallesOccupees = Boolean.valueOf(paramSallesOccupees);
 		try {
 			// Capacité de la salle
-			capacite = Integer.valueOf(paramEffectif);
+			if (StringUtils.isNotBlank(paramEffectif)) {
+				capacite = Integer.valueOf(paramEffectif);
+			}
+			if (StringUtils.isNotBlank(paramEvenementIgnorer)) {
+				idEvenementIgnorer = Integer.valueOf(paramEvenementIgnorer);
+			}
 			
 			// Liste du matériel
 			String[] tableauMateriel = paramMateriel.split(",");
@@ -61,7 +69,7 @@ public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 		JsonValue data;
 
 		// Appel de la méthode de recherche
-		ArrayList<SalleRecherche> listeSalles = salleGestion.rechercherSalle(dateDebut, dateFin, listeMateriel, capacite, sallesOccupees, true);
+		ArrayList<SalleRecherche> listeSalles = salleGestion.rechercherSalle(dateDebut, dateFin, listeMateriel, capacite, sallesOccupees, true, idEvenementIgnorer);
 
 		// Création de la réponse
 		data = Json.createObjectBuilder()

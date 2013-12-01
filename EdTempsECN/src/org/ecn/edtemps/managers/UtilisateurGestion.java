@@ -252,25 +252,30 @@ public class UtilisateurGestion {
 	/**
 	 * Récupération de l'ID d'un utilisateur connu dans la base de données depuis son ID LDAP.
 	 * L'utilisateur doit déjà avoir été enregistré sur le système emploi du temps
-	 * @param ldapId ID LDAP de l'utilisateur
+	 * @param dn dn LDAP de l'utilisateur
 	 * @return ID de l'utilisateur, ou null si il n'est pas présent dans la base
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	private Integer getUserIdFromLdapId(long ldapId) throws DatabaseException {
-		ResultSet results = bdd.executeRequest("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_id_ldap=" + ldapId);
-		
-		Integer id = null;
+	private Integer getUserIdFromDN(String dn) throws DatabaseException {
 		
 		try {
+			PreparedStatement statement = bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_dn=?");
+			
+			statement.setString(1, dn);
+			
+			ResultSet results = statement.executeQuery();
+			
+			Integer id = null;
+
 			if(results.next()) {
 				id = results.getInt(1);
 			}
 			results.close();
+
+			return id;
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
-		
-		return id;
 	}
 	
 	/**
@@ -302,7 +307,7 @@ public class UtilisateurGestion {
 			
 			LDAPConnection connection = new LDAPConnection(socketFactoryConnection, ADRESSE_LDAP, PORT_LDAP, dn, pass);
 			
-			// Succès de la connexion : récupération de l'identifiant entier uid (uidnumber) de l'utilisateur
+			// Succès de la connexion : récupération des nom, prénom, mail de l'utilisateur
 			String filtre = "(uid=" + utilisateur + ")";
 			SearchRequest request = new SearchRequest("ou=people, dc=ec-nantes, dc=fr", SearchScope.SUB, filtre, "uidNumber", "sn", "givenName", "mail");
 			
@@ -313,11 +318,10 @@ public class UtilisateurGestion {
 			
 			// Entrée correspondant à l'utilisateur dans la recherche
 			if(lstResults.isEmpty()) {
-				logger.error("Erreur de récupération de l'ID LDAP de l'utilisateur : " + utilisateur);
-				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Impossible de récupérer l'ID LDAP de l'utilisateur.");
+				logger.error("Erreur de récupération des informations LDAP de l'utilisateur : " + utilisateur);
+				throw new IdentificationException(ResultCode.LDAP_CONNECTION_ERROR, "Impossible de récupérer les informations LDAP de l'utilisateur.");
 			}
 			
-			// uiNumber LDAP de l'utilisateur récupéré
 			Long uidNumber = lstResults.get(0).getAttributeValueAsLong("uidNumber");
 			String nom = lstResults.get(0).getAttributeValue("sn");
 			String prenom = lstResults.get(0).getAttributeValue("givenName");
@@ -333,7 +337,7 @@ public class UtilisateurGestion {
 			
 			bdd.startTransaction();
 			
-			Integer userId = getUserIdFromLdapId(uidNumber);
+			Integer userId = getUserIdFromDN(dn);
 			
 			Connection conn = bdd.getConnection();
 			if(userId != null) { // Utilisateur déjà présent en base
@@ -354,9 +358,9 @@ public class UtilisateurGestion {
 				// Création d'un token ICal pour l'utilisateur
 				String tokenIcal = genererToken(uidNumber);
 				
-				PreparedStatement statement = conn.prepareStatement("INSERT INTO edt.utilisateur(utilisateur_id_ldap, utilisateur_token, utilisateur_nom, utilisateur_prenom, " +
+				PreparedStatement statement = conn.prepareStatement("INSERT INTO edt.utilisateur(utilisateur_dn, utilisateur_token, utilisateur_nom, utilisateur_prenom, " +
 						"utilisateur_email, utilisateur_token_expire, utilisateur_url_ical) VALUES(?, ?, ?, ?, ?, now() + interval '1 hour', ?) RETURNING utilisateur_id");
-				statement.setLong(1, uidNumber);
+				statement.setString(1, dn);
 				statement.setString(2, token);
 				statement.setString(3, nom);
 				statement.setString(4, prenom);
@@ -652,23 +656,21 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public List<UtilisateurIdentifie> getListeUtilisateurs() throws DatabaseException {
-		ResultSet reponse = bdd.executeRequest("" +
-				"SELECT * FROM edt.utilisateur" +
-				" LEFT JOIN edt.estdetype ON estdetype.utilisateur_id=utilisateur.utilisateur_id" +
-				" ORDER BY utilisateur.utilisateur_prenom");
+		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur ORDER BY utilisateur.utilisateur_prenom");
 
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
 
 		try {
 			while(reponse.next()) {
 				int id = reponse.getInt("utilisateur_id");
-				int type = reponse.getInt("type_id");
 				String nom = reponse.getString("utilisateur_nom");
 				String prenom = reponse.getString("utilisateur_prenom");
 				String email = reponse.getString("utilisateur_email");
 				
 				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email);
-				utilisateur.setType(type);
+
+				// Récupération des types de l'utilisateur
+				utilisateur.setType(this.getListeTypes(id));
 				
 				res.add(utilisateur);
 			}
@@ -684,19 +686,27 @@ public class UtilisateurGestion {
 	/**
 	 * Modifie le type d'un utilisateur
 	 * @param userId Identifiant de l'utilisateur
-	 * @param typeId Identifiant du nouveau type de l'utilisateur
+	 * @param listeIdentifiants Liste des identifiants des types de l'utilisateur
 	 * @throws DatabaseException 
 	 */
-	public void modifierTypeUtilisateur(int userId, int typeId) throws DatabaseException {
-		
+	public void modifierTypeUtilisateur(int userId, List<Integer> listeIdentifiantsTypes) throws DatabaseException {
+
 		// Démarre une transaction
 		bdd.startTransaction();
 		
-		// Supprime le type actuel de l'utilisateur
+		// Supprime les types actuels de l'utilisateur
 		bdd.executeRequest("DELETE FROM edt.estdetype WHERE utilisateur_id="+userId);
 		
-		// Ajoute le nouveau type
-		bdd.executeRequest("INSERT INTO edt.estdetype (utilisateur_id, type_id) VALUES ("+userId+", "+typeId+")");
+		// Ajoute les nouveaux types
+		if (CollectionUtils.isNotEmpty(listeIdentifiantsTypes)) {
+			StringBuilder requete = new StringBuilder("INSERT INTO edt.estdetype (utilisateur_id, type_id) VALUES ");
+			for (Integer idType : listeIdentifiantsTypes) {
+				requete.append("("+userId+", "+idType+"), ");
+			}
+			
+			// Exécute la requête (en supprimant les deux derniers caractères : ', '
+			bdd.executeRequest(requete.toString().substring(0, requete.length()-2));
+		}
 		
 		// Commit la transaction
 		bdd.commit();
@@ -710,9 +720,11 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException 
 	 */
 	public void supprimerUtilisateur(int userId) throws DatabaseException {
-		
 		// Démarre une transaction
 		bdd.startTransaction();
+		
+		// Supprime les liens de créateur d'événement
+		bdd.executeRequest("UPDATE edt.evenement SET eve_createur=NULL WHERE eve_createur=" + userId);
 
 		// Supprime les abonnements de l'utilisateur
 		bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE utilisateur_id="+userId);
@@ -743,4 +755,34 @@ public class UtilisateurGestion {
 		
 	}
 	
+
+	/**
+	 * Récupère la liste des types d'utilisateurs auxquels est rattaché un utilisateur
+	 * @param idUtilisateur identifiant de l'utilisateur
+	 * @return la liste des identifiants des types auxquels l'utilisateur est rattaché
+	 * @throws DatabaseException
+	 */
+	public List<Integer> getListeTypes(int idUtilisateur) throws DatabaseException {
+
+		List<Integer> resultat = new ArrayList<Integer>();
+		
+		try {
+			ResultSet reponse = bdd.executeRequest(
+					"SELECT typeutilisateur.type_id "
+					+ "FROM edt.typeutilisateur "
+					+ "INNER JOIN edt.estdetype ON estdetype.type_id = typeutilisateur.type_id "
+					+ "WHERE utilisateur_id = " + idUtilisateur);
+			while(reponse.next()) {
+				resultat.add(reponse.getInt("type_id"));
+			}
+			
+			reponse.close();
+			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+		return resultat;
+		
+	}
 }

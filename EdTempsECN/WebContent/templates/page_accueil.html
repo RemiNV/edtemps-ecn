@@ -3,7 +3,7 @@
 		<img src="img/icone_appli.png" alt="Emploi du temps ECN" id="logoAppli" />
 	</div>
 	
-	<span class="button" id="btn_ajout_evenement">+ Evénement</span>
+	<span class="button" id="btn_ajout_evenement">+ &Eacute;vénement</span>
 	
 	<div id="bloc_vos_agendas">
 		Vos agendas : <a href="#parametres/mes_abonnements" id="btn_gerer_agendas" class="button">Gérer</a>
@@ -18,12 +18,32 @@
 	
 	<ul id="nav_vue_agenda" class="button_nav">
 		<li class="selected" id="tab_mes_abonnements"><a href="#agenda/mes_abonnements">Mes abonnements</a></li>
-		<li id="tab_mes_evenements"><a href="#agenda/mes_evenements">Mes événements</a></li>
+		<li id="tab_mes_evenements"><a href="#agenda/mes_evenements">&Eacute;vénements dans lesquels j'interviens</a></li>
 		<li id="tab_vue_groupe"><a href="#agenda/vue_groupe">Vue groupe</a></li>
 		<li id="tab_vue_salle"><a href="#agenda/vue_salle">Vue salle</a></li>
 	</ul>
 	
 	<span id="btn_chercher_salle" class="button">Chercher une salle libre</span>
+	
+	<div id="choix_groupe" style="display: none">
+		Afficher les événements du groupe : 
+		<select id="select_choix_groupe">
+		</select>
+		<span id="message_chargement_groupes">
+			<img src="img/spinner_chargement_small.gif" class="spinner_chargement" alt="chargement" />Chargement des groupes...
+		</span>
+	</div>
+	
+	<div id="choix_salle" style="display: none">
+		Afficher les événements de la salle :
+		<select id="select_choix_salle">
+		</select>
+		<span id="message_chargement_salles">
+			<img src="img/spinner_chargement_small.gif" class="spinner_chargement" alt="chargement" />Chargement des salles...
+		</span>
+	</div>
+	
+	
 	<div id="recherche_salle_libre">
 		<div id="form_chercher_salle" title="Formulaire de recherche d'une salle libre">
 			<form>
@@ -56,7 +76,7 @@
 					</table>
 					
 					<div id="form_chercher_salle_chargement" style="display: none">
-						<img src="img/spinner_chargement_outer_small.gif" alt="chargement" />
+						<img src="img/spinner_chargement_outer_small.gif" class="spinner_chargement" alt="chargement" />
 						<span id="form_chercher_salle_message_chargement"></span>
 					</div>
 				</div>
@@ -109,15 +129,15 @@
 		</tr>
 		<!-- Elements à masquer selon les droits de l'utilisateur -->
 		<tr id="choix_proprietaire">
-			<td>Propriétaires</td>
+			<td>Propriétaires <img alt="aide" class="help_icon" title="Donne les droits d'administration (modification/suppression)<br/>sur cet événement" src="img/help.png" /></td>
 			<td><input type="text" id="input_proprietaires_evenement" /></td>
 		</tr>
 		<tr id="choix_intervenants">
-			<td>Intervenants</td>
+			<td>Intervenants <img alt="aide" class="help_icon" title="L'événement s'affichera dans la page &quot;&Eacute;vénements dans lesquels j'interviens&quot;<br/>de ces utilisateurs" src="img/help.png" /></td>
 			<td><input type="text" id="input_intervenants_evenement" /></td>
 		</tr>
 		<tr>
-			<td>Rattachement aux calendriers : </td>
+			<td>Calendriers : </td>
 			<td id="calendriers_evenement">
 				<select class="select_calendriers"></select>
 			</td>
@@ -161,14 +181,29 @@
 		<ul id="lst_evenements_salles_occupees">
 		</ul>
 	</div>
+	
+	<div id="notes_pas_proprietaire_calendrier" class="message_alerte" style="display: none">
+		Vous n'êtes pas propriétaire de tous les calendriers : ils ne seront pas modifiés.
+	</div>
 
 	<div class="boutons_valider">
 		<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Valider" />
 	</div>
 	
 	<div id="dialog_ajout_evenement_chargement" style="display: none">
-		<img src="img/spinner_chargement_outer_small.gif" alt="chargement" />
+		<img src="img/spinner_chargement_outer_small.gif" class="spinner_chargement" alt="chargement" />
 		<span id="dialog_ajout_evenement_message_chargement"></span>
 	</div>
 
+</div>
+
+<!-- Dialog d'affichage des détails d'un événement -->
+<div id="dialog_details_evenement" title="Détails de l'événement">
+	<div id="dialog_details_evenement_hook">
+	<!-- Contenu rempli à partir du template dialog_details_evenement.tpl -->
+	</div>
+	<div class="boutons_valider">
+		<input type="button" class="button" value="Modifier" id="btnModifierEvenement" />
+		<input type="button" class="button" value="Supprimer" id="btnSupprimerEvenement" />
+	</div>
 </div>

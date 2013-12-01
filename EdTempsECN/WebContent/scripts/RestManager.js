@@ -42,6 +42,8 @@ define(["jquery"], function() {
 	 * - RestManager.resultCode_SalleOccupee<br>
 	 * - RestManager.resultCode_AlphanumericRequired<br>
 	 * - RestManager.resultCode_AuthorizationError
+	 * - RestManager.resultCode_MaxRowCountExceeded
+	 * - RestManager.resultCode_QuotaExceeded
 	 * @typedef ResultCode
 	 * @type {number}
 	 */
@@ -50,9 +52,11 @@ define(["jquery"], function() {
 	RestManager.resultCode_IdentificationError = 1;
 	RestManager.resultCode_LdapError = 3;
 	RestManager.resultCode_NameTaken = 8;
+	RestManager.resultCode_AuthorizationError = 9;
 	RestManager.resultCode_SalleOccupee = 10;
 	RestManager.resultCode_AlphanumericRequired = 11;
-	RestManager.resultCode_AuthorizationError = 9;
+	RestManager.resultCode_MaxRowCountExceeded = 12;
+	RestManager.resultCode_QuotaExceeded = 13;
 	
 	/**
 	 * Enumération des actions possibles dans l'emploi du temps

@@ -1,11 +1,11 @@
-/*
+/**
  * Affiche la demande de confirmation de suppression
  */
 function confirmationSupprimerAdministrateur() {
 	return confirm("Etes-vous sur de vouloir supprimer cet administrateur ?");
 }
 
-/*
+/**
  * Validation du formulaire d'ajout
  */
 function validationAjouterAdministrateur() {

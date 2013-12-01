@@ -83,7 +83,11 @@ public class AdministrateurMaterielServlet extends HttpServlet {
 		logger.error("Suppression d'un type matériel");
 
 		// Récupération de l'identifiant du type de matériel à supprimer
-		int id = Integer.valueOf(req.getParameter("supprimer_materiel_id"));
+		Integer id = req.getParameter("supprimer_materiel_id")!="" ? Integer.valueOf(req.getParameter("supprimer_materiel_id")) : null;
+		if (id == null) {
+			logger.error("Identifiant du type de matériel erroné");
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
 		
 		// Exécute la requête de suppression avec le manager
 		BddGestion bdd = new BddGestion();

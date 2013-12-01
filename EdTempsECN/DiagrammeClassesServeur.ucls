@@ -406,8 +406,8 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="45" language="java" name="org.ecn.edtemps.servlets.impl.EvenementsResponsableServlet" project="EdTempsECN" 
-    file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/EvenementsResponsableServlet.java" binary="false" 
+  <class id="45" language="java" name="org.ecn.edtemps.servlets.impl.EvenementsIntervenantServlet" project="EdTempsECN" 
+    file="/EdTempsECN/src/org/ecn/edtemps/servlets/impl/EvenementsIntervenantServlet.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="2324" y="1852"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 

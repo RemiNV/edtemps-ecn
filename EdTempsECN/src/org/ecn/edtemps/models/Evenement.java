@@ -34,19 +34,23 @@ public class Evenement {
 	/** Liste des noms des responsables de l'événement */
 	protected List<UtilisateurIdentifie> responsables;
 	
+	/** ID de l'utilisateur qui a créé l'événement ; peut être null si il a été supprimé */
+	protected Integer idCreateur;
+	
 	/** Constructeur avec uniquement attributs indispensables */
-	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers) {
+	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, Integer idCreateur) {
 		this.nom = nom;
 		this.dateDebut = dateDebut;
 		this.dateFin = dateFin;
 		this.idCalendriers = idCalendriers;
+		this.idCreateur = idCreateur;
 	}
 
 
 	/** Constructeur avec tous les attributs */
-	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<SalleIdentifie> salles,
+	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, Integer idCreateur, List<SalleIdentifie> salles,
 			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables) {
-		this(nom, dateDebut, dateFin, idCalendriers);
+		this(nom, dateDebut, dateFin, idCalendriers, idCreateur);
 		this.salles = salles;
 		this.intervenants = intervenants;
 		this.responsables = responsables;
@@ -80,6 +84,10 @@ public class Evenement {
 	public List<Integer> getIdCalendriers() {
 		return idCalendriers;
 	}
+	
+	public Integer getIdCreateur() {
+		return this.idCreateur;
+	}
 
 	public void setIdCalendriers(List<Integer> idCalendriers) {
 		this.idCalendriers = idCalendriers;
@@ -108,4 +116,5 @@ public class Evenement {
 	public void setResponsables(List<UtilisateurIdentifie> responsables) {
 		this.responsables = responsables;
 	}
+	
 }

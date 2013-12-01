@@ -31,6 +31,8 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		this.multiWidgetProprietaires = null;
 		this.multiWidgetIntervenants = null;
 		this.multiWidgetCalendriers = null;
+		this.evenementEdit = null;
+		this.calendriersDisabled = false;
 		this.listeCalendriers = new Array(); /* Liste des calendriers récupérée en base de données */
 		this.rechercheDisponibiliteSalles = {
 			versionSalles: 0, // Incrémenté à chaque changement des salles pour ignorer le résultat de la recherche effectué entre-temps
@@ -305,7 +307,9 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 				effectif = 0;
 			}
 			
-			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, formData.calendrierCours, function(succes) {
+			var idEvenementIgnorer = this.evenementEdit ? this.evenementEdit.id : null;
+			
+			this.rechercheSalle.getSalle(formData.dateDebut, formData.dateFin, effectif, formData.materiels, formData.calendrierCours, idEvenementIgnorer, function(succes) {
 				if(succes) {
 					me.jqDialog.find("#btn_rechercher_salle_evenement").removeAttr("disabled");
 					me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
@@ -331,15 +335,13 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
 			
-			this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
-					formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer,
-					function(resultCode) {
+			var callbackFunction = function(resultCode) {
 				
 				// Masquage du message d'attente
 				me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
 				
 				if(resultCode === RestManager.resultCode_Success) {
-					window.showToast("Evènement ajouté avec succès");
+					window.showToast("Evènement enregistré avec succès");
 					me.jqDialog.dialog("close");
 					
 					// Mise à jour du calendrier
@@ -349,13 +351,25 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 				else if(resultCode == RestManager.resultCode_NetworkError) {
 					window.showToast("Erreur d'enregistrement de l'événement ; vérifiez votre connexion");
 				}
+				else if(resultCode == RestManager.resultCode_QuotaExceeded) {
+					window.showToast("Vous ne pouvez pas ajouter plus de 35 événements par calendrier et par semaine glissante");
+				}
 				else if(resultCode == RestManager.resultCode_SalleOccupee) {
-					window.showToast("Erreur d'ajout de l'événement ; salle(s) occupée(s) pendant ce créneau");
+					window.showToast("Erreur d'enregistrement de l'événement ; salle(s) occupée(s) pendant ce créneau");
 				}
 				else {
 					window.showToast("Erreur d'enregistrement de l'événement ; code retour " + resultCode);
 				}
-			});
+			};
+			
+			if(this.evenementEdit) {
+				this.evenementGestion.modifierEvenement(this.evenementEdit.id, callbackFunction, formData.dateDebut, formData.dateFin, formData.nom, 
+						formData.calendriers, formData.salles, formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer);
+			}
+			else {
+				this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
+						formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer, callbackFunction);
+			}
 		}
 	};
 	
@@ -430,7 +444,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		res.intervenants = this.multiWidgetIntervenants.val();
 		
 		// Récupération de la liste des calendriers
-		res.calendriers = this.multiWidgetCalendriers.val();
+		res.calendriers = this.calendriersDisabled ? null : this.multiWidgetCalendriers.val();
 		
 		// Validation du jour
 		var jour = false;
@@ -504,12 +518,11 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		if(res.dateDebut != null && res.dateFin != null) {
 			res.valideRechercheSalle = true;
 			
-			if(res.nom != null && res.calendriers.length > 0) {
+			if(res.nom != null && (this.calendriersDisabled || res.calendriers.length > 0)) {
 				res.valide = true;
 			}
 		}
 		
-		// TODO : gérer plusieurs calendriers
 		// Vérifie si les calendriers sélectionnés pour le rattachement de l'événement contiennent des cours
 		res.calendrierCours = false;
 		var idCalendrierSelectionne = this.jqDialog.find("#calendriers_evenement .select_calendriers").val();
@@ -565,20 +578,30 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 					selectCalendriers.html(strRemplissageSelect);
 					
 					me.multiWidgetCalendriers = new MultiWidget(selectCalendriers, {
+						getValFunction: function(jqControl) {
+							return parseInt(jqControl.val());
+						},
 						setFunction: function(jqControl, value) {
-							if(value == null) { // On n'accepte pas une valeur vide
-								jqControl.val(jqControl.find("option:first").val());
+							if(value === null) {
+								// Première valeur disponible
+								jqControl.val(jqControl.find("option:first").attr("value"));
+							}
+							else if(jqControl.find("option[value='" + value + "']").length == 0) {
+								me.multiWidgetCalendriers.setDisabled(true);
+								me.calendriersDisabled = true; // désactive la modification des calendriers
+								me.jqDialog.find("#notes_pas_proprietaire_calendrier").css("display", "block");
 							}
 							else {
 								jqControl.val(value);
 							}
-						}, 
-						getValFunction: function(jqControl) {
-							return parseInt(jqControl.val());
+							
 						},
 						width: 250
 					});
 					
+					if(me.evenementEdit) {
+						me.multiWidgetCalendriers.setValues(me.evenementEdit.calendriers);
+					}
 				}
 				
 				me.listeCalendriers = data;
@@ -596,6 +619,23 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		});
 	};
 	
+	DialogAjoutEvenement.prototype.remplirValeursProprietairesIntervenants = function() {
+		// Ajout du créateur comme valeur non modifiable
+		var valProprietaires = new Array();
+		var proprietaires = this.evenementEdit.responsables;
+		for(var i=0, maxI = proprietaires.length; i<maxI; i++) {
+			if(proprietaires[i].id == this.evenementEdit.idCreateur) {
+				valProprietaires.push($.extend({}, proprietaires[i], { readOnly: true }));
+			}
+			else {
+				valProprietaires.push(proprietaires[i]);
+			}
+		}
+		
+		this.multiWidgetProprietaires.setValues(UtilisateurGestion.makeUtilisateursAutocomplete(valProprietaires));
+		this.multiWidgetIntervenants.setValues(UtilisateurGestion.makeUtilisateursAutocomplete(this.evenementEdit.intervenants));
+	};
+	
 	/**
 	 * Méthode de remplissage des propriétaires et intervenants de la dialog, à l'initialisation
 	 * @param callback Fonction appelée une fois le remplissage effectué (asychrone). Prend un booléen en argument indiquant le succès.
@@ -608,10 +648,19 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			if(resultCode == RestManager.resultCode_Success) {
 				
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#input_proprietaires_evenement"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, { label: "vous-même", value: me.restManager.getUserId() }, 250));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, 250));
 				
 				me.multiWidgetIntervenants = new MultiWidget(me.jqDialog.find("#input_intervenants_evenement"), 
 						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, null, 250));
+				
+				if(me.evenementEdit) {
+					// Remplissage effectué à la fin de init() (se termine après showEdit())
+					me.remplirValeursProprietairesIntervenants();
+				}
+				else { // Création d'événement
+					me.multiWidgetIntervenants.setValues([{ label: "moi-même", value: me.restManager.getUserId() }]);
+					me.multiWidgetProprietaires.setValues([{ label: "moi-même", value: me.restManager.getUserId(), readOnly: true }]);
+				}
 				
 				callback(true);
 			}
@@ -644,6 +693,10 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	 */
 	DialogAjoutEvenement.prototype.show = function(dateDebut, dateFin, salles) {
 		
+		this.calendriersDisabled = false;
+		this.evenementEdit = null;
+		this.jqDialog.find("#notes_pas_proprietaire_calendrier").css("display", "none");
+		
 		if(!this.initAppele) {
 			this.init();
 		}
@@ -674,6 +727,46 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			jqHeureFin.val($.fullCalendar.formatDate(dateFin, "HH:mm"));
 		}
 		
+		if(this.multiWidgetIntervenants && this.multiWidgetProprietaires) {
+			this.multiWidgetIntervenants.setValues([{ label: "moi-même", value: this.restManager.getUserId() }]);
+			this.multiWidgetProprietaires.setValues([{ label: "moi-même", value: this.restManager.getUserId(), readOnly: true}]);
+		}
+		
+		if(this.multiWidgetCalendriers) {
+			this.multiWidgetCalendriers.setDisabled(false);
+			this.multiWidgetCalendriers.clear();
+		}
+		
+		this.jqDialog.dialog("open");
+	};
+	
+	DialogAjoutEvenement.prototype.showEdit = function(evenementEdit) {
+		this.evenementEdit = evenementEdit;
+		this.calendriersDisabled = false;
+		this.jqDialog.find("#notes_pas_proprietaire_calendrier").css("display", "none");
+		
+		if(!this.initAppele) {
+			this.init();
+		}
+		
+		this.jqDialog.find("#txt_nom_evenement").val(evenementEdit.nom);
+		this.jqDialog.find("#tbl_materiel td.quantite input").val("0");
+		
+		this.jqDialog.find("#date_evenement").val($.fullCalendar.formatDate(evenementEdit.start, "dd/MM/yyyy"));
+		this.jqDialog.find("#heure_debut").val($.fullCalendar.formatDate(evenementEdit.start, "HH:mm"));
+		this.jqDialog.find("#heure_fin").val($.fullCalendar.formatDate(evenementEdit.end, "HH:mm"));
+		
+		this.setSalles(evenementEdit.salles);
+		
+		if(this.multiWidgetIntervenants && this.multiWidgetProprietaires) {
+			this.remplirValeursProprietairesIntervenants();
+		}
+		
+		if(this.multiWidgetCalendriers) {
+			this.multiWidgetCalendriers.setDisabled(false);
+			this.multiWidgetCalendriers.setValues(evenementEdit.calendriers);
+		}
+		
 		this.jqDialog.dialog("open");
 	};
 	
@@ -684,10 +777,9 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	 */
 	DialogAjoutEvenement.prototype.init = function() {
 		// Récupération des calendriers auxquels l'utilisateur peut ajouter des évènements
-		// this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
-		// TODO : remettre la désactivation du bouton
+		this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
-		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Chargement des options de matériel...");
+		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Chargement des options...");
 		
 		// Les remplissages s'effectueront dans un ordre "aléatoire" (asynchrone)
 		var succesChargementGlobal = true;

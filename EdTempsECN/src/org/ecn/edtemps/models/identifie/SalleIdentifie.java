@@ -53,10 +53,16 @@ public class SalleIdentifie extends Salle implements JSONAble {
 		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("id", id)
 				.add("nom", nom)
-				.add("batiment", batiment)
 				.add("capacite", capacite)
 				.add("niveau", niveau)
 				.add("numero", numero);
+		
+		if(batiment == null) {
+			builder.addNull("batiment");
+		}
+		else {
+			builder.add("batiment", batiment);
+		}
 		
 		// Ajout des matériels
 		JsonArrayBuilder materielsArrayBuilder = Json.createArrayBuilder();

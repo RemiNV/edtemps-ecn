@@ -15,6 +15,8 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.Calendrier;
 import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
+import org.ecn.edtemps.models.inflaters.CalendrierCompletInflater;
+import org.ecn.edtemps.models.inflaters.CalendrierIdentifieInflater;
 
 /** 
  * Classe de gestion des calendriers
@@ -41,9 +43,10 @@ public class CalendrierGestion {
 	 * NB : le rattachement d'un calendrier à un groupeDeParticipants n'est pas réalisé dans cette fonction.
 	 * 
 	 * @param calendrier Calendrier à sauvegarder
+	 * @param idGroupesParents ID des groupes à rattacher au calendrier
 	 * @return nouvel ID du calendrier sauvegarder
 	 */
-	public int sauverCalendrier(Calendrier calendrier) throws EdtempsException {
+	public int sauverCalendrier(Calendrier calendrier, List<Integer> idGroupesParents) throws EdtempsException {
 		
 		// Récupération des attributs du calendrier
 		String matiere = calendrier.getMatiere();
@@ -122,24 +125,42 @@ public class CalendrierGestion {
 						);
 			// nom du groupe unique = nom du calendrier
 			req.setString(1, nom); 
-			// On effectue la requete et récupère l'id du calendrier créé
+			// On effectue la requete et récupère l'id du gpe de paricipant créé
 			ResultSet req_ligneCreee = req.executeQuery();
 			req_ligneCreee.next();
 			int idGroupeCree = req_ligneCreee.getInt(1);
 			
-			// Définition des propriétaires du calendrier et du groupe unique associé
-			Iterator<Integer> itr = idProprietaires.iterator();
+			// On lie le calendrier au groupe unique
+			_bdd.executeRequest(
+					"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id, cal_id) "
+					+ "VALUES (" + idGroupeCree + ", " + idCalendrier + ")"
+					);
+			
+			// On lie le calendrier aux groupes parents désirés (en argument) -> rattachements en attente
+			Iterator<Integer> itr = idGroupesParents.iterator();
+			while (itr.hasNext()){
+				int idGroupeParent = itr.next();
+				_bdd.executeRequest(
+						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
+						+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
+						);
+			}
+			
+			// Définition des propriétaires du calendrier 
+			itr = idProprietaires.iterator();
 			while (itr.hasNext()){
 				int idProprietaire = itr.next();
 				_bdd.executeRequest(
 						"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
 						+ "VALUES (" + idProprietaire + ", " + idCalendrier + ")"
 						);
+				/* SUPPRIMER POUR EVITER REDONDANCE DANS LA BBD
 				_bdd.executeRequest(
 						"INSERT INTO edt.proprietairegroupeparticipant "
 						+ "(utilisateur_id, groupeparticipant_id) "
 						+ "VALUES (" + idProprietaire + ", " + idGroupeCree	+ ")"
 				);
+				*/
 			}
 			
 			// Fin transaction
@@ -153,43 +174,6 @@ public class CalendrierGestion {
 		} 	
 	}
 	
-	/**
-	 * Créé un calendrier à partir d'une ligne de base de données
-	 * 
-	 * Colonnes nécessaires : cal_id, cal_nom, matiere_nom (obtenu depuis la table matiere), typecal_libelle (obtenu depuis la table typecalendrier)
-	 * 
-	 * @param row ResultSet placé à la ligne de base de données à lire
-	 * @return CalendrierIdentifie créé
-	 * @throws EdtempsException 
-	 * @throws SQLException 
-	 */
-	private CalendrierIdentifie inflateCalendrierFromRow(ResultSet row) throws DatabaseException, SQLException {
-		
-		int id = row.getInt("cal_id");
-		 String nom = row.getString("cal_nom");
-		 String matiere = row.getString("matiere_nom");
-		 String type = row.getString("typecal_libelle");
-		
-
-		// Récupération des propriétaires du calendrier
-		ResultSet rs_proprios = _bdd.executeRequest(
-				"SELECT * FROM edt.proprietairecalendrier WHERE cal_id = " + id );
-		
-		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
-		while(rs_proprios.next()){
-			 idProprietaires.add(rs_proprios.getInt("utilisateur_id"));
-		}
-		
-		/* Si au moins un proprio existe, le ou les ajouter aux attibuts du Calendrier. 
-		 * Sinon, exception EdtempsException
-		 */
-		if (idProprietaires.size() != 0) {
-			return new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
-		}
-		else {
-			throw new DatabaseException();
-		}
-	}
 	
 	/**
 	 * Récupère le calendrier repéré par l'ID donné
@@ -212,7 +196,7 @@ public class CalendrierGestion {
 					+ "WHERE cal_id = " + idCalendrier );
 
 			if(rs_calendrier.next()){
-				 result = inflateCalendrierFromRow(rs_calendrier);
+				 result = new CalendrierIdentifieInflater().inflateCalendrier(rs_calendrier, _bdd);
 			}
 			else {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : pas de calendrier correspondant à l'idCalendrier en argument");
@@ -234,9 +218,10 @@ public class CalendrierGestion {
 	 * par les valeurs contenues dans calId (en attributs)
 	 * 
 	 * @param calId : CalendrierIdentifie
+	 * @param idGroupesParents ID des groupes rattachés / à rattacher au calendrier
 	 * @throws EdtempsException
 	 */
-	public void modifierCalendrier(CalendrierIdentifie calId) throws EdtempsException {
+	public void modifierCalendrier(CalendrierIdentifie calId, List<Integer> idGroupesParents) throws EdtempsException {
 		
 		if(!StringUtils.isAlphanumericSpace(calId.getNom())) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique");
@@ -298,8 +283,70 @@ public class CalendrierGestion {
 				
 			}
 			
-			// Executer la requete
+			// Executer la requete de modification du calendrier
 			requete.executeUpdate();
+			
+			// Requete préparée pour la modification du groupe unique associé
+			PreparedStatement requeteGpe = _bdd.getConnection().prepareStatement(
+					"UPDATE edt.groupeparticipant AS gp "
+					+ "SET (groupeparticipant_nom) = (?) "
+					+ "FROM edt.calendrierappartientgroupe AS cag "
+					+ "WHERE gp.groupeparticipant_id = cag.groupeparticipant_id "
+					+ "AND cag.cal_id = " + calId.getId() + " "
+					+ "AND gp.groupeparticipant_estcalendrierunique = TRUE "
+					+ "RETURNING gp.groupeparticipant_id");
+			// Ajout du nom du groupe unique à la requete préparée
+			requeteGpe.setString(1, calId.getNom());
+			// Executer modification du groupe unique associé et récupérer ID du groupe unique
+			int idGroupeUnique = _bdd.recupererId(requeteGpe, "groupeparticipant_id");
+			
+			/* Parcours des anciens rattachements (hormis le groupe unique associé) :
+			 *     Si le parent est dans la liste idGroupesParents, 
+			 *     		- ne rien faire sur la base = parent non modifié
+			 *     		- supprimer l'id de la liste idParentsGroupes
+			 *     Si le parent n'est pas dans la liste idGroupesParents, 
+			 *     		- supprimer le lien entre le calendrier et le groupe parent (dans la BDD)
+			 *     
+			 * Une fois le parcourt terminé, les éléments restants dans idParentsGroupes sont de nouveaux parents du calendrier
+			 */
+			PreparedStatement requeteAnciensRattachements = _bdd.getConnection().prepareStatement(
+					  "SELECT groupeparticipant_id, groupeparticipant_id_tmp "
+					+ "FROM edt.calendrierappartientgroupe "
+					+ "WHERE cal_id = ? "
+					+ "AND (groupeparticipant_id != " + idGroupeUnique + " OR groupeparticipant_id IS NULL)"
+					);
+			requeteAnciensRattachements.setInt(1, calId.getId());
+			ResultSet rs_ancienRattachements = requeteAnciensRattachements.executeQuery();
+			while(rs_ancienRattachements.next()){
+				// On initialise idGroupe avec la bonne valeur (qui se trouve dans groupeparticipant_id ou groupeparticipant_id_tmp)
+				int idGroupe = rs_ancienRattachements.getInt("groupeparticipant_id");
+				if (rs_ancienRattachements.wasNull()) {
+					idGroupe = rs_ancienRattachements.getInt("groupeparticipant_id_tmp");
+				}
+				// Si l'id du parent parcouru est dans la liste idGroupesParents
+				Integer idGroupeInteger = new Integer(idGroupe);
+				if (idGroupesParents.contains(idGroupeInteger)) {
+					idGroupesParents.remove(idGroupeInteger);
+				}
+				//Sinon
+				else {
+					_bdd.executeRequest(
+						"DELETE FROM edt.calendrierappartientgroupe "
+						+ "WHERE cal_id = " + calId.getId()
+						+ " AND (groupeparticipant_id = " + idGroupe
+						+ " OR groupeparticipant_id_tmp = " + idGroupe + ")"
+					);
+				}
+			}
+			// Ajout des rattachements restants
+			Iterator<Integer> itr = idGroupesParents.iterator();
+			while (itr.hasNext()){
+				int idGroupeARattacher = itr.next();
+				_bdd.executeRequest(
+						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
+						+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
+						);
+			}
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
 			_bdd.executeRequest("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
@@ -349,11 +396,28 @@ public class CalendrierGestion {
 					"DELETE FROM edt.proprietairecalendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
+			// Trouver l'id du groupe unique associé 
+			PreparedStatement requeteIdGpe = _bdd.getConnection().prepareStatement(
+					  "SELECT gp.groupeparticipant_id "
+					+ "FROM  edt.groupeparticipant AS gp "
+					+ "INNER JOIN edt.calendrierappartientgroupe AS cag "
+					+ "ON gp.groupeparticipant_id = cag.groupeparticipant_id "
+					+ "WHERE gp.groupeparticipant_estcalendrierunique = TRUE "
+					+ "AND cag.cal_id = " + idCalendrier
+					);
+			int idGroupeUnique = _bdd.recupererId(requeteIdGpe, "groupeparticipant_id");
+			if (idGroupeUnique == -1) {
+				throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID groupe unique associé au calendrier à supprimer non existant ou non unique"); 
+			}
 			// Supprimer dépendance avec les groupes de participants
 			_bdd.executeRequest(
 					"DELETE FROM edt.calendrierAppartientGroupe "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
+			// Supprimer les abonnements au groupe unique 
+			_bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
+			// Supprime le groupe unique
+			_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
 			/* Supprimer les événements associés au calendrier
 			 * 		1 - Récupération des id des evenements associés
 			 * 		2 - Suppression du lien entre les evenements et le calendrier
@@ -462,7 +526,7 @@ public class CalendrierGestion {
 			ArrayList<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
 			
 			while(results.next()) {
-				res.add(this.inflateCalendrierFromRow(results));
+				res.add(new CalendrierIdentifieInflater().inflateCalendrier(results, _bdd));
 			}
 			
 			if(createTransaction)
@@ -492,16 +556,20 @@ public class CalendrierGestion {
 				"LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = calendrier.cal_id " +
 				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
 					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours)" +
-				"GROUP BY calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle");
+				"GROUP BY calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle " +
+				"ORDER BY calendrier.cal_nom");
 		
 		try {
 			ArrayList<CalendrierComplet> res = new ArrayList<CalendrierComplet>();
 			while (results.next()) {
-				CalendrierIdentifie calendrier = inflateCalendrierFromRow(results);
+				// Création du calendrier complet avec la ligne de base de données
+				CalendrierComplet calendrier = new CalendrierCompletInflater().inflateCalendrier(results, _bdd);
 				
-				boolean estCours = results.getBoolean("estcours");
+				// Rassemble tous les identifiants de groupes parents
+				calendrier.getIdProprietaires().addAll(calendrier.getIdGroupesParentsTmp());
 				
-				res.add(new CalendrierComplet(calendrier, estCours));
+				// Ajoute le calendrier au résultat
+				res.add(calendrier);
 			}
 			
 			results.close();
@@ -547,15 +615,16 @@ public class CalendrierGestion {
 		}
 		
 		String strIds = StringUtils.join(calendriersIds, ",");
-		// TODO : gérer le cas cours mais pas proprio
-		ResultSet results = _bdd.executeRequest("SELECT COUNT(DISTINCT proprietairecalendrier.cal_id) AS nb_calendriers_proprietaire, " +
+		
+		ResultSet results = _bdd.executeRequest("SELECT COUNT(DISTINCT calendrier.cal_id) AS nb_calendriers_proprietaire, " +
 					"COUNT(groupecours.groupeparticipant_id) AS nb_groupe_cours " +
 				"FROM edt.proprietairecalendrier " +
-				"INNER JOIN edt.calendrier ON proprietairecalendrier.cal_id=calendrier.cal_id " +
-				"LEFT JOIN edt.calendrierappartientgroupe ON calendrier.cal_id=calendrierappartientgroupe.cal_id " +
+				"LEFT JOIN edt.calendrier ON proprietairecalendrier.cal_id=calendrier.cal_id " +
+					"AND proprietairecalendrier.utilisateur_id=" + userId +
+				" LEFT JOIN edt.calendrierappartientgroupe ON proprietairecalendrier.cal_id=calendrierappartientgroupe.cal_id " +
 				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=calendrierappartientgroupe.groupeparticipant_id " +
 					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours) " +
-				"WHERE proprietairecalendrier.utilisateur_id=" + userId + " AND proprietairecalendrier.cal_id IN (" + strIds + ")");
+				"WHERE proprietairecalendrier.cal_id IN (" + strIds + ")");
 		
 		try {
 			results.next();
@@ -584,7 +653,7 @@ public class CalendrierGestion {
 		try {
 			List<CalendrierIdentifie> res = new ArrayList<CalendrierIdentifie>();
 			while(reponse.next()) {
-				res.add(inflateCalendrierFromRow(reponse));
+				res.add(new CalendrierIdentifieInflater().inflateCalendrier(reponse, _bdd));
 			}
 			
 			reponse.close();

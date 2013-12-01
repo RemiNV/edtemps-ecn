@@ -5,8 +5,8 @@
 *.war
 *.ear
 
-# Fichiers de bibliothèques à inclure
+# Fichiers de bibliothï¿½ques ï¿½ inclure
 !EdTempsECN/lib/*.jar
 
-#inclusion du dossier de paramètres Eclipse
+#inclusion du dossier de paramï¿½tres Eclipse
 !.settings

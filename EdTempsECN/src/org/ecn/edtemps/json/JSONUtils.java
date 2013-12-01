@@ -1,6 +1,7 @@
 package org.ecn.edtemps.json;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -82,5 +83,22 @@ public class JSONUtils {
 		}
 		
 		return res;
+	}
+	
+	/**
+	 * Récupère une liste d'entiers à partir d'un JsonArray, et supprime les doublons.
+	 * La conversion peut ne pas être exacte, par exemple si le nombre dépasse la capacité d'un int ou est à virgule.
+	 * 
+	 * @param array tableau json à parcourir
+	 * @return Une liste d'entiers. Aucun des entiers n'est null.
+	 * @throws ClassCastException Si une des valeurs du tableau n'est pas un nombre
+	 */
+	public static ArrayList<Integer> getIntegerArrayListSansDoublons(JsonArray array) throws ClassCastException {
+		ArrayList<Integer> resDoublons = getIntegerArrayList(array);
+		
+		HashSet<Integer> set = new HashSet<Integer>(resDoublons.size());
+		set.addAll(resDoublons);
+		
+		return new ArrayList<Integer>(set);
 	}
 }
