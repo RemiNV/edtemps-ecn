@@ -6,15 +6,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResult;
+import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResultCode;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
 
 public class DiagnosticsBdd {
+	
+	Logger logger = LogManager.getLogger(DiagnosticsBdd.class.getName());
 
 	protected BddGestion bdd;
 	
 	public DiagnosticsBdd(BddGestion bdd) {
 		this.bdd = bdd;
+	}
+	
+	public ArrayList<TestBddResult> runAllTests(BddGestion bdd) {
+		int nbTests = 1; // Nombre de tests gérés dans createTest
+		
+		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
+		
+		for(int i=0; i<nbTests; i++) {
+			TestBdd test = createTest(i);
+			
+			try {
+				res.add(test.test(bdd));
+			}
+			catch(DatabaseException e) {
+				String errMessage = "Echec de l'exécution du test \"" + test.getNom() + "\" : " + e.getMessage();
+				res.add(new TestBddResult(TestBddResultCode.TEST_FAILED, errMessage	+ ", examinez les logs du serveur pour la pile d'appel"));
+				
+				logger.error(errMessage, e);
+			}
+		}
+		
+		return res;
 	}
 	
 	/**
@@ -25,6 +53,8 @@ public class DiagnosticsBdd {
 	protected TestBdd createTest(int idTest) {
 		switch(idTest) {
 		
+		case 1:
+			return createTestCalendrierPossedeGroupeUnique(1);
 		
 		
 		default:

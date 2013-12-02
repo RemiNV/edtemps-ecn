@@ -16,7 +16,8 @@ public abstract class TestBdd {
 	public static enum TestBddResultCode {
 		OK,
 		WARNING,
-		ERROR
+		ERROR,
+		TEST_FAILED
 	}
 	
 	/**
