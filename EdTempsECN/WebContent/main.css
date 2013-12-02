@@ -629,10 +629,6 @@ input.valide {
 }
 
 /** Dialog de détails d'un événement */
-#dialog_details_evenement {
-	
-}
-
 .ui-dialog-titlebar.dialog_details_evenement_header, #dialog_details_evenement.ui-dialog-content {
 	padding: 15px;
 	background-color: white;
