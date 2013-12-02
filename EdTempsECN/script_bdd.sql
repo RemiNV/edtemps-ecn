@@ -51,9 +51,11 @@ CREATE TABLE edt.GroupeParticipant (
                 groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
                 groupeParticipant_id_parent INTEGER,
                 groupeParticipant_id_parent_tmp INTEGER,
-		groupeParticipant_estCours BOOLEAN NOT NULL DEFAULT FALSE,
-		groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
-		groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,
+				groupeParticipant_estCours BOOLEAN NOT NULL DEFAULT FALSE,
+				groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
+				groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,
+				CONSTRAINT groupeparticipant_pas_propre_parent CHECK (groupeparticipant_id <> groupeparticipant_id_parent),
+  				CONSTRAINT groupeparticipant_pas_propre_parent_tmp CHECK (groupeparticipant_id <> groupeparticipant_id_parent_tmp),
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
 
