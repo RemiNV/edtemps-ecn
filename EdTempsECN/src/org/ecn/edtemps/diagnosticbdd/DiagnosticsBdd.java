@@ -12,6 +12,7 @@ import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResult;
 import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResultCode;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
+import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
 
 public class DiagnosticsBdd {
@@ -25,7 +26,7 @@ public class DiagnosticsBdd {
 	}
 	
 	public ArrayList<TestBddResult> runAllTests() {
-		int nbTests = 2; // Nombre de tests gérés dans createTest
+		int nbTests = 3; // Nombre de tests gérés dans createTest
 		
 		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
 		
@@ -68,31 +69,38 @@ public class DiagnosticsBdd {
 		
 		case 2:
 			return createTestGroupeUniquePossedeCalendrier(2);
+			
+		case 3:
+			return createTestEvenementPossedeCalendrier(3);
 		
 		default:
 			return null;
 		}
 	}
 	
+	protected String getStrPremiersIds(List<Integer> ids) {
+		List<Integer> idsAffichage = ids.subList(0, Math.min(4, ids.size()));
+		
+		return StringUtils.join(idsAffichage, ", ");
+	}
+	
 	protected TestBdd createTestCalendrierPossedeGroupeUnique(int id) {
 		return new TestBdd("Rattachement de tous les calendriers à un groupe de participants \"groupe unique\"", id, "Ajouter les groupes manquants") {
 			
 			protected ArrayList<Integer> getCalendriersSansGroupeUnique(BddGestion bdd) throws DatabaseException {
-				ResultSet reponse = bdd.executeRequest("SELECT calendrier.cal_id FROM edt.calendrier " +
-					"LEFT JOIN edt.calendrierappartientgroupe cag ON calendrier.cal_id=cag.cal_id " +
-					"LEFT JOIN edt.groupeparticipant groupeunique ON cag.groupeparticipant_id=groupeunique.groupeparticipant_id " +
-					"AND groupeunique.groupeparticipant_estcalendrierunique " +
-					"GROUP BY calendrier.cal_id " +
-					"HAVING COUNT(groupeunique.groupeparticipant_id)=0");
 				
 				try {
-					ArrayList<Integer> res = new ArrayList<Integer>();
-					while(reponse.next()) {
-						res.add(reponse.getInt("cal_id"));
-					}
-					reponse.close();
+					ArrayList<Integer> res = bdd.recupererIds(bdd.getConnection().prepareStatement(
+							"SELECT calendrier.cal_id FROM edt.calendrier " +
+							"LEFT JOIN edt.calendrierappartientgroupe cag ON calendrier.cal_id=cag.cal_id " +
+							"LEFT JOIN edt.groupeparticipant groupeunique ON cag.groupeparticipant_id=groupeunique.groupeparticipant_id " +
+							"AND groupeunique.groupeparticipant_estcalendrierunique " +
+							"GROUP BY calendrier.cal_id " +
+							"HAVING COUNT(groupeunique.groupeparticipant_id)=0"), "cal_id");
+					
 					return res;
-				} catch (SQLException e) {
+				}
+				catch(SQLException e) {
 					throw new DatabaseException(e);
 				}
 			}
@@ -106,12 +114,9 @@ public class DiagnosticsBdd {
 					return new TestBddResult(TestBddResultCode.OK, "Les calendriers sont tous associés à au moins un groupe unique", this);
 				}
 				else {
-					List<Integer> idsAffichage = cals.subList(0, Math.min(4, cals.size()));
-					
-					String strCalendriers = StringUtils.join(idsAffichage, ", ");
 					String strAutres = cals.size() > 5 ? "..." : "";
 					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains calendriers (ID " + strCalendriers + strAutres + ") n'ont pas de groupe unique", this);
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains calendriers (ID " + getStrPremiersIds(cals) + strAutres + ") n'ont pas de groupe unique", this);
 				}
 			}
 
@@ -147,21 +152,18 @@ public class DiagnosticsBdd {
 		return new TestBdd("Rattachement de chaque \"groupe unique\" à un calendrier", id, "Supprimer les groupes inutiles") {
 			
 			protected ArrayList<Integer> getIdsGroupesUniquesSansCalendrier(BddGestion bdd) throws DatabaseException {
-				ResultSet reponse = bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant " +
-						"LEFT JOIN edt.calendrierappartientgroupe cag ON cag.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
-						"WHERE groupeparticipant.groupeparticipant_estcalendrierunique " +
-						"GROUP BY groupeparticipant.groupeparticipant_id " +
-						"HAVING COUNT(cag.cal_id) = 0");
 				
 				try {
-					ArrayList<Integer> res = new ArrayList<Integer>();
-					while(reponse.next()) {
-						res.add(reponse.getInt("groupeparticipant_id"));
-					}
-					reponse.close();
+					ArrayList<Integer> res = bdd.recupererIds(bdd.getConnection().prepareStatement(
+							"SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant " +
+							"LEFT JOIN edt.calendrierappartientgroupe cag ON cag.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
+							"WHERE groupeparticipant.groupeparticipant_estcalendrierunique " +
+							"GROUP BY groupeparticipant.groupeparticipant_id " +
+							"HAVING COUNT(cag.cal_id) = 0"), "groupeparticipant_id");
 					
 					return res;
-				} catch (SQLException e) {
+				}
+				catch(SQLException e) {
 					throw new DatabaseException(e);
 				}
 			}
@@ -175,12 +177,9 @@ public class DiagnosticsBdd {
 					return new TestBddResult(TestBddResultCode.OK, "Les groupes uniques sont tous associés à au moins un calendrier", this);
 				}
 				else {
-					List<Integer> idsAffichage = idGroupesUniques.subList(0, Math.min(4, idGroupesUniques.size()));
-					
-					String strGroupes = StringUtils.join(idsAffichage, ", ");
 					String strAutres = idGroupesUniques.size() > 5 ? "..." : "";
 					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes uniques (ID " + strGroupes + strAutres + ") n'ont pas de calendrier", this);
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes uniques (ID " + getStrPremiersIds(idGroupesUniques) + strAutres + ") n'ont pas de calendrier", this);
 				}
 			}
 
@@ -195,6 +194,55 @@ public class DiagnosticsBdd {
 				}
 				
 				return idGroupesUniques.size() + " groupes supprimés";
+			}
+			
+		};
+	}
+	
+	protected TestBdd createTestEvenementPossedeCalendrier(int id) {
+		return new TestBdd("Rattachement de chaque événement à au moins un calendrier", id, "Supprimer les événements inutiles") {
+
+			protected ArrayList<Integer> getIdsEvenementsSansCalendrier(BddGestion bdd) throws DatabaseException {
+				
+				try {
+					ArrayList<Integer> res = bdd.recupererIds(bdd.getConnection().prepareStatement(
+							"SELECT evenement.eve_id FROM edt.evenement " +
+							"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id=evenement.eve_id " +
+							"GROUP BY evenement.eve_id " +
+							"HAVING COUNT(evenementappartient.cal_id) = 0"), "eve_id");
+					
+					return res;
+				}
+				catch(SQLException e) {
+					throw new DatabaseException(e);
+				}
+			}
+			
+			@Override
+			public TestBddResult test(BddGestion bdd) throws DatabaseException {
+				ArrayList<Integer> idEvenements = getIdsEvenementsSansCalendrier(bdd);
+				
+				if(idEvenements.size() == 0) {
+					return new TestBddResult(TestBddResultCode.OK, "Les événements sont tous associés à au moins un calendrier", this);
+				}
+				else {
+					String strAutres = idEvenements.size() > 5 ? "..." : "";
+					
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains événements (ID " + getStrPremiersIds(idEvenements) + strAutres + ") n'ont pas de calendrier", this);
+				}
+			}
+
+			@Override
+			public String repair(BddGestion bdd) throws DatabaseException {
+				ArrayList<Integer> idEvenements = getIdsEvenementsSansCalendrier(bdd);
+				
+				EvenementGestion evenementGestion = new EvenementGestion(bdd);
+				
+				for(int id : idEvenements) {
+					evenementGestion.supprimerEvenement(id, false);
+				}
+				
+				return idEvenements.size() + " événements supprimés";
 			}
 			
 		};
