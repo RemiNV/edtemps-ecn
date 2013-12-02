@@ -12,6 +12,7 @@ import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResult;
 import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResultCode;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
+import org.ecn.edtemps.managers.GroupeGestion;
 
 public class DiagnosticsBdd {
 	
@@ -24,7 +25,7 @@ public class DiagnosticsBdd {
 	}
 	
 	public ArrayList<TestBddResult> runAllTests() {
-		int nbTests = 1; // Nombre de tests gérés dans createTest
+		int nbTests = 2; // Nombre de tests gérés dans createTest
 		
 		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
 		
@@ -65,6 +66,8 @@ public class DiagnosticsBdd {
 		case 1:
 			return createTestCalendrierPossedeGroupeUnique(1);
 		
+		case 2:
+			return createTestGroupeUniquePossedeCalendrier(2);
 		
 		default:
 			return null;
@@ -75,7 +78,7 @@ public class DiagnosticsBdd {
 		return new TestBdd("Rattachement de tous les calendriers à un groupe de participants \"groupe unique\"", id, "Ajouter les groupes manquants") {
 			
 			protected ArrayList<Integer> getCalendriersSansGroupeUnique(BddGestion bdd) throws DatabaseException {
-				ResultSet reponse = bdd.executeRequest("SELECT calendrier.cal_id, COUNT(groupeunique.groupeparticipant_id) AS nb_unique FROM edt.calendrier " +
+				ResultSet reponse = bdd.executeRequest("SELECT calendrier.cal_id FROM edt.calendrier " +
 					"LEFT JOIN edt.calendrierappartientgroupe cag ON calendrier.cal_id=cag.cal_id " +
 					"LEFT JOIN edt.groupeparticipant groupeunique ON cag.groupeparticipant_id=groupeunique.groupeparticipant_id " +
 					"AND groupeunique.groupeparticipant_estcalendrierunique " +
@@ -125,6 +128,7 @@ public class DiagnosticsBdd {
 						
 						reponse.next();
 						int idGroupe = reponse.getInt(1);
+						reponse.close();
 						
 						bdd.executeRequest("INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id) VALUES(" + idGroupe + "," + idCal + ")");
 					}
@@ -136,6 +140,63 @@ public class DiagnosticsBdd {
 				}
 				
 			}
+		};
+	}
+	
+	protected TestBdd createTestGroupeUniquePossedeCalendrier(int id) {
+		return new TestBdd("Rattachement de chaque \"groupe unique\" à un calendrier", id, "Supprimer les groupes inutiles") {
+			
+			protected ArrayList<Integer> getIdsGroupesUniquesSansCalendrier(BddGestion bdd) throws DatabaseException {
+				ResultSet reponse = bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant " +
+						"LEFT JOIN edt.calendrierappartientgroupe cag ON cag.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
+						"WHERE groupeparticipant.groupeparticipant_estcalendrierunique " +
+						"GROUP BY groupeparticipant.groupeparticipant_id " +
+						"HAVING COUNT(cag.cal_id) = 0");
+				
+				try {
+					ArrayList<Integer> res = new ArrayList<Integer>();
+					while(reponse.next()) {
+						res.add(reponse.getInt("groupeparticipant_id"));
+					}
+					reponse.close();
+					
+					return res;
+				} catch (SQLException e) {
+					throw new DatabaseException(e);
+				}
+			}
+			
+			@Override
+			public TestBddResult test(BddGestion bdd) throws DatabaseException {
+				
+				ArrayList<Integer> idGroupesUniques = getIdsGroupesUniquesSansCalendrier(bdd);
+				
+				if(idGroupesUniques.size() == 0) {
+					return new TestBddResult(TestBddResultCode.OK, "Les groupes uniques sont tous associés à au moins un calendrier", this);
+				}
+				else {
+					List<Integer> idsAffichage = idGroupesUniques.subList(0, Math.min(4, idGroupesUniques.size()));
+					
+					String strGroupes = StringUtils.join(idsAffichage, ", ");
+					String strAutres = idGroupesUniques.size() > 5 ? "..." : "";
+					
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes uniques (ID " + strGroupes + strAutres + ") n'ont pas de calendrier", this);
+				}
+			}
+
+			@Override
+			public String repair(BddGestion bdd) throws DatabaseException {
+				ArrayList<Integer> idGroupesUniques = getIdsGroupesUniquesSansCalendrier(bdd);
+				
+				GroupeGestion groupeGestion = new GroupeGestion(bdd);
+				
+				for(int id : idGroupesUniques) {
+					groupeGestion.supprimerGroupe(id, false, true);
+				}
+				
+				return idGroupesUniques.size() + " groupes supprimés";
+			}
+			
 		};
 	}
 }

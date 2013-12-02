@@ -36,6 +36,8 @@
 					DiagnosticsBdd diagnostics = new DiagnosticsBdd(bdd);
 					
 					ArrayList<TestBddResult> results = diagnostics.runAllTests();
+					bdd.close();
+					
 					for(TestBddResult res : results) {
 						
 						%>
@@ -45,7 +47,7 @@
 							<td class="<%= res.getResultCode().getLabel() %>"><%= res.getMessage() %></td>
 							
 						<%
-						if(res.getResultCode() == TestBddResultCode.OK) {
+						if(res.getResultCode() == TestBddResultCode.OK || res.getResultCode() == TestBddResultCode.TEST_FAILED) {
 						%>
 							<td></td>
 						<%

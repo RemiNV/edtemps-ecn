@@ -234,7 +234,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	 */
 	protected void doSupprimerGroupeParticipants(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		groupeGestion.supprimerGroupe(Integer.valueOf(req.getParameter("id")));
+		groupeGestion.supprimerGroupe(Integer.valueOf(req.getParameter("id")), true);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe supprimé", null));
 	}
 	

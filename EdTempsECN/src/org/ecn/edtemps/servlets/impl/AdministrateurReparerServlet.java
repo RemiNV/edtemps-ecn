@@ -56,6 +56,8 @@ public class AdministrateurReparerServlet extends HttpServlet {
 				resultatReparation = testBdd.repair(bdd);
 			}
 			
+			bdd.close();
+			
 			req.setAttribute("test", testBdd);
 			req.setAttribute("resultatReparation", resultatReparation);
 			
