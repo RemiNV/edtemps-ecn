@@ -40,6 +40,21 @@ public class EvenementGestion {
 	}
 		
 	
+	protected void verifierDateEvenement(Date dateDebut) throws EdtempsException {
+		Date dansDeuxAns = new Date();
+		long millisUnAn = 1000L * 3600L * 24L * 365L;
+		dansDeuxAns.setTime(dansDeuxAns.getTime() + millisUnAn * 2L);
+		if(dateDebut.after(dansDeuxAns)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Impossible de créer un événement dans plus de 2 ans");
+		}
+		
+		Date ilYAUnAn = new Date();
+		ilYAUnAn.setTime(ilYAUnAn.getTime() - millisUnAn);
+		if(dateDebut.before(ilYAUnAn)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Impossible de créer un événement il y a plus d'un an");
+		}
+	}
+	
 	/**
 	 * Méthode d'enregistrement d'un evenement dans la base de données
 	 * 
@@ -51,6 +66,8 @@ public class EvenementGestion {
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un événement doit avoir un nom, un calendrier et un responsable");
 		}
+		
+		verifierDateEvenement(dateDebut);
 		
 		if(!StringUtils.isAlphanumericSpace(nom)) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique");
@@ -148,6 +165,9 @@ public class EvenementGestion {
 	 */
 	public void modifierEvenement(int id, String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean createTransaction) throws EdtempsException{
+		
+		verifierDateEvenement(dateDebut);
+		
 		try {
 			
 			if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {

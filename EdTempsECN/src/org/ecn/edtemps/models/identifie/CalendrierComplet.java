@@ -50,6 +50,14 @@ public class CalendrierComplet extends CalendrierIdentifie {
 			.add("groupesParentsTmp", JSONUtils.getJsonIntArray(this.idGroupesParentsTmp));
 	}
 
+	public List<Integer> getIdGroupesParents() {
+		return idGroupesParents;
+	}
+
+	public void setIdGroupesParents(List<Integer> idGroupesParents) {
+		this.idGroupesParents = idGroupesParents;
+	}
+	
 	public List<Integer> getIdGroupesParentsTmp() {
 		return idGroupesParentsTmp;
 	}

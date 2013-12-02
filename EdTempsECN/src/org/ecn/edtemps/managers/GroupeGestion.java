@@ -55,7 +55,7 @@ public class GroupeGestion {
 	 * @return le groupe identifié (standard)
 	 * @throws EdtempsException En cas d'erreur de connexion avec la base de données
 	 */
-	public GroupeIdentifie getGroupe(int identifiant) throws EdtempsException {
+	public GroupeIdentifie getGroupe(int identifiant) throws DatabaseException {
 
 		GroupeIdentifie groupeRecupere = null;
 
@@ -77,7 +77,7 @@ public class GroupeGestion {
 			}
 
 		} catch (DatabaseException | SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 
 		return groupeRecupere;
@@ -348,22 +348,34 @@ public class GroupeGestion {
 
 	}
 
-	
+	/**
+	 * Supprime un groupe en base de données
+	 * @param idGroupe Identifiant du groupe à supprimer
+	 * @param startTransaction Démarrer une transaction dans cette méthode. Sinon la méthode doit être appelée dans une transaction
+	 * @throws EdtempsException Si le groupe n'est pas supprimable
+	 */
+	public void supprimerGroupe(int idGroupe, boolean startTransaction) throws DatabaseException {
+		supprimerGroupe(idGroupe, startTransaction, false);
+	}
 	
 	/**
 	 * Supprime un groupe en base de données
 	 * @param idGroupe Identifiant du groupe à supprimer
+	 * @param startTransaction Démarrer une transaction dans cette méthode. Sinon la méthode doit être appelée dans une transaction
+	 * @param ignorerVerifUnique Ignorer la vérification "le groupe n'est pas un groupe calendrier unique"
 	 * @throws EdtempsException Si le groupe n'est pas supprimable
 	 */
-	public void supprimerGroupe(int idGroupe) throws EdtempsException {
+	public void supprimerGroupe(int idGroupe, boolean startTransaction, boolean ignorerVerifUnique) throws DatabaseException {
 
 		// Vérifie si c'est un groupe unique et, le cas échéant, arrêter la suppression
-		if (this.getGroupe(idGroupe).estCalendrierUnique()) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, "Impossible de supprimer le groupe unique lié à un calendrier.");
+		if (!ignorerVerifUnique && this.getGroupe(idGroupe).estCalendrierUnique()) {
+			throw new DatabaseException("Impossible de supprimer le groupe unique lié à un calendrier.");
 		}
 
 		// Démarre une transaction
-		_bdd.startTransaction();
+		if(startTransaction) {
+			_bdd.startTransaction();
+		}
 
 		// Supprime les liens avec les propriétaires
 		_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
@@ -381,7 +393,9 @@ public class GroupeGestion {
 		_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Termine la transaction
-		_bdd.commit();
+		if(startTransaction) {
+			_bdd.commit();
+		}
 	}
 	
 	/**
@@ -890,9 +904,10 @@ public class GroupeGestion {
 					" SET groupeparticipant_id=groupeparticipant_id_tmp, groupeparticipant_id_tmp=NULL" +
 					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
 		} else {
-			_bdd.executeUpdate("UPDATE edt.calendrierappartientgroupe" +
-					" SET groupeparticipant_id_tmp=NULL" +
-					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
+			_bdd.executeUpdate(
+					"DELETE FROM edt.calendrierappartientgroupe" +
+					" WHERE groupeparticipant_id_tmp="+groupeIdParent+
+					" AND cal_id="+calendrierId);
 		}
 
 		// Termine la transaction

@@ -34,8 +34,17 @@ public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierC
 		List<Integer> idGroupesParents = new ArrayList<Integer>();
 		List<Integer> idGroupesParentsTmp = new ArrayList<Integer>();
 	    while (rs_idGroupesParents.next()) {
-	    	idGroupesParents.add(rs_idGroupesParents.getInt("groupeparticipant_id"));
-	    	idGroupesParentsTmp.add(rs_idGroupesParents.getInt("groupeparticipant_id_tmp"));
+	    	int idGroupe = rs_idGroupesParents.getInt("groupeparticipant_id");
+	    	// Si la case groupeparticipant_id est vide 
+			if (rs_idGroupesParents.wasNull()) {
+				int idGroupeTmp = rs_idGroupesParents.getInt("groupeparticipant_id_tmp");;
+				idGroupesParentsTmp.add(idGroupeTmp);
+			}
+			// Si la case groupeparticipant_id_tmp est vide
+			else {
+				idGroupesParents.add(idGroupe);
+			}
+	    	
 	    }
 
 	    // Création du calendrier complet

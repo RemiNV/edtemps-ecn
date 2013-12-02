@@ -352,7 +352,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 					window.showToast("Erreur d'enregistrement de l'événement ; vérifiez votre connexion");
 				}
 				else if(resultCode == RestManager.resultCode_QuotaExceeded) {
-					window.showToast("Vous ne pouvez pas ajouter plus de 35 événements par calendrier et par semaine glissante");
+					window.showToast("Vous ne pouvez pas ajouter plus de 20 événements par calendrier et par semaine glissante");
 				}
 				else if(resultCode == RestManager.resultCode_SalleOccupee) {
 					window.showToast("Erreur d'enregistrement de l'événement ; salle(s) occupée(s) pendant ce créneau");

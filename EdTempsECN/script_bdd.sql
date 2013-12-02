@@ -55,6 +55,11 @@ CREATE TABLE edt.GroupeParticipant (
 				groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
 				groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,
 				groupeParticipant_createur INTEGER DEFAULT NULL,
+				CONSTRAINT groupeparticipant_pas_propre_parent CHECK (groupeparticipant_id <> groupeparticipant_id_parent),
+  				CONSTRAINT groupeparticipant_pas_propre_parent_tmp CHECK (groupeparticipant_id <> groupeparticipant_id_parent_tmp),
+  				CONSTRAINT groupeparticipant_calendrierUnique_non_rattachable CHECK (NOT groupeParticipant_estCalendrierUnique OR 
+  					(NOT groupeParticipant_rattachementAutorise AND groupeParticipant_id_parent IS NULL AND groupeParticipant_id_parent_tmp IS NULL)
+  				), -- Les groupes "calendriers unique" ne peuvent pas être rattachés
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
 
@@ -95,6 +100,7 @@ CREATE TABLE edt.Evenement (
                 eve_dateDebut TIMESTAMP,
                 eve_dateFin TIMESTAMP,
 				eve_createur INTEGER,
+				CONSTRAINT eve_dates_coherentes CHECK (eve_dateDebut <= eve_dateFin),
                 CONSTRAINT eve_id PRIMARY KEY (eve_id)
 );
 

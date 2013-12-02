@@ -43,7 +43,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 
 	private static final long serialVersionUID = 85479515540354619L;
 	private static Logger logger = LogManager.getLogger(EvenementServlet.class.getName());
-	public static final int MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE = 35; 
+	public static final int MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE = 20; 
 	
 	
 	private static class ParamsAjouterModifierEvenement {

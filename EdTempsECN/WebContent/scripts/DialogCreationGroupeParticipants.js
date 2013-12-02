@@ -235,6 +235,8 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Le groupe de participant à été créé avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
 				callback();
+			} else if (response.resultCode == RestManager.resultCode_QuotaExceeded) {
+				window.showToast("Vous avez atteint votre quota de création de groupes de participants");
 			} else if (response.resultCode == RestManager.resultCode_AuthorizationError) {
 				window.showToast("Vous n'êtes pas autorisé a effectuer cette action");
 			} else if (response.resultCode == RestManager.resultCode_AlphanumericRequired) {
