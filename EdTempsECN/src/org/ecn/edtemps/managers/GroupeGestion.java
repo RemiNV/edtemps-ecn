@@ -876,9 +876,10 @@ public class GroupeGestion {
 					" SET groupeparticipant_id=groupeparticipant_id_tmp, groupeparticipant_id_tmp=NULL" +
 					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
 		} else {
-			_bdd.executeUpdate("UPDATE edt.calendrierappartientgroupe" +
-					" SET groupeparticipant_id_tmp=NULL" +
-					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
+			_bdd.executeUpdate(
+					"DELETE FROM edt.calendrierappartientgroupe" +
+					" WHERE groupeparticipant_id_tmp="+groupeIdParent+
+					" AND cal_id="+calendrierId);
 		}
 
 		// Termine la transaction
