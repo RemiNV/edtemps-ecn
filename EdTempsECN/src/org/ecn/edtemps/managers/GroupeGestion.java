@@ -140,10 +140,18 @@ public class GroupeGestion {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique");
 		}
 		
-		// Vérification si l'utilisateur a le droit de créer un groupe de cours
+		// Vérifier si l'utilisateur a le droit de créer un groupe de cours
 		UtilisateurGestion userGestion = new UtilisateurGestion(_bdd);
 		if (estCours && !userGestion.aDroit(ActionsEdtemps.CREER_GROUPE_COURS, userId)) {
 			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Action non autorisée");
+		}
+		
+		// Vérifier si l'utilisateur n'a pas créé trop de groupes
+		boolean limiteEtendue = userGestion.aDroit(ActionsEdtemps.LIMITE_CALENDRIERS_ETENDUE, userId);
+		int nbGroupesDejaCrees = this.getNombresGroupesCrees(userId);
+		int nbGroupesAutorisesACreer = limiteEtendue ? LIMITE_GROUPES_PAR_UTILISATEUR_ETENDUE : LIMITE_GROUPES_PAR_UTILISATEUR;
+		if (nbGroupesDejaCrees >= nbGroupesAutorisesACreer) {
+			throw new EdtempsException(ResultCode.QUOTA_EXCEEDED, "L'utilisateur a dépassé son quota de création de groupes de participants");
 		}
 
 		try {
@@ -920,6 +928,23 @@ public class GroupeGestion {
 			// Termine la transaction
 			_bdd.commit();
 
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+
+	/**
+	 * Récupérer le nombre de groupes créés par un utilisateur
+	 * @param userId Identifiant de l'utilisateur
+	 * @return nombre de groupes
+	 * @throws DatabaseException 
+	 */
+	public int getNombresGroupesCrees(int userId) throws DatabaseException {
+		try {
+			ResultSet res = _bdd.executeRequest("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_createur="+userId);
+			res.next();
+			return res.getInt(1);
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
