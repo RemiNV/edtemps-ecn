@@ -343,3 +343,13 @@ ul.button_nav li:last-child {
 	width: 460px;
 	padding: 10px;
 }
+
+/**
+ * Diagnostics de la base */
+ td.error, td.failed {
+ 	color: red;
+ }
+ 
+ td.ok {
+ 	color: green;
+ }
