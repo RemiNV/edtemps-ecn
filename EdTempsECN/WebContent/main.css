@@ -309,6 +309,10 @@ table.liste_materiel th {
 	width: 100%;
 }
 
+.attente_rattachement {
+	background-color: #FFDBDB;
+}
+
 #tbl_mes_calendriers tr {
     border-bottom: 1px solid gray;
     border: 1px solid gray;

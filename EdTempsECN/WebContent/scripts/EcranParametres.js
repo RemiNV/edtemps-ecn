@@ -637,7 +637,9 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		// Création du template pour la liste des calendriers
 		var listMesCalendriersTemplate = 
 			"<% _.each(calendriers, function(calendrier) { %> " +
-			"<tr data-id='<%= calendrier.id %>'>" +
+			"<tr data-id='<%= calendrier.id %>' " +
+			"<% if(calendrier.groupesParentsTmp.length>0) { %> class='attente_rattachement' title='En attente de validation pour le(s) rattachement(s)' <% } %>" +
+			">" +
 				"<td><%= calendrier.nom %></td>" +
 				"<td><%= calendrier.matiere %></td>" +
 				"<td><%= calendrier.type %></td>" +

@@ -37,8 +37,7 @@ public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierC
 	    	int idGroupe = rs_idGroupesParents.getInt("groupeparticipant_id");
 	    	// Si la case groupeparticipant_id est vide 
 			if (rs_idGroupesParents.wasNull()) {
-				int idGroupeTmp = rs_idGroupesParents.getInt("groupeparticipant_id_tmp");
-				idGroupesParents.add(idGroupeTmp);
+				int idGroupeTmp = rs_idGroupesParents.getInt("groupeparticipant_id_tmp");;
 				idGroupesParentsTmp.add(idGroupeTmp);
 			}
 			// Si la case groupeparticipant_id_tmp est vide

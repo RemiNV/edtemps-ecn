@@ -29,7 +29,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	/**
 	 * Initialise la boîte de dialogue de création d'un calendrier
 	 */
-	DialogCreationCalendrier.prototype.init = function(matiere, type, proprietaires, groupesParents) {
+	DialogCreationCalendrier.prototype.init = function(matiere, type, proprietaires, groupesParents, groupesParentsTmp) {
 		var me = this;
 
 		// Remplir les combobox matieres et types
@@ -72,7 +72,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		});
 		
 		// Remplir les groupes parents potentiels
-		me.remplirGroupesParents(groupesParents);
+		me.remplirGroupesParents(groupesParents, groupesParentsTmp);
 		
 		// Listener bouton "Annuler"
 		this.jqDialog.find("#form_creer_calendrier_annuler").click(function() {
@@ -126,7 +126,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		if (casModifier) {
 			// Si pas déjà fait, initialiser la boite de dialogue (listeners, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires, calendrierAModifier.groupesParents); 
+				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires, calendrierAModifier.groupesParents, calendrierAModifier.groupesParentsTmp); 
 				this.initAppele = true;
 			}
 			else {
@@ -136,7 +136,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 				// On remplit les proprietaires
 				this.remplirProprietaires(calendrierAModifier.proprietaires);
 				// On remplit les groupes parents
-				this.remplirGroupesParents(calendrierAModifier.groupesParents);
+				this.remplirGroupesParents(calendrierAModifier.groupesParents, calendrierAModifier.groupesParentsTmp);
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Modifier le calendrier");
@@ -150,12 +150,12 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		else {
 			// Si pas déjà fait, initialiser la boite de dialogue (listener, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				this.init("","", new Array(), new Array()); //Matière = Aucune, Type = Aucun, pas de propriétaires et groupes parents
+				this.init("","", new Array(), new Array(), new Array()); //Matière = Aucune, Type = Aucun, pas de propriétaires et groupes parents
 				this.initAppele = true;
 			}
 			else {
 				// Mise à jour des groupes parents potentiels
-				this.remplirGroupesParents(new Array());
+				this.remplirGroupesParents(new Array(), new Array());
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Création d'un nouveau calendrier");
@@ -246,13 +246,14 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	};
 	
 	/**
-	 * Méthode qui charge le contenu des combobox groupes parents 
+	 * Méthode qui charge le contenu des combobox groupes parents (validés ou non)
 	 * Elle affiche par ailleurs les groupes parents existants (dans le cas d'une modification)
 	 * 
-	 * @param groupesParents (tableau) : id des groupes parents du calendrier
-	 * 			S'il est vide, il n'y a aucun parent ou il s'agit d'une fenetre de création de calendrier
+	 * @param groupesParents (tableau) : id des groupes parents validés du calendrier
+	 * @param groupesParentsTmp (tableau) : id des groupes parents non validés du calendrier
+	 * 			
 	 */
-	DialogCreationCalendrier.prototype.remplirGroupesParents = function(groupesParents) {
+	DialogCreationCalendrier.prototype.remplirGroupesParents = function(groupesParents, groupesParentsTmp) {
 		var me = this;
 		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
 			token: this.restManager.getToken()
@@ -281,7 +282,23 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 						me.ajouterGroupeParent();
 						me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParents[i] + "]").prop('selected', true);
 					}
+					// Ajouter une ligne s'il y a des groupes parents tmp à ajouter ensuite
+					if (groupesParentsTmp.length != 0) {
+						me.ajouterGroupeParent();
+					}
+				}
 				
+				// Remplir groupes parents tmp
+				if (groupesParentsTmp.length != 0) {
+					me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParentsTmp[0] + "]").prop('selected', true);
+					me.jqDialog.find(".form_creer_calendrier_parent:last").addClass("attente_rattachement");
+					me.jqDialog.find(".form_creer_calendrier_parent:last").attr("title", "En attente de validation");
+					for (var i=1, maxI=groupesParentsTmp.length; i<maxI; i++) {
+						me.ajouterGroupeParent();
+						me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParentsTmp[i] + "]").prop('selected', true);
+						me.jqDialog.find(".form_creer_calendrier_parent:last").addClass("attente_rattachement");
+						me.jqDialog.find(".form_creer_calendrier_parent:last").attr("title", "En attente de validation");
+					}
 				}
 				
 				// Listener bouton "Ajouter rattachement"
