@@ -23,12 +23,12 @@ public class DiagnosticsBdd {
 		this.bdd = bdd;
 	}
 	
-	public ArrayList<TestBddResult> runAllTests(BddGestion bdd) {
+	public ArrayList<TestBddResult> runAllTests() {
 		int nbTests = 1; // Nombre de tests gérés dans createTest
 		
 		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
 		
-		for(int i=0; i<nbTests; i++) {
+		for(int i=1; i<=nbTests; i++) {
 			TestBdd test = createTest(i);
 			
 			try {
@@ -36,7 +36,7 @@ public class DiagnosticsBdd {
 			}
 			catch(DatabaseException e) {
 				String errMessage = "Echec de l'exécution du test \"" + test.getNom() + "\" : " + e.getMessage();
-				res.add(new TestBddResult(TestBddResultCode.TEST_FAILED, errMessage	+ ", examinez les logs du serveur pour la pile d'appel"));
+				res.add(new TestBddResult(TestBddResultCode.TEST_FAILED, errMessage	+ ", examinez les logs du serveur pour la pile d'appel", test));
 				
 				logger.error(errMessage, e);
 			}
@@ -50,7 +50,7 @@ public class DiagnosticsBdd {
 	 * @param idTest
 	 * @return
 	 */
-	protected TestBdd createTest(int idTest) {
+	public TestBdd createTest(int idTest) {
 		switch(idTest) {
 		
 		case 1:
@@ -63,7 +63,7 @@ public class DiagnosticsBdd {
 	}
 	
 	protected TestBdd createTestCalendrierPossedeGroupeUnique(int id) {
-		return new TestBdd("Tous les calendriers sont rattachés à un groupe de participants \"groupe unique de calendrier\"", id) {
+		return new TestBdd("Rattachement de tous les calendriers à un groupe de participants \"groupe unique\"", id, "Ajouter les groupes manquants") {
 			
 			protected ArrayList<Integer> getCalendriersSansGroupeUnique(BddGestion bdd) throws DatabaseException {
 				ResultSet reponse = bdd.executeRequest("SELECT calendrier.cal_id, COUNT(groupeunique.groupeparticipant_id) AS nb_unique FROM edt.calendrier " +
@@ -90,16 +90,16 @@ public class DiagnosticsBdd {
 				
 				ArrayList<Integer> cals = getCalendriersSansGroupeUnique(bdd);
 				
-				if(cals.size() > 0) {
-					return new TestBddResult(TestBddResultCode.OK, "Les calendriers sont tous associés à au moins un groupe unique");
+				if(cals.size() == 0) {
+					return new TestBddResult(TestBddResultCode.OK, "Les calendriers sont tous associés à au moins un groupe unique", this);
 				}
 				else {
-					List<Integer> idsAffichage = cals.subList(0, 4);
+					List<Integer> idsAffichage = cals.subList(0, Math.min(4, cals.size()));
 					
 					String strCalendriers = StringUtils.join(idsAffichage, ", ");
 					String strAutres = cals.size() > 5 ? "..." : "";
 					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains calendriers (IDs " + strCalendriers + strAutres + ") n'ont pas de groupe unique");
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains calendriers (ID " + strCalendriers + strAutres + ") n'ont pas de groupe unique", this);
 				}
 			}
 

@@ -7,6 +7,7 @@ public abstract class TestBdd {
 
 	protected String nom;
 	protected int id;
+	protected String repairMessage;
 	
 	/**
 	 * Code de retour d'un test de base de données
@@ -14,10 +15,19 @@ public abstract class TestBdd {
 	 *
 	 */
 	public static enum TestBddResultCode {
-		OK,
-		WARNING,
-		ERROR,
-		TEST_FAILED
+		OK("ok"),
+		ERROR("error"),
+		TEST_FAILED("failed");
+		
+		protected String label;
+		
+		private TestBddResultCode(String label) {
+			this.label = label;
+		}
+		
+		public String getLabel() {
+			return label;
+		}
 	}
 	
 	/**
@@ -26,12 +36,14 @@ public abstract class TestBdd {
 	 *
 	 */
 	public static class TestBddResult {
+		protected TestBdd test;
 		protected TestBddResultCode resultCode;
 		protected String message;
 		
-		public TestBddResult(TestBddResultCode resultCode, String message) {
+		public TestBddResult(TestBddResultCode resultCode, String message, TestBdd test) {
 			this.resultCode = resultCode;
 			this.message = message;
+			this.test = test;
 		}
 		
 		public final TestBddResultCode getResultCode() {
@@ -41,11 +53,16 @@ public abstract class TestBdd {
 		public final String getMessage() {
 			return message;
 		}
+		
+		public final TestBdd getTest() {
+			return test;
+		}
 	}
 	
-	public TestBdd(String nom, int id) {
+	public TestBdd(String nom, int id, String repairMessage) {
 		this.nom = nom;
 		this.id = id;
+		this.repairMessage = repairMessage;
 	}
 	
 	/**
@@ -65,7 +82,11 @@ public abstract class TestBdd {
 	public abstract String repair(BddGestion bdd) throws DatabaseException;
 	
 	public String getNom() {
-		return this.nom;
+		return nom;
+	}
+	
+	public String getRepairMessage() {
+		return repairMessage;
 	}
 	
 	public int getId() {
