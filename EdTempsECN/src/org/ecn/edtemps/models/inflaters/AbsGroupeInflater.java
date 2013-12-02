@@ -15,7 +15,8 @@ import org.ecn.edtemps.models.identifie.GroupeIdentifie;
  *  - groupeparticipant_id_parent<br>
  *  - groupeparticipant_estcours<br>
  *  - groupeparticipant_estcalendrierunique<br>
- *  - groupeparticipant_id_parent_tmp
+ *  - groupeparticipant_id_parent_tmp<br>
+ *  - groupeparticipant_createur
  * 
  * @author Joffrey
  *
@@ -40,11 +41,12 @@ public abstract class AbsGroupeInflater<T extends GroupeIdentifie> {
 			String nom = reponse.getString("groupeparticipant_nom");
 			int idParent = reponse.getInt("groupeparticipant_id_parent");
 			int idParentTmp = reponse.getInt("groupeparticipant_id_parent_tmp");
+			int idCreateur = reponse.getInt("groupeparticipant_createur");
 			boolean rattachementAutorise = reponse.getBoolean("groupeparticipant_rattachementautorise");
 			boolean estCours = reponse.getBoolean("groupeparticipant_estcours");
 			boolean estCalendrierUnique = reponse.getBoolean("groupeparticipant_estcalendrierunique");
 
-			T res = inflate(id, nom, idParent, idParentTmp, rattachementAutorise, estCours, estCalendrierUnique, reponse, bdd);
+			T res = inflate(id, nom, idParent, idParentTmp, rattachementAutorise, estCours, estCalendrierUnique, idCreateur, reponse, bdd);
 			
 			return res;
 		}
@@ -54,5 +56,5 @@ public abstract class AbsGroupeInflater<T extends GroupeIdentifie> {
 	}
 	
 	protected abstract T inflate(int id, String nom, int idParent, int idParentTmp,boolean rattachementAutorise,boolean estCours,
-			boolean estCalendrierUnique, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException;
+			boolean estCalendrierUnique, int idCreateur, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException;
 }

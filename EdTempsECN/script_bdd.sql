@@ -51,9 +51,10 @@ CREATE TABLE edt.GroupeParticipant (
                 groupeParticipant_rattachementAutorise BOOLEAN NOT NULL,
                 groupeParticipant_id_parent INTEGER,
                 groupeParticipant_id_parent_tmp INTEGER,
-		groupeParticipant_estCours BOOLEAN NOT NULL DEFAULT FALSE,
-		groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
-		groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,
+				groupeParticipant_estCours BOOLEAN NOT NULL DEFAULT FALSE,
+				groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
+				groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,
+				groupeParticipant_createur INTEGER DEFAULT NULL,
                 CONSTRAINT groupeparticipant_id PRIMARY KEY (groupeParticipant_id)
 );
 
@@ -314,6 +315,13 @@ NOT DEFERRABLE;
 ALTER TABLE edt.GroupeParticipant ADD CONSTRAINT groupeparticipant_groupeparticipant_fk
 FOREIGN KEY (groupeParticipant_id_parent)
 REFERENCES edt.GroupeParticipant (groupeParticipant_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE edt.GroupeParticipant ADD CONSTRAINT utilisateur_groupeparticipant_fk
+FOREIGN KEY (groupeParticipant_createur)
+REFERENCES edt.Utilisateur (utilisateur_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
