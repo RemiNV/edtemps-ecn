@@ -59,7 +59,7 @@ public class GroupeGestionTest {
 
 	@Test
 	public void testSauverGetSupprimer() throws EdtempsException, SQLException {
-		
+		// TODO : exécuter le test dans une transaction pour ne pas avoir des groupes résiduels si il plante avant la suppression
 		// Récupération d'un propriétaire au pif
 		PreparedStatement requetePreparee = bddGestion.getConnection().prepareStatement(
 				"SELECT utilisateur_id FROM edt.utilisateur LIMIT 1");
@@ -88,8 +88,8 @@ public class GroupeGestionTest {
 		comparerGroupes(groupe2, groupe2Recup);
 		
 		// Suppression de la base
-		this.groupeGestionnaire.supprimerGroupe(idGroupe1);
-		this.groupeGestionnaire.supprimerGroupe(idGroupe2);
+		this.groupeGestionnaire.supprimerGroupe(idGroupe1, true);
+		this.groupeGestionnaire.supprimerGroupe(idGroupe2, true);
 		
 		assertNull(this.groupeGestionnaire.getGroupe(idGroupe1));
 		assertNull(this.groupeGestionnaire.getGroupe(idGroupe2));
