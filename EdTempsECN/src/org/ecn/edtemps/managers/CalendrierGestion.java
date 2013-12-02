@@ -565,9 +565,6 @@ public class CalendrierGestion {
 				// Création du calendrier complet avec la ligne de base de données
 				CalendrierComplet calendrier = new CalendrierCompletInflater().inflateCalendrier(results, _bdd);
 				
-				// Rassemble tous les identifiants de groupes parents
-				calendrier.getIdProprietaires().addAll(calendrier.getIdGroupesParentsTmp());
-				
 				// Ajoute le calendrier au résultat
 				res.add(calendrier);
 			}
