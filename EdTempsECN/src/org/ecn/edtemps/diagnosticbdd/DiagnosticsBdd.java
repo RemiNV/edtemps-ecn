@@ -32,9 +32,18 @@ public class DiagnosticsBdd {
 			TestBdd test = createTest(i);
 			
 			try {
+				bdd.startTransaction();
 				res.add(test.test(bdd));
+				bdd.commit();
 			}
 			catch(DatabaseException e) {
+				try { 
+					bdd.rollback();
+				}
+				catch(DatabaseException exRollback) {
+					logger.error("Erreur lors de l'execution d'un rollback lors des tests", exRollback);
+				}
+				
 				String errMessage = "Echec de l'exécution du test \"" + test.getNom() + "\" : " + e.getMessage();
 				res.add(new TestBddResult(TestBddResultCode.TEST_FAILED, errMessage	+ ", examinez les logs du serveur pour la pile d'appel", test));
 				
@@ -114,6 +123,7 @@ public class DiagnosticsBdd {
 								"SELECT cal_nom, FALSE, FALSE, TRUE FROM edt.calendrier WHERE cal_id = " + idCal + " " +
 								"RETURNING groupeparticipant_id");
 						
+						reponse.next();
 						int idGroupe = reponse.getInt(1);
 						
 						bdd.executeRequest("INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id) VALUES(" + idGroupe + "," + idCal + ")");
@@ -126,7 +136,6 @@ public class DiagnosticsBdd {
 				}
 				
 			}
-			
 		};
 	}
 }

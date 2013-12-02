@@ -35,20 +35,31 @@
 					
 					DiagnosticsBdd diagnostics = new DiagnosticsBdd(bdd);
 					
-					
-					
 					ArrayList<TestBddResult> results = diagnostics.runAllTests();
 					for(TestBddResult res : results) {
 						
-						String lienReparation = res.getResultCode() == TestBddResultCode.OK ? "" : 
-							"<a href='" + request.getContextPath() + "/admin/diagnostics/reparation.jsp?id=" + res.getTest().getId() + 
-							"' title='" + res.getTest().getRepairMessage() + "'>Réparer</a>";
-						
-						out.write("<tr><td>" + res.getTest().getId() + "</td>\n" + 
-								"<td>" + res.getTest().getNom() + "</td>\n" + 
-								"<td class='" + res.getResultCode().getLabel() + "'>" + res.getMessage() + "</td>\n" + 
-								"<td>" + lienReparation + "</td></tr>");
-						// TODO : mettre un truc correct pour le lien de réparation
+						%>
+						<tr>
+							<td><%= res.getTest().getId() %></td>
+							<td><%= res.getTest().getNom() %></td>
+							<td class="<%= res.getResultCode().getLabel() %>"><%= res.getMessage() %></td>
+							
+						<%
+						if(res.getResultCode() == TestBddResultCode.OK) {
+						%>
+							<td></td>
+						<%
+						}
+						else {
+						%>
+							<td>
+								<form method="post" action="<%= request.getContextPath() %>/administrateur/reparer">
+									<input type="hidden" name="id" value="<%= res.getTest().getId() %>" />
+									<input type="submit" value="Réparer" title="<%= res.getTest().getRepairMessage() %>" />
+								</form>
+							</td>
+						<%
+						}
 					}
 					%>
 				</table>
