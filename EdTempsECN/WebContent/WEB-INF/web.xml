@@ -120,6 +120,11 @@
       <servlet-name>ClientLogging</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.ClientLoggingServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+      <servlet-name>AdministrateurReparer</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurReparerServlet</servlet-class>
+  </servlet>
 
   <servlet>
       <servlet-name>Salles</servlet-name>
@@ -264,6 +269,12 @@
   <servlet-mapping>
       <servlet-name>ClientLogging</servlet-name>
       <url-pattern>/logging</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet-mapping>
+      <servlet-name>AdministrateurReparer</servlet-name>
+      <url-pattern>/administrateur/reparer</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
