@@ -152,7 +152,6 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		String stringIdGroupesParents = req.getParameter("idGroupesParents");
 		ArrayList<Integer> idGroupesParents = JSONUtils.getIntegerArrayList(
 			     Json.createReader(new StringReader(stringIdGroupesParents)).readArray());
-		System.out.println("dindon");
 		// Cas de MODIFICATION d'un calendrier
 		if (casModifier) {
 			int id = Integer.parseInt(req.getParameter("id"));
