@@ -32,6 +32,7 @@ public class GroupeGestion {
 
 	public static final String NOM_TEMPTABLE_ABONNEMENTS = "tmp_requete_abonnements_groupe";
 	public static final String NOM_TEMPTABLE_PARENTSENFANTS = "tmp_requete_parents_enfants_groupe";
+	public static final String NOM_TEMPTABLE_ENFANTS = "tmp_requete_enfants_groupe";
 	
 	/** Nombre maximum de groupes qu'un utilisateur peut créer */
 	public static final int LIMITE_GROUPES_PAR_UTILISATEUR = 20;
@@ -226,7 +227,8 @@ public class GroupeGestion {
 	 * @param listeIdProprietaires Liste des identifiants des propriétaires du groupe
 	 * @throws EdtempsException En cas d'erreur
 	 */
-	public void modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
+	public void modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, 
+			boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
 
 		if(StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom et au moins un responsable");
@@ -250,6 +252,21 @@ public class GroupeGestion {
 
 			// Démarre une transaction
 			_bdd.startTransaction();
+			
+			// Vérification des rattachements cycliques (pas de rattachement à un de ses fils)
+			if(idGroupeParent != null) {
+				makeTempTableListeEnfants(_bdd, id);
+				
+				ResultSet resRattachementCyclique = _bdd.executeRequest("SELECT groupeparticipant_id FROM " + NOM_TEMPTABLE_ENFANTS +
+						" WHERE groupeparticipant_id=" + idGroupeParent);
+				
+				if(resRattachementCyclique.next()) {
+					resRattachementCyclique.close();
+					throw new EdtempsException(ResultCode.INVALID_OBJECT, "Impossible d'utiliser un enfant d'un groupe comme groupe parent");
+				}
+				
+				resRattachementCyclique.close();
+			}
 			
 			if (StringUtils.isNotBlank(nom)) {
 
@@ -411,39 +428,16 @@ public class GroupeGestion {
 	}
 	
 	/**
-	 * Itère sur les parents et enfants des lignes d'une temporaire de groupes pour les ajouter à cette même table
+	 * Itère sur les parents des lignes d'une temporaire de groupes pour les ajouter à cette même table
 	 * @param bdd Gestionnaire de base de données
 	 * @param nomTable Nom de la table temporaire à utiliser
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	protected static void completerParentsEnfantsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
-		// Ajout des parents et enfants
-		PreparedStatement statementParents;
+	protected static void completerParentsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
 		try {
-			
-			// Enfants : utilisation d'une requête préparée pour accélérer les traitements consécutifs
 			int nbInsertions = -1;
-			PreparedStatement statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
-					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-					"SELECT DISTINCT enfant.groupeparticipant_id," +
-					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
-					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
-					"FROM edt.groupeparticipant enfant " +
-					"INNER JOIN " + nomTable + " parent " +
-					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
-					"LEFT JOIN " + nomTable + " deja_inseres " +
-					"ON deja_inseres.groupeparticipant_id=enfant.groupeparticipant_id " +
-					"WHERE deja_inseres.groupeparticipant_id IS NULL");
 			
-			while(nbInsertions != 0) {
-				nbInsertions = statementEnfants.executeUpdate();
-			}
-			
-			nbInsertions = -1;
-			
-			// Puis parents (sinon ajoute les enfants des parents !)
-			statementParents = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+			PreparedStatement statementParents = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 					"SELECT DISTINCT parent.groupeparticipant_id," +
@@ -461,6 +455,39 @@ public class GroupeGestion {
 			}
 			
 			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	/**
+	 * Itère sur les enfants des lignes d'une temporaire de groupes pour les ajouter à cette même table
+	 * @param bdd Gestionnaire de base de données
+	 * @param nomTable Nom de la table temporaire à utiliser
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	protected static void completerEnfantsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
+
+		PreparedStatement statementEnfants;
+		try {
+			
+			int nbInsertions = -1;
+			statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"SELECT DISTINCT enfant.groupeparticipant_id," +
+					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
+					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant enfant " +
+					"INNER JOIN " + nomTable + " parent " +
+					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
+					"LEFT JOIN " + nomTable + " deja_inseres " +
+					"ON deja_inseres.groupeparticipant_id=enfant.groupeparticipant_id " +
+					"WHERE deja_inseres.groupeparticipant_id IS NULL");
+			
+			while(nbInsertions != 0) {
+				nbInsertions = statementEnfants.executeUpdate();
+			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -491,11 +518,23 @@ public class GroupeGestion {
 				"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
 				"AND abonnegroupeparticipant.utilisateur_id=" + idUtilisateur);
 		
-		completerParentsEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
+		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
+		completerParentsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
+	}
+	
+	protected static void ajouterGroupeTempTableListeGroupes(BddGestion bdd, int idGroupe, String nomTable) throws DatabaseException {
+		bdd.executeRequest("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+			"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+			"SELECT groupeparticipant.groupeparticipant_id," +
+			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+			"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
+			"FROM edt.groupeparticipant " +
+			"WHERE groupeparticipant.groupeparticipant_id = " + idGroupe);
 	}
 	
 	/**
-	 * Créé une table temporaire de groupes d'utilisateur étant parents ou enfants du groupe fourni. Le groupe lui-même est aussi listé.
+	 * Créé une table temporaire de groupes d'utilisateur étant <b>parents ou enfants</b> du groupe fourni. Le groupe lui-même est aussi listé.
 	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
 	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
 	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
@@ -507,17 +546,28 @@ public class GroupeGestion {
 		// Création de la table temporaire
 		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
 		
-		// Ajout de l'objet en question
-		bdd.executeRequest("INSERT INTO " + NOM_TEMPTABLE_PARENTSENFANTS + "(groupeparticipant_id," +
-				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-				"SELECT groupeparticipant.groupeparticipant_id," +
-				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
-				"FROM edt.groupeparticipant " +
-				"WHERE groupeparticipant.groupeparticipant_id = " + idGroupe);
+		ajouterGroupeTempTableListeGroupes(bdd, idGroupe, NOM_TEMPTABLE_PARENTSENFANTS);
 		
-		completerParentsEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+		completerParentsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+	}
+	
+	/**
+	 * Créé une table temporaire de groupes d'utilisateur étant <b>enfants</b> du groupe fourni. Le groupe lui-même est aussi listé.
+	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
+	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
+	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
+	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_ENFANTS}
+	 * @param idGroupe ID du groupe pour lequel les parents et enfants sont à lister.
+	 * @throws DatabaseException
+	 */
+	public static void makeTempTableListeEnfants(BddGestion bdd, int idGroupe) throws DatabaseException {
+		// Création de la table temporaire
+		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_ENFANTS);
+		
+		ajouterGroupeTempTableListeGroupes(bdd, idGroupe, NOM_TEMPTABLE_ENFANTS);
+		
+		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ENFANTS);
 	}
 	
 	/**
