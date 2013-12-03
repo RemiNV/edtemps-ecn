@@ -72,6 +72,8 @@ public class DiagnosticsBdd {
 			
 		case 3:
 			return createTestEvenementPossedeCalendrier(3);
+			
+			// TODO : ajouter une vérification de l'absence de liens de parenté circulaires (groupes)
 		
 		default:
 			return null;
