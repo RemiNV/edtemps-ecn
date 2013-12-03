@@ -452,6 +452,31 @@ public class CalendrierGestion {
 	}	
 	
 	/**
+	 * Methode nePlusEtreProprietaire(idCalendrier, idProprietaire)
+	 * Supprime le lien "propriétaire" entre un utilisateur et un calendrier
+	 *
+	 * @param idCalendrier
+	 * @param idProprietaire
+	 * @throws EdtempsException 
+	 */
+	public void nePlusEtreProprietaire(int idCalendrier, int idProprietaire) throws EdtempsException {
+		try {
+			// Requete préparée
+			PreparedStatement req = _bdd.getConnection().prepareStatement(
+					"DELETE FROM edt.proprietairecalendrier "
+					+ "WHERE cal_id = ? "
+					+ "AND utilisateur_id = ?");
+			// Ajout des paramètres à la requete préparée
+			req.setInt(1, idCalendrier);
+			req.setInt(2, idProprietaire);
+			req.executeQuery();
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+		
+	}
+	
+	/**
 	 * Listing des types de calendrier disponibles dans la base de données
 	 * @return Hashmap indiquant les ID (clés) et noms (string) des types de calendrier disponibles
 	 * @throws DatabaseException 
