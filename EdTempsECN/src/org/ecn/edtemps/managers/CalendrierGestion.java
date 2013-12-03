@@ -62,6 +62,15 @@ public class CalendrierGestion {
 			// Début transaction
 			_bdd.startTransaction();
 			
+			// Vérifier que le nom n'est pas déjà pris
+			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.calendrier WHERE cal_nom=?");
+			nomDejaPris.setString(1, nom);
+			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+			nomDejaPrisResult.next();
+			if (nomDejaPrisResult.getInt(1)>0) {
+				throw new EdtempsException(ResultCode.NAME_TAKEN, "Tentative de créer un calendrier avec un nom déjà utilisé.");
+			}
+			
 			// Requete préparée pour la création du calendrier dans la base de données
 			PreparedStatement rs_ligneCreee_prepare = _bdd.getConnection().prepareStatement(
 					"INSERT INTO edt.calendrier (cal_nom, matiere_id, typeCal_id)" +
@@ -230,6 +239,15 @@ public class CalendrierGestion {
 		try {
 			// Début transaction
 			_bdd.startTransaction();
+			
+			// Vérifier que le nom n'est pas déjà pris
+			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.calendrier WHERE cal_nom=?");
+			nomDejaPris.setString(1, calId.getNom());
+			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
+			nomDejaPrisResult.next();
+			if (nomDejaPrisResult.getInt(1)>0) {
+				throw new EdtempsException(ResultCode.NAME_TAKEN, "Tentative de modifier un calendrier avec un nom déjà utilisé.");
+			}
 			
 			// Requete préparée pour la modification du calendrier
 			PreparedStatement requete = _bdd.getConnection().prepareStatement(

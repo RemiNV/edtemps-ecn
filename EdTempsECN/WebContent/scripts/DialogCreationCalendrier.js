@@ -347,10 +347,16 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		var valid = true;
 
 		// Nom du calendrier non nul ?
-		if (this.nom.val()=="" || !(/^[a-z \u00C0-\u00FF0-9]+$/i.test(this.nom.val()))) {
+		if (this.nom.val()=="") {
 			this.nom.css({border: "1px solid red"});
 			valid = false;
-		} else {
+		} 
+		else if (!(/^[a-z \u00C0-\u00FF0-9]+$/i.test(this.nom.val()))) {
+			window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
+			this.nom.css({border: "1px solid red"});
+			valid = false;
+		}
+		else {
 			this.nom.css({border: "1px solid black"});
 		}
 
@@ -398,9 +404,14 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 						window.showToast("Le calendrier a bien été modifié");
 						// recharger les calendriers de l'utilisateur
 						me.ecranParametres.afficheListeMesCalendriers();
+					} 
+					else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
+						window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
+					} 
+					else if (resultCode == RestManager.resultCode_NameTaken) {
+						window.showToast("Le nom du calendrier est déjà utilisé, veuillez en choisir un autre");
 					}
 					else {
-						// afficher message
 						window.showToast("Erreur lors de la modification du calendrier");
 					}
 				});	
@@ -415,10 +426,14 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 						window.showToast("Le calendrier a bien été créé");
 						// recharger les calendriers de l'utilisateur
 						me.ecranParametres.afficheListeMesCalendriers();
-					} else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
+					} 
+					else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
 						window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
-					} else {
-						// afficher message
+					} 
+					else if (resultCode == RestManager.resultCode_NameTaken) {
+						window.showToast("Le nom du calendrier est déjà utilisé, veuillez en choisir un autre");
+					} 
+					else {
 						window.showToast("Erreur lors de la création du calendrier");
 					}
 				});	
