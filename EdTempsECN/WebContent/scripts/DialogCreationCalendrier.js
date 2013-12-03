@@ -408,7 +408,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 					else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
 						window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
 					} 
-					else if (response.resultCode == RestManager.resultCode_NameTaken) {
+					else if (resultCode == RestManager.resultCode_NameTaken) {
 						window.showToast("Le nom du calendrier est déjà utilisé, veuillez en choisir un autre");
 					}
 					else {
@@ -430,7 +430,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 					else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
 						window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
 					} 
-					else if (response.resultCode == RestManager.resultCode_NameTaken) {
+					else if (resultCode == RestManager.resultCode_NameTaken) {
 						window.showToast("Le nom du calendrier est déjà utilisé, veuillez en choisir un autre");
 					} 
 					else {
