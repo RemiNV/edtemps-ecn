@@ -392,12 +392,12 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			if (casModifier) {
 				this.calendrierGestion.modifierCalendrier(idCal, nom, matiere, type, idProprietairesJson, idGroupesParentsJson, function(resultCode) {
 					if(resultCode == RestManager.resultCode_Success) {
-						// recharger les calendriers de l'utilisateur
-						me.ecranParametres.afficheListeMesCalendriers();
 						// fermer dialog
 						me.jqDialog.dialog("close");
 						// afficher message
 						window.showToast("Le calendrier a bien été modifié");
+						// recharger les calendriers de l'utilisateur
+						me.ecranParametres.afficheListeMesCalendriers();
 					}
 					else {
 						// afficher message
@@ -409,6 +409,8 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			else {
 				this.calendrierGestion.creerCalendrier(nom, matiere, type, idProprietairesJson, idGroupesParentsJson, function(resultCode) {
 					if(resultCode == RestManager.resultCode_Success) {
+						// fermer dialog
+						me.jqDialog.dialog("close");
 						// afficher message
 						window.showToast("Le calendrier a bien été créé");
 						// recharger les calendriers de l'utilisateur

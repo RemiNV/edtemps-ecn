@@ -115,6 +115,20 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 				logger.error("Erreur lors de la suppression du calendrier", e);
 			}
 		}
+		// Page /calendrier/nePlusEtreProprietaire
+		else if(pathInfo.equals("/nePlusEtreProprietaire")) { 
+			try {
+				int idCalendrier = Integer.parseInt(req.getParameter("idCalendrier"));
+				calendrierGestion.nePlusEtreProprietaire(idCalendrier, userId);
+				// Génération réponse si aucune exception
+				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Action NePlusEtreProprietaire réussie", null));
+				logger.debug("Action NePlusEtreProprietaire réussie");
+			} catch (EdtempsException e) {
+				// Génération réponse si exception
+				resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+				logger.error("Erreur lors de la requete 'NePlusEtreProprietaire'", e);
+			}
+		}
 		// Autre page, non prise en charge
 		else { 
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);

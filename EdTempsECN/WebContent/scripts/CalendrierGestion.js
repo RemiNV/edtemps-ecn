@@ -136,5 +136,19 @@ define([], function() {
 		);
 	};
 	
+
+	/**
+	 * Ne plus être propriétaire du calendrier dont l'id est en paramètre
+	 * @param groupeId
+	 * @param callback
+	 */
+	CalendrierGestion.prototype.queryNePlusEtreProprietaire = function(idCalendrier, callback) {
+		this.restManager.effectuerRequete("POST", "calendrier/nePlusEtreProprietaire", {
+			token: this.restManager.getToken(), idCalendrier: idCalendrier
+		}, function(data) {
+			callback(data.resultCode);
+		});
+	};
+	
 	return CalendrierGestion;
 });

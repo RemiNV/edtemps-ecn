@@ -644,6 +644,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 				"<td><%= calendrier.matiere %></td>" +
 				"<td><%= calendrier.type %></td>" +
 				"<td class='tbl_mes_calendriers_boutons'>" +
+					"<% if(calendrier.proprietaires.length>1) { %><input type='button' data-id='<%= calendrier.id %>' class='button tbl_mes_calendriers_boutons_plusproprietaire' value='Ne plus être propriétaire' /><% } %>" +
 					"<input type='button' data-id='<%= calendrier.id %>' class='button tbl_mes_calendriers_boutons_modifier' value='Modifier' />" +
 					"<input type='button' class='button tbl_mes_calendriers_boutons_supprimer' data-id='<%= calendrier.id %>' value='Supprimer' />" +
 				"</td>" +
@@ -664,6 +665,20 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					me.listeCalendriers = data.listeCalendriers;
 					// Ecriture du tableau dans la page, en utilisant le template
 					$("#tbl_mes_calendriers").html(_.template(listMesCalendriersTemplate, {calendriers: data.listeCalendriers}));
+					
+					// Listeners pour les boutons "ne plus être propriétaire"
+					$("#tbl_mes_calendriers .tbl_mes_calendriers_boutons_plusproprietaire").click(function() {
+						if (confirm("Etes-vous sur de ne plus vouloir etre proprietaire du calendrier '" + $(this).parent().siblings().first().text()+"' ?")) {
+							me.calendrierGestion.queryNePlusEtreProprietaire($(this).attr("data-id"), function() {
+								if (resultCode == RestManager.resultCode_Success) {
+									window.showToast("Vous n'êtes plus propriétaire du calendrier.");
+									me.afficheListeMesCalendriers();
+								} else {
+									window.showToast("La modification du calendrier a échoué ; vérifiez votre connexion.");
+								}
+							});
+						}
+					});
 					
 					// Listeners pour les boutons "modifier"
 					$(".tbl_mes_calendriers_boutons_modifier").click(function() {
