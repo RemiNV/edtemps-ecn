@@ -546,14 +546,21 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					var listMesGroupesTemplate = 
 						"<% _.each(groupes, function(groupe) { %> <tr id='tbl_mes_groupes_ligne_<%= groupe.id %>' <% if(groupe.parentIdTmp>0) { %> class='tbl_mes_groupes_ligne_importante' title='En attente de validation pour le rattachement' <% } %>>" +
 							"<td class='tbl_mes_groupes_groupe' data-id='<%= groupe.id %>'><%= groupe.nom %></td>" +
-							"<td class='tbl_mes_groupes_boutons'>" +
-								"<% if(groupe.proprietaires.length>1) { %><input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_plusproprietaire' value='Ne plus être propriétaire' /><% } %>" +
+							"<td class='tbl_mes_groupes_boutons' data-id='<%= groupe.id %>'>" +
 								"<input type='button' data-id='<%= groupe.id %>' class='button tbl_mes_groupes_boutons_modifier' value='Modifier' />" +
 								"<input type='button' class='button tbl_mes_groupes_boutons_supprimer' data-id='<%= groupe.id %>' value='Supprimer' />" +
 							"</td>" +
 						"</tr> <% }); %>";
 
 					$("#tbl_mes_groupes").html(_.template(listMesGroupesTemplate, {groupes: data.listeGroupes}));
+
+					// Ajout du bouton pour se supprimer de la liste des propriétaires
+					$.each($("#tbl_mes_groupes .tbl_mes_groupes_boutons"), function() {
+						var idGroupe = $(this).attr("data-id");
+						if (me.listeGroupes[idGroupe].proprietaires.length>1 && me.listeGroupes[idGroupe].createur!=me.restManager.getUserId()) {
+							$(this).prepend("<input type='button' data-id='"+idGroupe+"' class='button tbl_mes_groupes_boutons_plusproprietaire' value='Ne plus être propriétaire' />");
+						}
+					});
 					
 					// Listeners pour les lignes
 					$("#tbl_mes_groupes .tbl_mes_groupes_groupe").click(function() {
