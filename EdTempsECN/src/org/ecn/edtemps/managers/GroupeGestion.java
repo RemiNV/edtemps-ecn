@@ -407,7 +407,7 @@ public class GroupeGestion {
 	protected static void makeTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
 		bdd.executeRequest("CREATE TEMP TABLE " + nomTable + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
 			"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_id_parent_tmp INTEGER, groupeparticipant_estcours BOOLEAN, " +
-			"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL) ON COMMIT DROP");
+			"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL, groupeparticipant_createur INTEGER) ON COMMIT DROP");
 	}
 	
 	/**
@@ -483,10 +483,10 @@ public class GroupeGestion {
 		// Ajout des abonnements directs
 		bdd.executeRequest("INSERT INTO " + NOM_TEMPTABLE_ABONNEMENTS + "(groupeparticipant_id," +
 				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur) " +
 				"SELECT groupeparticipant.groupeparticipant_id," +
 				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
+				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur " +
 				"FROM edt.groupeparticipant " +
 				"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
 				"AND abonnegroupeparticipant.utilisateur_id=" + idUtilisateur);
