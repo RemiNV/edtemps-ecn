@@ -589,19 +589,47 @@ public class GroupeGestion {
 	 * @throws DatabaseException
 	 */
 	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction, boolean rattachementAutorise) throws DatabaseException {
+		return listerGroupes(createTransaction, rattachementAutorise, null);
+	}
+	
+	/**
+	 * Listing de l'ensemble des groupes de participants existants en base
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon (false), elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @param rattachementAutorise indique s'il faut uniquement lister les groupes dont le rattachement est autorisé
+	 * @param ignorerEnfantsGroupe ID d'un groupe dont les enfants sont à ignorer (ce groupe compris). null pour ne rien préciser.
+	 * @return Liste de groupes de participants trouvés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction, boolean rattachementAutorise, Integer ignorerEnfantsGroupe) throws DatabaseException {
 		
 		try {
 			if(createTransaction){
 				_bdd.startTransaction();
 			}
 			
+			String requete = "SELECT grp.groupeparticipant_id, grp.groupeparticipant_nom, grp.groupeparticipant_rattachementautorise, grp.groupeparticipant_createur, "
+					+ "grp.groupeparticipant_id_parent, grp.groupeparticipant_id_parent_tmp, grp.groupeparticipant_estcours, grp.groupeparticipant_estcalendrierunique "
+					+ "FROM edt.groupeparticipant grp";
+			
+			if(ignorerEnfantsGroupe != null) {
+				makeTempTableListeEnfants(_bdd, ignorerEnfantsGroupe);
+				requete += " LEFT JOIN " + NOM_TEMPTABLE_ENFANTS + " enfants ON enfants.groupeparticipant_id = grp.groupeparticipant_id";
+			}
+			
+			if(ignorerEnfantsGroupe != null || rattachementAutorise) {
+				requete += " WHERE";
+				
+				if(rattachementAutorise) {
+					requete += " grp.groupeparticipant_rattachementautorise = TRUE";
+				}
+				
+				if(ignorerEnfantsGroupe != null) {
+					requete += (rattachementAutorise ? " AND" : "") + " enfants.groupeparticipant_id IS NULL";
+				}
+			}
+			
 			// Lecture des groupes de la table
-			ResultSet resGroupes = _bdd.executeRequest(
-					"SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_createur, "
-					+ "groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique "
-					+ "FROM edt.groupeparticipant"
-					+ (rattachementAutorise ? " WHERE groupeparticipant_rattachementautorise = TRUE " : " ")
-					+ "ORDER BY groupeparticipant_nom");
+			ResultSet resGroupes = _bdd.executeRequest(requete);
 			
 			// Création d'objets "groupes identifiés" pour les groupes rencontrés dans la table
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
