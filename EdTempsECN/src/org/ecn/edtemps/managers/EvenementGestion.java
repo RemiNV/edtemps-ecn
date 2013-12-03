@@ -29,7 +29,7 @@ public class EvenementGestion {
 	protected BddGestion _bdd;
 	
 	/** Nombre maximum d'événements récupérables en une requête */
-	public static final int MAX_ROWS_QUERY_EVENEMENTS = 100;
+	public static final int MAX_ROWS_QUERY_EVENEMENTS = 500;
 	
 	/**
 	 * Initialise un gestionnaire d'evenements
