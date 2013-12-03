@@ -138,12 +138,12 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 	DialogCreationGroupeParticipants.prototype.ecritListeGroupesParentsDisponibles = function(object, groupe, callback) {
 		var me = this;
 		
-		var idGroupeModification = -1;
-		if (groupe) idGroupeModification = groupe.id;
+		var idGroupeModification = groupe ? groupe.id : null;
 		
 		// Récupération de la liste des groupes parents potentiels
 		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
-			token: this.restManager.getToken()
+			token: this.restManager.getToken(),
+			idGroupeIgnorerEnfants: idGroupeModification
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
 
@@ -153,9 +153,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				if (maxI>0) {
 					var str = "<option value='-1'>---</option>";
 					for (var i=0; i<maxI; i++) {
-						if (idGroupeModification!=data.data.listeGroupes[i].id) {
-							str += "<option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"</option>";
-						}
+						str += "<option value='"+data.data.listeGroupes[i].id+"'>"+data.data.listeGroupes[i].nom+"</option>";
 					}
 					$(object).append(str);
 				} else {

@@ -28,6 +28,7 @@ public class CheckConnectionServlet extends RequiresConnectionServlet {
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		// Si cette méthode est appelée, c'est que l'utilisateur a été identifié avec succès
 		
+		// TODO : renvoyer aussi les droits
 		JsonObject data = Json.createObjectBuilder().add("id", userId).build();
 		
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Identifiants valides.", data));
