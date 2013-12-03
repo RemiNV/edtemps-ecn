@@ -138,13 +138,13 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 	DialogCreationGroupeParticipants.prototype.ecritListeGroupesParentsDisponibles = function(object, groupe, callback) {
 		var me = this;
 		
-		var idGroupeModification = groupe ? groupe.id : null;
-		
 		// Récupération de la liste des groupes parents potentiels
-		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
-			token: this.restManager.getToken(),
-			idGroupeIgnorerEnfants: idGroupeModification
-		}, function(data) {
+		var params = { token: this.restManager.getToken() }
+		if(groupe) {
+			params.idGroupeIgnorerEnfants = groupe.id;
+		}
+		
+		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", params, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
 
 				var maxI = data.data.listeGroupes.length;
