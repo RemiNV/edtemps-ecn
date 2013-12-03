@@ -235,6 +235,8 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 				window.showToast("Le groupe de participant à été créé avec succès.");
 				me.jqCreationGroupeForm.dialog("close");
 				callback();
+			} else if (response.resultCode == RestManager.resultCode_QuotaExceeded) {
+				window.showToast("Vous avez atteint votre quota de création de groupes de participants");
 			} else if (response.resultCode == RestManager.resultCode_AuthorizationError) {
 				window.showToast("Vous n'êtes pas autorisé a effectuer cette action");
 			} else if (response.resultCode == RestManager.resultCode_AlphanumericRequired) {
@@ -370,17 +372,11 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 			this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", groupe.estCours);
 			
 			// Sélection des propriétaires
-			var listeProprietaires = new Array();
-			for (var i=0, maxI=groupe.proprietaires.length; i<maxI; i++) {
-				var user = new Object();
-				user.label = groupe.proprietaires[i].prenom+" "+groupe.proprietaires[i].nom;
-				user.value = groupe.proprietaires[i].id;
-				user.tooltip = (groupe.proprietaires[i].email!=null) ? groupe.proprietaires[i].email : null;
-				user.readOnly = false; // TODO : mettre une valeur correcte
-				// TODO : cette méthode pourrait utiliser UtilisateurGestion.makeUtilisateursAutocomplete (méthode statique)
-				listeProprietaires.push(user);
+			var listeProprietaires = groupe.proprietaires;
+			for (var i=0, maxI = listeProprietaires.length; i<maxI; i++) {
+				listeProprietaires[i].readOnly = (listeProprietaires[i].id==groupe.createur);
 			}
-			this.multiWidgetProprietaires.setValues(listeProprietaires);
+			this.multiWidgetProprietaires.setValues(UtilisateurGestion.makeUtilisateursAutocomplete(listeProprietaires));
 
 		}
 

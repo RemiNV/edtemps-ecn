@@ -38,9 +38,10 @@ public class GroupeComplet extends GroupeIdentifie implements JSONAble {
 	 * @param calendriers Liste des calendriers
 	 * @param proprietaires Liste des propriétaires
 	 * @param parent Groupe parent (le temporaire ou le réel si la validation a été faite)
+	 * @param idCreateur Identifiant du créateur du groupe de participants
 	 */
-	public GroupeComplet(int id, String nom, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique, int parentIdTmp, int parentId, List<CalendrierIdentifie> calendriers, List<UtilisateurIdentifie> proprietaires, GroupeIdentifie parent) {
-		super(id, nom, null, rattachementAutorise, estCours, estCalendrierUnique);
+	public GroupeComplet(int id, String nom, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique, int parentIdTmp, int parentId, List<CalendrierIdentifie> calendriers, List<UtilisateurIdentifie> proprietaires, GroupeIdentifie parent, int idCreateur) {
+		super(id, nom, null, rattachementAutorise, estCours, estCalendrierUnique, idCreateur);
 		this.setParentIdTmp(parentIdTmp);
 		this.setParentId(parentId);
 		this.setParent(parent);
@@ -79,6 +80,7 @@ public class GroupeComplet extends GroupeIdentifie implements JSONAble {
 			.add("nom", nom)
 			.add("parentId", parentId)
 			.add("parentIdTmp", parentIdTmp)
+			.add("createur", idCreateur)
 			.add("rattachementAutorise", rattachementAutorise)
 			.add("estCours", estCours)
 			.add("estCalendrierUnique", estCalendrierUnique)

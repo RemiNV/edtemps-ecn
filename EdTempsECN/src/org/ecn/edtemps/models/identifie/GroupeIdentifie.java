@@ -22,6 +22,9 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 	/** Identifiant du groupe parent temporaire : en attente de validation du groupe parent */
 	protected int parentIdTmp;
 
+	/** Identifiant du créateur du groupe */
+	protected int idCreateur;
+
 	/**
 	 * Constructeur utilisant les informations indispensables
 	 * @param id
@@ -30,10 +33,12 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 	 * @param rattachementAutorise
 	 * @param estCours
 	 * @param estCalendrierUnique
+	 * @param idCreateur
 	 */
-	public GroupeIdentifie(int id, String nom, List<Integer> idProprietaires, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique) {
+	public GroupeIdentifie(int id, String nom, List<Integer> idProprietaires, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique, int idCreateur) {
 		super(nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
 		this.id = id;
+		this.idCreateur = idCreateur;
 	}
 	
 	/**
@@ -72,6 +77,14 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 		this.parentIdTmp = parentIdTmp;
 	}
 
+	public int getIdCreateur() {
+		return idCreateur;
+	}
+
+	public void setIdCreateur(int idCreateur) {
+		this.idCreateur = idCreateur;
+	}
+
 	@Override
 	public JsonValue toJson() {
 		return Json.createObjectBuilder()
@@ -79,6 +92,7 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 				.add("nom", nom)
 				.add("parentId", parentId)
 				.add("parentIdTmp", parentIdTmp)
+				.add("createur", idCreateur)
 				.add("rattachementAutorise", rattachementAutorise)
 				.add("estCours", estCours)
 				.add("estCalendrierUnique", estCalendrierUnique)
