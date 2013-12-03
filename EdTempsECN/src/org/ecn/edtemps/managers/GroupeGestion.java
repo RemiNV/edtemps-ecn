@@ -132,11 +132,11 @@ public class GroupeGestion {
 
 		int idInsertion = -1;
 		
-		if(StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
+		if (StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom et au moins un responsable");
 		}
 
-		if(!StringUtils.isAlphanumericSpace(nom)) {
+		if (!StringUtils.isAlphanumericSpace(nom)) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique");
 		}
 		
@@ -152,6 +152,11 @@ public class GroupeGestion {
 		int nbGroupesAutorisesACreer = limiteEtendue ? LIMITE_GROUPES_PAR_UTILISATEUR_ETENDUE : LIMITE_GROUPES_PAR_UTILISATEUR;
 		if (nbGroupesDejaCrees >= nbGroupesAutorisesACreer) {
 			throw new EdtempsException(ResultCode.QUOTA_EXCEEDED, "L'utilisateur a dépassé son quota de création de groupes de participants");
+		}
+		
+		// Vérifie que le créateur fait partie de la liste des propriétaires
+		if (!listeIdProprietaires.contains(userId)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Le créateur doit faire partie de la liste des propriétaires");
 		}
 
 		try {
@@ -255,13 +260,19 @@ public class GroupeGestion {
 
 				// Récupération de l'ancien groupe
 				ResultSet ancienGroupeParent = _bdd.executeRequest(
-						"SELECT groupeparticipant_nom, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp" +
+						"SELECT groupeparticipant_nom, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_createur" +
 						" FROM edt.groupeparticipant WHERE groupeparticipant_id="+id);
 				ancienGroupeParent.next();
 				String ancienNom = ancienGroupeParent.getString("groupeparticipant_nom");
 				int ancienIdParent = ancienGroupeParent.getInt("groupeparticipant_id_parent");
 				int ancienIdParentTmp = ancienGroupeParent.getInt("groupeparticipant_id_parent_tmp");
+				int createur = ancienGroupeParent.getInt("groupeparticipant_createur");
 				
+				// Vérifie que le créateur fait partie de la liste des propriétaires
+				if (!listeIdProprietaires.contains(createur)) {
+					throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Le créateur doit faire partie de la liste des propriétaires");
+				}
+
 				// Vérifie que le nom n'est pas déjà en base de données
 				if (!StringUtils.equals(nom, ancienNom)) {
 					PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
