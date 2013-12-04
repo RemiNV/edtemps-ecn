@@ -169,6 +169,7 @@ CREATE TABLE edt.Utilisateur (
 				utilisateur_nom TEXT NOT NULL,
 				utilisateur_prenom TEXT NOT NULL,
 				utilisateur_email TEXT,
+				utilisateur_active BOOLEAN NOT NULL DEFAULT TRUE,
                 CONSTRAINT utilisateur_id PRIMARY KEY (utilisateur_id)
 );
 
