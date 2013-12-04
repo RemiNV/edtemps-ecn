@@ -35,10 +35,3 @@ function filtrerText(idFiltreText, classTri) {
     });
     
 }
-
-/**
- * Affiche la demande de confirmation de suppression
- */
-function confirmationSupprimerUtilisateur() {
-	return confirm("Etes-vous sur de vouloir supprimer cet utilisateur ?");
-}

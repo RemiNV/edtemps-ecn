@@ -7,6 +7,9 @@ package org.ecn.edtemps.exceptions;
  *
  */
 public class MaxRowCountExceededException extends EdtempsException {
+
+	private static final long serialVersionUID = -8080995896258351160L;
+
 	public MaxRowCountExceededException(String message) {
 		super(ResultCode.MAX_ROW_COUNT_EXCEEDED, message);
 	}

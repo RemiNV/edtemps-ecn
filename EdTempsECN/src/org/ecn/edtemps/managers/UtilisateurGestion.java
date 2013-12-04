@@ -657,7 +657,8 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public List<UtilisateurIdentifie> getListeUtilisateurs() throws DatabaseException {
-		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur ORDER BY utilisateur.utilisateur_prenom");
+		ResultSet reponse = bdd.executeRequest("SELECT utilisateur_id, utilisateur_nom, utilisateur_prenom, utilisateur_email, utilisateur_active" +
+				" FROM edt.utilisateur ORDER BY utilisateur.utilisateur_prenom");
 
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
 
@@ -667,8 +668,9 @@ public class UtilisateurGestion {
 				String nom = reponse.getString("utilisateur_nom");
 				String prenom = reponse.getString("utilisateur_prenom");
 				String email = reponse.getString("utilisateur_email");
+				boolean active = reponse.getBoolean("utilisateur_active");
 				
-				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email);
+				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email, active);
 
 				// Récupération des types de l'utilisateur
 				utilisateur.setType(this.getListeTypes(id));
@@ -716,43 +718,15 @@ public class UtilisateurGestion {
 	
 
 	/**
-	 * Supprimer un utilisateur
+	 * Activer/Désactiver un utilisateur : il reste dans la base de données mais ne sera pas remonté lors du remplissage des liste d'utilisateurs
 	 * @param userId Identifiant de l'utilisateur
+	 * @param statut VRAI si l'utilisateur est actif, FAUX sinon
 	 * @throws DatabaseException 
 	 */
-	public void supprimerUtilisateur(int userId) throws DatabaseException {
-		// Démarre une transaction
-		bdd.startTransaction();
-		
-		// Supprime les liens de créateur d'événement
-		bdd.executeUpdate("UPDATE edt.evenement SET eve_createur=NULL WHERE eve_createur=" + userId);
+	public void desactiverUtilisateur(int userId, boolean statut) throws DatabaseException {
 
-		// Supprime les abonnements de l'utilisateur
-		bdd.executeUpdate("DELETE FROM edt.abonnegroupeparticipant WHERE utilisateur_id="+userId);
-
-		// Supprime les liens de propriété de groupes
-		bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant WHERE utilisateur_id="+userId);
-
-		// Supprime les liens de propriété d'événements
-		bdd.executeUpdate("DELETE FROM edt.ResponsableEvenement WHERE utilisateur_id="+userId);
-
-		// Supprime les liens d'intervenant sur des événements
-		bdd.executeUpdate("DELETE FROM edt.IntervenantEvenement WHERE utilisateur_id="+userId);
-		
-		// Supprime les liens de propriété de calendriers
-		bdd.executeUpdate("DELETE FROM edt.ProprietaireCalendrier WHERE utilisateur_id="+userId);
-
-		// Supprime les liens de propriété de matières
-		bdd.executeUpdate("DELETE FROM edt.ProprietaireMatiere WHERE utilisateur_id="+userId);
-		
-		// Supprime les types de l'utilisateur
-		bdd.executeUpdate("DELETE FROM edt.EstDeType WHERE utilisateur_id="+userId);
-		
-		// Supprime l'utilisateur
-		bdd.executeUpdate("DELETE FROM edt.utilisateur WHERE utilisateur_id="+userId);
-		
-		// Commit la transaction
-		bdd.commit();
+		// Modifie le champ "utilisateur_active" de l'utilisateur
+		bdd.executeUpdate("UPDATE edt.utilisateur SET utilisateur_active='"+statut+"' WHERE utilisateur_id="+userId);
 		
 	}
 	
