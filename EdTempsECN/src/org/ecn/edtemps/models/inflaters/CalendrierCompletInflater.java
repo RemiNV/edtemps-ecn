@@ -18,9 +18,9 @@ import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierComplet> {
 
 	@Override
-	protected CalendrierComplet inflate(int id, String nom, String type, String matiere, List<Integer> idProprietaires, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException {
+	protected CalendrierComplet inflate(int id, String nom, String type, String matiere, List<Integer> idProprietaires, int idCreateur, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException {
 		
-		CalendrierIdentifie calendrier = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
+		CalendrierIdentifie calendrier = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id, idCreateur);
 		
 		boolean estCours = reponse.getBoolean("estcours");
 		

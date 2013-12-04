@@ -36,7 +36,7 @@ public class CalendrierComplet extends CalendrierIdentifie {
 	 * 			liste des id des groupes auxquels est rattaché le calendrier (hormis le groupe unique)
 	 */
 	public CalendrierComplet(CalendrierIdentifie calendrier, boolean estCours, List<Integer> idGroupesParents) {
-		super(calendrier.getNom(), calendrier.getType(), calendrier.getMatiere(), calendrier.getIdProprietaires(), calendrier.getId());
+		super(calendrier.getNom(), calendrier.getType(), calendrier.getMatiere(), calendrier.getIdProprietaires(), calendrier.getId(), calendrier.getIdCreateur());
 		this.estCours = estCours;
 		this.idGroupesParents = idGroupesParents;
 	}

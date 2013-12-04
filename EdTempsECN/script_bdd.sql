@@ -132,6 +132,7 @@ CREATE TABLE edt.Calendrier (
                 matiere_id INTEGER,
                 cal_nom VARCHAR UNIQUE,
                 typeCal_id INTEGER,
+		cal_createur INTEGER DEFAULT NULL,
                 CONSTRAINT cal_id PRIMARY KEY (cal_id)
 );
 
