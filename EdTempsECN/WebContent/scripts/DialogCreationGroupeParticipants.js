@@ -139,7 +139,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 		var me = this;
 		
 		// Récupération de la liste des groupes parents potentiels
-		var params = { token: this.restManager.getToken() }
+		var params = { token: this.restManager.getToken() };
 		if(groupe) {
 			params.idGroupeIgnorerEnfants = groupe.id;
 		}
