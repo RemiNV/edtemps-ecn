@@ -579,7 +579,7 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public List<UtilisateurIdentifie> getResponsablesPotentiels() throws DatabaseException {
-		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur");
+		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur WHERE utilisateur_active='TRUE'");
 
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
 
