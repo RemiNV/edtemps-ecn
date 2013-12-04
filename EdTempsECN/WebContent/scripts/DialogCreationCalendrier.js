@@ -29,7 +29,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	/**
 	 * Initialise la boîte de dialogue de création d'un calendrier
 	 */
-	DialogCreationCalendrier.prototype.init = function(matiere, type, proprietaires, groupesParents, groupesParentsTmp) {
+	DialogCreationCalendrier.prototype.init = function(matiere, type, proprietaires, createur, groupesParents, groupesParentsTmp) {
 		var me = this;
 
 		// Remplir les combobox matieres et types
@@ -58,7 +58,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 3, 225));
 				// On remplir les proprietaires (dans le cas d'une modification de calendrier)
 				if (proprietaires.length != 0) {
-					me.remplirProprietaires(proprietaires);
+					me.remplirProprietaires(proprietaires, createur);
 				}
 				else {
 					me.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: me.restManager.getUserId(), readOnly: true }]);
@@ -126,7 +126,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		if (casModifier) {
 			// Si pas déjà fait, initialiser la boite de dialogue (listeners, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires, calendrierAModifier.groupesParents, calendrierAModifier.groupesParentsTmp); 
+				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires, calendrierAModifier.createur, calendrierAModifier.groupesParents, calendrierAModifier.groupesParentsTmp); 
 				this.initAppele = true;
 			}
 			else {
@@ -134,7 +134,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 				this.matiere.val(calendrierAModifier.matiere); 
 				this.type.val(calendrierAModifier.type);
 				// On remplit les proprietaires
-				this.remplirProprietaires(calendrierAModifier.proprietaires);
+				this.remplirProprietaires(calendrierAModifier.proprietaires, calendrierAModifier.createur);
 				// On remplit les groupes parents
 				this.remplirGroupesParents(calendrierAModifier.groupesParents, calendrierAModifier.groupesParentsTmp);
 			}
@@ -150,7 +150,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		else {
 			// Si pas déjà fait, initialiser la boite de dialogue (listener, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				this.init("","", new Array(), new Array(), new Array()); //Matière = Aucune, Type = Aucun, pas de propriétaires et groupes parents
+				this.init("","", new Array(), -1, new Array(), new Array()); //Matière = Aucune, Type = Aucun, pas de propriétaires et groupes parents
 				this.initAppele = true;
 			}
 			else {
@@ -320,7 +320,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	 * 
 	 * @param proprietaires (tableau) : id des proprietaires du calendrier
 	 */
-	DialogCreationCalendrier.prototype.remplirProprietaires = function(proprietaires) {
+	DialogCreationCalendrier.prototype.remplirProprietaires = function(proprietaires, createur) {
 		var me = this;
 		var listeProprietairesCalendrier = new Array();
 		for (var i=0, maxI=proprietaires.length; i<maxI; i++) {
@@ -329,7 +329,12 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			user.label = me.listeProprietairesPotentielsIndex[idProprio].label;
 			user.value = idProprio;
 			user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
-			user.readOnly = false; // TODO : mettre une valeur correcte
+			if (idProprio == createur) {
+				user.readOnly = true;
+			}
+			else {
+				user.readOnly = false;
+			}
 			// TODO : cette méthode pourrait utiliser UtilisateurGestion.makeUtilisateursAutocomplete  (méthode statique)
 			listeProprietairesCalendrier.push(user);
 		}
@@ -432,6 +437,9 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 					} 
 					else if (resultCode == RestManager.resultCode_NameTaken) {
 						window.showToast("Le nom du calendrier est déjà utilisé, veuillez en choisir un autre");
+					} 
+					else if (resultCode == RestManager.resultCode_QuotaExceeded) {
+						window.showToast("Quota maximum de calendrier créé atteint !");
 					} 
 					else {
 						window.showToast("Erreur lors de la création du calendrier");
