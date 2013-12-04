@@ -286,7 +286,7 @@ public class UtilisateurGestion {
 	 */
 	public void seDeconnecter(int idUtilisateur) throws DatabaseException {
 		// Invalidation du token
-		bdd.executeRequest("UPDATE edt.utilisateur SET utilisateur_token=NULL,utilisateur_token_expire=NULL WHERE utilisateur_id=" + idUtilisateur);
+		bdd.executeUpdate("UPDATE edt.utilisateur SET utilisateur_token=NULL,utilisateur_token_expire=NULL WHERE utilisateur_id=" + idUtilisateur);
 	}
 	
 	/**
@@ -696,7 +696,7 @@ public class UtilisateurGestion {
 		bdd.startTransaction();
 		
 		// Supprime les types actuels de l'utilisateur
-		bdd.executeRequest("DELETE FROM edt.estdetype WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.estdetype WHERE utilisateur_id="+userId);
 		
 		// Ajoute les nouveaux types
 		if (CollectionUtils.isNotEmpty(listeIdentifiantsTypes)) {
@@ -706,7 +706,7 @@ public class UtilisateurGestion {
 			}
 			
 			// Exécute la requête (en supprimant les deux derniers caractères : ', '
-			bdd.executeRequest(requete.toString().substring(0, requete.length()-2));
+			bdd.executeUpdate(requete.toString().substring(0, requete.length()-2));
 		}
 		
 		// Commit la transaction
@@ -725,31 +725,31 @@ public class UtilisateurGestion {
 		bdd.startTransaction();
 		
 		// Supprime les liens de créateur d'événement
-		bdd.executeRequest("UPDATE edt.evenement SET eve_createur=NULL WHERE eve_createur=" + userId);
+		bdd.executeUpdate("UPDATE edt.evenement SET eve_createur=NULL WHERE eve_createur=" + userId);
 
 		// Supprime les abonnements de l'utilisateur
-		bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.abonnegroupeparticipant WHERE utilisateur_id="+userId);
 
 		// Supprime les liens de propriété de groupes
-		bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant WHERE utilisateur_id="+userId);
 
 		// Supprime les liens de propriété d'événements
-		bdd.executeRequest("DELETE FROM edt.ResponsableEvenement WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.ResponsableEvenement WHERE utilisateur_id="+userId);
 
 		// Supprime les liens d'intervenant sur des événements
-		bdd.executeRequest("DELETE FROM edt.IntervenantEvenement WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.IntervenantEvenement WHERE utilisateur_id="+userId);
 		
 		// Supprime les liens de propriété de calendriers
-		bdd.executeRequest("DELETE FROM edt.ProprietaireCalendrier WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.ProprietaireCalendrier WHERE utilisateur_id="+userId);
 
 		// Supprime les liens de propriété de matières
-		bdd.executeRequest("DELETE FROM edt.ProprietaireMatiere WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.ProprietaireMatiere WHERE utilisateur_id="+userId);
 		
 		// Supprime les types de l'utilisateur
-		bdd.executeRequest("DELETE FROM edt.EstDeType WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.EstDeType WHERE utilisateur_id="+userId);
 		
 		// Supprime l'utilisateur
-		bdd.executeRequest("DELETE FROM edt.utilisateur WHERE utilisateur_id="+userId);
+		bdd.executeUpdate("DELETE FROM edt.utilisateur WHERE utilisateur_id="+userId);
 		
 		// Commit la transaction
 		bdd.commit();

@@ -140,7 +140,7 @@ public class CalendrierGestion {
 			int idGroupeCree = req_ligneCreee.getInt(1);
 			
 			// On lie le calendrier au groupe unique
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id, cal_id) "
 					+ "VALUES (" + idGroupeCree + ", " + idCalendrier + ")"
 					);
@@ -149,7 +149,7 @@ public class CalendrierGestion {
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
 				int idGroupeParent = itr.next();
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
 						+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
 						);
@@ -159,12 +159,12 @@ public class CalendrierGestion {
 			itr = idProprietaires.iterator();
 			while (itr.hasNext()){
 				int idProprietaire = itr.next();
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
 						+ "VALUES (" + idProprietaire + ", " + idCalendrier + ")"
 						);
 				/* SUPPRIMER POUR EVITER REDONDANCE DANS LA BBD
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.proprietairegroupeparticipant "
 						+ "(utilisateur_id, groupeparticipant_id) "
 						+ "VALUES (" + idProprietaire + ", " + idGroupeCree	+ ")"
@@ -348,7 +348,7 @@ public class CalendrierGestion {
 				}
 				//Sinon
 				else {
-					_bdd.executeRequest(
+					_bdd.executeUpdate(
 						"DELETE FROM edt.calendrierappartientgroupe "
 						+ "WHERE cal_id = " + calId.getId()
 						+ " AND (groupeparticipant_id = " + idGroupe
@@ -360,20 +360,20 @@ public class CalendrierGestion {
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
 				int idGroupeARattacher = itr.next();
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
 						+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
 						);
 			}
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
-			_bdd.executeRequest("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
+			_bdd.executeUpdate("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
 			
 			// Ajouter nouvelle liste de propriétaires du calendrier		
 			Iterator<Integer> itrProprios = calId.getIdProprietaires().iterator();
 			while (itrProprios.hasNext()){
 				int idProprio = itrProprios.next();
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.proprietairecalendrier "
 						 + "(utilisateur_id, cal_id) "
 						 + "VALUES (" + idProprio + ", " + calId.getId() + ") " 
@@ -410,7 +410,7 @@ public class CalendrierGestion {
 			_bdd.startTransaction();
 			
 			// Supprimer liste de propriétaires du calendrier
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.proprietairecalendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
@@ -428,14 +428,14 @@ public class CalendrierGestion {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID groupe unique associé au calendrier à supprimer non existant ou non unique"); 
 			}
 			// Supprimer dépendance avec les groupes de participants
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.calendrierAppartientGroupe "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			// Supprimer les abonnements au groupe unique 
-			_bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
+			_bdd.executeUpdate("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
 			// Supprime le groupe unique
-			_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
+			_bdd.executeUpdate("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
 			/* Supprimer les événements associés au calendrier
 			 * 		1 - Récupération des id des evenements associés
 			 * 		2 - Suppression du lien entre les evenements et le calendrier
@@ -445,7 +445,7 @@ public class CalendrierGestion {
 					"SELECT * FROM  edt.evenementAppartient "
 					+ "WHERE cal_id = " + idCalendrier 
 					);
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.evenementAppartient "
 					 + "WHERE cal_id = " + idCalendrier  
 					 );
@@ -454,7 +454,7 @@ public class CalendrierGestion {
 				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"), false);
 			}
 			// Supprimer calendrier
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.calendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );

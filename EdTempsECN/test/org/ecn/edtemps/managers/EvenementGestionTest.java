@@ -2,7 +2,6 @@ package org.ecn.edtemps.managers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -11,9 +10,9 @@ import java.util.List;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
-import org.ecn.edtemps.managers.EvenementGestion;
-import org.ecn.edtemps.models.Evenement;
-import org.ecn.edtemps.models.identifie.*;
+import org.ecn.edtemps.models.identifie.EvenementIdentifie;
+import org.ecn.edtemps.models.identifie.SalleIdentifie;
+import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -61,8 +61,7 @@ public class SalleGestion {
 			}
 
 			// Récupère la salle en base
-			ResultSet requeteSalle = _bdd
-					.executeRequest("SELECT * FROM edt.salle WHERE salle_id=" + identifiant);
+			ResultSet requeteSalle = _bdd.executeRequest("SELECT * FROM edt.salle WHERE salle_id=" + identifiant);
 
 			// Accède au premier élément du résultat
 			if (requeteSalle.next()) {
@@ -151,12 +150,12 @@ public class SalleGestion {
 			requete.execute();
 			
 			// Suppression de l'ancienne liste des matériels
-			_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id="+id);
+			_bdd.executeUpdate("DELETE FROM edt.contientmateriel WHERE salle_id="+id);
 
 			// Ajout des liens avec le matériel
 			for (Materiel materiel : materiels) {
 				if (materiel.getQuantite()>0) {
-					_bdd.executeRequest("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) " +
+					_bdd.executeUpdate("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) " +
 							"VALUES (" + id + ", " + materiel.getId() + ", " + materiel.getQuantite() + ")");
 				}
 			}
@@ -239,7 +238,7 @@ public class SalleGestion {
 			// Ajout des liens avec le matériel
 			for (Materiel materiel : materiels) {
 				if (materiel.getQuantite()>0) {
-					_bdd.executeRequest("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) " +
+					_bdd.executeUpdate("INSERT INTO edt.contientmateriel (salle_id, materiel_id, contientmateriel_quantite) " +
 							"VALUES (" + idInsertion + ", " + materiel.getId() + ", " + materiel.getQuantite() + ")");
 				}
 			}
@@ -269,13 +268,13 @@ public class SalleGestion {
 		_bdd.startTransaction();
 
 		// Supprime le matériel
-		_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE salle_id=" + idSalle);
+		_bdd.executeUpdate("DELETE FROM edt.contientmateriel WHERE salle_id=" + idSalle);
 
 		// Supprime les liens avec les événements
-		_bdd.executeRequest("DELETE FROM edt.alieuensalle WHERE salle_id=" + idSalle);
+		_bdd.executeUpdate("DELETE FROM edt.alieuensalle WHERE salle_id=" + idSalle);
 
 		// Supprime la salle
-		_bdd.executeRequest("DELETE FROM edt.salle WHERE salle_id=" + idSalle);
+		_bdd.executeUpdate("DELETE FROM edt.salle WHERE salle_id=" + idSalle);
 
 		// Termine la transaction
 		_bdd.commit();

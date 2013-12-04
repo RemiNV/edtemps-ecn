@@ -135,7 +135,7 @@ public class DiagnosticsBdd {
 						int idGroupe = reponse.getInt(1);
 						reponse.close();
 						
-						bdd.executeRequest("INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id) VALUES(" + idGroupe + "," + idCal + ")");
+						bdd.executeUpdate("INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id) VALUES(" + idGroupe + "," + idCal + ")");
 					}
 					
 					return cals.size() + " groupe uniques ajoutés.";

@@ -135,10 +135,10 @@ public class MaterielGestion {
 		_bdd.startTransaction();
 
 		// Supprime les liens avec les salles
-		_bdd.executeRequest("DELETE FROM edt.contientmateriel WHERE materiel_id=" + id);
+		_bdd.executeUpdate("DELETE FROM edt.contientmateriel WHERE materiel_id=" + id);
 
 		// Supprime le type de matériel
-		_bdd.executeRequest("DELETE FROM edt.materiel WHERE materiel_id=" + id);
+		_bdd.executeUpdate("DELETE FROM edt.materiel WHERE materiel_id=" + id);
 
 		// Termine la transaction
 		_bdd.commit();

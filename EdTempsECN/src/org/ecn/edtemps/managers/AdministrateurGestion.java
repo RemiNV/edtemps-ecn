@@ -140,7 +140,7 @@ public class AdministrateurGestion {
 	 */
 	public void supprimerAdministrateur(int id) throws DatabaseException {
 		
-		bdd.executeRequest("DELETE FROM edt.administrateurs WHERE admin_id="+id);
+		bdd.executeUpdate("DELETE FROM edt.administrateurs WHERE admin_id="+id);
 		
 	}
 
@@ -241,7 +241,7 @@ public class AdministrateurGestion {
 			requetePreparee.execute();
 			
 			// Supprime les anciens droits
-			bdd.executeRequest("DELETE FROM edt.aledroitde WHERE type_id="+idType);
+			bdd.executeUpdate("DELETE FROM edt.aledroitde WHERE type_id="+idType);
 	
 			// Ajoute les nouveaux droits
 			if (CollectionUtils.isNotEmpty(listeIdDroits)) {
@@ -251,7 +251,7 @@ public class AdministrateurGestion {
 				}
 				
 				// Exécute la requête (en supprimant les deux derniers caractères : ', '
-				bdd.executeRequest(requete.toString().substring(0, requete.length()-2));
+				bdd.executeUpdate(requete.toString().substring(0, requete.length()-2));
 			}
 		
 			// Commit la transaction
@@ -318,10 +318,10 @@ public class AdministrateurGestion {
 		bdd.startTransaction();
 
 		// Supprimer les liens avec les utilisateurs
-		bdd.executeRequest("DELETE FROM edt.estdetype WHERE type_id="+typeId);
+		bdd.executeUpdate("DELETE FROM edt.estdetype WHERE type_id="+typeId);
 
 		// Supprimer le type
-		bdd.executeRequest("DELETE FROM edt.typeutilisateur WHERE type_id="+typeId);
+		bdd.executeUpdate("DELETE FROM edt.typeutilisateur WHERE type_id="+typeId);
 		
 		// Termine une transaction
 		bdd.commit();
