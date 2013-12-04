@@ -14,6 +14,12 @@ import org.ecn.edtemps.models.Utilisateur;
  */
 public class UtilisateurIdentifie extends Utilisateur implements JSONAble {
 
+	/** Identifiant de l'utilisateur */
+	protected int id;
+
+	/** Statut de l'utilisateur : activé ou non */
+	protected boolean active;
+	
 	/**
 	 * Constructeur
 	 * @param id identifiant de l'utilisateur
@@ -26,6 +32,20 @@ public class UtilisateurIdentifie extends Utilisateur implements JSONAble {
 		this.id = id;
 	}
 
+	/**
+	 * Constructeur
+	 * @param id identifiant de l'utilisateur
+	 * @param nom nom de l'utilisateur
+	 * @param prenom prénom de l'utilisateur
+	 * @param email email de l'utilisateur
+	 * @param active VRAI si l'utilisateur est activé
+	 */
+	public UtilisateurIdentifie(int id, String nom, String prenom, String email, boolean active) {
+		super(nom, prenom, email);
+		this.id = id;
+		this.active = active;
+	}
+	
 	public int getId() {
 		return id;
 	}
@@ -34,7 +54,10 @@ public class UtilisateurIdentifie extends Utilisateur implements JSONAble {
 		this.id = id;
 	}
 
-	protected int id;
+
+	public boolean isActive() {
+		return active;
+	}
 
 	@Override
 	public JsonValue toJson() {

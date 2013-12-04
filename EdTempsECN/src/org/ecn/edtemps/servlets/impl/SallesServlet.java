@@ -25,6 +25,7 @@ import org.ecn.edtemps.servlets.RequiresConnectionServlet;
  */
 public class SallesServlet extends RequiresConnectionServlet {
 
+	private static final long serialVersionUID = -3637657815827356789L;
 	private static Logger logger = LogManager.getLogger(SallesServlet.class.getName());
 	
 	@Override

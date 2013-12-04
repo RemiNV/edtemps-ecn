@@ -1,26 +1,22 @@
 package org.ecn.edtemps.servlets.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
-import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
-import org.ecn.edtemps.managers.GroupeGestion;
-import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
 public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 
+	private static final long serialVersionUID = -2338486413889378986L;
 	private static Logger logger = LogManager.getLogger(ListerEvenementsServlet.class.getName());
 	
 	@Override
