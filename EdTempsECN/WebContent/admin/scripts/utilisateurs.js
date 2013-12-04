@@ -44,7 +44,7 @@ function filtrerText(idFiltreText, classTri) {
     var filtreValeur = idFiltreText.val().toLowerCase();
     
     // Pour chaque ligne du tableau, affiche ou cache en fonction du résultat
-    var couleurPrecedente = "#E3EDEF";
+    var couleurPrecedente = "white";
 	classTri.each(function() {
         if (filtreValeur=="" || $(this).html().toLowerCase().indexOf(filtreValeur) >= 0) {
         	if (couleurPrecedente=="#E3EDEF") couleurPrecedente = "white";
@@ -69,7 +69,7 @@ function filtrerCheckBox(idFiltreCheck, classTri) {
     var filtreValeur = idFiltreCheck.is(":checked") ? "desactiver" : "activer";
 
     // Pour chaque ligne du tableau, affiche ou cache en fonction du résultat
-    var couleurPrecedente = "#E3EDEF";
+    var couleurPrecedente = "white";
 	classTri.each(function() {
         if (filtreValeur=="" || $(this).html().indexOf(filtreValeur) >= 0) {
         	if (couleurPrecedente=="#E3EDEF") couleurPrecedente = "white";
