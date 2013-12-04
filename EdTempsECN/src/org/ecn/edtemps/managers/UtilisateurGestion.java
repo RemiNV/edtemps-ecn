@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -657,7 +658,7 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public List<UtilisateurIdentifie> getListeUtilisateurs() throws DatabaseException {
-		ResultSet reponse = bdd.executeRequest("SELECT utilisateur_id, utilisateur_nom, utilisateur_prenom, utilisateur_email, utilisateur_active" +
+		ResultSet reponse = bdd.executeRequest("SELECT utilisateur_id, utilisateur_nom, utilisateur_prenom, utilisateur_email, utilisateur_active, utilisateur_token_expire" +
 				" FROM edt.utilisateur ORDER BY utilisateur.utilisateur_prenom");
 
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
@@ -669,8 +670,11 @@ public class UtilisateurGestion {
 				String prenom = reponse.getString("utilisateur_prenom");
 				String email = reponse.getString("utilisateur_email");
 				boolean active = reponse.getBoolean("utilisateur_active");
+				Date tokenExpiration = reponse.getDate("utilisateur_token_expire");
 				
-				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email, active);
+				UtilisateurIdentifie utilisateur = new UtilisateurIdentifie(id, nom, prenom, email);
+				utilisateur.setActive(active);
+				utilisateur.setTokenExpiration(tokenExpiration);
 
 				// Récupération des types de l'utilisateur
 				utilisateur.setType(this.getListeTypes(id));

@@ -169,7 +169,9 @@ ul.button_nav li:last-child {
 	text-align: center;
 }
 
-
+.data-collumn-date {
+	font-size: 0.9em;
+}
 
 /**
  * Page de gestion des salles

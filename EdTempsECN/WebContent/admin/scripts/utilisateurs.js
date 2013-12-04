@@ -19,6 +19,11 @@ $(document).ready(function() {
 	$("#filtre_type").keyup(function() {
 		filtrerText($(this), $('.data-collumn-type'));
 	});
+
+	// Filtre des Date d'utilisateur
+	$("#filtre_date").keyup(function() {
+		filtrerText($(this), $('.data-collumn-date'));
+	});
 	
 	// Filtre des Statut d'utilisateur
 	$("#filtre_statut").click(function() {
