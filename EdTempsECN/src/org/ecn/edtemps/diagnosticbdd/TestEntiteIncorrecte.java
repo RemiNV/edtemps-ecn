@@ -1,5 +1,6 @@
 package org.ecn.edtemps.diagnosticbdd;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -14,7 +15,10 @@ public abstract class TestEntiteIncorrecte extends TestBdd {
 
 	protected ArrayList<Integer> getLstIncorrects(BddGestion bdd) throws DatabaseException {
 		try {
-			return bdd.recupererIds(bdd.getConnection().prepareStatement(getRequeteListing()), getColonneId());
+			PreparedStatement statementListing = getStatementListing(bdd);
+			ArrayList<Integer> ids = bdd.recupererIds(statementListing, getColonneId());
+			statementListing.close();
+			return ids;
 		}
 		catch(SQLException e) {
 			throw new DatabaseException(e);
@@ -37,12 +41,12 @@ public abstract class TestEntiteIncorrecte extends TestBdd {
 	public final String repair(BddGestion bdd) throws DatabaseException {
 		
 		ArrayList<Integer> lstIncorrects = getLstIncorrects(bdd);
-		return reparerIncorrects(lstIncorrects);
+		return reparerIncorrects(bdd, lstIncorrects);
 	}
 	
-	protected abstract String reparerIncorrects(ArrayList<Integer> ids) throws DatabaseException;
+	protected abstract String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException;
 	
-	protected abstract String getRequeteListing();
+	protected abstract PreparedStatement getStatementListing(BddGestion bdd) throws SQLException;
 	protected abstract String getColonneId();
 
 }

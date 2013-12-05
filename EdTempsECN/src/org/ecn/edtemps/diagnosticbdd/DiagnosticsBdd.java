@@ -98,46 +98,12 @@ public class DiagnosticsBdd {
 	}
 	
 	protected TestBdd createTestCalendrierPossedeGroupeUnique(int id) {
-		return new TestBdd("Rattachement de tous les calendriers à un groupe de participants \"groupe unique\"", id, "Ajouter les groupes manquants") {
-			
-			protected ArrayList<Integer> getCalendriersSansGroupeUnique(BddGestion bdd) throws DatabaseException {
-				
-				try {
-					ArrayList<Integer> res = bdd.recupererIds(bdd.getConnection().prepareStatement(
-							"SELECT calendrier.cal_id FROM edt.calendrier " +
-							"LEFT JOIN edt.calendrierappartientgroupe cag ON calendrier.cal_id=cag.cal_id " +
-							"LEFT JOIN edt.groupeparticipant groupeunique ON cag.groupeparticipant_id=groupeunique.groupeparticipant_id " +
-							"AND groupeunique.groupeparticipant_estcalendrierunique " +
-							"GROUP BY calendrier.cal_id " +
-							"HAVING COUNT(groupeunique.groupeparticipant_id)=0"), "cal_id");
-					
-					return res;
-				}
-				catch(SQLException e) {
-					throw new DatabaseException(e);
-				}
-			}
-			
-			@Override
-			public TestBddResult test(BddGestion bdd) throws DatabaseException {
-				
-				ArrayList<Integer> cals = getCalendriersSansGroupeUnique(bdd);
-				
-				if(cals.size() == 0) {
-					return new TestBddResult(TestBddResultCode.OK, "Les calendriers sont tous associés à au moins un groupe unique", this);
-				}
-				else {
-					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains calendriers (ID " + getStrPremiersIds(cals) + ") n'ont pas de groupe unique", this);
-				}
-			}
+		return new TestEntiteIncorrecte("Rattachement de tous les calendriers à un groupe de participants \"groupe unique\"", id, "Ajouter les groupes manquants") {
 
 			@Override
-			public String repair(BddGestion bdd) throws DatabaseException {
-				ArrayList<Integer> cals = getCalendriersSansGroupeUnique(bdd);
-				
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
 				try {
-					for(Integer idCal : cals) {
+					for(Integer idCal : ids) {
 						ResultSet reponse = bdd.executeRequest("INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, " +
 								"groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 								"SELECT cal_nom, FALSE, FALSE, TRUE FROM edt.calendrier WHERE cal_id = " + idCal + " " +
@@ -150,109 +116,88 @@ public class DiagnosticsBdd {
 						bdd.executeUpdate("INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id) VALUES(" + idGroupe + "," + idCal + ")");
 					}
 					
-					return cals.size() + " groupe uniques ajoutés.";
+					return ids.size() + " groupe uniques ajoutés.";
 				}
 				catch(SQLException e) {
 					throw new DatabaseException(e);
 				}
-				
+			}
+			
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement(
+						"SELECT calendrier.cal_id FROM edt.calendrier " +
+						"LEFT JOIN edt.calendrierappartientgroupe cag ON calendrier.cal_id=cag.cal_id " +
+						"LEFT JOIN edt.groupeparticipant groupeunique ON cag.groupeparticipant_id=groupeunique.groupeparticipant_id " +
+						"AND groupeunique.groupeparticipant_estcalendrierunique " +
+						"GROUP BY calendrier.cal_id " +
+						"HAVING COUNT(groupeunique.groupeparticipant_id)=0");
+			}
+			
+			@Override
+			protected String getColonneId() {
+				return "cal_id";
 			}
 		};
 	}
 	
 	protected TestBdd createTestGroupeUniquePossedeCalendrier(int id) {
-		return new TestBdd("Rattachement de chaque \"groupe unique\" à un calendrier", id, "Supprimer les groupes inutiles") {
-			
-			protected ArrayList<Integer> getIdsGroupesUniquesSansCalendrier(BddGestion bdd) throws DatabaseException {
-				
-				try {
-					ArrayList<Integer> res = bdd.recupererIds(bdd.getConnection().prepareStatement(
-							"SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant " +
-							"LEFT JOIN edt.calendrierappartientgroupe cag ON cag.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
-							"WHERE groupeparticipant.groupeparticipant_estcalendrierunique " +
-							"GROUP BY groupeparticipant.groupeparticipant_id " +
-							"HAVING COUNT(cag.cal_id) = 0"), "groupeparticipant_id");
-					
-					return res;
-				}
-				catch(SQLException e) {
-					throw new DatabaseException(e);
-				}
-			}
-			
-			@Override
-			public TestBddResult test(BddGestion bdd) throws DatabaseException {
-				
-				ArrayList<Integer> idGroupesUniques = getIdsGroupesUniquesSansCalendrier(bdd);
-				
-				if(idGroupesUniques.size() == 0) {
-					return new TestBddResult(TestBddResultCode.OK, "Les groupes uniques sont tous associés à au moins un calendrier", this);
-				}
-				else {
-					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes uniques (ID " + getStrPremiersIds(idGroupesUniques) + ") n'ont pas de calendrier", this);
-				}
-			}
+		return new TestEntiteIncorrecte("Rattachement de chaque \"groupe unique\" à un calendrier", id, "Supprimer les groupes inutiles") {
 
 			@Override
-			public String repair(BddGestion bdd) throws DatabaseException {
-				ArrayList<Integer> idGroupesUniques = getIdsGroupesUniquesSansCalendrier(bdd);
-				
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
 				GroupeGestion groupeGestion = new GroupeGestion(bdd);
 				
-				for(int id : idGroupesUniques) {
+				for(int id : ids) {
 					groupeGestion.supprimerGroupe(id, false, true);
 				}
 				
-				return idGroupesUniques.size() + " groupes supprimés";
+				return ids.size() + " groupes supprimés";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement(
+						"SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant " +
+						"LEFT JOIN edt.calendrierappartientgroupe cag ON cag.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
+						"WHERE groupeparticipant.groupeparticipant_estcalendrierunique " +
+						"GROUP BY groupeparticipant.groupeparticipant_id " +
+						"HAVING COUNT(cag.cal_id) = 0");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "groupeparticipant_id";
 			}
 			
 		};
 	}
 	
 	protected TestBdd createTestEvenementPossedeCalendrier(int id) {
-		return new TestBdd("Rattachement de chaque événement à au moins un calendrier", id, "Supprimer les événements inutiles") {
-
-			protected ArrayList<Integer> getIdsEvenementsSansCalendrier(BddGestion bdd) throws DatabaseException {
-				
-				try {
-					ArrayList<Integer> res = bdd.recupererIds(bdd.getConnection().prepareStatement(
-							"SELECT evenement.eve_id FROM edt.evenement " +
-							"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id=evenement.eve_id " +
-							"GROUP BY evenement.eve_id " +
-							"HAVING COUNT(evenementappartient.cal_id) = 0"), "eve_id");
-					
-					return res;
-				}
-				catch(SQLException e) {
-					throw new DatabaseException(e);
-				}
-			}
-			
-			@Override
-			public TestBddResult test(BddGestion bdd) throws DatabaseException {
-				ArrayList<Integer> idEvenements = getIdsEvenementsSansCalendrier(bdd);
-				
-				if(idEvenements.size() == 0) {
-					return new TestBddResult(TestBddResultCode.OK, "Les événements sont tous associés à au moins un calendrier", this);
-				}
-				else {
-					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains événements (ID " + getStrPremiersIds(idEvenements) + ") n'ont pas de calendrier", this);
-				}
-			}
+		return new TestEntiteIncorrecte("Rattachement de chaque événement à au moins un calendrier", id, "Supprimer les événements inutiles") {
 
 			@Override
-			public String repair(BddGestion bdd) throws DatabaseException {
-				ArrayList<Integer> idEvenements = getIdsEvenementsSansCalendrier(bdd);
-				
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
 				EvenementGestion evenementGestion = new EvenementGestion(bdd);
 				
-				for(int id : idEvenements) {
+				for(int id : ids) {
 					evenementGestion.supprimerEvenement(id, false);
 				}
 				
-				return idEvenements.size() + " événements supprimés";
+				return ids.size() + " événements supprimés";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement(
+						"SELECT evenement.eve_id FROM edt.evenement " +
+						"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id=evenement.eve_id " +
+						"GROUP BY evenement.eve_id " +
+						"HAVING COUNT(evenementappartient.cal_id) = 0");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "eve_id";
 			}
 			
 		};
@@ -359,38 +304,27 @@ public class DiagnosticsBdd {
 	}
 	
 	protected TestBdd createTestVieuxComptesUtilisateur(int id) {
-		return new TestBdd("Présence de comptes d'utilisateur inutilisés depuis 2 ans ou plus", id, "Désactiver ces comptes utilisateur") {
-
-			protected ArrayList<Integer> getIdsComptes(BddGestion bdd) throws DatabaseException {
-				try {
-				return bdd.recupererIds(bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur " +
-						"WHERE utilisateur_active AND utilisateur_token_expire IS NOT NULL AND utilisateur_token_expire < now() - interval '2 years'"), "utilisateur_id");
-				}
-				catch(SQLException e) {
-					throw new DatabaseException(e);
-				}
-			}
-			
-			@Override
-			public TestBddResult test(BddGestion bdd) throws DatabaseException {
-				ArrayList<Integer> idComptes = getIdsComptes(bdd);
-				if(idComptes.size() > 0) {
-					return new TestBddResult(TestBddResultCode.WARNING, "Des comptes (ID " + getStrPremiersIds(idComptes) + ") inutilisés ont été trouvés", this);
-				}
-				else {
-					return new TestBddResult(TestBddResultCode.OK, "Aucun compte inutilisé trouvé", this);
-				}
-			}
+		return new TestEntiteIncorrecte("Présence de comptes d'utilisateur inutilisés depuis 2 ans ou plus", id, "Désactiver ces comptes utilisateur") {
 
 			@Override
-			public String repair(BddGestion bdd) throws DatabaseException {
-				ArrayList<Integer> idComptes = getIdsComptes(bdd);
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
 				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
-				for(int id : idComptes) {
+				for(int id : ids) {
 					utilisateurGestion.desactiverUtilisateur(id, false);
 				}
 				
-				return idComptes.size() + " comptes d'utilisateur désactivés";
+				return ids.size() + " comptes d'utilisateur désactivés";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur " +
+						"WHERE utilisateur_active AND utilisateur_token_expire IS NOT NULL AND utilisateur_token_expire < now() - interval '2 years'");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "utilisateur_id";
 			}
 			
 		};
