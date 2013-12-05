@@ -17,6 +17,7 @@ public abstract class TestBdd {
 	public static enum TestBddResultCode {
 		OK("ok"),
 		ERROR("error"),
+		WARNING("warning"),
 		TEST_FAILED("failed");
 		
 		protected String label;

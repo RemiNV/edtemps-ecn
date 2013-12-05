@@ -15,6 +15,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion;
 
 public class DiagnosticsBdd {
 	
@@ -27,7 +28,7 @@ public class DiagnosticsBdd {
 	}
 	
 	public ArrayList<TestBddResult> runAllTests() {
-		int nbTests = 4; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
+		int nbTests = 5; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
 		
 		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
 		
@@ -77,8 +78,9 @@ public class DiagnosticsBdd {
 		case 4:
 			return createTestParenteCirculaireGroupes(4);
 			
-			// TODO : ajouter une vérification de l'absence de liens de parenté circulaires (groupes)
-			// TODO : ajouter une vérification des vieux comptes d'utilisateur
+		case 5:
+			return createTestVieuxComptesUtilisateur(5);
+			
 			// TODO : ajouter une vérification des groupes n'ayant pas de propriétaire
 			// TODO : ajouter une vérification des calendriers n'ayant pas propriétaire
 			// TODO : ajouter une vérification des événements n'ayant pas de propriétaire
@@ -351,6 +353,44 @@ public class DiagnosticsBdd {
 				bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent = NULL WHERE groupeparticipant_id IN (" + strIds + ")");
 				
 				return groupesLienCirculaire.size() + " liens de groupes vers leurs parents mis à NULL";
+			}
+			
+		};
+	}
+	
+	protected TestBdd createTestVieuxComptesUtilisateur(int id) {
+		return new TestBdd("Présence de comptes d'utilisateur inutilisés depuis 2 ans ou plus", id, "Désactiver ces comptes utilisateur") {
+
+			protected ArrayList<Integer> getIdsComptes(BddGestion bdd) throws DatabaseException {
+				try {
+				return bdd.recupererIds(bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur " +
+						"WHERE utilisateur_active AND utilisateur_token_expire IS NOT NULL AND utilisateur_token_expire < now() - interval '2 years'"), "utilisateur_id");
+				}
+				catch(SQLException e) {
+					throw new DatabaseException(e);
+				}
+			}
+			
+			@Override
+			public TestBddResult test(BddGestion bdd) throws DatabaseException {
+				ArrayList<Integer> idComptes = getIdsComptes(bdd);
+				if(idComptes.size() > 0) {
+					return new TestBddResult(TestBddResultCode.WARNING, "Des comptes (ID " + getStrPremiersIds(idComptes) + ") inutilisés ont été trouvés", this);
+				}
+				else {
+					return new TestBddResult(TestBddResultCode.OK, "Aucun compte inutilisé trouvé", this);
+				}
+			}
+
+			@Override
+			public String repair(BddGestion bdd) throws DatabaseException {
+				ArrayList<Integer> idComptes = getIdsComptes(bdd);
+				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bdd);
+				for(int id : idComptes) {
+					utilisateurGestion.desactiverUtilisateur(id, false);
+				}
+				
+				return idComptes.size() + " comptes d'utilisateur désactivés";
 			}
 			
 		};
