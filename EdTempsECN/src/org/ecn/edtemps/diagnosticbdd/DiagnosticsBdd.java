@@ -90,8 +90,9 @@ public class DiagnosticsBdd {
 	
 	protected String getStrPremiersIds(List<Integer> ids) {
 		List<Integer> idsAffichage = ids.subList(0, Math.min(4, ids.size()));
+		String strAutres = ids.size() > 5 ? "..." : "";
 		
-		return StringUtils.join(idsAffichage, ", ");
+		return StringUtils.join(idsAffichage, ", ") + strAutres;
 	}
 	
 	protected TestBdd createTestCalendrierPossedeGroupeUnique(int id) {
@@ -124,9 +125,8 @@ public class DiagnosticsBdd {
 					return new TestBddResult(TestBddResultCode.OK, "Les calendriers sont tous associés à au moins un groupe unique", this);
 				}
 				else {
-					String strAutres = cals.size() > 5 ? "..." : "";
 					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains calendriers (ID " + getStrPremiersIds(cals) + strAutres + ") n'ont pas de groupe unique", this);
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains calendriers (ID " + getStrPremiersIds(cals) + ") n'ont pas de groupe unique", this);
 				}
 			}
 
@@ -187,9 +187,8 @@ public class DiagnosticsBdd {
 					return new TestBddResult(TestBddResultCode.OK, "Les groupes uniques sont tous associés à au moins un calendrier", this);
 				}
 				else {
-					String strAutres = idGroupesUniques.size() > 5 ? "..." : "";
 					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes uniques (ID " + getStrPremiersIds(idGroupesUniques) + strAutres + ") n'ont pas de calendrier", this);
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes uniques (ID " + getStrPremiersIds(idGroupesUniques) + ") n'ont pas de calendrier", this);
 				}
 			}
 
@@ -236,9 +235,8 @@ public class DiagnosticsBdd {
 					return new TestBddResult(TestBddResultCode.OK, "Les événements sont tous associés à au moins un calendrier", this);
 				}
 				else {
-					String strAutres = idEvenements.size() > 5 ? "..." : "";
 					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains événements (ID " + getStrPremiersIds(idEvenements) + strAutres + ") n'ont pas de calendrier", this);
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains événements (ID " + getStrPremiersIds(idEvenements) + ") n'ont pas de calendrier", this);
 				}
 			}
 
@@ -334,9 +332,8 @@ public class DiagnosticsBdd {
 					return new TestBddResult(TestBddResultCode.OK, "Aucun lien de parenté circulaire", this);
 				}
 				else {
-					String strAutres = groupesLienCirculaire.size() > 5 ? "..." : "";
 					
-					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes (ID " + getStrPremiersIds(groupesLienCirculaire) + strAutres + ") ont des liens circulaires", this);
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes (ID " + getStrPremiersIds(groupesLienCirculaire) + ") ont des liens circulaires", this);
 				}
 				
 			}
@@ -344,6 +341,10 @@ public class DiagnosticsBdd {
 			@Override
 			public String repair(BddGestion bdd) throws DatabaseException {
 				ArrayList<Integer> groupesLienCirculaire = getIdsGroupesLienCirculaire();
+				
+				if(groupesLienCirculaire.size() == 0) {
+					return "Aucun lien circulaire trouvé";
+				}
 				
 				String strIds = StringUtils.join(groupesLienCirculaire, ",");
 				
