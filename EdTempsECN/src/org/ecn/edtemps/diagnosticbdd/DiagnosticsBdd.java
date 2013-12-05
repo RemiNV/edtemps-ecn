@@ -90,7 +90,7 @@ public class DiagnosticsBdd {
 		}
 	}
 	
-	protected String getStrPremiersIds(List<Integer> ids) {
+	public static String getStrPremiersIds(List<Integer> ids) {
 		List<Integer> idsAffichage = ids.subList(0, Math.min(4, ids.size()));
 		String strAutres = ids.size() > 5 ? "..." : "";
 		
