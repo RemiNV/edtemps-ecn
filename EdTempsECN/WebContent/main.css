@@ -408,7 +408,7 @@ table.liste_materiel th {
 	width: 900px;
 	height: 20px;
 	left: 50%;
-	top: -40px;
+	bottom: -40px;
 	margin-left: -450px;
 	background-color: #079eb5;
 	border-radius: 5px;
