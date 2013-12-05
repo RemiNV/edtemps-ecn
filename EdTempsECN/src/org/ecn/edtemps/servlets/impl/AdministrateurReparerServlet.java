@@ -53,7 +53,9 @@ public class AdministrateurReparerServlet extends HttpServlet {
 			
 			String resultatReparation = null;
 			if(testBdd != null) {
+				bdd.startTransaction();
 				resultatReparation = testBdd.repair(bdd);
+				bdd.commit();
 			}
 			
 			bdd.close();

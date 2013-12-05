@@ -261,7 +261,7 @@ public class DiagnosticsBdd {
 	protected TestBdd createTestParenteCirculaireGroupes(int id) {
 		// Principe : à chaque itération on remonte un lien de parenté. Si on retombe sur le groupe de départ à une itération, il y a lien circulaire.
 		// On parcourt tous les liens de tous les groupes de manière parallèle
-		return new TestBdd("Liens de parenté circulaire entre les groupes de participants", id, "Briser tous les liens circulaires (tous les liens des boucles seront supprimés !)") {
+		return new TestBdd("Liens de parenté circulaire entre les groupes de participants", id, "Briser tous les liens circulaires (tous les liens de chaque boucle seront supprimés !)") {
 
 			private void createTempTableParente(BddGestion bdd) throws DatabaseException {
 				bdd.executeUpdate("CREATE TEMP TABLE tmp_derniers_parents(groupe_id INTEGER, iteration INTEGER, groupe_point_depart INTEGER, " +
@@ -303,9 +303,9 @@ public class DiagnosticsBdd {
 						statementIteration.setInt(2, idIteration - 1);
 						
 						nbParents = statementIteration.executeUpdate();
-						
-						
 					}
+					
+					statementIteration.close();
 				
 					// Récupération des groupes impliqués dans un lien circulaire
 					reponse = bdd.executeRequest("SELECT groupe_id FROM tmp_derniers_parents " +
@@ -343,7 +343,13 @@ public class DiagnosticsBdd {
 
 			@Override
 			public String repair(BddGestion bdd) throws DatabaseException {
-				return "Aucune action effectuée : cette réparation n'est pas encore implémentée";
+				ArrayList<Integer> groupesLienCirculaire = getIdsGroupesLienCirculaire();
+				
+				String strIds = StringUtils.join(groupesLienCirculaire, ",");
+				
+				bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent = NULL WHERE groupeparticipant_id IN (" + strIds + ")");
+				
+				return groupesLienCirculaire.size() + " liens de groupes vers leurs parents mis à NULL";
 			}
 			
 		};
