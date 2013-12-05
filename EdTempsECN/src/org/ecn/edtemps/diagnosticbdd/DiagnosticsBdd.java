@@ -1,5 +1,6 @@
 package org.ecn.edtemps.diagnosticbdd;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class DiagnosticsBdd {
 	}
 	
 	public ArrayList<TestBddResult> runAllTests() {
-		int nbTests = 3; // Nombre de tests gérés dans createTest
+		int nbTests = 4; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
 		
 		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
 		
@@ -73,7 +74,14 @@ public class DiagnosticsBdd {
 		case 3:
 			return createTestEvenementPossedeCalendrier(3);
 			
+		case 4:
+			return createTestParenteCirculaireGroupes(4);
+			
 			// TODO : ajouter une vérification de l'absence de liens de parenté circulaires (groupes)
+			// TODO : ajouter une vérification des vieux comptes d'utilisateur
+			// TODO : ajouter une vérification des groupes n'ayant pas de propriétaire
+			// TODO : ajouter une vérification des calendriers n'ayant pas propriétaire
+			// TODO : ajouter une vérification des événements n'ayant pas de propriétaire
 		
 		default:
 			return null;
@@ -137,7 +145,7 @@ public class DiagnosticsBdd {
 						int idGroupe = reponse.getInt(1);
 						reponse.close();
 						
-						bdd.executeRequest("INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id) VALUES(" + idGroupe + "," + idCal + ")");
+						bdd.executeUpdate("INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id) VALUES(" + idGroupe + "," + idCal + ")");
 					}
 					
 					return cals.size() + " groupe uniques ajoutés.";
@@ -245,6 +253,97 @@ public class DiagnosticsBdd {
 				}
 				
 				return idEvenements.size() + " événements supprimés";
+			}
+			
+		};
+	}
+	
+	protected TestBdd createTestParenteCirculaireGroupes(int id) {
+		// Principe : à chaque itération on remonte un lien de parenté. Si on retombe sur le groupe de départ à une itération, il y a lien circulaire.
+		// On parcourt tous les liens de tous les groupes de manière parallèle
+		return new TestBdd("Liens de parenté circulaire entre les groupes de participants", id, "Briser tous les liens circulaires (tous les liens des boucles seront supprimés !)") {
+
+			private void createTempTableParente(BddGestion bdd) throws DatabaseException {
+				bdd.executeUpdate("CREATE TEMP TABLE tmp_derniers_parents(groupe_id INTEGER, iteration INTEGER, groupe_point_depart INTEGER, " +
+						"PRIMARY KEY (groupe_id, iteration, groupe_point_depart)) ON COMMIT DROP");
+				
+				bdd.executeUpdate("INSERT INTO tmp_derniers_parents(groupe_id, iteration, groupe_point_depart) " +
+						"SELECT groupeparticipant_id, 0, groupeparticipant_id FROM edt.groupeparticipant WHERE groupeparticipant_id_parent IS NOT NULL");
+				
+				// Première itération (sans exclure les liens partant de groupes égaux au point de départ : on n'est pas à la fin d'une boucle mais au début)
+				bdd.executeUpdate("INSERT INTO tmp_derniers_parents(groupe_id, iteration, groupe_point_depart) " +
+						"SELECT DISTINCT groupeparticipant.groupeparticipant_id_parent, 1, tmp_derniers_parents.groupe_point_depart FROM edt.groupeparticipant " +
+						"INNER JOIN tmp_derniers_parents ON tmp_derniers_parents.groupe_id = groupeparticipant.groupeparticipant_id AND tmp_derniers_parents.iteration = 0 " +
+						"WHERE groupeparticipant_id_parent IS NOT NULL");
+			}
+			
+			private PreparedStatement makeStatementIteration(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("INSERT INTO tmp_derniers_parents(groupe_id, iteration, groupe_point_depart) " +
+						"SELECT DISTINCT groupeparticipant.groupeparticipant_id_parent, ?, tmp_derniers_parents.groupe_point_depart FROM edt.groupeparticipant " +
+						"INNER JOIN tmp_derniers_parents ON tmp_derniers_parents.groupe_id = groupeparticipant.groupeparticipant_id AND tmp_derniers_parents.iteration = ? " +
+						"AND tmp_derniers_parents.groupe_id <> tmp_derniers_parents.groupe_point_depart " +
+						"WHERE groupeparticipant_id_parent IS NOT NULL");
+			}
+			
+			/**
+			 * Donne des IDs de groupes impliqués dans un lien circulaire. Plusieurs groupes peuvent faire partie du même lien.
+			 * @return IDs des groupes, la liste peut être vide
+			 * @throws DatabaseException
+			 */
+			private ArrayList<Integer> getIdsGroupesLienCirculaire() throws DatabaseException {
+				try {
+					
+					PreparedStatement statementIteration = makeStatementIteration(bdd);
+					
+					createTempTableParente(bdd);
+					ResultSet reponse = null;
+					for(int idIteration=2, nbParents=1; nbParents > 0; idIteration++) {
+						
+						statementIteration.setInt(1, idIteration);
+						statementIteration.setInt(2, idIteration - 1);
+						
+						nbParents = statementIteration.executeUpdate();
+						
+						
+					}
+				
+					// Récupération des groupes impliqués dans un lien circulaire
+					reponse = bdd.executeRequest("SELECT groupe_id FROM tmp_derniers_parents " +
+							"WHERE groupe_id = groupe_point_depart AND iteration <> 0");
+					
+					ArrayList<Integer> res = new ArrayList<Integer>();
+					while(reponse.next()) {
+						res.add(reponse.getInt(1));
+					}
+					
+					reponse.close();
+					
+					return res;
+				}
+				catch(SQLException e) {
+					throw new DatabaseException(e);
+				}
+			}
+			
+			
+			@Override
+			public TestBddResult test(BddGestion bdd) throws DatabaseException {
+				ArrayList<Integer> groupesLienCirculaire = getIdsGroupesLienCirculaire();
+				
+				if(groupesLienCirculaire.size() == 0) {
+					return new TestBddResult(TestBddResultCode.OK, "Aucun lien de parenté circulaire", this);
+				}
+				else {
+					String strAutres = groupesLienCirculaire.size() > 5 ? "..." : "";
+					
+					return new TestBddResult(TestBddResultCode.ERROR, "Certains groupes (ID " + getStrPremiersIds(groupesLienCirculaire) + strAutres + ") ont des liens circulaires", this);
+				}
+				
+			}
+
+			@Override
+			public String repair(BddGestion bdd) throws DatabaseException {
+				return "Aucune action effectuée : cette réparation n'est pas encore implémentée";
 			}
 			
 		};

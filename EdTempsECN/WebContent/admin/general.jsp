@@ -55,9 +55,9 @@
 						else {
 						%>
 							<td>
-								<form method="post" action="<%= request.getContextPath() %>/administrateur/reparer">
+								<form method="post" action="<%= request.getContextPath() %>/administrateur/reparer" class="form_reparer">
 									<input type="hidden" name="id" value="<%= res.getTest().getId() %>" />
-									<input type="submit" value="Réparer" title="<%= res.getTest().getRepairMessage() %>" />
+									<input type="submit" value="Réparer" title="<%= res.getTest().getRepairMessage() %>" class="button" />
 								</form>
 							</td>
 						<%

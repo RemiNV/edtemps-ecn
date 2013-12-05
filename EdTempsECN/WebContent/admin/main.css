@@ -353,3 +353,7 @@ ul.button_nav li:last-child {
  td.ok {
  	color: green;
  }
+ 
+ td .form_reparer {
+ 	text-align: center;
+ }
