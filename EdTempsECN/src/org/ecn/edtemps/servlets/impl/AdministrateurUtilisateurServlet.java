@@ -36,7 +36,7 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 		
 		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/modifiertype") && !pathInfo.equals("/supprimer")) {
+		if (!pathInfo.equals("/modifiertype") && !pathInfo.equals("/desactiver") && !pathInfo.equals("/activer")) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -55,8 +55,11 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 				case "/modifiertype":
 					doModifierType(req, resp);
 					break;
-				case "/supprimer":
-					doSupprimer(req, resp);
+				case "/activer":
+					doChangerStatut(true, req, resp);
+					break;
+				case "/desactiver":
+					doChangerStatut(false, req, resp);
 					break;
 			}
 		} catch (NumberFormatException e) {
@@ -111,14 +114,15 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 
 
 	/**
-	 * Supprimer un utilisateur
+	 * Activer/Désactiver un utilisateur
+	 * @param valide VRAI si l'utilisateur doit être activé
 	 * @param req Requête
 	 * @param resp Réponse
 	 * @throws IOException 
 	 * @throws EdtempsException 
 	 */
-	public void doSupprimer(HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
-		logger.error("Suppression d'un utilisateur");
+	public void doChangerStatut(boolean valide, HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
+		logger.error("Activer/Désactiver un utilisateur");
 
 		// Récupération des valeurs du formulaire
 		Integer id = req.getParameter("id")!="" ? Integer.valueOf(req.getParameter("id")) : null;
@@ -130,7 +134,7 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 		// Exécute la requête de modification avec le manager
 		BddGestion bdd = new BddGestion();
 		UtilisateurGestion gestionnaireUtilisateurs = new UtilisateurGestion(bdd);
-		gestionnaireUtilisateurs.supprimerUtilisateur(id);
+		gestionnaireUtilisateurs.desactiverUtilisateur(id, valide);
 		bdd.close();
 
 		// Redirige vers la page de liste des utilisateurs

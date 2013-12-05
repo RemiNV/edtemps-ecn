@@ -38,6 +38,7 @@ public abstract class AbsCalendrierInflater<T extends CalendrierIdentifie> {
 			// Informations générales
 			int id = reponse.getInt("cal_id");
 			String nom = reponse.getString("cal_nom");
+			int idCreateur = reponse.getInt("cal_createur");
 			String matiere = reponse.getString("matiere_nom");
 			String type = reponse.getString("typecal_libelle");
 	
@@ -52,7 +53,7 @@ public abstract class AbsCalendrierInflater<T extends CalendrierIdentifie> {
 			 * Sinon, exception EdtempsException
 			 */
 			if (idProprietaires.size() != 0) {
-				T res = inflate(id, nom, type, matiere, idProprietaires, reponse, bdd);
+				T res = inflate(id, nom, type, matiere, idProprietaires, idCreateur, reponse, bdd);
 				return res;
 			}
 			else {
@@ -66,5 +67,5 @@ public abstract class AbsCalendrierInflater<T extends CalendrierIdentifie> {
 	}
 	
 	
-	protected abstract T inflate(int id, String nom, String type, String matiere, List<Integer> idProprietaires, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException;
+	protected abstract T inflate(int id, String nom, String type, String matiere, List<Integer> idProprietaires, int idCreateur, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException;
 }

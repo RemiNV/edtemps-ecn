@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.models.Calendrier;
 import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
@@ -28,6 +29,14 @@ public class CalendrierGestion {
 	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 	
+	
+	/** Nombre maximum de calendriers qu'un utilisateur peut créer */
+	public static final int LIMITE_CALENDRIERS_PAR_UTILISATEUR = 20;
+
+	/** Nombre maximum de calendriers qu'un utilisateur peut créer avec un droit étendu */
+	public static final int LIMITE_CALENDRIERS_PAR_UTILISATEUR_ETENDUE = 100;
+
+	
 	/**
 	 * Initialise un gestionnaire de calendriers
 	 * @param bdd Gestionnaire de base de données à utiliser
@@ -40,18 +49,29 @@ public class CalendrierGestion {
 	/**
 	 * Méthode d'enregistrement du Calendrier "calendrier" dans la base de données
 	 *
-	 * NB : le rattachement d'un calendrier à un groupeDeParticipants n'est pas réalisé dans cette fonction.
+	 * NB : le rattachement d'un calendrier à un groupeDeParticipants est réalisé dans cette fonction.
 	 * 
 	 * @param calendrier Calendrier à sauvegarder
 	 * @param idGroupesParents ID des groupes à rattacher au calendrier
+	 * @param idCreateur ID du créateur du calendrier
 	 * @return nouvel ID du calendrier sauvegarder
 	 */
 	public int sauverCalendrier(Calendrier calendrier, List<Integer> idGroupesParents) throws EdtempsException {
+		
+		// Vérifier si l'utilisateur n'a pas créé trop de groupes
+		UtilisateurGestion userGestion = new UtilisateurGestion(_bdd);
+		boolean limiteEtendue = userGestion.aDroit(ActionsEdtemps.LIMITE_CALENDRIERS_ETENDUE, calendrier.getIdCreateur());
+		int nbCalendriersDejaCrees = this.getNombresCalendriersCres(calendrier.getIdCreateur());
+		int nbCalendriersAutorisesACreer = limiteEtendue ? LIMITE_CALENDRIERS_PAR_UTILISATEUR_ETENDUE : LIMITE_CALENDRIERS_PAR_UTILISATEUR;
+		if (nbCalendriersDejaCrees >= nbCalendriersAutorisesACreer) {
+			throw new EdtempsException(ResultCode.QUOTA_EXCEEDED, "Quota de création de calendriers atteint");
+		}
 		
 		// Récupération des attributs du calendrier
 		String matiere = calendrier.getMatiere();
 		String nom = calendrier.getNom();
 		String type = calendrier.getType();
+		int idCreateur = calendrier.getIdCreateur();
 		List<Integer> idProprietaires = calendrier.getIdProprietaires(); 
 		
 		if(!StringUtils.isAlphanumericSpace(nom)) {
@@ -73,11 +93,14 @@ public class CalendrierGestion {
 			
 			// Requete préparée pour la création du calendrier dans la base de données
 			PreparedStatement rs_ligneCreee_prepare = _bdd.getConnection().prepareStatement(
-					"INSERT INTO edt.calendrier (cal_nom, matiere_id, typeCal_id)" +
-					" VALUES (?, ?, ?) RETURNING cal_id");
+					"INSERT INTO edt.calendrier (cal_nom, matiere_id, typeCal_id, cal_createur)" +
+					" VALUES (?, ?, ?, ?) RETURNING cal_id");
 			
 			// Ajout du nom du calendrier à la requete préparée
 			rs_ligneCreee_prepare.setString(1, nom);
+			
+			// Ajout de l'id du proprietaire à la requete preparée
+			rs_ligneCreee_prepare.setInt(4, idCreateur);
 			
 			// Ajout de la matiere du calendrier à la requete préparée (NULL si pas de matiere)
 			if (StringUtils.isEmpty(matiere)) { 
@@ -140,7 +163,7 @@ public class CalendrierGestion {
 			int idGroupeCree = req_ligneCreee.getInt(1);
 			
 			// On lie le calendrier au groupe unique
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id, cal_id) "
 					+ "VALUES (" + idGroupeCree + ", " + idCalendrier + ")"
 					);
@@ -149,7 +172,7 @@ public class CalendrierGestion {
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
 				int idGroupeParent = itr.next();
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
 						+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
 						);
@@ -159,12 +182,12 @@ public class CalendrierGestion {
 			itr = idProprietaires.iterator();
 			while (itr.hasNext()){
 				int idProprietaire = itr.next();
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.proprietairecalendrier (utilisateur_id, cal_id) "
 						+ "VALUES (" + idProprietaire + ", " + idCalendrier + ")"
 						);
 				/* SUPPRIMER POUR EVITER REDONDANCE DANS LA BBD
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.proprietairegroupeparticipant "
 						+ "(utilisateur_id, groupeparticipant_id) "
 						+ "VALUES (" + idProprietaire + ", " + idGroupeCree	+ ")"
@@ -182,7 +205,6 @@ public class CalendrierGestion {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		} 	
 	}
-	
 	
 	/**
 	 * Récupère le calendrier repéré par l'ID donné
@@ -241,11 +263,12 @@ public class CalendrierGestion {
 			_bdd.startTransaction();
 			
 			// Vérifier que le nom n'est pas déjà pris
-			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.calendrier WHERE cal_nom=?");
+			PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.calendrier WHERE cal_nom=? AND cal_id<>?");
 			nomDejaPris.setString(1, calId.getNom());
+			nomDejaPris.setInt(2, calId.getId());
 			ResultSet nomDejaPrisResult = nomDejaPris.executeQuery();
 			nomDejaPrisResult.next();
-			if (nomDejaPrisResult.getInt(1)>0) {
+			if (nomDejaPrisResult.getInt(1)>0 ) {
 				throw new EdtempsException(ResultCode.NAME_TAKEN, "Tentative de modifier un calendrier avec un nom déjà utilisé.");
 			}
 			
@@ -348,7 +371,7 @@ public class CalendrierGestion {
 				}
 				//Sinon
 				else {
-					_bdd.executeRequest(
+					_bdd.executeUpdate(
 						"DELETE FROM edt.calendrierappartientgroupe "
 						+ "WHERE cal_id = " + calId.getId()
 						+ " AND (groupeparticipant_id = " + idGroupe
@@ -360,20 +383,20 @@ public class CalendrierGestion {
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
 				int idGroupeARattacher = itr.next();
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
 						+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
 						);
 			}
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
-			_bdd.executeRequest("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
+			_bdd.executeUpdate("DELETE FROM edt.proprietairecalendrier WHERE cal_id = " + calId.getId());
 			
 			// Ajouter nouvelle liste de propriétaires du calendrier		
 			Iterator<Integer> itrProprios = calId.getIdProprietaires().iterator();
 			while (itrProprios.hasNext()){
 				int idProprio = itrProprios.next();
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 						"INSERT INTO edt.proprietairecalendrier "
 						 + "(utilisateur_id, cal_id) "
 						 + "VALUES (" + idProprio + ", " + calId.getId() + ") " 
@@ -410,7 +433,7 @@ public class CalendrierGestion {
 			_bdd.startTransaction();
 			
 			// Supprimer liste de propriétaires du calendrier
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.proprietairecalendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
@@ -428,14 +451,14 @@ public class CalendrierGestion {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID groupe unique associé au calendrier à supprimer non existant ou non unique"); 
 			}
 			// Supprimer dépendance avec les groupes de participants
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.calendrierAppartientGroupe "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
 			// Supprimer les abonnements au groupe unique 
-			_bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
+			_bdd.executeUpdate("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
 			// Supprime le groupe unique
-			_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
+			_bdd.executeUpdate("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupeUnique);
 			/* Supprimer les événements associés au calendrier
 			 * 		1 - Récupération des id des evenements associés
 			 * 		2 - Suppression du lien entre les evenements et le calendrier
@@ -445,7 +468,7 @@ public class CalendrierGestion {
 					"SELECT * FROM  edt.evenementAppartient "
 					+ "WHERE cal_id = " + idCalendrier 
 					);
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.evenementAppartient "
 					 + "WHERE cal_id = " + idCalendrier  
 					 );
@@ -454,7 +477,7 @@ public class CalendrierGestion {
 				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"), false);
 			}
 			// Supprimer calendrier
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.calendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
@@ -560,7 +583,7 @@ public class CalendrierGestion {
 				GroupeGestion.makeTempTableListeGroupesAbonnement(_bdd, userId);
 			
 			// Récupération des calendriers des collections abonnement
-			ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle FROM edt.calendrier " +
+			ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, calendrier.cal_createur, matiere.matiere_nom, typecalendrier.typecal_libelle, calendrier.cal_createur FROM edt.calendrier " +
 					"LEFT JOIN edt.matiere ON calendrier.matiere_id = matiere.matiere_id " +
 					"LEFT JOIN edt.typecalendrier ON typecalendrier.typecal_id = calendrier.typecal_id " +
 					"INNER JOIN edt.calendrierappartientgroupe appartenance ON appartenance.cal_id=calendrier.cal_id " +
@@ -590,7 +613,7 @@ public class CalendrierGestion {
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
 	public ArrayList<CalendrierComplet> listerCalendriersUtilisateur(int userId) throws DatabaseException {
-		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, matiere.matiere_nom, typecalendrier.typecal_libelle, " +
+		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, calendrier.cal_createur, matiere.matiere_nom, typecalendrier.typecal_libelle, " +
 				"COUNT(groupecours.groupeparticipant_id) > 0 AS estcours " + // Nombre de groupes "cours" auquel le calendrier est rattaché > 0
 				"FROM edt.calendrier " +
 				"LEFT JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
@@ -683,7 +706,7 @@ public class CalendrierGestion {
 	 * @throws DatabaseException
 	 */
 	public List<CalendrierIdentifie> listerCalendriersGroupeParticipants(int groupeId) throws DatabaseException {
-		ResultSet reponse = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.matiere_id, calendrier.cal_nom, calendrier.typecal_id, matiere.matiere_nom, typecalendrier.typecal_libelle" +
+		ResultSet reponse = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.matiere_id, calendrier.cal_nom, calendrier.typecal_id, calendrier.cal_createur, matiere.matiere_nom, typecalendrier.typecal_libelle" +
 				" FROM edt.calendrier" +
 				" INNER JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id=calendrier.cal_id" +
 				" AND calendrierappartientgroupe.groupeparticipant_id=" + groupeId +
@@ -700,6 +723,22 @@ public class CalendrierGestion {
 			
 			return res;
 			
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+	/**
+	 * Récupérer le nombre de calendriers créés par un utilisateur
+	 * @param userId Identifiant de l'utilisateur
+	 * @return nombre de groupes
+	 * @throws DatabaseException 
+	 */
+	public int getNombresCalendriersCres(int userId) throws DatabaseException {
+		try {
+			ResultSet res = _bdd.executeRequest("SELECT COUNT(*) FROM edt.calendrier WHERE cal_createur="+userId);
+			res.next();
+			return res.getInt(1);
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

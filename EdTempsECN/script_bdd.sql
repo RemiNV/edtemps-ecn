@@ -132,6 +132,7 @@ CREATE TABLE edt.Calendrier (
                 matiere_id INTEGER,
                 cal_nom VARCHAR UNIQUE,
                 typeCal_id INTEGER,
+		cal_createur INTEGER DEFAULT NULL,
                 CONSTRAINT cal_id PRIMARY KEY (cal_id)
 );
 
@@ -169,6 +170,7 @@ CREATE TABLE edt.Utilisateur (
 				utilisateur_nom TEXT NOT NULL,
 				utilisateur_prenom TEXT NOT NULL,
 				utilisateur_email TEXT,
+				utilisateur_active BOOLEAN NOT NULL DEFAULT TRUE,
                 CONSTRAINT utilisateur_id PRIMARY KEY (utilisateur_id)
 );
 

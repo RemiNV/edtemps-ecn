@@ -27,18 +27,22 @@
 			
 				<table id="liste_utilisateurs" class="tableau_liste">
 					<tr>
-						<th width="200">Prénom</th>
-						<th width="200">Nom</th>
-						<th width="300">Adresse mail</th>
-						<th width="200">Type</th>
-						<th width="200" colspan="2">Actions</th>
+						<th>Prénom</th>
+						<th>Nom</th>
+						<th>Adresse mail</th>
+						<th>Type</th>
+						<th>Dernière connexion</th>
+						<th>Activé <img alt="Aide" src="<%=request.getContextPath()%>/img/help.png" title="Un utilisateur désactivé n'apparaît plus dans les listes déroulantes de choix d'utilisateurs" style="width: 20px;" /></th>
+						<th>Actions</th>
 					</tr>
 					<tr>
 						<td><input type="text" id="filtre_prenom" placeholder="Filtrer par prénom" /></td>
 						<td><input type="text" id="filtre_nom" placeholder="Filtrer par nom" /></td>
 						<td><input type="text" id="filtre_mail" placeholder="Filtrer par adresse mail" /></td>
 						<td><input type="text" id="filtre_type" placeholder="Filtrer par type" /></td>
-						<td colspan="2"></td>
+						<td><input type="text" id="filtre_date" placeholder="Filtrer par date" size="10" /></td>
+						<td class="colCenter"><input type="checkbox" id="filtre_statut" title="Coché, seuls les utilisateurs activés sont affichés" /></td>
+						<td></td>
 					</tr>
 					<%
 						BddGestion bdd = new BddGestion();
@@ -60,8 +64,9 @@
 								}
 								out.write("<td class='data-collumn-type'>"+nomsTypes.toString().substring(0, nomsTypes.length()-2)+"</td>");
 							}
-							out.write("<td class='form_modifier_utilisateur'><form action='"+request.getContextPath()+"/admin/utilisateurs/modifier.jsp' method='POST'><input src='"+request.getContextPath()+"/img/modifier.png' type='image' title='Modifier' /><input type='hidden' name='id' value='"+utilisateur.getId()+"' /><input type='hidden' name='nom' value='"+utilisateur.getNom()+"' /><input type='hidden' name='prenom' value='"+utilisateur.getPrenom()+"' /></form></td>");
-							out.write("<td class='form_supprimer_utilisateur'><form onsubmit='return confirmationSupprimerUtilisateur()' action='"+request.getContextPath()+"/administrateur/utilisateurs/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+utilisateur.getId()+"' /></form></td>");
+							out.write("<td class='data-collumn-date'>"+(utilisateur.getTokenExpiration()!=null ? utilisateur.getTokenExpiration() : "")+"</td>");
+							out.write("<td class='colCenter data-collumn-statut'><form action='"+request.getContextPath()+"/administrateur/utilisateurs/" + (utilisateur.isActive() ? "desactiver" : "activer") +"' method='POST'><input type='submit' value='" + (utilisateur.isActive() ? "Désactiver" : "Activer") +"' class='button ptiButton' /><input type='hidden' name='id' value='"+utilisateur.getId()+"' /></form></td>");
+							out.write("<td class='colCenter'><form action='"+request.getContextPath()+"/admin/utilisateurs/modifier.jsp' method='POST'><input src='"+request.getContextPath()+"/img/modifier.png' type='image' title='Modifier' /><input type='hidden' name='id' value='"+utilisateur.getId()+"' /><input type='hidden' name='nom' value='"+utilisateur.getNom()+"' /><input type='hidden' name='prenom' value='"+utilisateur.getPrenom()+"' /></form></td>");
 							out.write("</tr>");
 						}
 					%>

@@ -202,7 +202,7 @@ public class GroupeGestion {
 			// Ajout des propriétaires
 			if (CollectionUtils.isNotEmpty(listeIdProprietaires)) {
 				for (Integer idProprietaire : listeIdProprietaires) {
-					_bdd.executeRequest("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeparticipant_id) VALUES (" +
+					_bdd.executeUpdate("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeparticipant_id) VALUES (" +
 							idProprietaire + ", "	+
 							idInsertion	+ ")");
 				}
@@ -348,12 +348,12 @@ public class GroupeGestion {
 				req.execute();
 
 				// Supprime les liens avec les propriétaires
-				_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeParticipant_id=" + id);
+				_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeParticipant_id=" + id);
 
 				// Ajout des nouveaux propriétaires
 				if (CollectionUtils.isNotEmpty(listeIdProprietaires)) {
 					for (int idProprietaire : listeIdProprietaires) {
-						_bdd.executeRequest("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeParticipant_id) VALUES ("
+						_bdd.executeUpdate("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeParticipant_id) VALUES ("
 								+ idProprietaire + ", " + id + ")");
 					}
 				} else {
@@ -406,19 +406,19 @@ public class GroupeGestion {
 		}
 
 		// Supprime les liens avec les propriétaires
-		_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Supprime les liens avec les calendriers
-		_bdd.executeRequest("DELETE FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeUpdate("DELETE FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id=" + idGroupe);
 
 		// Supprime les abonnements
-		_bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeUpdate("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Pour tous les fils, suppression du parent ID
 		_bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent=NULL WHERE groupeparticipant_id_parent=" + idGroupe);
 		
 		// Supprime le groupe
-		_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeUpdate("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Termine la transaction
 		if(startTransaction) {
@@ -433,7 +433,7 @@ public class GroupeGestion {
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
 	protected static void makeTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
-		bdd.executeRequest("CREATE TEMP TABLE " + nomTable + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
+		bdd.executeUpdate("CREATE TEMP TABLE " + nomTable + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
 			"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_id_parent_tmp INTEGER, groupeparticipant_estcours BOOLEAN, " +
 			"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL, groupeparticipant_createur INTEGER) ON COMMIT DROP");
 	}
@@ -519,7 +519,7 @@ public class GroupeGestion {
 		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
 		
 		// Ajout des abonnements directs
-		bdd.executeRequest("INSERT INTO " + NOM_TEMPTABLE_ABONNEMENTS + "(groupeparticipant_id," +
+		bdd.executeUpdate("INSERT INTO " + NOM_TEMPTABLE_ABONNEMENTS + "(groupeparticipant_id," +
 				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur) " +
 				"SELECT groupeparticipant.groupeparticipant_id," +
@@ -534,7 +534,7 @@ public class GroupeGestion {
 	}
 	
 	protected static void ajouterGroupeTempTableListeGroupes(BddGestion bdd, int idGroupe, String nomTable) throws DatabaseException {
-		bdd.executeRequest("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+		bdd.executeUpdate("INSERT INTO " + nomTable + "(groupeparticipant_id," +
 			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 			"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 			"SELECT groupeparticipant.groupeparticipant_id," +
@@ -860,7 +860,7 @@ public class GroupeGestion {
 	 * @throws DatabaseException
 	 */
 	public void sAbonner(int idUtilisateur, int idGroupe, boolean obligatoire) throws DatabaseException {
-		_bdd.executeRequest(
+		_bdd.executeUpdate(
 			"INSERT INTO edt.abonnegroupeparticipant "
 			+ "(utilisateur_id, groupeparticipant_id, abonnementgroupeparticipant_obligatoire) "
 			+ "VALUES (" + idUtilisateur + ", " + idGroupe + ", " + obligatoire + ")"
@@ -881,7 +881,7 @@ public class GroupeGestion {
 		if (uniquementSiCoursNonObligatoire) {
 			  s += " AND abonnementgroupeparticipant_obligatoire = FALSE" ;
 		}
-		_bdd.executeRequest(s);
+		_bdd.executeUpdate(s);
 	}
 	
 	
@@ -932,7 +932,7 @@ public class GroupeGestion {
 		_bdd.startTransaction();
 
 		// Récupère les calendriers qui sont en attente de rattachement
-		ResultSet requete = _bdd.executeRequest("SELECT A.cal_id, C.cal_nom, M.matiere_nom, T.typecal_libelle," +
+		ResultSet requete = _bdd.executeRequest("SELECT A.cal_id, C.cal_nom, C.cal_createur, M.matiere_nom, T.typecal_libelle," +
 				" FALSE AS estcours " + // "met estCours à False : valeur inutile dans cette méthode donc pour éviter la surcharge on met une valeur par défaut
 				" FROM edt.calendrierappartientgroupe A" +
 				" INNER JOIN edt.calendrier C ON C.cal_id=A.cal_id" +

@@ -73,6 +73,11 @@ h1 {
 	display: inline-block;
 }
 
+.ptiButton {
+	height: 22px;
+	padding-top: 2px;
+}
+
 a.button {
 	color: black;
 	text-decoration: none;
@@ -160,7 +165,13 @@ ul.button_nav li:last-child {
 	text-align: justify;
 }
 
+.colCenter {
+	text-align: center;
+}
 
+.data-collumn-date {
+	font-size: 0.9em;
+}
 
 /**
  * Page de gestion des salles
@@ -289,14 +300,6 @@ ul.button_nav li:last-child {
 
 #liste_utilisateurs {
 	width: 100%;
-}
-
-#liste_utilisateurs td.form_supprimer_utilisateur {
-	border-left: none;
-}
-
-#liste_utilisateurs td.form_modifier_utilisateur {
-	border-right: none;
 }
 
 

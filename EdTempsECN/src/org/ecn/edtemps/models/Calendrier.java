@@ -21,6 +21,9 @@ public class Calendrier {
 	/** Proprietaires du calendrier */
 	protected List<Integer> idProprietaires;
 
+	/**Createur du calendrier */
+	protected int idCreateur;
+	
 	/** 
 	 * Constructeur avec tous les attributs
 	 * 
@@ -28,12 +31,22 @@ public class Calendrier {
 	 * @param type Type du calendrier
 	 * @param matiere Matière du calendrier
 	 * @param idProprietaires Propriétaires du calendrier
+	 * @param idCreateur Createur du calendrier
 	 */
-	public Calendrier(String nom, String type, String matiere, List<Integer> idProprietaires) {
+	public Calendrier(String nom, String type, String matiere, List<Integer> idProprietaires, int idCreateur) {
 		this.nom = nom;
 		this.type = type;
 		this.matiere = matiere;
 		this.idProprietaires = idProprietaires;
+		this.idCreateur = idCreateur;
+	}
+
+	public int getIdCreateur() {
+		return idCreateur;
+	}
+
+	public void setIdCreateur(int idCreateur) {
+		this.idCreateur = idCreateur;
 	}
 
 	public String getNom() {

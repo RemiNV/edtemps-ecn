@@ -624,7 +624,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					me.miseEnValeurGroupesEnAttenteRattachement();
 
 				} else {
-					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
+					$("#tbl_mes_groupes").html("<tr><td>Vous n'avez aucun groupe de participant</td></tr>");
 				}
 
 		 	} else {
@@ -665,7 +665,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 			}
 			else {
 				if (data.listeCalendriers.length == 0) {
-					$("#tbl_mes_calendriers").html("<tr><td>Vous n'avez aucun groupes de participants</td></tr>");
+					$("#tbl_mes_calendriers").html("<tr><td>Vous n'avez aucun calendrier</td></tr>");
 				}
 				else {
 					// Enregistrement de la liste des calendriers

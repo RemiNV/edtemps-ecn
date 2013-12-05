@@ -1,5 +1,7 @@
 package org.ecn.edtemps.models.identifie;
 
+import java.util.Date;
+
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
@@ -14,6 +16,16 @@ import org.ecn.edtemps.models.Utilisateur;
  */
 public class UtilisateurIdentifie extends Utilisateur implements JSONAble {
 
+	/** Identifiant de l'utilisateur */
+	protected int id;
+
+	/** Statut de l'utilisateur : activé ou non */
+	protected boolean active;
+
+	/** Date d'expiration du token */
+	protected Date tokenExpiration;
+
+	
 	/**
 	 * Constructeur
 	 * @param id identifiant de l'utilisateur
@@ -25,7 +37,7 @@ public class UtilisateurIdentifie extends Utilisateur implements JSONAble {
 		super(nom, prenom, email);
 		this.id = id;
 	}
-
+	
 	public int getId() {
 		return id;
 	}
@@ -34,7 +46,22 @@ public class UtilisateurIdentifie extends Utilisateur implements JSONAble {
 		this.id = id;
 	}
 
-	protected int id;
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public Date getTokenExpiration() {
+		return tokenExpiration;
+	}
+
+	public void setTokenExpiration(Date tokenExpiration) {
+		this.tokenExpiration = tokenExpiration;
+	}
 
 	@Override
 	public JsonValue toJson() {
