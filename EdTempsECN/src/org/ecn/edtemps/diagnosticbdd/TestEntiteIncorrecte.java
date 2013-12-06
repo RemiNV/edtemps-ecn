@@ -18,7 +18,7 @@ public abstract class TestEntiteIncorrecte extends TestBdd {
 	 * Constructeur
 	 * @param nom Nom du test
 	 * @param id Identifiant du test
-	 * @param repairMessage Message de réparation
+	 * @param repairMessage Infobulle sur le bouton de réparation
 	 */
 	public TestEntiteIncorrecte(String nom, int id, String repairMessage) {
 		super(nom, id, repairMessage);

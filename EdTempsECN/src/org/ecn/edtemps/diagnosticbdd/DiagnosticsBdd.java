@@ -12,7 +12,9 @@ import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResult;
 import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResultCode;
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.managers.BddGestion;
+import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
@@ -33,7 +35,7 @@ public class DiagnosticsBdd {
 	 * @return un tableau avec les résultats de chaque test
 	 */
 	public ArrayList<TestBddResult> runAllTests() {
-		int nbTests = 6; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
+		int nbTests = 8; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
 		
 		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
 		
@@ -90,8 +92,11 @@ public class DiagnosticsBdd {
 		case 6:
 			return createTestGroupesSansProprietaire(6);
 
-			// TODO : ajouter une vérification des calendriers n'ayant pas propriétaire
-			// TODO : ajouter une vérification des événements n'ayant pas de propriétaire
+		case 7:
+			return createTestCalendriersSansProprietaire(7);
+
+		case 8:
+			return createTestEvenementsSansProprietaire(8);
 		
 		default:
 			return null;
@@ -376,7 +381,81 @@ public class DiagnosticsBdd {
 			
 		};
 	}
+
 	
+	/**
+	 * Définition d'un test sur la base de données pour détecter les calendriers qui n'ont pas de propriétaire
+	 * @param id Identifiant du test
+	 * @return le testeur
+	 */
+	protected TestBdd createTestCalendriersSansProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence de calendriers sans propriétaire", id, "Supprimer ces calendriers de participants") {
+
+			@Override
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
+				CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
+				try {
+					for(int id : ids) {
+						calendrierGestion.supprimerCalendrier(id);
+					}
+				} catch (EdtempsException e) {
+					throw new DatabaseException(e);
+				}
+				
+				return ids.size() + " calendriers supprimés";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("SELECT calendrier.cal_id FROM edt.calendrier" +
+					" LEFT JOIN edt.proprietairecalendrier ON proprietairecalendrier.cal_id=calendrier.cal_id" +
+					" GROUP BY calendrier.cal_id" +
+					" HAVING COUNT(proprietairecalendrier.utilisateur_id) = 0");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "cal_id";
+			}
+			
+		};
+	}
+
+	
+	/**
+	 * Définition d'un test sur la base de données pour détecter les événements qui n'ont pas de propriétaire
+	 * @param id Identifiant du test
+	 * @return le testeur
+	 */
+	protected TestBdd createTestEvenementsSansProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence d'événements sans propriétaire", id, "Supprimer ces événements") {
+
+			@Override
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
+				EvenementGestion evenementGestion = new EvenementGestion(bdd);
+				for(int id : ids) {
+					evenementGestion.supprimerEvenement(id, true);
+				}
+				
+				return ids.size() + " événements supprimés";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("SELECT evenement.eve_id FROM edt.evenement" +
+					" LEFT JOIN edt.responsableevenement ON responsableevenement.eve_id=evenement.eve_id" +
+					" GROUP BY evenement.eve_id" +
+					" HAVING COUNT(responsableevenement.utilisateur_id) = 0");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "eve_id";
+			}
+			
+		};
+	}
+
 	
 	/**
 	 * Définition d'un test sur la base de données pour détecter les vieux comptes utilisateurs
