@@ -248,6 +248,14 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 		}, 1000);
 	}
 	
+	/**
+	 * Déplace la vue à la date fournie. Voir la documentation de fullCalendar pour gotoDate.
+	 * @param {Date} date Date vers laquelle déplacer la vue
+	 */
+	Calendrier.prototype.gotoDate = function(date) {
+		this.jqCalendar.fullCalendar("gotoDate", date);
+	};
+	
 
 	/**
 	 * Rafraichit le calendrier

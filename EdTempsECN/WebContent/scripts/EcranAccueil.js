@@ -48,6 +48,11 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
 				monthsShort: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"],
 				weekMin: 'sem'
+			},
+			onChange: function(strDate, date) {
+				if(me.calendrier) {
+					me.calendrier.gotoDate(date);
+				}
 			}
 		});
 		
