@@ -40,7 +40,15 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		
 		$("#accueil_datepicker").DatePicker({
 			flat: true,
-			date: new Date()
+			date: new Date(),
+			locale: {
+				days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+				daysShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+				daysMin: ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"],
+				months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+				monthsShort: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"],
+				weekMin: 'sem'
+			}
 		});
 		
 		// Initialisation des listeners
