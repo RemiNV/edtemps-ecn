@@ -15,7 +15,8 @@ var require = {
 		davis: "lib/davis.min",
 		underscore: "lib/underscore-min",
 		jqueryquicksearch: "lib/jquery.quicksearch", // Bibliothèque effectuant le tri dans le jquerymultiselect
-		jquerycombobox: "lib/jquery.ui.combobox"
+		jquerycombobox: "lib/jquery.ui.combobox",
+		datepicker: "lib/datepicker"
 	},
 
 	/* Configuration des bibliothèques non AMD (non compatibles avec 
@@ -60,6 +61,10 @@ var require = {
 		
 		"underscore": {
 			exports: "_"
+		},
+		
+		"datepicker": {
+			deps: ["jquery"]
 		}
 	}
 

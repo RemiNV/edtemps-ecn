@@ -4,7 +4,7 @@
  * @module EcranAccueil
  */
 define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "GroupeGestion", 
-        "DialogAjoutEvenement", "RestManager", "underscore", "jquery", "jqueryui", "jquerycombobox"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
+        "DialogAjoutEvenement", "RestManager", "underscore", "jquery", "jqueryui", "jquerycombobox", "datepicker"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
         		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager, _) {
 	
 	/**
@@ -37,6 +37,11 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	
 	EcranAccueil.prototype.init = function() {
 		var me = this;
+		
+		$("#accueil_datepicker").DatePicker({
+			flat: true,
+			date: new Date()
+		});
 		
 		// Initialisation des listeners
 		$("#btn_chercher_salle").click(function(e) {

@@ -237,11 +237,11 @@ table.liste_materiel th {
 }
 
 #btn_ajout_evenement, #bloc_vos_agendas {
-	margin-top: 40px;
+	margin-top: 10px;
 }
 
 #liste_groupes {
-	margin: 20px 10px 0px 0px;
+	margin: 10px 10px 0px 0px;
 	border: 1px solid #bfc2bf;
 	height: 300px;
 	width: 250px;
@@ -410,7 +410,7 @@ table.liste_materiel th {
 	left: 50%;
 	bottom: -40px;
 	margin-left: -450px;
-	background-color: #079eb5;
+	background-color: #0187AA;
 	border-radius: 5px;
 	padding: 5px;
 	text-align: center;
@@ -754,4 +754,9 @@ input.valide {
 	display: inline-block;
 	top: -2px;
 	left: 5px;
+}
+
+/** Datepicker de l'accueil */
+#accueil_datepicker {
+	margin-top: 20px;
 }
