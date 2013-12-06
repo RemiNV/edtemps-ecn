@@ -220,7 +220,7 @@ table.liste_materiel th {
 	clear: both;
 	float: right;
 	width: 350px;
-	margin: 20px;
+	margin: 10px 0px;
 	position: relative;
 	top: 50px;
 	margin-top: -50px;
@@ -238,7 +238,7 @@ table.liste_materiel th {
 }
 
 #formulaire_filtres select {
-	width: 140px;
+	width: 145px;
 }
 
 #bloc_vos_agendas, #boutons_colonne_gauche, #accueil_datepicker {

@@ -99,9 +99,9 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				center: 'title',
 				left: 'prev,next today month,agendaWeek,agendaDay'
 			},
-			height: Math.max(window.innerHeight - 110, 500),
+			height: Math.max(window.innerHeight - 100, 500),
 			windowResize: function(view) {
-				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 110, 500));
+				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 100, 500));
 			},
 			events: eventsSource,
 			dayClick: function(date, allDay, jsEvent, view) {
