@@ -27,8 +27,13 @@ public class DiagnosticsBdd {
 		this.bdd = bdd;
 	}
 	
+	
+	/**
+	 * Lanceur de tous les tests existants
+	 * @return un tableau avec les résultats de chaque test
+	 */
 	public ArrayList<TestBddResult> runAllTests() {
-		int nbTests = 5; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
+		int nbTests = 6; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
 		
 		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
 		
@@ -58,10 +63,11 @@ public class DiagnosticsBdd {
 		return res;
 	}
 	
+	
 	/**
-	 * Créé un test 
-	 * @param idTest
-	 * @return
+	 * Créer un test 
+	 * @param idTest Identifiant du test à créer
+	 * @return le testeur
 	 */
 	public TestBdd createTest(int idTest) {
 		switch(idTest) {
@@ -81,7 +87,9 @@ public class DiagnosticsBdd {
 		case 5:
 			return createTestVieuxComptesUtilisateur(5);
 			
-			// TODO : ajouter une vérification des groupes n'ayant pas de propriétaire
+		case 6:
+			return createTestGroupesSansProprietaire(6);
+
 			// TODO : ajouter une vérification des calendriers n'ayant pas propriétaire
 			// TODO : ajouter une vérification des événements n'ayant pas de propriétaire
 		
@@ -90,6 +98,12 @@ public class DiagnosticsBdd {
 		}
 	}
 	
+	
+	/**
+	 * Créer une chaîne avec les 5 premiers entiers de la liste passée en paramètres
+	 * @param ids Liste d'identifiants
+	 * @return chaîne de caractères
+	 */
 	public static String getStrPremiersIds(List<Integer> ids) {
 		List<Integer> idsAffichage = ids.subList(0, Math.min(4, ids.size()));
 		String strAutres = ids.size() > 5 ? "..." : "";
@@ -97,6 +111,12 @@ public class DiagnosticsBdd {
 		return StringUtils.join(idsAffichage, ", ") + strAutres;
 	}
 	
+	
+	/**
+	 * Définition d'un test sur la base de données pour détecter les calendriers qui ne sont rattachés à aucun groupe de participants
+	 * @param id Identifiant du test
+	 * @return le testeur
+	 */
 	protected TestBdd createTestCalendrierPossedeGroupeUnique(int id) {
 		return new TestEntiteIncorrecte("Rattachement de tous les calendriers à un groupe de participants \"groupe unique\"", id, "Ajouter les groupes manquants") {
 
@@ -140,6 +160,12 @@ public class DiagnosticsBdd {
 		};
 	}
 	
+	
+	/**
+	 * Définition d'un test sur la base de données pour détecter les calendriers qui ne possèdent pas de groupe unique
+	 * @param id Identifiant du test
+	 * @return le testeur
+	 */
 	protected TestBdd createTestGroupeUniquePossedeCalendrier(int id) {
 		return new TestEntiteIncorrecte("Rattachement de chaque \"groupe unique\" à un calendrier", id, "Supprimer les groupes inutiles") {
 
@@ -172,6 +198,12 @@ public class DiagnosticsBdd {
 		};
 	}
 	
+	
+	/**
+	 * Définition d'un test sur la base de données pour détecter les événements qui sont rattachés à aucun calendrier
+	 * @param id Identifiant du test
+	 * @return le testeur
+	 */
 	protected TestBdd createTestEvenementPossedeCalendrier(int id) {
 		return new TestEntiteIncorrecte("Rattachement de chaque événement à au moins un calendrier", id, "Supprimer les événements inutiles") {
 
@@ -203,6 +235,12 @@ public class DiagnosticsBdd {
 		};
 	}
 	
+	
+	/**
+	 * Définition d'un test sur la base de données pour détecter les liens de parenté circulaires pour les groupes de participants
+	 * @param id Identifiant du test
+	 * @return le testeur
+	 */
 	protected TestBdd createTestParenteCirculaireGroupes(int id) {
 		// Principe : à chaque itération on remonte un lien de parenté. Si on retombe sur le groupe de départ à une itération, il y a lien circulaire.
 		// On parcourt tous les liens de tous les groupes de manière parallèle
@@ -303,6 +341,48 @@ public class DiagnosticsBdd {
 		};
 	}
 	
+	
+	/**
+	 * Définition d'un test sur la base de données pour détecter les groupes de participants qui n'ont pas de propriétaire
+	 * @param id Identifiant du test
+	 * @return le testeur
+	 */
+	protected TestBdd createTestGroupesSansProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence de groupes de participants sans propriétaire", id, "Supprimer ces groupes de participants") {
+
+			@Override
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
+				GroupeGestion groupeGestion = new GroupeGestion(bdd);
+				for(int id : ids) {
+					groupeGestion.supprimerGroupe(id, true);
+				}
+				
+				return ids.size() + " groupes de participants supprimés";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant" +
+					" LEFT JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id" +
+					" LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.groupeparticipant_id=groupeparticipant.groupeparticipant_id" +
+					" GROUP BY groupeparticipant.groupeparticipant_id" +
+					" HAVING COUNT(proprietairegroupeparticipant.utilisateur_id) = 0 AND COUNT(calendrierappartientgroupe.calendrierappartientgroupe_id) = 0");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "groupeparticipant_id";
+			}
+			
+		};
+	}
+	
+	
+	/**
+	 * Définition d'un test sur la base de données pour détecter les vieux comptes utilisateurs
+	 * @param id Identifiant du test
+	 * @return le testeur
+	 */
 	protected TestBdd createTestVieuxComptesUtilisateur(int id) {
 		return new TestEntiteIncorrecte("Présence de comptes d'utilisateur inutilisés depuis 2 ans ou plus", id, "Désactiver ces comptes utilisateur") {
 

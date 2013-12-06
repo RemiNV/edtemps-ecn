@@ -7,12 +7,29 @@ import java.util.ArrayList;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
 
+/**
+ * 
+ * 
+ * @author Remi
+ */
 public abstract class TestEntiteIncorrecte extends TestBdd {
 
+	/**
+	 * Constructeur
+	 * @param nom Nom du test
+	 * @param id Identifiant du test
+	 * @param repairMessage Message de réparation
+	 */
 	public TestEntiteIncorrecte(String nom, int id, String repairMessage) {
 		super(nom, id, repairMessage);
 	}
 
+	/**
+	 * Récupérer la liste des identifiants de lignes incorrectes
+	 * @param bdd Gestionnaire de base de données
+	 * @return liste des identifiants des entrées incorrectes
+	 * @throws DatabaseException
+	 */
 	protected ArrayList<Integer> getLstIncorrects(BddGestion bdd) throws DatabaseException {
 		try {
 			PreparedStatement statementListing = getStatementListing(bdd);
@@ -44,9 +61,27 @@ public abstract class TestEntiteIncorrecte extends TestBdd {
 		return reparerIncorrects(bdd, lstIncorrects);
 	}
 	
+	/**
+	 * Méthode de réparation des données incorrectes
+	 * @param bdd Gestionnaire de la base de données
+	 * @param ids Liste des identifiants des lignes à corriger
+	 * @return message affiché suite à la correction
+	 * @throws DatabaseException
+	 */
 	protected abstract String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException;
 	
+	/**
+	 * Retourne la requête qui va permettre de trouver les lignes incorrectes
+	 * @param bdd
+	 * @return
+	 * @throws SQLException
+	 */
 	protected abstract PreparedStatement getStatementListing(BddGestion bdd) throws SQLException;
+	
+	/**
+	 * Définition du nom de la colonne comportant l'identifiant de la ligne à traiter
+	 * @return nom de la colonne
+	 */
 	protected abstract String getColonneId();
 
 }

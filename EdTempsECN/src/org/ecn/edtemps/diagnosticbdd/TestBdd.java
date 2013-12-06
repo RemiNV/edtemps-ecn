@@ -3,6 +3,11 @@ package org.ecn.edtemps.diagnosticbdd;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
 
+/**
+ * Classe pour les tests de base de données
+ * 
+ * @author Remi
+ */
 public abstract class TestBdd {
 
 	protected String nom;
