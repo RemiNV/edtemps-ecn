@@ -7,11 +7,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #logoAppli {
-	margin-left: 50px;
+	text-align: center;
 }
 
 #colonne_gauche {
 	float: left;
+	margin-right: 10px;
+}
+
+#boutons_colonne_gauche {
+	text-align: center;
 }
 
 #main_content {
@@ -236,12 +241,12 @@ table.liste_materiel th {
 	width: 140px;
 }
 
-#btn_ajout_evenement, #bloc_vos_agendas {
-	margin-top: 10px;
+#bloc_vos_agendas, #boutons_colonne_gauche, #accueil_datepicker {
+	margin-top: 15px;
 }
 
 #liste_groupes {
-	margin: 10px 10px 0px 0px;
+	margin-top: 10px;
 	border: 1px solid #bfc2bf;
 	height: 300px;
 	width: 250px;
@@ -754,9 +759,4 @@ input.valide {
 	display: inline-block;
 	top: -2px;
 	left: 5px;
-}
-
-/** Datepicker de l'accueil */
-#accueil_datepicker {
-	margin-top: 20px;
 }

@@ -56,7 +56,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		var me = this;
 		var resizeCallback = function() {
 			if(me.jqListe.closest("body").length) {
-				me.jqListe.css("height", Math.max(window.innerHeight - 510, 150));
+				me.jqListe.css("height", Math.max(window.innerHeight - 503, 150));
 			}
 			else {
 				// L'élément a été supprimé du DOM
@@ -64,7 +64,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			}
 		};
 		
-		this.jqListe.css("height", Math.max(window.innerHeight - 510, 150));
+		this.jqListe.css("height", Math.max(window.innerHeight - 503, 150));
 		$(window).bind("resize", resizeCallback);
 	};
 
