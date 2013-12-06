@@ -104,12 +104,18 @@ div.datepicker tbody a {
 	display: block;
 }
 .datepickerDays a {
-	width: 30px;
+	width: 28px;
 	line-height: 16px;
-	height: 20px;
+	height: 18px;
+	border: 1px solid transparent;
 	padding-top: 4px; 
 	padding-right: 2px;
 }
+
+.datepickerDays .today a {
+	border: 1px solid #0187AA;
+}
+
 .datepickerYears a,
 .datepickerMonths a{
 	width: 64px;

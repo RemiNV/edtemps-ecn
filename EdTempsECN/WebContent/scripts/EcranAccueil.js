@@ -38,6 +38,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	EcranAccueil.prototype.init = function() {
 		var me = this;
 		
+		dateNow = new Date();
+		dateToday = new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate());
 		$("#accueil_datepicker").DatePicker({
 			flat: true,
 			date: new Date(),
@@ -53,6 +55,13 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				if(me.calendrier) {
 					me.calendrier.gotoDate(date);
 				}
+			},
+			onRender: function(date) {
+				return {
+					selected: false,
+					disabled: false,
+					className: date.getTime() == dateToday.getTime() ? "today" : null
+				};
 			}
 		});
 		
