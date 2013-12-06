@@ -79,7 +79,12 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		}
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, 
-				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"));
+				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), function() {
+			if(me.calendrier) {
+				var date = me.calendrier.getDate();
+				$("#accueil_datepicker").DatePickerSetDate(date, date);
+			}
+		});
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 		

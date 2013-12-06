@@ -8,7 +8,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement) {
+	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement, viewRender) {
 		var me = this;
 		
 		// Dialog de détails des événements
@@ -181,7 +181,8 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			},
 			eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
 				updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
-			}
+			},
+			viewRender: viewRender
 			
 		});
 		
@@ -254,6 +255,13 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	 */
 	Calendrier.prototype.gotoDate = function(date) {
 		this.jqCalendar.fullCalendar("gotoDate", date);
+	};
+	
+	/**
+	 * Récupère la date en cours d'affichage dans le calendrier. voir la documentation de fullCalendar pour getDate
+	 */
+	Calendrier.prototype.getDate = function() {
+		return this.jqCalendar.fullCalendar("getDate");
 	};
 	
 
