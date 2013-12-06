@@ -82,7 +82,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			firstDay: 1,
 			editable: true,
 			defaultView: "agendaWeek",
-			timeFormat: "HH'h'(mm)",
+			timeFormat: "HH'h'(mm){ - HH'h'(mm)}",
 			axisFormat: "HH'h'(mm)",
 			titleFormat: {
 				month: 'MMMM yyyy',                             // Septembre 2013
