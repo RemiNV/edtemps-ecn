@@ -319,7 +319,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			window.showToast("Erreur de chargement de vos événements");
 		}
 		
-		$("#div_chargement_evenements").stop().fadeOut(200);
+		$("#div_chargement_evenements").stop(true).fadeOut(200);
 	};
 	
 	/**
@@ -428,7 +428,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			else {
 				window.showToast("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
 			}
-			$("#div_chargement_evenements").stop().fadeOut(200);
+			$("#div_chargement_evenements").stop(true).fadeOut(200);
 		});
 	};
 	

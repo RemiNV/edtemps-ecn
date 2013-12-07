@@ -26,18 +26,17 @@ h1, h2, h3, h4, h5, h6 {
 #div_chargement_evenements {
 	border: 1px solid #bfc2bf;
 	position: absolute;
-	background-color: white;
-	top: 200px;
-	left: 50%;
+	bottom: 30px;
+	right: 50px;
 	width: 320px;
 	text-align: center;
 	z-index: 1000;
-	background: #f6f6f6;
+	background-color: #f6f6f6;
 }
 
 #div_chargement_evenements > span {
 	position: relative;
-	top: -28px;
+	top: -3px;
 	color: #333;
 }
 
