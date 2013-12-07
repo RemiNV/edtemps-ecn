@@ -318,6 +318,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		else {
 			window.showToast("Erreur de chargement de vos événements");
 		}
+		
+		$("#div_chargement_evenements").stop().fadeOut(200);
 	};
 	
 	/**
@@ -330,6 +332,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.remplirEvenementsAbonnements = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getEvenementsAbonnements(dateDebut, dateFin, false, function(resultCode, data) {
 			if(resultCode == RestManager.resultCode_Success) {
 				
@@ -354,6 +357,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.remplirMesEvenements = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getMesEvenements(dateDebut, dateFin, false, 
 				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
 	};
@@ -368,6 +372,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.remplirEvenementsGroupe = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getEvenementsGroupe(dateDebut, dateFin, this.idGroupeSelectionne, false, 
 				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
 	};
@@ -382,6 +387,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.remplirEvenementsSalle = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getEvenementsSalle(dateDebut, dateFin, this.idSalleSelectionee, false, 
 				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
 	};
@@ -398,7 +404,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	EcranAccueil.prototype.remplirMesAbonnements = function(dateDebut, dateFin, callbackCalendrier) {
 		// Récupération des abonnements pendant la période affichée
 		var me = this;
-		
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getAbonnements(dateDebut, dateFin, function(resultCode, data) {
 			if(resultCode == RestManager.resultCode_Success) {
 				
@@ -422,6 +428,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			else {
 				window.showToast("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
 			}
+			$("#div_chargement_evenements").stop().fadeOut(200);
 		});
 	};
 	

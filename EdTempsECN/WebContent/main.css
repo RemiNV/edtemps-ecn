@@ -23,6 +23,24 @@ h1, h2, h3, h4, h5, h6 {
 	overflow: hidden;
 }
 
+#div_chargement_evenements {
+	border: 1px solid #bfc2bf;
+	position: absolute;
+	background-color: white;
+	top: 200px;
+	left: 50%;
+	width: 320px;
+	text-align: center;
+	z-index: 1000;
+	background: #f6f6f6;
+}
+
+#div_chargement_evenements > span {
+	position: relative;
+	top: -28px;
+	color: #333;
+}
+
 #formulaire_connexion {
 	padding: 20px;
 	overflow: hidden;
