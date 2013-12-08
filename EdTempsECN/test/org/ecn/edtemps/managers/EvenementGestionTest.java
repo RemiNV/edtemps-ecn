@@ -259,9 +259,9 @@ public class EvenementGestionTest {
 		//méthode récupère les événements des groupes fils et parents !!
 		//-> créer un groupe de test avec deux calendriers contenant deux événements, avec un groupe parent et un groupe fils qui contiennent aussi des données.
 		//groupe contient des calendriers -> tester avec un groupe qui contient 2 calendriers ?
-		//groupe : 	groupe, calendrierAppartientGroupe
+		//groupe : 	groupe
 		//evenement : evenement, responsableEvenement, evenementAppartient, aLieuEnSalle, intervenantsEvenement
-		//calendrier : calendrier
+		//calendrier : calendrier, calendrierAppartientGroupe
 		// nom groupe : testEvenementGestion, testEvenementGestionPere, testEvenementGestionFils
 		// nom calendrier : testEvenementGestion1, testEvenementGestion2, testEvenementGestionPere, testEvenementGestionFils
 		// nom evenement : testEvenementGestion1, testEvenementGestion2, testEvenementGestion3...
