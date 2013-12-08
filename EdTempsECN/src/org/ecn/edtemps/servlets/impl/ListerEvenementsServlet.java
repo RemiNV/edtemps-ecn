@@ -5,8 +5,6 @@ import java.util.Date;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
@@ -17,7 +15,6 @@ import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 
 	private static final long serialVersionUID = -2338486413889378986L;
-	private static Logger logger = LogManager.getLogger(ListerEvenementsServlet.class.getName());
 	
 	@Override
 	protected JsonValue doQuery(int userId, BddGestion bdd, Date dateDebut, Date dateFin, HttpServletRequest req) throws EdtempsException {
