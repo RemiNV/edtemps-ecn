@@ -8,8 +8,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
 
 /**
- * 
- * 
+ * Classe de détection des éléments incorrects dans la base
  * @author Remi
  */
 public abstract class TestEntiteIncorrecte extends TestBdd {

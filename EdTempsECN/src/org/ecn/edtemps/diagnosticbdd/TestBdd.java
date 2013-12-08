@@ -4,20 +4,24 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.managers.BddGestion;
 
 /**
- * Classe pour les tests de base de données
- * 
+ * Classe définissant un testeur pour la base de données
+
  * @author Remi
  */
 public abstract class TestBdd {
 
+	/** Nom du test */
 	protected String nom;
+
+	/** Identifiant du test */
 	protected int id;
+	
+	/** Infobulle sur le bouton de réparation */
 	protected String repairMessage;
 	
 	/**
 	 * Code de retour d'un test de base de données
 	 * @author Remi
-	 *
 	 */
 	public static enum TestBddResultCode {
 		OK("ok"),
@@ -65,6 +69,12 @@ public abstract class TestBdd {
 		}
 	}
 	
+	/**
+	 * Constructeur
+	 * @param nom Nom du test
+	 * @param id Identifiant du test
+	 * @param repairMessage Infobulle sur le bouton de réparation
+	 */
 	public TestBdd(String nom, int id, String repairMessage) {
 		this.nom = nom;
 		this.id = id;
