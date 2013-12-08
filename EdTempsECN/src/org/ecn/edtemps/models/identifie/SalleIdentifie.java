@@ -18,33 +18,38 @@ import org.ecn.edtemps.models.Salle;
  */
 public class SalleIdentifie extends Salle implements JSONAble {
 
-	public SalleIdentifie(int id, String nom) {
-		super(nom);
-		
-		this.id = id;
-	}
-	
-	public SalleIdentifie(int id, String batiment, String nom, int capacite, int niveau, int numero, ArrayList<Materiel> materiels) {
-		super(batiment, nom, capacite, niveau, numero, materiels);
-		
-		this.id = id;
-	}
-
 	/** Identifiant de la salle */
 	protected int id;
 
 	/**
-	 * @return id
+	 * Constructeur avec uniquement les informations obligatoires
+	 * @param id Identifiant de la salle
+	 * @param nom Nom de la salle
 	 */
+	public SalleIdentifie(int id, String nom) {
+		super(nom);
+		this.id = id;
+	}
+	
+	/**
+	 * Constructeur complet
+	 * @param id Identifiant de la salle
+	 * @param batiment Bâtiment de localisation
+	 * @param nom Nom de la salle
+	 * @param capacite Capacité en nombre de places
+	 * @param niveau Niveau de la salle dans le bâtiment
+	 * @param numero Numéro dans l'étage
+	 * @param materiels Liste des matéries contenus
+	 */
+	public SalleIdentifie(int id, String batiment, String nom, int capacite, int niveau, int numero, ArrayList<Materiel> materiels) {
+		super(batiment, nom, capacite, niveau, numero, materiels);
+		this.id = id;
+	}
+
 	public int getId() {
 		return id;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut id
-	 * 
-	 * @param id
-	 */
 	public void setId(int id) {
 		this.id = id;
 	}
@@ -59,8 +64,7 @@ public class SalleIdentifie extends Salle implements JSONAble {
 		
 		if(batiment == null) {
 			builder.addNull("batiment");
-		}
-		else {
+		} else {
 			builder.add("batiment", batiment);
 		}
 		

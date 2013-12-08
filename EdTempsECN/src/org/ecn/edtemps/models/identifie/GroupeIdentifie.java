@@ -25,15 +25,16 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 	/** Identifiant du créateur du groupe */
 	protected int idCreateur;
 
+	
 	/**
 	 * Constructeur utilisant les informations indispensables
-	 * @param id
-	 * @param idProprietaires
-	 * @param nom
-	 * @param rattachementAutorise
-	 * @param estCours
-	 * @param estCalendrierUnique
-	 * @param idCreateur
+	 * @param id Identifiant du groupe
+	 * @param idProprietaires Liste des identifiants des propriétaires
+	 * @param nom Nom du groupe
+	 * @param rattachementAutorise Vrai si le rattachement à ce groupe est autorisé
+	 * @param estCours Vrai si c'est un groupe de cours
+	 * @param estCalendrierUnique Vrai si c'est un groupe unique rattaché à un calendrier
+	 * @param idCreateur Identifiant du créateur
 	 */
 	public GroupeIdentifie(int id, String nom, List<Integer> idProprietaires, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique, int idCreateur) {
 		super(nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
@@ -41,30 +42,23 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 		this.idCreateur = idCreateur;
 	}
 	
+	
 	/**
 	 * Autre constructeur, uniquement avec "nom", "parendId", "id" et "estCalendrierUnique"
-	 * @param id
-	 * @param nom
-	 * @param parentId
-	 * @param estCalendrierUnique
+	 * @param id Identifiant du groupe
+	 * @param nom Nom du groupe
+	 * @param parentId Identifiant du groupe parent
+	 * @param estCalendrierUnique Vrai si c'est un groupe unique rattaché à un calendrier
 	 */
 	public GroupeIdentifie(int id, String nom, int parentId, boolean estCalendrierUnique) {
 		super(nom, parentId, estCalendrierUnique);
 		this.id = id;
 	}
 
-	/**
-	 * @return id
-	 */
 	public int getId() {
 		return id;
 	}
 
-	/**
-	 * Affecte une valeur à l'attribut id
-	 * 
-	 * @param id
-	 */
 	public void setId(int id) {
 		this.id = id;
 	}

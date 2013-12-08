@@ -35,10 +35,10 @@ public class Groupe {
 	
 	/**
 	 * Constructeur utilisant les informations indispensables
- 	 * @param nom
-	 * @param rattachementAutorise
-	 * @param estCours
-	 * @param estCalendrierUnique
+ 	 * @param nom Nom du groupe
+	 * @param rattachementAutorise Vrai si le rattachement au groupe est autorisé
+	 * @param estCours Vrai si c'est un groupe de cours
+	 * @param estCalendrierUnique Vrai si c'est un groupe unique relié à un calendrier
 	 */
 	public Groupe(String nom, List<Integer> idProprietaires, boolean rattachementAutorise, boolean estCours, boolean estCalendrierUnique) {
 		this.nom = nom;
@@ -55,9 +55,9 @@ public class Groupe {
 	
 	/**
 	 * Autre constructeur, uniquement avec "nom", "parendId" et "estCalendrierUnique"
-	 * @param nom
-	 * @param parentId
-	 * @param estCalendrierUnique
+	 * @param nom Nom du groupe
+	 * @param parentId Identifiant du groupe parent
+	 * @param estCalendrierUnique Vrai si c'est un groupe unique relié à un calendrier
 	 */
 	public Groupe(String nom, int parentId, boolean estCalendrierUnique) {
 		this.nom = nom;

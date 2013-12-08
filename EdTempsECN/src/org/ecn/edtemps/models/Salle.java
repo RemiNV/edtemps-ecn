@@ -27,16 +27,25 @@ public class Salle {
 	/** Numéro de la salle */
 	protected int numero;
 	
+	
 	/**
 	 * Constructeur avec les paramètres obligatoires
+	 * @param nom Nom de la salle
 	 */
 	public Salle(String nom) {
 		this.nom = nom;
 		this.materiels = new ArrayList<Materiel>();
 	}
 
+
 	/**
 	 * Constructeur avec tous les paramètres
+	 * @param batiment Nom du bâtiment de localisation
+	 * @param nom Nom de la salle
+	 * @param capacite Capacité en places, de la salle
+	 * @param niveau Etage de la salle dans le batiment
+	 * @param numero Numéro de la salle dans l'étage
+	 * @param materiels Liste des matériels qui équipent la salle
 	 */
 	public Salle(String batiment, String nom, int capacite, int niveau,
 			int numero, ArrayList<Materiel> materiels) {

@@ -37,7 +37,13 @@ public class Evenement {
 	/** ID de l'utilisateur qui a créé l'événement ; peut être null si il a été supprimé */
 	protected Integer idCreateur;
 	
-	/** Constructeur avec uniquement attributs indispensables */
+	/** Constructeur avec uniquement attributs indispensables
+	 * @param nom Nom de l'événement
+	 * @param dateDebut Date de début
+	 * @param dateFin Date de fin
+	 * @param idCalendriers Identifiants des calendriers liés
+	 * @param idCreateur Identifiant du créateur
+	 */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, Integer idCreateur) {
 		this.nom = nom;
 		this.dateDebut = dateDebut;
@@ -47,7 +53,16 @@ public class Evenement {
 	}
 
 
-	/** Constructeur avec tous les attributs */
+	/** Constructeur avec tous les attributs
+	 * @param nom Nom de l'événement
+	 * @param dateDebut Date de début
+	 * @param dateFin Date de fin
+	 * @param idCalendriers Identifiants des calendriers liés
+	 * @param idCreateur Identifiant du créateur
+	 * @param salles Liste des salles de l'événement
+	 * @param intervenants Liste des intervenants 
+	 * @param responsables Liste des responsables
+	 */
 	public Evenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, Integer idCreateur, List<SalleIdentifie> salles,
 			List<UtilisateurIdentifie> intervenants, List<UtilisateurIdentifie> responsables) {
 		this(nom, dateDebut, dateFin, idCalendriers, idCreateur);
@@ -55,7 +70,6 @@ public class Evenement {
 		this.intervenants = intervenants;
 		this.responsables = responsables;
 	}
-
 	
 	public String getNom() {
 		return nom;

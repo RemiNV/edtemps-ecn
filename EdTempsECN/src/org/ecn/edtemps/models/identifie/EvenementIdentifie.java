@@ -20,6 +20,7 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 
 	/** Identifiant de l'evenement dans la base de données */
 	protected int id;
+
 	
 	/** Constructeur avec tous les attributs */
 	public EvenementIdentifie(String nom, Date dateDebut, Date dateFin,
@@ -30,24 +31,6 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 	}
 	
 	
-	/**
-	 * Getter de l'ID
-	 * 
-	 * @return id
-	 */
-	public int getId() {
-		return id;
-	}
-	
-	/**
-	 * Setter de l'ID
-	 * 
-	 * @param id
-	 */
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	/**
 	 * Génération et remplissage du JsonObjectBuilder de cet objet pour la conversion en JsonValue.
 	 * Peut être surclassé pour ajouter des champs supplémentaires
@@ -78,5 +61,14 @@ public class EvenementIdentifie extends Evenement implements JSONAble {
 	@Override
 	public final JsonValue toJson() {
 		return makeJsonObjectBuilder().build();
+	}
+	
+	
+	public int getId() {
+		return id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
 	}
 }

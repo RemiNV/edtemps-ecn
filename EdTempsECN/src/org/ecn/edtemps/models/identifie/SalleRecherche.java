@@ -16,8 +16,21 @@ import org.ecn.edtemps.models.Materiel;
  */
 public class SalleRecherche extends SalleIdentifie {
 	
+	/** Liste des événements qui sont déjà prévus dans la salle */
 	protected ArrayList<EvenementIdentifie> evenementsEnCours;
 
+	
+	/**
+	 * Constructeur
+	 * @param id Identifiant de la salle
+	 * @param batiment Bâtiment de localisation
+	 * @param nom Nom de la salle
+	 * @param capacite Capacité en nombre de places
+	 * @param niveau Niveau de la salle dans le bâtiment
+	 * @param numero Numéro dans l'étage
+	 * @param materiels Liste des matéries contenus
+	 * @param evenementsEnCours Liste des événements déjà prévus dans la salle
+	 */
 	public SalleRecherche(int id, String batiment, String nom, int capacite,
 			int niveau, int numero, ArrayList<Materiel> materiels, ArrayList<EvenementIdentifie> evenementsEnCours) {
 		super(id, batiment, nom, capacite, niveau, numero, materiels);
@@ -25,6 +38,7 @@ public class SalleRecherche extends SalleIdentifie {
 		this.evenementsEnCours = evenementsEnCours;
 	}
 
+	
 	/**
 	 * Renvoie les évènements en cours (dépend du contexte de recherche) dans une salle.
 	 * <b>Peut être null si aucun évènement</b>
@@ -42,10 +56,9 @@ public class SalleRecherche extends SalleIdentifie {
 	protected JsonObjectBuilder makeJsonObjectBuilder() {
 		JsonObjectBuilder builder = super.makeJsonObjectBuilder();
 		
-		if(this.evenementsEnCours != null) {
+		if (this.evenementsEnCours != null) {
 			builder.add("evenementsEnCours", JSONUtils.getJsonArray(this.evenementsEnCours));
-		}
-		else {
+		} else {
 			builder.addNull("evenementsEnCours");
 		}
 		

@@ -20,8 +20,6 @@ import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
  * @author Remi
  */
 public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComplet> {
-
-	
 	
 	// Mise en cache de certaines matières/types
 	protected Hashtable<Integer, String> matieresCalendriers;

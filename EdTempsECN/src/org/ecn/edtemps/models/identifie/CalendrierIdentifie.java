@@ -20,30 +20,33 @@ public class CalendrierIdentifie extends Calendrier implements JSONAble {
 	/** Identifiant du calendrier dans la base de données */
 	protected int id;
 	
-	/** Constructeur avec tous les attributs */
+	
+	/** Constructeur avec tous les attributs
+	 * @param nom Nom du calendrier
+	 * @param type Type de cours du calendrier
+	 * @param matiere Matière lié au calendrier
+	 * @param idProprietaires Liste des indentifiants des propriétaires
+	 * @param id Identifiant du calendrier
+	 * @param idCreateur Identifiant du créateur
+	 */
 	public CalendrierIdentifie(String nom, String type, String matiere, List<Integer> idProprietaires, int id, int idCreateur) {
 		super(nom, type, matiere, idProprietaires, idCreateur);
 		this.id = id;
 	}
 	
-	/**
-	 * Getter de l'ID
-	 * 
-	 * @return id
-	 */
+	
 	public int getId() {
 		return id;
 	}
 
-	/**
-	 * Setter de l'ID
-	 * 
-	 * @param id
-	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 	
+	/**
+	 * Création d'un builder Json
+	 * @return builder
+	 */
 	protected JsonObjectBuilder makeObjectBuilder() {
 		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("id", id)
@@ -53,15 +56,13 @@ public class CalendrierIdentifie extends Calendrier implements JSONAble {
 		
 		if(type != null) {
 			builder.add("type", type);
-		}
-		else {
+		} else {
 			builder.addNull("type");
 		}
 		
 		if(matiere != null) {
 			builder.add("matiere", matiere);
-		}
-		else {
+		} else {
 			builder.addNull("matiere");
 		}
 		

@@ -25,14 +25,12 @@ public class GroupeIdentifieAbonnement extends GroupeIdentifie implements JSONAb
 	protected List<Integer> rattachementsDuCalendrier;
 	
 	/**
-	 * Constructeur utilisant uniquement les informations utiles pour  
-	 * la page d'Abonnements/Désabonnements 
-	 * 
-	 * @param id
-	 * @param nom
-	 * @param idParent
-	 * @param estCalendrierUnique
-	 * @param abonnementObligatoire
+	 * Constructeur utilisant uniquement les informations utiles pour la page d'Abonnements/Désabonnements 
+	 * @param id Identifiant du groupe
+	 * @param nom Nom du groupe
+	 * @param idParent Identifiant du groupe parent
+	 * @param estCalendrierUnique Vrai si c'est un groupe unique rattaché à un calendrier
+	 * @param abonnementObligatoire L'abonnement est obligatoire
 	 * @param rattachementsDuCalendrier
 	 */
 	public GroupeIdentifieAbonnement(int id, String nom, int idParent, boolean estCalendrierUnique, 
@@ -41,6 +39,7 @@ public class GroupeIdentifieAbonnement extends GroupeIdentifie implements JSONAb
 		this.abonnementObligatoire = abonnementObligatoire;
 		this.rattachementsDuCalendrier = rattachementsDuCalendrier;
 	}
+	
 
 	@Override
 	public JsonValue toJson() {

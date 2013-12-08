@@ -9,7 +9,8 @@ import org.ecn.edtemps.json.JSONUtils;
 
 /**
  * Calendrier avec des champs en plus qui sont utiles uniquement dans certains cas.
- * Par exemple le champ estCours qui permet de savoir si le calendrier est attaché à au moins un groupe de participants qui est un cours
+ * Par exemple le champ estCours qui permet de savoir si le calendrier est attaché
+ * à au moins un groupe de participants qui est un cours
  * 
  * @author Maxime TERRADE
  */
@@ -27,13 +28,9 @@ public class CalendrierComplet extends CalendrierIdentifie {
 
 	/**
 	 * Constructeur
-	 * 
-	 * @param calendrier
-	 * 			Calendrier identifié
-	 * @param estCours
-	 * 			VRAI si le calendrier est rattaché à un groupe qui est un cours
-	 * @param idGroupesParticipants
-	 * 			liste des id des groupes auxquels est rattaché le calendrier (hormis le groupe unique)
+	 * @param calendrier Calendrier identifié
+	 * @param estCours VRAI si le calendrier est rattaché à un groupe qui est un cours
+	 * @param idGroupesParents Liste des id des groupes auxquels est rattaché le calendrier (hormis le groupe unique)
 	 */
 	public CalendrierComplet(CalendrierIdentifie calendrier, boolean estCours, List<Integer> idGroupesParents) {
 		super(calendrier.getNom(), calendrier.getType(), calendrier.getMatiere(), calendrier.getIdProprietaires(), calendrier.getId(), calendrier.getIdCreateur());
