@@ -16,8 +16,8 @@ import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 public class CalendrierIdentifieInflater extends AbsCalendrierInflater<CalendrierIdentifie> {
 
 	@Override
-	protected CalendrierIdentifie inflate(int id, String nom, String type, String matiere, List<Integer> idProprietaires, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException {
-		return new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
+	protected CalendrierIdentifie inflate(int id, String nom, String type, String matiere, List<Integer> idProprietaires, int idCreateur, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException {
+		return new CalendrierIdentifie(nom, type, matiere, idProprietaires, id, idCreateur);
 	}
 	
 }

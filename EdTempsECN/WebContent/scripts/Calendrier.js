@@ -8,7 +8,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement) {
+	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement, viewRender) {
 		var me = this;
 		
 		// Dialog de détails des événements
@@ -82,7 +82,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			firstDay: 1,
 			editable: true,
 			defaultView: "agendaWeek",
-			timeFormat: "HH'h'(mm)",
+			timeFormat: "HH'h'(mm){ - HH'h'(mm)}",
 			axisFormat: "HH'h'(mm)",
 			titleFormat: {
 				month: 'MMMM yyyy',                             // Septembre 2013
@@ -99,9 +99,9 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				center: 'title',
 				left: 'prev,next today month,agendaWeek,agendaDay'
 			},
-			height: Math.max(window.innerHeight - 110, 500),
+			height: Math.max(window.innerHeight - 100, 500),
 			windowResize: function(view) {
-				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 110, 500));
+				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - 100, 500));
 			},
 			events: eventsSource,
 			dayClick: function(date, allDay, jsEvent, view) {
@@ -181,7 +181,8 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			},
 			eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
 				updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
-			}
+			},
+			viewRender: viewRender
 			
 		});
 		
@@ -247,6 +248,21 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			}
 		}, 1000);
 	}
+	
+	/**
+	 * Déplace la vue à la date fournie. Voir la documentation de fullCalendar pour gotoDate.
+	 * @param {Date} date Date vers laquelle déplacer la vue
+	 */
+	Calendrier.prototype.gotoDate = function(date) {
+		this.jqCalendar.fullCalendar("gotoDate", date);
+	};
+	
+	/**
+	 * Récupère la date en cours d'affichage dans le calendrier. voir la documentation de fullCalendar pour getDate
+	 */
+	Calendrier.prototype.getDate = function() {
+		return this.jqCalendar.fullCalendar("getDate");
+	};
 	
 
 	/**

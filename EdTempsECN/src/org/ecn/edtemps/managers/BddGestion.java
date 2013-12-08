@@ -234,6 +234,8 @@ public class BddGestion {
 				 lstIds.add(resultat.getInt(nomColonne));
 			}
 			
+			resultat.close();
+			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

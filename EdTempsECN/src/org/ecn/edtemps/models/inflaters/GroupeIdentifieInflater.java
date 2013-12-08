@@ -17,7 +17,7 @@ public class GroupeIdentifieInflater extends AbsGroupeInflater<GroupeIdentifie> 
 
 	@Override
 	protected GroupeIdentifie inflate(int id, String nom, int idParent, int idParentTmp, boolean rattachementAutorise,
-			boolean estCours, boolean estCalendrierUnique, ResultSet reponse, BddGestion bdd)
+			boolean estCours, boolean estCalendrierUnique, int idCreateur, ResultSet reponse, BddGestion bdd)
 					throws DatabaseException, SQLException {
 		
 		// Récupérer la liste des identifiants des propriétaires */
@@ -29,7 +29,7 @@ public class GroupeIdentifieInflater extends AbsGroupeInflater<GroupeIdentifie> 
 		}
 		requeteProprietaires.close();
 		
-		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique);
+		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique, idCreateur);
 		groupeRecupere.setParentId(idParent); // Eventuellement 0
 		groupeRecupere.setParentIdTmp(idParentTmp);
 

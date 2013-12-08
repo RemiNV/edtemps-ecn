@@ -7,15 +7,37 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #logoAppli {
-	margin-left: 50px;
+	text-align: center;
 }
 
 #colonne_gauche {
 	float: left;
+	margin-right: 10px;
+}
+
+#boutons_colonne_gauche {
+	text-align: center;
 }
 
 #main_content {
 	overflow: hidden;
+}
+
+#div_chargement_evenements {
+	border: 1px solid #bfc2bf;
+	position: absolute;
+	bottom: 30px;
+	right: 50px;
+	width: 320px;
+	text-align: center;
+	z-index: 1000;
+	background-color: #f6f6f6;
+}
+
+#div_chargement_evenements > span {
+	position: relative;
+	top: -3px;
+	color: #333;
 }
 
 #formulaire_connexion {
@@ -215,7 +237,7 @@ table.liste_materiel th {
 	clear: both;
 	float: right;
 	width: 350px;
-	margin: 20px;
+	margin: 10px 0px;
 	position: relative;
 	top: 50px;
 	margin-top: -50px;
@@ -233,15 +255,15 @@ table.liste_materiel th {
 }
 
 #formulaire_filtres select {
-	width: 140px;
+	width: 145px;
 }
 
-#btn_ajout_evenement, #bloc_vos_agendas {
-	margin-top: 40px;
+#bloc_vos_agendas, #boutons_colonne_gauche, #accueil_datepicker {
+	margin-top: 15px;
 }
 
 #liste_groupes {
-	margin: 20px 10px 0px 0px;
+	margin-top: 10px;
 	border: 1px solid #bfc2bf;
 	height: 300px;
 	width: 250px;
@@ -309,6 +331,10 @@ table.liste_materiel th {
 	width: 100%;
 }
 
+.attente_rattachement {
+	background-color: #FFDBDB;
+}
+
 #tbl_mes_calendriers tr {
     border-bottom: 1px solid gray;
     border: 1px solid gray;
@@ -324,6 +350,7 @@ table.liste_materiel th {
 
 .tbl_mes_calendriers_boutons_modifier {
     margin-right: 5px;
+    margin-left: 5px;
 }
 
 /* Formulaire CreationGroupeParticipants */
@@ -403,9 +430,9 @@ table.liste_materiel th {
 	width: 900px;
 	height: 20px;
 	left: 50%;
-	top: -40px;
+	bottom: -40px;
 	margin-left: -450px;
-	background-color: #079eb5;
+	background-color: #0187AA;
 	border-radius: 5px;
 	padding: 5px;
 	text-align: center;
@@ -612,8 +639,8 @@ input.valide {
 .input_autocomplete_overlay {
 	z-index: 1;
 	position: absolute;
-	top: 0px;
-	left: 0px;
+	margin-top: 2px;
+	margin-left: 0px;
 	border-color: transparent !important;
 	background-color: white;
 }
@@ -629,10 +656,6 @@ input.valide {
 }
 
 /** Dialog de détails d'un événement */
-#dialog_details_evenement {
-	
-}
-
 .ui-dialog-titlebar.dialog_details_evenement_header, #dialog_details_evenement.ui-dialog-content {
 	padding: 15px;
 	background-color: white;
@@ -680,49 +703,77 @@ input.valide {
 }
 
 /** Modifications fullcalendar */
+.fc-agenda-allday, .fc-agenda-allday + .fc-agenda-divider {
+	display: none; /* Pas de support du "journée entière" */
+}
+
 .fc-event {
 	cursor: pointer; /* Même les événements non draggable ont une popup */
+}
+
+.fc-header-title h2 {
+	font-weight: normal;
+	padding-top: 5px;
+}
+
+.fc-first .fc-widget-header {
+	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	font-size: 0.8em;
+	padding: 2px;
+}
+
+/* On ne redéfinit pas le week-number fc-widget-header (barre du haut), 
+ * mais pour les autres (côté) on applique la règle */
+.fc-first .fc-agenda-axis.fc-widget-header:not(.fc-week-number), .fc-week-number {
+	background-image: none;
+	background-color: #f6f6f6;
 }
 
 /** Choix du groupe et de la salle pour les vues groupe et salle */
 #choix_groupe, #choix_salle {
 	clear: left;
 	position: relative;
-	top: 15px;
+	top: 5px;
 	height: 0px;
 }
 
 /** Combobox */
+.custom-combobox {
+	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	height: 22px;
+	display: inline-block;
+	border: 1px solid #bfc2bf;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+
 .custom-combobox-input {
 	width: 200px;
 	padding: 2px;
-	margin-right: 0px;
-	border: 1px solid #bfc2bf;
-	border-right-width: 0px;
+	display: inline-block;
+	border: none;
+	background-color: transparent;
 	height: 18px;
-	background-image: linear-gradient(to bottom, white, #e6e6e6);
 }
 
 .custom-combobox-toggle {
 	width: 22px;
-	height: 22px;
-	background-image: linear-gradient(to bottom, white, #e6e6e6);
-	border-top-right-radius: 5px;
+	height: 18px;
 	display: inline-block;
-	border-bottom-right-radius: 5px;
-	position: relative;
-	top: 7px;
-	border: 1px solid #bfc2bf;
+	padding: 2px;
 	cursor: pointer;
+	border-left: 1px solid #bfc2bf;
 }
 
 .custom-combobox-toggle .arrow_down {
 	width: 0px;
 	height: 0px;
-	border-top: 7px solid black;
+	border-top: 6px solid black;
 	border-left: 6px solid transparent;
 	border-right: 6px solid transparent;
-	margin-top: 8px;
-	display: block;
-	margin-left: 4px;
+	position: relative;
+	display: inline-block;
+	top: -2px;
+	left: 5px;
 }

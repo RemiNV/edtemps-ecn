@@ -115,6 +115,20 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 				logger.error("Erreur lors de la suppression du calendrier", e);
 			}
 		}
+		// Page /calendrier/nePlusEtreProprietaire
+		else if(pathInfo.equals("/nePlusEtreProprietaire")) { 
+			try {
+				int idCalendrier = Integer.parseInt(req.getParameter("idCalendrier"));
+				calendrierGestion.nePlusEtreProprietaire(idCalendrier, userId);
+				// Génération réponse si aucune exception
+				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Action NePlusEtreProprietaire réussie", null));
+				logger.debug("Action NePlusEtreProprietaire réussie");
+			} catch (EdtempsException e) {
+				// Génération réponse si exception
+				resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+				logger.error("Erreur lors de la requete 'NePlusEtreProprietaire'", e);
+			}
+		}
 		// Autre page, non prise en charge
 		else { 
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -152,19 +166,18 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		String stringIdGroupesParents = req.getParameter("idGroupesParents");
 		ArrayList<Integer> idGroupesParents = JSONUtils.getIntegerArrayList(
 			     Json.createReader(new StringReader(stringIdGroupesParents)).readArray());
-		System.out.println("dindon");
 		// Cas de MODIFICATION d'un calendrier
 		if (casModifier) {
 			int id = Integer.parseInt(req.getParameter("id"));
 			// Création d'un calendrier identifié, contenant les informations récupérées
-			CalendrierIdentifie cal = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
+			CalendrierIdentifie cal = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id, -1);  //-1 car on se fiche de savoir qui est le créateur
 			// Modification du calendrier = modification de la ligne correspondante dans la BDD
 			calendrierGestion.modifierCalendrier(cal, idGroupesParents);
 		}
 		// Cas de CREATION d'un calendrier
 		else {
 			// Création d'un calendrier contenant les informations récupérées
-			Calendrier cal = new Calendrier(nom, type, matiere, idProprietaires);
+			Calendrier cal = new Calendrier(nom, type, matiere, idProprietaires, userId);
 			// Création du calendrier = ajout du calendrier dans la BDD
 			calendrierGestion.sauverCalendrier(cal, idGroupesParents);
 		}

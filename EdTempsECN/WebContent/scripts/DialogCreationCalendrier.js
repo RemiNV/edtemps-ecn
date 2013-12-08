@@ -29,7 +29,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	/**
 	 * Initialise la boîte de dialogue de création d'un calendrier
 	 */
-	DialogCreationCalendrier.prototype.init = function(matiere, type, proprietaires, groupesParents) {
+	DialogCreationCalendrier.prototype.init = function(matiere, type, proprietaires, createur, groupesParents, groupesParentsTmp) {
 		var me = this;
 
 		// Remplir les combobox matieres et types
@@ -58,7 +58,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 						MultiWidget.AUTOCOMPLETE_OPTIONS(me.listeProprietairesPotentiels, 3, 225));
 				// On remplir les proprietaires (dans le cas d'une modification de calendrier)
 				if (proprietaires.length != 0) {
-					me.remplirProprietaires(proprietaires);
+					me.remplirProprietaires(proprietaires, createur);
 				}
 				else {
 					me.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: me.restManager.getUserId(), readOnly: true }]);
@@ -72,7 +72,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		});
 		
 		// Remplir les groupes parents potentiels
-		me.remplirGroupesParents(groupesParents);
+		me.remplirGroupesParents(groupesParents, groupesParentsTmp);
 		
 		// Listener bouton "Annuler"
 		this.jqDialog.find("#form_creer_calendrier_annuler").click(function() {
@@ -126,7 +126,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		if (casModifier) {
 			// Si pas déjà fait, initialiser la boite de dialogue (listeners, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires, calendrierAModifier.groupesParents); 
+				this.init(calendrierAModifier.matiere, calendrierAModifier.type, calendrierAModifier.proprietaires, calendrierAModifier.createur, calendrierAModifier.groupesParents, calendrierAModifier.groupesParentsTmp); 
 				this.initAppele = true;
 			}
 			else {
@@ -134,9 +134,9 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 				this.matiere.val(calendrierAModifier.matiere); 
 				this.type.val(calendrierAModifier.type);
 				// On remplit les proprietaires
-				this.remplirProprietaires(calendrierAModifier.proprietaires);
+				this.remplirProprietaires(calendrierAModifier.proprietaires, calendrierAModifier.createur);
 				// On remplit les groupes parents
-				this.remplirGroupesParents(calendrierAModifier.groupesParents);
+				this.remplirGroupesParents(calendrierAModifier.groupesParents, calendrierAModifier.groupesParentsTmp);
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Modifier le calendrier");
@@ -150,12 +150,12 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		else {
 			// Si pas déjà fait, initialiser la boite de dialogue (listener, recuperation matiere/type/proprio) 
 			if(!this.initAppele) {
-				this.init("","", new Array(), new Array()); //Matière = Aucune, Type = Aucun, pas de propriétaires et groupes parents
+				this.init("","", new Array(), -1, new Array(), new Array()); //Matière = Aucune, Type = Aucun, pas de propriétaires et groupes parents
 				this.initAppele = true;
 			}
 			else {
 				// Mise à jour des groupes parents potentiels
-				this.remplirGroupesParents(new Array());
+				this.remplirGroupesParents(new Array(), new Array());
 			}
 			// Ecriture du titre de la boîte de dialogue et du nom du bouton d'action principale
 			this.jqDialog.dialog("option", "title", "Création d'un nouveau calendrier");
@@ -246,13 +246,14 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	};
 	
 	/**
-	 * Méthode qui charge le contenu des combobox groupes parents 
+	 * Méthode qui charge le contenu des combobox groupes parents (validés ou non)
 	 * Elle affiche par ailleurs les groupes parents existants (dans le cas d'une modification)
 	 * 
-	 * @param groupesParents (tableau) : id des groupes parents du calendrier
-	 * 			S'il est vide, il n'y a aucun parent ou il s'agit d'une fenetre de création de calendrier
+	 * @param groupesParents (tableau) : id des groupes parents validés du calendrier
+	 * @param groupesParentsTmp (tableau) : id des groupes parents non validés du calendrier
+	 * 			
 	 */
-	DialogCreationCalendrier.prototype.remplirGroupesParents = function(groupesParents) {
+	DialogCreationCalendrier.prototype.remplirGroupesParents = function(groupesParents, groupesParentsTmp) {
 		var me = this;
 		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
 			token: this.restManager.getToken()
@@ -281,7 +282,23 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 						me.ajouterGroupeParent();
 						me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParents[i] + "]").prop('selected', true);
 					}
+					// Ajouter une ligne s'il y a des groupes parents tmp à ajouter ensuite
+					if (groupesParentsTmp.length != 0) {
+						me.ajouterGroupeParent();
+					}
+				}
 				
+				// Remplir groupes parents tmp
+				if (groupesParentsTmp.length != 0) {
+					me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParentsTmp[0] + "]").prop('selected', true);
+					me.jqDialog.find(".form_creer_calendrier_parent:last").addClass("attente_rattachement");
+					me.jqDialog.find(".form_creer_calendrier_parent:last").attr("title", "En attente de validation");
+					for (var i=1, maxI=groupesParentsTmp.length; i<maxI; i++) {
+						me.ajouterGroupeParent();
+						me.jqDialog.find(".form_creer_calendrier_parent:last option[value=" + groupesParentsTmp[i] + "]").prop('selected', true);
+						me.jqDialog.find(".form_creer_calendrier_parent:last").addClass("attente_rattachement");
+						me.jqDialog.find(".form_creer_calendrier_parent:last").attr("title", "En attente de validation");
+					}
 				}
 				
 				// Listener bouton "Ajouter rattachement"
@@ -303,7 +320,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	 * 
 	 * @param proprietaires (tableau) : id des proprietaires du calendrier
 	 */
-	DialogCreationCalendrier.prototype.remplirProprietaires = function(proprietaires) {
+	DialogCreationCalendrier.prototype.remplirProprietaires = function(proprietaires, createur) {
 		var me = this;
 		var listeProprietairesCalendrier = new Array();
 		for (var i=0, maxI=proprietaires.length; i<maxI; i++) {
@@ -312,7 +329,12 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			user.label = me.listeProprietairesPotentielsIndex[idProprio].label;
 			user.value = idProprio;
 			user.tooltip = me.listeProprietairesPotentielsIndex[idProprio].tooltip;
-			user.readOnly = false; // TODO : mettre une valeur correcte
+			if (idProprio == createur) {
+				user.readOnly = true;
+			}
+			else {
+				user.readOnly = false;
+			}
 			// TODO : cette méthode pourrait utiliser UtilisateurGestion.makeUtilisateursAutocomplete  (méthode statique)
 			listeProprietairesCalendrier.push(user);
 		}
@@ -330,10 +352,16 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		var valid = true;
 
 		// Nom du calendrier non nul ?
-		if (this.nom.val()=="" || !(/^[a-z \u00C0-\u00FF0-9]+$/i.test(this.nom.val()))) {
+		if (this.nom.val()=="") {
 			this.nom.css({border: "1px solid red"});
 			valid = false;
-		} else {
+		} 
+		else if (!(/^[a-z \u00C0-\u00FF0-9]+$/i.test(this.nom.val()))) {
+			window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
+			this.nom.css({border: "1px solid red"});
+			valid = false;
+		}
+		else {
 			this.nom.css({border: "1px solid black"});
 		}
 
@@ -375,15 +403,20 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			if (casModifier) {
 				this.calendrierGestion.modifierCalendrier(idCal, nom, matiere, type, idProprietairesJson, idGroupesParentsJson, function(resultCode) {
 					if(resultCode == RestManager.resultCode_Success) {
-						// recharger les calendriers de l'utilisateur
-						me.ecranParametres.afficheListeMesCalendriers();
 						// fermer dialog
 						me.jqDialog.dialog("close");
 						// afficher message
 						window.showToast("Le calendrier a bien été modifié");
+						// recharger les calendriers de l'utilisateur
+						me.ecranParametres.afficheListeMesCalendriers();
+					} 
+					else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
+						window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
+					} 
+					else if (resultCode == RestManager.resultCode_NameTaken) {
+						window.showToast("Le nom du calendrier est déjà utilisé, veuillez en choisir un autre");
 					}
 					else {
-						// afficher message
 						window.showToast("Erreur lors de la modification du calendrier");
 					}
 				});	
@@ -392,14 +425,23 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 			else {
 				this.calendrierGestion.creerCalendrier(nom, matiere, type, idProprietairesJson, idGroupesParentsJson, function(resultCode) {
 					if(resultCode == RestManager.resultCode_Success) {
+						// fermer dialog
+						me.jqDialog.dialog("close");
 						// afficher message
 						window.showToast("Le calendrier a bien été créé");
 						// recharger les calendriers de l'utilisateur
 						me.ecranParametres.afficheListeMesCalendriers();
-					} else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
+					} 
+					else if (resultCode == RestManager.resultCode_AlphanumericRequired) {
 						window.showToast("Le nom du calendrier ne doit comporter que des caractères alphanumériques et des espaces");
-					} else {
-						// afficher message
+					} 
+					else if (resultCode == RestManager.resultCode_NameTaken) {
+						window.showToast("Le nom du calendrier est déjà utilisé, veuillez en choisir un autre");
+					} 
+					else if (resultCode == RestManager.resultCode_QuotaExceeded) {
+						window.showToast("Quota maximum de calendrier créé atteint !");
+					} 
+					else {
 						window.showToast("Erreur lors de la création du calendrier");
 					}
 				});	

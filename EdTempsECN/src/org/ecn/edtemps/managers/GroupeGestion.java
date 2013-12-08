@@ -32,7 +32,14 @@ public class GroupeGestion {
 
 	public static final String NOM_TEMPTABLE_ABONNEMENTS = "tmp_requete_abonnements_groupe";
 	public static final String NOM_TEMPTABLE_PARENTSENFANTS = "tmp_requete_parents_enfants_groupe";
+	public static final String NOM_TEMPTABLE_ENFANTS = "tmp_requete_enfants_groupe";
 	
+	/** Nombre maximum de groupes qu'un utilisateur peut créer */
+	public static final int LIMITE_GROUPES_PAR_UTILISATEUR = 20;
+
+	/** Nombre maximum de groupes qu'un utilisateur peut créer avec un droit étendu */
+	public static final int LIMITE_GROUPES_PAR_UTILISATEUR_ETENDUE = 100;
+
 
 	/**
 	 * Initialise un gestionnaire de groupes de participants
@@ -49,7 +56,7 @@ public class GroupeGestion {
 	 * @return le groupe identifié (standard)
 	 * @throws EdtempsException En cas d'erreur de connexion avec la base de données
 	 */
-	public GroupeIdentifie getGroupe(int identifiant) throws EdtempsException {
+	public GroupeIdentifie getGroupe(int identifiant) throws DatabaseException {
 
 		GroupeIdentifie groupeRecupere = null;
 
@@ -60,7 +67,7 @@ public class GroupeGestion {
 
 			// Récupère le groupe en base
 			ResultSet requeteGroupe = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp," +
-							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique" +
+							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur" +
 							" FROM edt.groupeparticipant WHERE groupeparticipant_id="+identifiant);
 
 			// Accède au premier élément du résultat
@@ -71,7 +78,7 @@ public class GroupeGestion {
 			}
 
 		} catch (DatabaseException | SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 
 		return groupeRecupere;
@@ -95,7 +102,7 @@ public class GroupeGestion {
 
 			// Récupère le groupe en base
 			ResultSet requeteGroupe = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp," +
-							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique" +
+							"groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur" +
 							" FROM edt.groupeparticipant WHERE groupeparticipant_id="+identifiant);
 
 			// Accède au premier élément du résultat
@@ -126,18 +133,31 @@ public class GroupeGestion {
 
 		int idInsertion = -1;
 		
-		if(StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
+		if (StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom et au moins un responsable");
 		}
 
-		if(!StringUtils.isAlphanumericSpace(nom)) {
+		if (!StringUtils.isAlphanumericSpace(nom)) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique");
 		}
 		
-		// Vérification si l'utilisateur a le droit de créer un groupe de cours
+		// Vérifier si l'utilisateur a le droit de créer un groupe de cours
 		UtilisateurGestion userGestion = new UtilisateurGestion(_bdd);
 		if (estCours && !userGestion.aDroit(ActionsEdtemps.CREER_GROUPE_COURS, userId)) {
 			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Action non autorisée");
+		}
+		
+		// Vérifier si l'utilisateur n'a pas créé trop de groupes
+		boolean limiteEtendue = userGestion.aDroit(ActionsEdtemps.LIMITE_CALENDRIERS_ETENDUE, userId);
+		int nbGroupesDejaCrees = this.getNombresGroupesCrees(userId);
+		int nbGroupesAutorisesACreer = limiteEtendue ? LIMITE_GROUPES_PAR_UTILISATEUR_ETENDUE : LIMITE_GROUPES_PAR_UTILISATEUR;
+		if (nbGroupesDejaCrees >= nbGroupesAutorisesACreer) {
+			throw new EdtempsException(ResultCode.QUOTA_EXCEEDED, "L'utilisateur a dépassé son quota de création de groupes de participants");
+		}
+		
+		// Vérifie que le créateur fait partie de la liste des propriétaires
+		if (!listeIdProprietaires.contains(userId)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Le créateur doit faire partie de la liste des propriétaires");
 		}
 
 		try {
@@ -157,8 +177,8 @@ public class GroupeGestion {
 			// Prépare la requête avec un traitement différent si un groupe parent a été indiqué (else) 
 			PreparedStatement req = null;
 			if (idGroupeParent == null) {
-				req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
-						"?, '" + rattachementAutorise + "', 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id ");
+				req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique, groupeparticipant_estcours, groupeparticipant_createur) VALUES (" +
+						"?, '" + rattachementAutorise + "', 'FALSE', '"+ estCours +"', "+userId+") RETURNING groupeparticipant_id ");
 				req.setString(1, nom);
 			} else {
 				// Requête pour récupérer le propriétaire du groupe parent 
@@ -166,8 +186,8 @@ public class GroupeGestion {
 				idProprietaireGroupeParent.next();
 				
 				// Préparation de la requête avec un idParent temporaire si le propriétaire du groupe parent n'est pas l'utilisateur en cours 
-				req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, "+(idProprietaireGroupeParent.getInt(1)==userId ? "groupeparticipant_id_parent" : "groupeparticipant_id_parent_tmp")+", groupeparticipant_estcalendrierunique, groupeparticipant_estcours) VALUES (" +
-						"?, '"	+ rattachementAutorise + "', " + idGroupeParent + ", 'FALSE', '"+ estCours +"') RETURNING groupeparticipant_id");
+				req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, "+(idProprietaireGroupeParent.getInt(1)==userId ? "groupeparticipant_id_parent" : "groupeparticipant_id_parent_tmp")+", groupeparticipant_estcalendrierunique, groupeparticipant_estcours, groupeparticipant_createur) VALUES (" +
+						"?, '"	+ rattachementAutorise + "', " + idGroupeParent + ", 'FALSE', '"+ estCours +"', "+userId+") RETURNING groupeparticipant_id");
 				req.setString(1, nom);
 			}
 
@@ -182,7 +202,7 @@ public class GroupeGestion {
 			// Ajout des propriétaires
 			if (CollectionUtils.isNotEmpty(listeIdProprietaires)) {
 				for (Integer idProprietaire : listeIdProprietaires) {
-					_bdd.executeRequest("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeparticipant_id) VALUES (" +
+					_bdd.executeUpdate("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeparticipant_id) VALUES (" +
 							idProprietaire + ", "	+
 							idInsertion	+ ")");
 				}
@@ -212,7 +232,8 @@ public class GroupeGestion {
 	 * @param listeIdProprietaires Liste des identifiants des propriétaires du groupe
 	 * @throws EdtempsException En cas d'erreur
 	 */
-	public void modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
+	public void modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, 
+			boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
 
 		if(StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom et au moins un responsable");
@@ -237,17 +258,38 @@ public class GroupeGestion {
 			// Démarre une transaction
 			_bdd.startTransaction();
 			
+			// Vérification des rattachements cycliques (pas de rattachement à un de ses fils)
+			if(idGroupeParent != null) {
+				makeTempTableListeEnfants(_bdd, id);
+				
+				ResultSet resRattachementCyclique = _bdd.executeRequest("SELECT groupeparticipant_id FROM " + NOM_TEMPTABLE_ENFANTS +
+						" WHERE groupeparticipant_id=" + idGroupeParent);
+				
+				if(resRattachementCyclique.next()) {
+					resRattachementCyclique.close();
+					throw new EdtempsException(ResultCode.INVALID_OBJECT, "Impossible d'utiliser un enfant d'un groupe comme groupe parent");
+				}
+				
+				resRattachementCyclique.close();
+			}
+			
 			if (StringUtils.isNotBlank(nom)) {
 
 				// Récupération de l'ancien groupe
 				ResultSet ancienGroupeParent = _bdd.executeRequest(
-						"SELECT groupeparticipant_nom, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp" +
+						"SELECT groupeparticipant_nom, groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_createur" +
 						" FROM edt.groupeparticipant WHERE groupeparticipant_id="+id);
 				ancienGroupeParent.next();
 				String ancienNom = ancienGroupeParent.getString("groupeparticipant_nom");
 				int ancienIdParent = ancienGroupeParent.getInt("groupeparticipant_id_parent");
 				int ancienIdParentTmp = ancienGroupeParent.getInt("groupeparticipant_id_parent_tmp");
+				int createur = ancienGroupeParent.getInt("groupeparticipant_createur");
 				
+				// Vérifie que le créateur fait partie de la liste des propriétaires
+				if (!listeIdProprietaires.contains(createur)) {
+					throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Le créateur doit faire partie de la liste des propriétaires");
+				}
+
 				// Vérifie que le nom n'est pas déjà en base de données
 				if (!StringUtils.equals(nom, ancienNom)) {
 					PreparedStatement nomDejaPris = _bdd.getConnection().prepareStatement("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_nom=?");
@@ -306,12 +348,12 @@ public class GroupeGestion {
 				req.execute();
 
 				// Supprime les liens avec les propriétaires
-				_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeParticipant_id=" + id);
+				_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeParticipant_id=" + id);
 
 				// Ajout des nouveaux propriétaires
 				if (CollectionUtils.isNotEmpty(listeIdProprietaires)) {
 					for (int idProprietaire : listeIdProprietaires) {
-						_bdd.executeRequest("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeParticipant_id) VALUES ("
+						_bdd.executeUpdate("INSERT INTO edt.proprietairegroupeparticipant (utilisateur_id, groupeParticipant_id) VALUES ("
 								+ idProprietaire + ", " + id + ")");
 					}
 				} else {
@@ -334,40 +376,54 @@ public class GroupeGestion {
 
 	}
 
-	
+	/**
+	 * Supprime un groupe en base de données
+	 * @param idGroupe Identifiant du groupe à supprimer
+	 * @param startTransaction Démarrer une transaction dans cette méthode. Sinon la méthode doit être appelée dans une transaction
+	 * @throws EdtempsException Si le groupe n'est pas supprimable
+	 */
+	public void supprimerGroupe(int idGroupe, boolean startTransaction) throws DatabaseException {
+		supprimerGroupe(idGroupe, startTransaction, false);
+	}
 	
 	/**
 	 * Supprime un groupe en base de données
 	 * @param idGroupe Identifiant du groupe à supprimer
+	 * @param startTransaction Démarrer une transaction dans cette méthode. Sinon la méthode doit être appelée dans une transaction
+	 * @param ignorerVerifUnique Ignorer la vérification "le groupe n'est pas un groupe calendrier unique"
 	 * @throws EdtempsException Si le groupe n'est pas supprimable
 	 */
-	public void supprimerGroupe(int idGroupe) throws EdtempsException {
+	public void supprimerGroupe(int idGroupe, boolean startTransaction, boolean ignorerVerifUnique) throws DatabaseException {
 
 		// Vérifie si c'est un groupe unique et, le cas échéant, arrêter la suppression
-		if (this.getGroupe(idGroupe).estCalendrierUnique()) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, "Impossible de supprimer le groupe unique lié à un calendrier.");
+		if (!ignorerVerifUnique && this.getGroupe(idGroupe).estCalendrierUnique()) {
+			throw new DatabaseException("Impossible de supprimer le groupe unique lié à un calendrier.");
 		}
 
 		// Démarre une transaction
-		_bdd.startTransaction();
+		if(startTransaction) {
+			_bdd.startTransaction();
+		}
 
 		// Supprime les liens avec les propriétaires
-		_bdd.executeRequest("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Supprime les liens avec les calendriers
-		_bdd.executeRequest("DELETE FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeUpdate("DELETE FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id=" + idGroupe);
 
 		// Supprime les abonnements
-		_bdd.executeRequest("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeUpdate("DELETE FROM edt.abonnegroupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Pour tous les fils, suppression du parent ID
 		_bdd.executeUpdate("UPDATE edt.groupeparticipant SET groupeparticipant_id_parent=NULL WHERE groupeparticipant_id_parent=" + idGroupe);
 		
 		// Supprime le groupe
-		_bdd.executeRequest("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupe);
+		_bdd.executeUpdate("DELETE FROM edt.groupeparticipant WHERE groupeparticipant_id=" + idGroupe);
 
 		// Termine la transaction
-		_bdd.commit();
+		if(startTransaction) {
+			_bdd.commit();
+		}
 	}
 	
 	/**
@@ -377,45 +433,22 @@ public class GroupeGestion {
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
 	protected static void makeTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
-		bdd.executeRequest("CREATE TEMP TABLE " + nomTable + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
+		bdd.executeUpdate("CREATE TEMP TABLE " + nomTable + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
 			"groupeparticipant_rattachementautorise BOOLEAN NOT NULL,groupeparticipant_id_parent INTEGER, groupeparticipant_id_parent_tmp INTEGER, groupeparticipant_estcours BOOLEAN, " +
-			"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL) ON COMMIT DROP");
+			"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL, groupeparticipant_createur INTEGER) ON COMMIT DROP");
 	}
 	
 	/**
-	 * Itère sur les parents et enfants des lignes d'une temporaire de groupes pour les ajouter à cette même table
+	 * Itère sur les parents des lignes d'une temporaire de groupes pour les ajouter à cette même table
 	 * @param bdd Gestionnaire de base de données
 	 * @param nomTable Nom de la table temporaire à utiliser
 	 * @throws DatabaseException Erreur de communication avec la base de données
 	 */
-	protected static void completerParentsEnfantsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
-		// Ajout des parents et enfants
-		PreparedStatement statementParents;
+	protected static void completerParentsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
 		try {
-			
-			// Enfants : utilisation d'une requête préparée pour accélérer les traitements consécutifs
 			int nbInsertions = -1;
-			PreparedStatement statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
-					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-					"SELECT DISTINCT enfant.groupeparticipant_id," +
-					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
-					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
-					"FROM edt.groupeparticipant enfant " +
-					"INNER JOIN " + nomTable + " parent " +
-					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
-					"LEFT JOIN " + nomTable + " deja_inseres " +
-					"ON deja_inseres.groupeparticipant_id=enfant.groupeparticipant_id " +
-					"WHERE deja_inseres.groupeparticipant_id IS NULL");
 			
-			while(nbInsertions != 0) {
-				nbInsertions = statementEnfants.executeUpdate();
-			}
-			
-			nbInsertions = -1;
-			
-			// Puis parents (sinon ajoute les enfants des parents !)
-			statementParents = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+			PreparedStatement statementParents = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
 					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
 					"SELECT DISTINCT parent.groupeparticipant_id," +
@@ -437,6 +470,39 @@ public class GroupeGestion {
 			throw new DatabaseException(e);
 		}
 	}
+	
+	/**
+	 * Itère sur les enfants des lignes d'une temporaire de groupes pour les ajouter à cette même table
+	 * @param bdd Gestionnaire de base de données
+	 * @param nomTable Nom de la table temporaire à utiliser
+	 * @throws DatabaseException Erreur de communication avec la base de données
+	 */
+	protected static void completerEnfantsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
+
+		PreparedStatement statementEnfants;
+		try {
+			
+			int nbInsertions = -1;
+			statementEnfants = bdd.getConnection().prepareStatement("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+					"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+					"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+					"SELECT DISTINCT enfant.groupeparticipant_id," +
+					"enfant.groupeparticipant_nom, enfant.groupeparticipant_rattachementautorise," +
+					"enfant.groupeparticipant_id_parent, enfant.groupeparticipant_id_parent_tmp, enfant.groupeparticipant_estcours, enfant.groupeparticipant_estcalendrierunique " +
+					"FROM edt.groupeparticipant enfant " +
+					"INNER JOIN " + nomTable + " parent " +
+					"ON parent.groupeparticipant_id=enfant.groupeparticipant_id_parent " +
+					"LEFT JOIN " + nomTable + " deja_inseres " +
+					"ON deja_inseres.groupeparticipant_id=enfant.groupeparticipant_id " +
+					"WHERE deja_inseres.groupeparticipant_id IS NULL");
+			
+			while(nbInsertions != 0) {
+				nbInsertions = statementEnfants.executeUpdate();
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
 
 	
 	/**
@@ -453,21 +519,33 @@ public class GroupeGestion {
 		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
 		
 		// Ajout des abonnements directs
-		bdd.executeRequest("INSERT INTO " + NOM_TEMPTABLE_ABONNEMENTS + "(groupeparticipant_id," +
+		bdd.executeUpdate("INSERT INTO " + NOM_TEMPTABLE_ABONNEMENTS + "(groupeparticipant_id," +
 				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur) " +
 				"SELECT groupeparticipant.groupeparticipant_id," +
 				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
+				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur " +
 				"FROM edt.groupeparticipant " +
 				"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
 				"AND abonnegroupeparticipant.utilisateur_id=" + idUtilisateur);
 		
-		completerParentsEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
+		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
+		completerParentsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
+	}
+	
+	protected static void ajouterGroupeTempTableListeGroupes(BddGestion bdd, int idGroupe, String nomTable) throws DatabaseException {
+		bdd.executeUpdate("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+			"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+			"SELECT groupeparticipant.groupeparticipant_id," +
+			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+			"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
+			"FROM edt.groupeparticipant " +
+			"WHERE groupeparticipant.groupeparticipant_id = " + idGroupe);
 	}
 	
 	/**
-	 * Créé une table temporaire de groupes d'utilisateur étant parents ou enfants du groupe fourni. Le groupe lui-même est aussi listé.
+	 * Créé une table temporaire de groupes d'utilisateur étant <b>parents ou enfants</b> du groupe fourni. Le groupe lui-même est aussi listé.
 	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
 	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
 	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
@@ -479,17 +557,28 @@ public class GroupeGestion {
 		// Création de la table temporaire
 		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
 		
-		// Ajout de l'objet en question
-		bdd.executeRequest("INSERT INTO " + NOM_TEMPTABLE_PARENTSENFANTS + "(groupeparticipant_id," +
-				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-				"SELECT groupeparticipant.groupeparticipant_id," +
-				"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-				"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
-				"FROM edt.groupeparticipant " +
-				"WHERE groupeparticipant.groupeparticipant_id = " + idGroupe);
+		ajouterGroupeTempTableListeGroupes(bdd, idGroupe, NOM_TEMPTABLE_PARENTSENFANTS);
 		
-		completerParentsEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+		completerParentsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+	}
+	
+	/**
+	 * Créé une table temporaire de groupes d'utilisateur étant <b>enfants</b> du groupe fourni. Le groupe lui-même est aussi listé.
+	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
+	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
+	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
+	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_ENFANTS}
+	 * @param idGroupe ID du groupe pour lequel les parents et enfants sont à lister.
+	 * @throws DatabaseException
+	 */
+	public static void makeTempTableListeEnfants(BddGestion bdd, int idGroupe) throws DatabaseException {
+		// Création de la table temporaire
+		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_ENFANTS);
+		
+		ajouterGroupeTempTableListeGroupes(bdd, idGroupe, NOM_TEMPTABLE_ENFANTS);
+		
+		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ENFANTS);
 	}
 	
 	/**
@@ -500,19 +589,47 @@ public class GroupeGestion {
 	 * @throws DatabaseException
 	 */
 	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction, boolean rattachementAutorise) throws DatabaseException {
+		return listerGroupes(createTransaction, rattachementAutorise, null);
+	}
+	
+	/**
+	 * Listing de l'ensemble des groupes de participants existants en base
+	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon (false), elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @param rattachementAutorise indique s'il faut uniquement lister les groupes dont le rattachement est autorisé
+	 * @param ignorerEnfantsGroupe ID d'un groupe dont les enfants sont à ignorer (ce groupe compris). null pour ne rien préciser.
+	 * @return Liste de groupes de participants trouvés
+	 * @throws DatabaseException
+	 */
+	public ArrayList<GroupeIdentifie> listerGroupes(boolean createTransaction, boolean rattachementAutorise, Integer ignorerEnfantsGroupe) throws DatabaseException {
 		
 		try {
 			if(createTransaction){
 				_bdd.startTransaction();
 			}
 			
+			String requete = "SELECT grp.groupeparticipant_id, grp.groupeparticipant_nom, grp.groupeparticipant_rattachementautorise, grp.groupeparticipant_createur, "
+					+ "grp.groupeparticipant_id_parent, grp.groupeparticipant_id_parent_tmp, grp.groupeparticipant_estcours, grp.groupeparticipant_estcalendrierunique "
+					+ "FROM edt.groupeparticipant grp";
+			
+			if(ignorerEnfantsGroupe != null) {
+				makeTempTableListeEnfants(_bdd, ignorerEnfantsGroupe);
+				requete += " LEFT JOIN " + NOM_TEMPTABLE_ENFANTS + " enfants ON enfants.groupeparticipant_id = grp.groupeparticipant_id";
+			}
+			
+			if(ignorerEnfantsGroupe != null || rattachementAutorise) {
+				requete += " WHERE";
+				
+				if(rattachementAutorise) {
+					requete += " grp.groupeparticipant_rattachementautorise = TRUE";
+				}
+				
+				if(ignorerEnfantsGroupe != null) {
+					requete += (rattachementAutorise ? " AND" : "") + " enfants.groupeparticipant_id IS NULL";
+				}
+			}
+			
 			// Lecture des groupes de la table
-			ResultSet resGroupes = _bdd.executeRequest(
-					"SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, "
-					+ "groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique "
-					+ "FROM edt.groupeparticipant"
-					+ (rattachementAutorise ? " WHERE groupeparticipant_rattachementautorise = TRUE " : " ")
-					+ "ORDER BY groupeparticipant_nom");
+			ResultSet resGroupes = _bdd.executeRequest(requete);
 			
 			// Création d'objets "groupes identifiés" pour les groupes rencontrés dans la table
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
@@ -553,8 +670,8 @@ public class GroupeGestion {
 				makeTempTableListeGroupesAbonnement(_bdd, idUtilisateur);
 			
 			// Lecture des groupes de la table
-			ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, " +
-					"groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique FROM " + NOM_TEMPTABLE_ABONNEMENTS);
+			ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant_id, groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_createur, " +
+					"groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur FROM " + NOM_TEMPTABLE_ABONNEMENTS);
 
 			ArrayList<GroupeIdentifie> res = new ArrayList<GroupeIdentifie>();
 			
@@ -686,7 +803,7 @@ public class GroupeGestion {
 	public ArrayList<GroupeIdentifie> listerGroupesAssocies(int idUtilisateur) throws DatabaseException {
 		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
 				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent,groupeparticipant.groupeparticipant_id_parent_tmp," +
-					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique " +
+					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique, groupeparticipant.groupeparticipant_createur " +
 					"FROM edt.groupeparticipant " +
 					"INNER JOIN edt.abonnegroupeparticipant ON abonnegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id " +
 					"AND abonnegroupeparticipant.utilisateur_id = " + idUtilisateur);
@@ -715,7 +832,7 @@ public class GroupeGestion {
 		
 		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
 				"groupeparticipant.groupeparticipant_rattachementautorise,groupeparticipant.groupeparticipant_id_parent,groupeparticipant.groupeparticipant_id_parent_tmp," +
-					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique" +
+					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique, groupeparticipant.groupeparticipant_createur" +
 					" FROM edt.groupeparticipant" +
 					" INNER JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id = groupeparticipant.groupeparticipant_id" +
 					" AND groupeparticipant.groupeparticipant_estcalendrierunique=FALSE " +
@@ -743,7 +860,7 @@ public class GroupeGestion {
 	 * @throws DatabaseException
 	 */
 	public void sAbonner(int idUtilisateur, int idGroupe, boolean obligatoire) throws DatabaseException {
-		_bdd.executeRequest(
+		_bdd.executeUpdate(
 			"INSERT INTO edt.abonnegroupeparticipant "
 			+ "(utilisateur_id, groupeparticipant_id, abonnementgroupeparticipant_obligatoire) "
 			+ "VALUES (" + idUtilisateur + ", " + idGroupe + ", " + obligatoire + ")"
@@ -764,7 +881,7 @@ public class GroupeGestion {
 		if (uniquementSiCoursNonObligatoire) {
 			  s += " AND abonnementgroupeparticipant_obligatoire = FALSE" ;
 		}
-		_bdd.executeRequest(s);
+		_bdd.executeUpdate(s);
 	}
 	
 	
@@ -785,7 +902,7 @@ public class GroupeGestion {
 		// Récupère les groupes qui sont en attente de rattachement
 		ResultSet requeteGroupe = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom," +
 				" groupeparticipant.groupeparticipant_rattachementautorise, groupeparticipant.groupeparticipant_id_parent, groupeparticipant.groupeparticipant_id_parent_tmp," +
-				" groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique" +
+				" groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique, groupeparticipant_createur" +
 				" FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_id_parent_tmp IN" +
 				" (SELECT proprietairegroupeparticipant.groupeparticipant_id" +
 				" FROM edt.proprietairegroupeparticipant WHERE proprietairegroupeparticipant.utilisateur_id="+userId+")");
@@ -815,7 +932,7 @@ public class GroupeGestion {
 		_bdd.startTransaction();
 
 		// Récupère les calendriers qui sont en attente de rattachement
-		ResultSet requete = _bdd.executeRequest("SELECT A.cal_id, C.cal_nom, M.matiere_nom, T.typecal_libelle," +
+		ResultSet requete = _bdd.executeRequest("SELECT A.cal_id, C.cal_nom, C.cal_createur, M.matiere_nom, T.typecal_libelle," +
 				" FALSE AS estcours " + // "met estCours à False : valeur inutile dans cette méthode donc pour éviter la surcharge on met une valeur par défaut
 				" FROM edt.calendrierappartientgroupe A" +
 				" INNER JOIN edt.calendrier C ON C.cal_id=A.cal_id" +
@@ -876,9 +993,10 @@ public class GroupeGestion {
 					" SET groupeparticipant_id=groupeparticipant_id_tmp, groupeparticipant_id_tmp=NULL" +
 					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
 		} else {
-			_bdd.executeUpdate("UPDATE edt.calendrierappartientgroupe" +
-					" SET groupeparticipant_id_tmp=NULL" +
-					" WHERE groupeparticipant_id_tmp="+groupeIdParent+" AND cal_id="+calendrierId);
+			_bdd.executeUpdate(
+					"DELETE FROM edt.calendrierappartientgroupe" +
+					" WHERE groupeparticipant_id_tmp="+groupeIdParent+
+					" AND cal_id="+calendrierId);
 		}
 
 		// Termine la transaction
@@ -914,6 +1032,23 @@ public class GroupeGestion {
 			// Termine la transaction
 			_bdd.commit();
 
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+	}
+	
+
+	/**
+	 * Récupérer le nombre de groupes créés par un utilisateur
+	 * @param userId Identifiant de l'utilisateur
+	 * @return nombre de groupes
+	 * @throws DatabaseException 
+	 */
+	public int getNombresGroupesCrees(int userId) throws DatabaseException {
+		try {
+			ResultSet res = _bdd.executeRequest("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_createur="+userId);
+			res.next();
+			return res.getInt(1);
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

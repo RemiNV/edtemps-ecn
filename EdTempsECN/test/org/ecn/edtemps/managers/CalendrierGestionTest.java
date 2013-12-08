@@ -61,6 +61,7 @@ public class CalendrierGestionTest {
 		assertEquals(calRecup.getMatiere(), cal.getMatiere());
 		assertEquals(calRecup.getNom(), cal.getNom());
 		assertEquals(calRecup.getType(), cal.getType());
+		assertEquals(calRecup.getIdCreateur(), cal.getIdCreateur());
 	}
 	
 
@@ -88,7 +89,7 @@ public class CalendrierGestionTest {
 		lstProprietaires.add(idUser1);
 		lstProprietaires.add(idUser2);
 		
-		Calendrier calendrier = new Calendrier("caltest123soleil", typesCalendrier.values().iterator().next(), matieres.values().iterator().next(), lstProprietaires);
+		Calendrier calendrier = new Calendrier("caltest123soleil", typesCalendrier.values().iterator().next(), matieres.values().iterator().next(), lstProprietaires, idUser1);
 		
 		// Ajout à la bdd
 		int idCal = calendrierGestion.sauverCalendrier(calendrier, new ArrayList<Integer>(0));

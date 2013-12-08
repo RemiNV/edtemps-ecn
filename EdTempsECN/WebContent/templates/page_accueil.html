@@ -1,12 +1,17 @@
 <div id="colonne_gauche">
-	<div>
+	<div id="logoAppli">
 		<img src="img/icone_appli.png" alt="Emploi du temps ECN" id="logoAppli" />
 	</div>
 	
-	<span class="button" id="btn_ajout_evenement">+ &Eacute;vénement</span>
+	<div id="boutons_colonne_gauche">
+		<a href="#parametres/mes_abonnements" id="btn_gerer_agendas" class="button">Paramètres</a>
+		<span class="button" id="btn_ajout_evenement">+ &Eacute;vénement</span>
+	</div>
+	
+	<div id="accueil_datepicker"></div>
 	
 	<div id="bloc_vos_agendas">
-		Vos agendas : <a href="#parametres/mes_abonnements" id="btn_gerer_agendas" class="button">Gérer</a>
+		Vos agendas :
 		<div id="liste_groupes">
 		</div>
 	</div>
@@ -117,6 +122,10 @@
 		</div>
 	</div>
 
+	<div id="div_chargement_evenements" style="display: none">
+		<img src="img/spinner_chargement_small.gif" alt="chargement" class="spinner_chargement"/>
+		<span>Chargement des événements...</span>
+	</div>
 	<div id="calendar"></div>
 </div>
 

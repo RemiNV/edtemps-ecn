@@ -29,7 +29,7 @@ public class EvenementGestion {
 	protected BddGestion _bdd;
 	
 	/** Nombre maximum d'événements récupérables en une requête */
-	public static final int MAX_ROWS_QUERY_EVENEMENTS = 100;
+	public static final int MAX_ROWS_QUERY_EVENEMENTS = 500;
 	
 	/**
 	 * Initialise un gestionnaire d'evenements
@@ -39,6 +39,21 @@ public class EvenementGestion {
 		_bdd = bdd;
 	}
 		
+	
+	protected void verifierDateEvenement(Date dateDebut) throws EdtempsException {
+		Date dansDeuxAns = new Date();
+		long millisUnAn = 1000L * 3600L * 24L * 365L;
+		dansDeuxAns.setTime(dansDeuxAns.getTime() + millisUnAn * 2L);
+		if(dateDebut.after(dansDeuxAns)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Impossible de créer un événement dans plus de 2 ans");
+		}
+		
+		Date ilYAUnAn = new Date();
+		ilYAUnAn.setTime(ilYAUnAn.getTime() - millisUnAn);
+		if(dateDebut.before(ilYAUnAn)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Impossible de créer un événement il y a plus d'un an");
+		}
+	}
 	
 	/**
 	 * Méthode d'enregistrement d'un evenement dans la base de données
@@ -51,6 +66,8 @@ public class EvenementGestion {
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un événement doit avoir un nom, un calendrier et un responsable");
 		}
+		
+		verifierDateEvenement(dateDebut);
 		
 		if(!StringUtils.isAlphanumericSpace(nom)) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique");
@@ -95,7 +112,7 @@ public class EvenementGestion {
 			
 			// On rattache l'evenement aux calendriers
 			for(int idCalendrier : idCalendriers) {
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 					"INSERT INTO edt.evenementappartient "
 					+ "(eve_id, cal_id) "
 					+ "VALUES (" + idEvenement + ", " + idCalendrier + ")"
@@ -104,7 +121,7 @@ public class EvenementGestion {
 			
 			// On rattache l'evenement aux salles
 			for(int idSalle : idSalles) {
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 					"INSERT INTO edt.alieuensalle "
 					+ "(eve_id, salle_id) "
 					+ "VALUES ("+ idEvenement + ", " + idSalle + ")");
@@ -112,7 +129,7 @@ public class EvenementGestion {
 			
 			// On indique le(s) responsable(s) dans la base
 			for(int idResponsable : idResponsables) {
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 					"INSERT INTO edt.responsableevenement "
 					+ "(eve_id, utilisateur_id) "
 					+ "VALUES ("+ idEvenement + ", " + idResponsable + ")");
@@ -120,7 +137,7 @@ public class EvenementGestion {
 			
 			// On indique le(s) intervenant(s) dans la base
 			for(int idIntervenant : idIntervenants) {
-				_bdd.executeRequest(
+				_bdd.executeUpdate(
 					"INSERT INTO edt.intervenantevenement "
 					+ "(eve_id, utilisateur_id) "
 					+ "VALUES ("+ idEvenement + ", " + idIntervenant + ")");
@@ -148,6 +165,9 @@ public class EvenementGestion {
 	 */
 	public void modifierEvenement(int id, String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean createTransaction) throws EdtempsException{
+		
+		verifierDateEvenement(dateDebut);
+		
 		try {
 			
 			if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
@@ -184,7 +204,7 @@ public class EvenementGestion {
 			requetePreparee.execute();
 			
 			// Modifier  les intervenants de l'évenement (supprimer les anciens puis ajouter les nouveaux)
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.intervenantevenement "
 					 + "WHERE eve_id = " + id);
 			
@@ -198,7 +218,7 @@ public class EvenementGestion {
 			}
 			
 			// Modifier  les responsables de l'événement
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.responsableevenement "
 					 + "WHERE eve_id = " + id);
 			
@@ -211,7 +231,7 @@ public class EvenementGestion {
 			}
 			
 			// Modifier les calendriers associés à l'événement
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.evenementappartient "
 					+ "WHERE eve_id = " + id);
 			
@@ -224,7 +244,7 @@ public class EvenementGestion {
 			}
 			
 			// Modifier les salles de l'évènement
-			_bdd.executeRequest(
+			_bdd.executeUpdate(
 					"DELETE FROM edt.alieuensalle "
 					+ "WHERE eve_id = " + id);
 			
@@ -264,27 +284,27 @@ public class EvenementGestion {
 		}
 		
 		// Supprimer l'association aux intervenants de l'événement
-		_bdd.executeRequest(
+		_bdd.executeUpdate(
 				"DELETE FROM edt.intervenantevenement "
 				 + "WHERE eve_id = " + idEvenement);
 		
 		// Supprimer l'association aux responsables de l'évenement
-		_bdd.executeRequest(
+		_bdd.executeUpdate(
 				"DELETE FROM edt.responsableevenement "
 				 + "WHERE eve_id = " + idEvenement);
 		
 		// Supprimer l'asosciation aux salles de l'événement
-		_bdd.executeRequest(
+		_bdd.executeUpdate(
 				"DELETE FROM edt.alieuensalle "
 				 + "WHERE eve_id = " + idEvenement);
 		
 		// Supprimer l'association aux calendriers
-		_bdd.executeRequest(
+		_bdd.executeUpdate(
 				"DELETE FROM edt.evenementappartient "
 				 + "WHERE eve_id = " + idEvenement);
 		
 		// Supprimer l'évenement
-		_bdd.executeRequest(
+		_bdd.executeUpdate(
 				"DELETE FROM edt.evenement "
 				 + "WHERE eve_id = " + idEvenement);
 
@@ -562,7 +582,7 @@ public class EvenementGestion {
 		String strIdSalles = StringUtils.join(idSalles, ",");
 		String strIdEvenements = StringUtils.join(idEvenements, ",");
 		
-		_bdd.executeRequest("DELETE FROM edt.alieuensalle tablesuppr WHERE EXISTS (" +
+		_bdd.executeUpdate("DELETE FROM edt.alieuensalle tablesuppr WHERE EXISTS (" +
 				"SELECT 1 FROM edt.alieuensalle " +
 				"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id=alieuensalle.eve_id " +
 				"LEFT JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +

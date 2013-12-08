@@ -24,7 +24,7 @@ public class GroupeCompletInflater extends AbsGroupeInflater<GroupeComplet> {
 
 	@Override
 	protected GroupeComplet inflate(int id, String nom, int idParent, int idParentTmp, boolean rattachementAutorise,
-			boolean estCours, boolean estCalendrierUnique, ResultSet reponse, BddGestion bdd)
+			boolean estCours, boolean estCalendrierUnique, int idCreateur, ResultSet reponse, BddGestion bdd)
 					throws DatabaseException, SQLException {
 
 		// Récupérer la liste des propriétaires
@@ -48,7 +48,7 @@ public class GroupeCompletInflater extends AbsGroupeInflater<GroupeComplet> {
 			throw new DatabaseException(e);
 		}
 
-		return new GroupeComplet(id, nom, rattachementAutorise, estCours, estCalendrierUnique, idParentTmp, idParent, calendriers, proprietaires, parent);
+		return new GroupeComplet(id, nom, rattachementAutorise, estCours, estCalendrierUnique, idParentTmp, idParent, calendriers, proprietaires, parent, idCreateur);
 		
 	}
 

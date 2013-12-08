@@ -31,7 +31,7 @@
 					<p class="formulaire_zone_titre">Ajouter un type d'utilisateurs :</p>
 					<form action="<%=request.getContextPath() %>/administrateur/typesutilisateurs/ajouter" method="POST" onsubmit="return validationAjouterType()">
 						<input type="text" name="ajouter_type_utilisateurs_nom" id="ajouter_type_utilisateurs_nom" size="50" placeholder="Nom du type d'utilisateurs que vous souhaitez ajouter" />
-						<input type="submit" value="Ajouter" class="button" style="height: 22px; padding-top: 2px;" />
+						<input type="submit" value="Ajouter" class="button ptiButton" />
 					</form>
 				</div>
 
@@ -52,7 +52,7 @@
 								out.write(selectType.toString());
 							%>
 						</select>
-						<input type="submit" value="Modifier" class="button" style="height: 22px; padding-top: 2px;" />
+						<input type="submit" value="Modifier" class="button ptiButton" />
 					</form>
 				</div>
 				
@@ -62,7 +62,7 @@
 						<select name="supprimer_types_utilisateurs_id" id="supprimer_types_utilisateurs_id">
 							<% out.write(selectType.toString()); %>
 						</select>
-						<input type="submit" value="Supprimer" class="button" style="height: 22px; padding-top: 2px;" />
+						<input type="submit" value="Supprimer" class="button ptiButton" />
 					</form>
 					<p class="information">Attention! Supprimer un type d'utilisateur entraîne la suppression de ce type pour tous les utilisateurs liés.</p>
 				</div>

@@ -4,7 +4,7 @@
  * @module EcranAccueil
  */
 define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "GroupeGestion", 
-        "DialogAjoutEvenement", "RestManager", "underscore", "jquery", "jqueryui", "jquerycombobox"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
+        "DialogAjoutEvenement", "RestManager", "underscore", "jquery", "jqueryui", "jquerycombobox", "datepicker"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
         		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager, _) {
 	
 	/**
@@ -38,6 +38,33 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	EcranAccueil.prototype.init = function() {
 		var me = this;
 		
+		dateNow = new Date();
+		dateToday = new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate());
+		$("#accueil_datepicker").DatePicker({
+			flat: true,
+			date: new Date(),
+			locale: {
+				days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+				daysShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+				daysMin: ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"],
+				months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+				monthsShort: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"],
+				weekMin: 'sem'
+			},
+			onChange: function(strDate, date) {
+				if(me.calendrier) {
+					me.calendrier.gotoDate(date);
+				}
+			},
+			onRender: function(date) {
+				return {
+					selected: false,
+					disabled: false,
+					className: date.getTime() == dateToday.getTime() ? "today" : null
+				};
+			}
+		});
+		
 		// Initialisation des listeners
 		$("#btn_chercher_salle").click(function(e) {
 			me.rechercheSalle.show(me.dialogAjoutEvenement);
@@ -52,7 +79,12 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		}
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, 
-				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"));
+				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), function() {
+			if(me.calendrier) {
+				var date = me.calendrier.getDate();
+				$("#accueil_datepicker").DatePickerSetDate(date, date);
+			}
+		});
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 		
@@ -286,6 +318,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		else {
 			window.showToast("Erreur de chargement de vos événements");
 		}
+		
+		$("#div_chargement_evenements").stop(true).fadeOut(200);
 	};
 	
 	/**
@@ -298,6 +332,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.remplirEvenementsAbonnements = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getEvenementsAbonnements(dateDebut, dateFin, false, function(resultCode, data) {
 			if(resultCode == RestManager.resultCode_Success) {
 				
@@ -322,6 +357,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.remplirMesEvenements = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getMesEvenements(dateDebut, dateFin, false, 
 				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
 	};
@@ -336,6 +372,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.remplirEvenementsGroupe = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getEvenementsGroupe(dateDebut, dateFin, this.idGroupeSelectionne, false, 
 				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
 	};
@@ -350,6 +387,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 */
 	EcranAccueil.prototype.remplirEvenementsSalle = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getEvenementsSalle(dateDebut, dateFin, this.idSalleSelectionee, false, 
 				function(resultCode, data) { callbackRemplirEvenements.apply(me, [resultCode, data, callbackCalendrier]); });
 	};
@@ -366,7 +404,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	EcranAccueil.prototype.remplirMesAbonnements = function(dateDebut, dateFin, callbackCalendrier) {
 		// Récupération des abonnements pendant la période affichée
 		var me = this;
-		
+		$("#div_chargement_evenements").fadeIn(200);
 		this.evenementGestion.getAbonnements(dateDebut, dateFin, function(resultCode, data) {
 			if(resultCode == RestManager.resultCode_Success) {
 				
@@ -390,6 +428,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			else {
 				window.showToast("Erreur de chargement de vos agendas. Votre session a peut-être expiré ?");
 			}
+			$("#div_chargement_evenements").stop(true).fadeOut(200);
 		});
 	};
 	

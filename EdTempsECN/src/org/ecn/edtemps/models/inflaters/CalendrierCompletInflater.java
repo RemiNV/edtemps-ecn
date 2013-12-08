@@ -18,9 +18,9 @@ import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierComplet> {
 
 	@Override
-	protected CalendrierComplet inflate(int id, String nom, String type, String matiere, List<Integer> idProprietaires, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException {
+	protected CalendrierComplet inflate(int id, String nom, String type, String matiere, List<Integer> idProprietaires, int idCreateur, ResultSet reponse, BddGestion bdd) throws DatabaseException, SQLException {
 		
-		CalendrierIdentifie calendrier = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id);
+		CalendrierIdentifie calendrier = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id, idCreateur);
 		
 		boolean estCours = reponse.getBoolean("estcours");
 		
@@ -34,8 +34,17 @@ public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierC
 		List<Integer> idGroupesParents = new ArrayList<Integer>();
 		List<Integer> idGroupesParentsTmp = new ArrayList<Integer>();
 	    while (rs_idGroupesParents.next()) {
-	    	idGroupesParents.add(rs_idGroupesParents.getInt("groupeparticipant_id"));
-	    	idGroupesParentsTmp.add(rs_idGroupesParents.getInt("groupeparticipant_id_tmp"));
+	    	int idGroupe = rs_idGroupesParents.getInt("groupeparticipant_id");
+	    	// Si la case groupeparticipant_id est vide 
+			if (rs_idGroupesParents.wasNull()) {
+				int idGroupeTmp = rs_idGroupesParents.getInt("groupeparticipant_id_tmp");;
+				idGroupesParentsTmp.add(idGroupeTmp);
+			}
+			// Si la case groupeparticipant_id_tmp est vide
+			else {
+				idGroupesParents.add(idGroupe);
+			}
+	    	
 	    }
 
 	    // Création du calendrier complet

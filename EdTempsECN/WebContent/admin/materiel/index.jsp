@@ -29,7 +29,7 @@
 					<p class="formulaire_zone_titre">Ajouter un type de matériel :</p>
 					<form action="<%=request.getContextPath() %>/administrateur/materiel/ajouter" method="POST" id="ajouter_materiel_form" onsubmit="return validationAjouterMateriel()">
 						<input type="text" name="ajouter_materiel_nom" id="ajouter_materiel_nom" size="50" placeholder="Nom du type de matériel que vous souhaitez ajouter" />
-						<input type="submit" value="Ajouter" class="button" style="height: 22px; padding-top: 2px;" />
+						<input type="submit" value="Ajouter" class="button ptiButton" />
 					</form>
 				</div>
 
@@ -47,7 +47,7 @@
 								}
 							%>
 						</select>
-						<input type="submit" value="Supprimer" class="button" style="height: 22px; padding-top: 2px;" />
+						<input type="submit" value="Supprimer" class="button ptiButton" />
 					</form>
 					<p class="information">Attention! Supprimer un type de matériel rompt, de manière irrévocable, les liens avec les salles qui contiennent ce type de matériel.</p>
 				</div>

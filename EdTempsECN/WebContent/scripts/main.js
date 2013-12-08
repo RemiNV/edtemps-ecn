@@ -72,9 +72,9 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 		$("#toast").queue(function(next) {
 			$(this).html(text);
 			next();
-		}).animate({ top: 10 }, 500)
+		}).animate({ bottom: 40 }, 500)
 		.delay(3000)
-		.animate({ top: -40 }, 500);
+		.animate({ bottom: -40 }, 500);
 	};
 	
 	// TODO : ajouter une dialog permettant de faire un window.confirm plus joli

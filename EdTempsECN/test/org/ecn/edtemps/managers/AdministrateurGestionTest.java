@@ -57,7 +57,7 @@ public class AdministrateurGestionTest {
 		Assert.assertTrue(gestionAdmin.seConnecter(login, password));
 		
 		// Suppression de l'administrateur pour éviter les impacts
-		bdd.executeRequest("DELETE FROM edt.administrateurs WHERE admin_id="+idInsertion);
+		bdd.executeUpdate("DELETE FROM edt.administrateurs WHERE admin_id="+idInsertion);
 	}
 	
 	@Test
@@ -74,7 +74,7 @@ public class AdministrateurGestionTest {
 		Assert.assertTrue(verif.next());
 		
 		// Suppression de l'administrateur pour éviter les impacts
-		bdd.executeRequest("DELETE FROM edt.administrateurs WHERE admin_id="+id);
+		bdd.executeUpdate("DELETE FROM edt.administrateurs WHERE admin_id="+id);
 
 	}
 	

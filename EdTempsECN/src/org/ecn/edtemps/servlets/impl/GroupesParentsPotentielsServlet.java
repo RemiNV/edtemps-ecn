@@ -37,9 +37,21 @@ public class GroupesParentsPotentielsServlet extends RequiresConnectionServlet {
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		JsonValue data;
 		
+		Integer idGroupeIgnorerEnfants = null;
+		String strGroupeIgnorerEnfants = req.getParameter("idGroupeIgnorerEnfants");
+		if(strGroupeIgnorerEnfants != null) {
+			try {
+				idGroupeIgnorerEnfants = Integer.parseInt(strGroupeIgnorerEnfants);
+			}
+			catch(NumberFormatException e) {
+				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, 
+						"Format du paramètre idGroupeIgnorerEnfants invalide (entier attendu)", null));
+			}
+		}
+		
 		try {
 			// Récupération de la liste des groupes potentiellement parents
-			List<GroupeIdentifie> listeGroupesNonTriee = groupeGestion.listerGroupes(true, true);
+			List<GroupeIdentifie> listeGroupesNonTriee = groupeGestion.listerGroupes(true, true, idGroupeIgnorerEnfants);
 
 			// Remonte dans la liste les groupes dont l'utilisateur est propriétaire
 			List<GroupeIdentifie> listeGroupes = new ArrayList<GroupeIdentifie>(); 
