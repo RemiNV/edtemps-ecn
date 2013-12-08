@@ -30,9 +30,7 @@ public class SalleGestion {
 
 	/**
 	 * Initialise un gestionnaire de salles
-	 * 
-	 * @param bdd
-	 *            Gestionnaire de base de données à utiliser
+	 * @param bdd Gestionnaire de base de données à utiliser
 	 */
 	public SalleGestion(BddGestion bdd) {
 		_bdd = bdd;
@@ -40,15 +38,10 @@ public class SalleGestion {
 
 	/**
 	 * Récupérer une salle dans la base de données
-	 * 
-	 * @param identifiant
-	 *            identifiant de la salle à récupérer
+	 * @param identifiant Identifiant de la salle à récupérer
 	 * @param createTransaction Indique si il faut créer une transaction (sinon appeler la méthode dans une transaction)
-	 * 
 	 * @return la salle
-	 * 
 	 * @throws EdtempsException
-	 *             en cas d'erreur de connexion avec la base de données
 	 */
 	public SalleIdentifie getSalle(int identifiant, boolean createTransaction) throws EdtempsException {
 
@@ -68,7 +61,6 @@ public class SalleGestion {
 				salleRecuperee = new SalleIdentifieInflater().inflateSalle(requeteSalle, _bdd);
 				requeteSalle.close();
 			}
-					
 
 			if(createTransaction) {
 				_bdd.commit();
@@ -86,12 +78,8 @@ public class SalleGestion {
 
 	/**
 	 * Modifie une salle en base de données
-	 * 
-	 * @param salle
-	 *            salle à modifier
-	 * 
+	 * @param salle Salle à modifier
 	 * @throws EdtempsException
-	 *             en cas d'erreur
 	 */
 	public void modifierSalle(SalleIdentifie salle) throws EdtempsException {
 
@@ -171,14 +159,9 @@ public class SalleGestion {
 
 	/**
 	 * Enregistrer une salle dans la base de données
-	 * 
-	 * @param salle
-	 *            salle à enregistrer
-	 *            
+	 * @param salle Salle à enregistrer
 	 * @return l'identifiant de la ligne insérée
-	 * 
 	 * @throws EdtempsException
-	 *             en cas d'erreur de connexion avec la base de données
 	 */
 	public int sauverSalle(Salle salle) throws EdtempsException {
 
@@ -255,12 +238,8 @@ public class SalleGestion {
 
 	/**
 	 * Supprime une salle en base de données
-	 * 
-	 * @param idSalle
-	 *            identifiant de la salle à supprimer
-	 * 
-	 * @throws EdtempsException
-	 *             en cas d'erreur de communication avec la bdd
+	 * @param idSalle Identifiant de la salle à supprimer
+	 * @throws DatabaseException
 	 */
 	public void supprimerSalle(int idSalle) throws DatabaseException {
 
@@ -414,7 +393,7 @@ public class SalleGestion {
 	 * @param dateDebut Début du créneau
 	 * @param dateFin Fin du créneau
 	 * @return true si toutes les salles sont libres ; false sinon
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	public boolean sallesLibres(List<Integer> idSalles, Date dateDebut, Date dateFin) throws DatabaseException {
 		return sallesLibres(idSalles, dateDebut, dateFin, null);
@@ -429,7 +408,7 @@ public class SalleGestion {
 	 * @param dateFin Fin du créneau
 	 * @param idEvenementIgnorer Evénement à ignorer en recherchant la disponibilité (si on modifie un événement notamment)
 	 * @return true si toutes les salles sont libres ; false sinon
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	public boolean sallesLibres(List<Integer> idSalles, Date dateDebut, Date dateFin, Integer idEvenementIgnorer) throws DatabaseException {
 		try {
@@ -464,7 +443,7 @@ public class SalleGestion {
 	/**
 	 * Lister toutes les salles de la base de données
 	 * @return la liste des salles récupérées
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	public List<SalleIdentifie> listerToutesSalles() throws DatabaseException {
 		

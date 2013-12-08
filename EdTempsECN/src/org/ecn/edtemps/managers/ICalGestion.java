@@ -41,7 +41,7 @@ public class ICalGestion {
 	 * Génération du contenu d'un fichier iCal contenant tous les abonnements de l'utilisateur
 	 * @param idUtilisateur
 	 * @return
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 * @throws MaxRowCountExceededException Nombre d'événements trop élevé
 	 */
 	public String genererICalAbonnements(int idUtilisateur) throws DatabaseException, MaxRowCountExceededException {

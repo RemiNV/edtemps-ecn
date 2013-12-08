@@ -85,7 +85,7 @@ public abstract class TestBdd {
 	 * Lancement d'un test de base de données
 	 * @param bdd Gestionnaire de base de données <b>pour lequel une transaction est en cours</b>
 	 * @return Résultat du test
-	 * @throws DatabaseException Erreur de communication avec la base
+	 * @throws DatabaseException
 	 */
 	public abstract TestBddResult test(BddGestion bdd) throws DatabaseException;
 	
@@ -93,7 +93,7 @@ public abstract class TestBdd {
 	 * Effectue la réparation de la base correspondant au test
 	 * @param bdd Gestionnaire de base de données <b>pour lequel une transaction est en cours</b>
 	 * @return Message de réparation
-	 * @throws DatabaseException Erreur de communication avec la base
+	 * @throws DatabaseException
 	 */
 	public abstract String repair(BddGestion bdd) throws DatabaseException;
 	

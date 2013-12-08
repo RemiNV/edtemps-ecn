@@ -23,6 +23,7 @@ public class MaterielGestion {
 
 	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
+	
 	private static Logger logger = LogManager.getLogger(MaterielGestion.class.getName());
 
 	/**
@@ -74,7 +75,7 @@ public class MaterielGestion {
 	 * Enregistrer un matériel en base de données
 	 * @param nom Nom du matériel
 	 * @return l'identifiant de la ligne insérée
-	 * @throws EdtempsException En cas d'erreur de base de données
+	 * @throws EdtempsException
 	 */
 	public int sauverMateriel(String nom) throws EdtempsException {
 

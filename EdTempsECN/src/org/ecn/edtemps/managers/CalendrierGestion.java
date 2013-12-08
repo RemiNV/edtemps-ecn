@@ -29,7 +29,6 @@ public class CalendrierGestion {
 	/** Gestionnaire de base de données */
 	protected BddGestion _bdd;
 	
-	
 	/** Nombre maximum de calendriers qu'un utilisateur peut créer */
 	public static final int LIMITE_CALENDRIERS_PAR_UTILISATEUR = 20;
 
@@ -47,14 +46,14 @@ public class CalendrierGestion {
 	
 	
 	/**
-	 * Méthode d'enregistrement du Calendrier "calendrier" dans la base de données
+	 * Enregistrement d'un calendrier en la base de données
 	 *
 	 * NB : le rattachement d'un calendrier à un groupeDeParticipants est réalisé dans cette fonction.
 	 * 
 	 * @param calendrier Calendrier à sauvegarder
 	 * @param idGroupesParents ID des groupes à rattacher au calendrier
-	 * @param idCreateur ID du créateur du calendrier
-	 * @return nouvel ID du calendrier sauvegarder
+	 * @return ID du calendrier sauvegardé
+	 * @throws EdtempsException
 	 */
 	public int sauverCalendrier(Calendrier calendrier, List<Integer> idGroupesParents) throws EdtempsException {
 		
@@ -206,12 +205,13 @@ public class CalendrierGestion {
 		} 	
 	}
 	
+	
 	/**
-	 * Récupère le calendrier repéré par l'ID donné
+	 * Récupèrer un calendrier
 	 * @param idCalendrier ID du calendrier à récupérer
-	 * @return Calendrier récupéré
+	 * @return calendrier récupéré
 	 * @throws EdtempsException Si le calendrier n'existe pas
-	 * @throws DatabaseException En cas d'erreur d'accès à la BDD
+	 * @throws DatabaseException
 	 */
 	public CalendrierIdentifie getCalendrier(int idCalendrier) throws EdtempsException, DatabaseException {
 		
@@ -242,14 +242,9 @@ public class CalendrierGestion {
 	
 	
 	/**
-	 * Méthode modifierCalendrier(CalendrierIdentifie calId)
-	 * 
-	 * Permet de remplacer, dans la base de données, 
-	 * les anciennes valeurs du calendrier défini par l'id de calId (en attribut) 
-	 * par les valeurs contenues dans calId (en attributs)
-	 * 
-	 * @param calId : CalendrierIdentifie
-	 * @param idGroupesParents ID des groupes rattachés / à rattacher au calendrier
+	 * Modifier un calendrier : remplacement du calendrier de la base par celui passé en paramètre
+	 * @param calId Calendrier à modifier en base de données
+	 * @param idGroupesParents IDs des groupes rattachés / à rattacher au calendrier
 	 * @throws EdtempsException
 	 */
 	public void modifierCalendrier(CalendrierIdentifie calId, List<Integer> idGroupesParents) throws EdtempsException {
@@ -415,18 +410,12 @@ public class CalendrierGestion {
 	}
 
 	
-	
 	/**
-	 * Méthode supprimerCalendrier(int idCalendrier)
-	 * 
-	 * Permet de supprimer un calendrier dans la base de données,
-	 * calendrier défini par l'entier en argument, correspondant à l'ID du calendrier 
-	 * 
-	 * @param idCalendrier
+	 * Supprimer un calendrier dans la base de données 
+	 * @param idCalendrier Identifiant du calendrier
 	 * @throws EdtempsException
 	 */
-	public void supprimerCalendrier(int idCalendrier) 
-			throws EdtempsException {
+	public void supprimerCalendrier(int idCalendrier) throws EdtempsException {
 		
 		try {
 			// Début transaction
@@ -484,20 +473,17 @@ public class CalendrierGestion {
 			// Fin transaction
 			_bdd.commit(); 
 
-		} catch (DatabaseException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
-		} catch (SQLException e) {
+		} catch (DatabaseException | SQLException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
 		
 	}	
 	
+	
 	/**
-	 * Methode nePlusEtreProprietaire(idCalendrier, idProprietaire)
-	 * Supprime le lien "propriétaire" entre un utilisateur et un calendrier
-	 *
-	 * @param idCalendrier
-	 * @param idProprietaire
+	 * Supprimer le lien "propriétaire" entre un utilisateur et un calendrier
+	 * @param idCalendrier Identifiant du calendrier
+	 * @param idProprietaire Identifiant du propriétaire
 	 * @throws EdtempsException 
 	 */
 	public void nePlusEtreProprietaire(int idCalendrier, int idProprietaire) throws EdtempsException {
@@ -517,11 +503,11 @@ public class CalendrierGestion {
 		
 	}
 	
+	
 	/**
 	 * Listing des types de calendrier disponibles dans la base de données
-	 * @return Hashmap indiquant les ID (clés) et noms (string) des types de calendrier disponibles
-	 * @throws DatabaseException 
-	 * @throws SQLException 
+	 * @return Hashmap indiquant les ID (clé) et nom (string) des types de calendrier disponibles
+	 * @throws DatabaseException
 	 */
 	public HashMap<Integer, String> listerTypesCalendrier() throws DatabaseException {
 		HashMap<Integer, String> res = new HashMap<Integer, String>();
@@ -538,11 +524,11 @@ public class CalendrierGestion {
 		return res;
 	}
 	
+	
 	/**
 	 * Listing des matières disponibles dans la base de données
-	 * @return Hashmap indiquant les ID (clés) et noms (string) des matières disponibles
+	 * @return Hashmap indiquant les ID (clé) et nom (string) des matières disponibles
 	 * @throws DatabaseException 
-	 * @throws SQLException 
 	 */
 	public HashMap<Integer, String> listerMatieres() throws DatabaseException {
 		HashMap<Integer, String> res = new HashMap<Integer, String>();
@@ -559,6 +545,7 @@ public class CalendrierGestion {
 		return res;
 	}
 	
+	
 	/**
 	 * Récupération des calendriers correspondant aux abonnements de l'utilisateur
 	 * 
@@ -566,12 +553,12 @@ public class CalendrierGestion {
 	 * Dans le cas où ceci ne serait pas le cas, une exception indiquant qu'une table temporaire n'existe pas se produira.
 	 * 
 	 * @param userId ID de l'utilisateur dont les calendriers sont à récupérer
-	 * @param createTransaction Transaction à créer à l'intérieur de cette méthode (si pas déjà créée).
+	 * @param createTransaction Vrai s'il faut créer une transaction
 	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
 	 * 
 	 * @see GroupeGestion#makeTempTableListeGroupesAbonnement(BddGestion, int)
 	 * 
-	 * @return
+	 * @return Liste des calendriers
 	 * @throws EdtempsException
 	 */
 	public ArrayList<CalendrierIdentifie> listerCalendriersAbonnementsUtilisateur(int userId, boolean createTransaction, boolean reuseTempTableAbonnements) throws DatabaseException {
@@ -610,7 +597,7 @@ public class CalendrierGestion {
 	 * Listing des calendriers dont un utilisateur est propriétaire
 	 * @param userId ID de l'utilisateur propriétaire
 	 * @return Liste des calendriers trouvés
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	public ArrayList<CalendrierComplet> listerCalendriersUtilisateur(int userId) throws DatabaseException {
 		ResultSet results = _bdd.executeRequest("SELECT calendrier.cal_id, calendrier.cal_nom, calendrier.cal_createur, matiere.matiere_nom, typecalendrier.typecal_libelle, " +
@@ -644,6 +631,7 @@ public class CalendrierGestion {
 		}
 	}
 	
+	
 	/**
 	 * Résumé des droits d'un utilisateur sur un ensemble de calendriers fourni
 	 */
@@ -664,11 +652,11 @@ public class CalendrierGestion {
 		}
 	}
 	
+	
 	/**
 	 * Récupère les informations de droits sur les calendriers indiqués
-	 * 
-	 * @param userId ID de l'utilisateur
-	 * @param calendriersIds IDs des calendriers à vérifier
+	 * @param userId Identifiant de l'utilisateur
+	 * @param calendriersIds Liste des identifiants des calendriers à vérifier
 	 * @return résumé des droits des calendriers indiqués
 	 */
 	public DroitsCalendriers getDroitsCalendriers(int userId, List<Integer> calendriersIds) throws DatabaseException {
@@ -702,7 +690,7 @@ public class CalendrierGestion {
 	/**
 	 * Récupère la liste des calendriers d'un groupe de participants
 	 * @param groupeId Identifiant du groupe à traiter
-	 * @return la liste des calendriers du groupe
+	 * @return Liste des calendriers du groupe
 	 * @throws DatabaseException
 	 */
 	public List<CalendrierIdentifie> listerCalendriersGroupeParticipants(int groupeId) throws DatabaseException {
