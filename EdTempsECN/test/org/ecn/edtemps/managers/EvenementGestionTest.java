@@ -2,6 +2,7 @@ package org.ecn.edtemps.managers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -246,7 +248,60 @@ public class EvenementGestionTest {
 		
 	}
 	
-
+	/**
+	 * Methode pour comparer un evenement complet recuperé avec les données connues.
+	 * @param evenement : evenement récupéré
+	 * @param nom : nom de l'événement
+	 * @param dateDebut : date et heure de début de l'événement
+	 * @param dateFin : date et heure de fin de l'événement
+	 * @param nomsIntervenants : noms des intervenants de l'événement
+	 * @param nomsSalles : noms des salles dans lesquelles l'événement a lieu
+	 * @param nomMatiere : noms des matières de l'événement
+	 * @param nomType : noms des types de l'événement
+	 */
+	public void comparerEvenementComplet(EvenementComplet evenement, String nom, Date dateDebut, Date dateFin, List<String> nomsIntervenants, List<String> nomsSalles, List<String> nomsMatieres, List<String> nomsTypes){
+		
+		assertEquals(evenement.getNom(), nom);
+		assertEquals(evenement.getDateDebut().compareTo(dateDebut),0);
+		assertEquals(evenement.getDateFin().compareTo(dateFin),0);
+		
+		//Comparaison de la liste des intervenants
+		assertEquals(evenement.getIntervenants().size(), nomsIntervenants.size());
+		for (UtilisateurIdentifie utilisateur : evenement.getIntervenants()) {
+			boolean exists = false;
+			for (String nomProf : nomsIntervenants) {
+				if (utilisateur.getNom().equals(nomProf)) {
+					exists = true;
+				}
+			}
+		assertTrue(exists);
+		}
+	
+		//Comparaison de la liste des salles
+		assertEquals(evenement.getSalles().size(), nomsSalles.size());
+		for (SalleIdentifie salle : evenement.getSalles()) {
+			boolean exists = false;
+			for (String nomSalle : nomsSalles) {
+				if (salle.getNom().equals(nomSalle)) {
+					exists = true;
+				}
+			}
+		assertTrue(exists);
+		}
+	
+		//Comparaison de la liste des matieres
+		assertEquals(evenement.getMatieres().size(), nomsMatieres.size());
+		for (String matiere : evenement.getMatieres()) {
+			assertTrue(nomsMatieres.contains(matiere));
+		}
+		
+		//Comparaison de la liste des types
+		assertEquals(evenement.getTypes().size(), nomsTypes.size());
+		for (String type : evenement.getTypes()) {
+			assertTrue(nomsTypes.contains(type));
+		}
+	
+	}
 	
 	/**
 	 * Test de la méthode listerEvenementGroupe
@@ -275,25 +330,58 @@ public class EvenementGestionTest {
 						"SELECT groupeParticipant_id FROM edt.GroupeParticipant WHERE groupeparticipant_nom = 'TestEvenementGestion'");
 		int idGroupe = bdd.recupererId(requetePreparee, "groupeparticipant_id");
 		
-		
-		Date dateDebut = new Date(113, 10, 25, 16, 00, 00);
-		Date dateFin = new Date(113, 10, 25, 18, 00, 00);
+		//Les donnees de test contiennent des evenement créés entre le 01/10/2013 et le 04/10/2013
+		Date dateDebut = new Date(113, 9, 01, 06, 00, 00);
+		Date dateFin = new Date(113, 9, 05, 18, 00, 00);
 		
 		//Récupération des évenements correspondant au groupe de test : 6 évenements récupérés
 		ArrayList<EvenementComplet> listeEvenements = evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true);
 		
 		assertTrue(listeEvenements.size() == 6);
 		
+		//On initialise les listes qui vont servir à comparer. 
+		//Tous les événements de tests sont dans la même salle avec le même intervenant
+		ArrayList<String> nomsIntervenants = new ArrayList<String>();
+		nomsIntervenants.add("Doe");
+		ArrayList<String> nomsSalles = new ArrayList<String>();
+		nomsSalles.add("D03");
+		ArrayList<String> nomsMatieres = new ArrayList<String>();
+		nomsMatieres.add("");
+		ArrayList<String> nomsTypes = new ArrayList<String>();
+		nomsTypes.add("");
+		
 		for (EvenementComplet evenement : listeEvenements) {
 			switch (evenement.getNom()) {
+			
 			case "testEvenementGestion1":
-				this.comparerEvenements(evenementRecup, nom, dateDebut, dateFin, idCalendriers, idSalles, idIntervenants, idResponsables);
+				this.comparerEvenementComplet(evenement, "testEvenementGestion1", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
 				break;
-
+				
+			case "testEvenementGestion2":
+				this.comparerEvenementComplet(evenement, "testEvenementGestion2", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+				
+			case "testEvenementGestion3":
+				this.comparerEvenementComplet(evenement, "testEvenementGestion3", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+				
+			case "testEvenementGestion4":
+				this.comparerEvenementComplet(evenement, "testEvenementGestion4", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+			
+			case "testEvenementGestion5":
+				this.comparerEvenementComplet(evenement, "testEvenementGestion5", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+			
+			case "testEvenementGestion6":
+				this.comparerEvenementComplet(evenement, "testEvenementGestion6", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+			
+				
 			default:
-				fail;
+				fail();
 				break;
-			}			}
+			}
 		}
 		
 	}
