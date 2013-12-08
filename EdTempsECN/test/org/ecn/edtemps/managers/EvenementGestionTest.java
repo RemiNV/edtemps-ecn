@@ -327,16 +327,18 @@ public class EvenementGestionTest {
 		
 		//récupération de l'id du groupe
 		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
-						"SELECT groupeParticipant_id FROM edt.GroupeParticipant WHERE groupeparticipant_nom = 'TestEvenementGestion'");
+						"SELECT groupeParticipant_id FROM edt.GroupeParticipant WHERE groupeparticipant_nom = 'testEvenementGestion'");
 		int idGroupe = bdd.recupererId(requetePreparee, "groupeparticipant_id");
+		System.out.println(idGroupe);
 		
 		//Les donnees de test contiennent des evenement créés entre le 01/10/2013 et le 04/10/2013
-		Date dateDebut = new Date(113, 9, 01, 06, 00, 00);
-		Date dateFin = new Date(113, 9, 05, 18, 00, 00);
+		Date dateDebut = new Date(113, 8, 01, 06, 00, 00);
+		Date dateFin = new Date(113, 10, 05, 18, 00, 00);
+
 		
 		//Récupération des évenements correspondant au groupe de test : 6 évenements récupérés
 		ArrayList<EvenementComplet> listeEvenements = evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true);
-		
+		System.out.println(listeEvenements.size());
 		assertTrue(listeEvenements.size() == 6);
 		
 		//On initialise les listes qui vont servir à comparer. 
@@ -344,7 +346,7 @@ public class EvenementGestionTest {
 		ArrayList<String> nomsIntervenants = new ArrayList<String>();
 		nomsIntervenants.add("Doe");
 		ArrayList<String> nomsSalles = new ArrayList<String>();
-		nomsSalles.add("D03");
+		nomsSalles.add("Salle D03");
 		ArrayList<String> nomsMatieres = new ArrayList<String>();
 		nomsMatieres.add("THERE");
 		ArrayList<String> nomsTypes = new ArrayList<String>();
@@ -354,27 +356,30 @@ public class EvenementGestionTest {
 			switch (evenement.getNom()) {
 			
 			case "testEvenementGestion1":
-				this.comparerEvenementComplet(evenement, "testEvenementGestion1", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				this.comparerEvenementComplet(evenement, "testEvenementGestion1", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 00, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
 				break;
 				
 			case "testEvenementGestion2":
-				this.comparerEvenementComplet(evenement, "testEvenementGestion2", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				this.comparerEvenementComplet(evenement, "testEvenementGestion2", new Date(113, 9, 01, 10, 15, 00), new Date(113, 9, 01, 12, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
 				break;
 				
 			case "testEvenementGestion3":
-				this.comparerEvenementComplet(evenement, "testEvenementGestion3", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				this.comparerEvenementComplet(evenement, "testEvenementGestion3", new Date(113, 9, 01, 13, 45, 00), new Date(113, 9, 01, 15, 45, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
 				break;
 				
 			case "testEvenementGestion4":
-				this.comparerEvenementComplet(evenement, "testEvenementGestion4", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				this.comparerEvenementComplet(evenement, "testEvenementGestion4", new Date(113, 9, 01, 16, 00, 00), new Date(113, 9, 01, 18, 00, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
 				break;
 			
 			case "testEvenementGestion5":
-				this.comparerEvenementComplet(evenement, "testEvenementGestion5", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				this.comparerEvenementComplet(evenement, "testEvenementGestion5", new Date(113, 9, 04, 8, 00, 00), new Date(113, 9, 04, 10, 00, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
 				break;
 			
 			case "testEvenementGestion6":
-				this.comparerEvenementComplet(evenement, "testEvenementGestion6", new Date(113, 9, 01, 8, 00, 00), new Date(113, 9, 01, 10, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				//Evenement ayant lieu dans deux salles
+				nomsSalles.add("Salle info B12");
+				this.comparerEvenementComplet(evenement, "testEvenementGestion6", new Date(113, 9, 04, 10, 15, 00), new Date(113, 9, 04, 12, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				nomsSalles.remove("Salle info B12");
 				break;
 			
 				

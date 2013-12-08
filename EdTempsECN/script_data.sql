@@ -421,12 +421,12 @@
 	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('Point d''avancement', '2013-10-23 17:00:00', '2013-10-23 18:00:00');
 
 	/* Test de la classe EvenementGestion */
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('TestEvenementGestion1', '2013-10-01 08:00:00', '2013-10-01 10:00:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('TestEvenementGestion2', '2013-10-01 10:15:00', '2013-10-01 12:15:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('TestEvenementGestion3', '2013-10-01 13:45:00', '2013-10-01 15:45:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('TestEvenementGestion4', '2013-10-01 16:00:00', '2013-10-01 18:00:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('TestEvenementGestion5', '2013-10-04 08:00:00', '2013-10-04 10:00:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('TestEvenementGestion6', '2013-10-04 10:15:00', '2013-10-04 12:15:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion1', '2013-10-01 08:00:00', '2013-10-01 10:00:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion2', '2013-10-01 10:15:00', '2013-10-01 12:15:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion3', '2013-10-01 13:45:00', '2013-10-01 15:45:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion4', '2013-10-01 16:00:00', '2013-10-01 18:00:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion5', '2013-10-04 08:00:00', '2013-10-04 10:00:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion6', '2013-10-04 10:15:00', '2013-10-04 12:15:00');
 		
 	
 	
