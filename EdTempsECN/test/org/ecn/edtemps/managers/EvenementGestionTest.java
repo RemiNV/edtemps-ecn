@@ -346,9 +346,9 @@ public class EvenementGestionTest {
 		ArrayList<String> nomsSalles = new ArrayList<String>();
 		nomsSalles.add("D03");
 		ArrayList<String> nomsMatieres = new ArrayList<String>();
-		nomsMatieres.add("");
+		nomsMatieres.add("THERE");
 		ArrayList<String> nomsTypes = new ArrayList<String>();
-		nomsTypes.add("");
+		nomsTypes.add("CM");
 		
 		for (EvenementComplet evenement : listeEvenements) {
 			switch (evenement.getNom()) {

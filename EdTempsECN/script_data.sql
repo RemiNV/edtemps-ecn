@@ -113,10 +113,29 @@
 	INSERT INTO edt.calendrier(cal_nom) VALUES('PGROU projet emploi du temps');
 	
 		/* Calendriers pour le test de la classe EvenementGestion */
-	INSERT INTO edt.calendrier(cal_nom) VALUES('testEvenementGestion1');
-	INSERT INTO edt.calendrier(cal_nom) VALUES('testEvenementGestion2');
-	INSERT INTO edt.calendrier(cal_nom) VALUES('testEvenementGestionPere');
-	INSERT INTO edt.calendrier(cal_nom) VALUES('testEvenementGestionFils');
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
+		SELECT matiere.matiere_id, 'testEvenementGestion1', typecalendrier.typecal_id
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='THERE'
+		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
+	
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
+		SELECT matiere.matiere_id, 'testEvenementGestion2', typecalendrier.typecal_id
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='THERE'
+		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
+	
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
+		SELECT matiere.matiere_id, 'testEvenementGestionPere', typecalendrier.typecal_id
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='THERE'
+		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
+	
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
+		SELECT matiere.matiere_id, 'testEvenementGestionFils', typecalendrier.typecal_id
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='THERE'
+		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
 	
 
 /* proprietairecalendrier */
@@ -626,7 +645,7 @@
 	INSERT INTO edt.alieuensalle(eve_id, salle_id)
 		SELECT evenement.eve_id, salle.salle_id
 		FROM edt.evenement CROSS JOIN edt.salle
-		WHERE evenement.eve_nom='testEvenementGestion6' AND salle.salle_nom='Salle D03' LIMIT 1;
+		WHERE evenement.eve_nom='testEvenementGestion6' AND (salle.salle_nom='Salle D03' OR salle.salle_nom='Salle info B12') LIMIT 2;
 	
 	
 /* intervenantevenement */
