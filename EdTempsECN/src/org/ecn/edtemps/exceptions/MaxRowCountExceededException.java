@@ -3,8 +3,8 @@ package org.ecn.edtemps.exceptions;
 /**
  * Exception levée lorsqu'une requête retourne trop de lignes.
  * Définition d'une classe à part nécessaire pour une gestion à part dans les try/catch
+ * 
  * @author Remi
- *
  */
 public class MaxRowCountExceededException extends EdtempsException {
 
