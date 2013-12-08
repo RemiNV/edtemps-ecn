@@ -1,0 +1,17 @@
+EdtempsECN, développé par (ci-après, "les développeurs") :
+- Félix LECUYER (felix.lecuyer@centraliens-nantes.net)
+- Rémi NGUYEN VAN (remi.nguyen_van@centraliens-nantes.net)
+- Audrey POUCHOULIN (audrey.pouchoulin@centraliens-nantes.net)
+- Joffrey TERRADE (joffrey.terrade@centraliens-nantes.net)
+- Maxime TERRADE (maxime.terrade@centraliens-nantes.net)
+- Raphaël TRAINEAU (raphael.traineau@centraliens-nantes.net)
+
+Chacun des développeurs fournit une licence exclusive, non assignable et non transférable, gratuite et non limitée dans le temps à l'Ecole Centrale de Nantes (ci-après "l'Ecole") pour l'exécution du logiciel sur les sites et serveurs de l'Ecole, ou ceux de tierces parties, à des fins d'utilisation non commerciale par l'Ecole, ainsi que pour la modification du logiciel pour répondre aux besoins et spécifications de l'Ecole.
+
+Licence non assignable et non transférable : les droits concédés par cette licence ne sont pas assignables ou transférables à des tierces parties
+Utilisation non commerciale : l'utilisation de ce logiciel doit être non commerciale, c'est-à-dire que l'accès au logiciel ou au site hébergeant le logiciel ne doit pas être conditionné par un paiement.
+Le droit de modification du logiciel inclut entre autres la modification du code source, l'intégration dans un produit plus large ou la suppression de portions du logiciel. Dans tous les cas, les portions du logiciel non modifiées restent soumises à cette même licence.
+
+Il n’y a aucune garantie pour le programme, dans les limites permises par la loi applicable. Les développeurs fournissent le programme "en l’état" sans garantie d’aucune sorte, qu’elle soit exprimée ou implicite, ceci comprenant, sans se limiter à celles-ci, les garanties implicites de commercialisabilité et d’adéquation à un objectif particulier. L'utilisateur assume l'ensemble des risques concernant la qualité et les performances du programme. Dans l’éventualité où le programme s’avérerait défectueux, l'utilisateur assume les coûts de tous les services, réparations ou corrections nécessaires.
+
+Les développeurs ne peuvent en aucune circonstance être tenus pour responsables des dommages, incluant tout dommage général, spécial, accidentel ou induit survenant par suite de l’utilisation ou de l’incapacité d’utiliser le logiciel (y compris, sans se limiter à celles-ci, la perte de données ou l’inexactitude des données retournées ou les pertes subies par l'utilisateur ou des parties tierces ou l’incapacité du logiciel à fonctionner avec tout autre logiciel), même si un tel titulaire ou toute autre partie a été avisé de la possibilité de tels dommages.
