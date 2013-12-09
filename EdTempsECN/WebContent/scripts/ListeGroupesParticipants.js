@@ -175,13 +175,15 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	 */
 	ListeGroupesParticipants.prototype.afficherBlocVosAgendas = function() {
 
-		if(this.estAffiche)
+		if(this.estAffiche) {
 			return;
+		}
 		
 		var me = this;
 
 		// Affiche l'arbre dans la zone "Vos agendas"
-		this.jqListe.html(this.afficherNoeud(this.arbre, ""));
+		var html = this.afficherNoeud(this.arbre, "");
+		this.jqListe.html(html!="" ? html : "Pour vous abonner, allez dans la page 'Paramètres'");
 
 		// Initialise l'ouverture de l'arborescence avec le localStorage
 		this.jqListe.find(".liste_groupes_sous_groupe").each(function(i) {
