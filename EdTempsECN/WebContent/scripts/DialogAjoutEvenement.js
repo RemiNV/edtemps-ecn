@@ -1,4 +1,3 @@
-
 /**
  * Module de contrôle de la boîte de dialogue d'ajout d'évènement
  * @module DialogAjoutEvenement

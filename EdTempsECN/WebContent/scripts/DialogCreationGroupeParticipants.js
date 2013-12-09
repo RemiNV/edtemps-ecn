@@ -1,4 +1,5 @@
 /**
+ * Module de contrôle de la boîte de dialogue d'ajout de groupe de participants
  * @module DialogCreationGroupeParticipants
  */
 define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestManager, MultiWidget, UtilisateurGestion) {

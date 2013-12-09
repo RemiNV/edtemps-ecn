@@ -1,6 +1,5 @@
-/** Module effectuant les requêtes sur le serveur,
- * et gérant la connexion à celui-ci. Gère entre autres
- * le token de connexion
+/** Module effectuant les requêtes sur le serveur, et gérant la connexion à celui-ci.
+ * Gère entre autres le token de connexion.
  * @module RestManager 
  */
 define(["jquery"], function() {

@@ -1,4 +1,3 @@
-
 /* Fonction d'entrée du programme. 
  * Le plugin davis est appelé par le mot-clé "davis" (configuré dans index.html)
  * Placer jquery en dernier dans la liste (ne se charge pas dans les arguments de la fonction) */

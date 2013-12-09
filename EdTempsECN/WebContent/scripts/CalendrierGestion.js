@@ -1,4 +1,5 @@
 /**
+ * Module de gestion/récupération des calendriers
  * @module CalendrierGestion
  */
 define([], function() {
@@ -13,77 +14,79 @@ define([], function() {
 	
 	/**
 	 * @typedef {Object} Calendrier
-	 * @property {number} id - ID du calendrier
+	 * 
+	 * @property {integer} id - ID du calendrier
 	 * @property {string} nom - Nom du calendrier
 	 * @property {string} type - Type du calendrier (TD, TP...)
 	 * @property {string} matiere - Matière du calendrier
-	 * @property {number[]} proprietaires - IDs des propriétaires du calendrier 
+	 * @property {integer[]} proprietaires - IDs des propriétaires du calendrier 
 	 * @property {boolean} estCours - VRAI si le calendrier est lié à au moins un groupe qui est un cours 
 	 */
 	
 	/**
-	 * @callback listerCalendriersCallback
-	 * @param {ResultCode} resultCode Code de retour de la requête
-	 * @param {Calendrier[]} calendriers Calendriers renvoyés par la requête, en cas de succès
+	 * @callback calendriersCallback
+	 * @param {ResultCode} resultCode - Code de retour de la requête
+	 * @param {Calendrier[]} calendriers - Calendriers renvoyés par la requête, en cas de succès
 	 */
+
+	/**
+	 * @callback simpleCallback
+	 * @param {ResultCode} resultCode - Code de retour de la requête
+	 */
+
 	
 	/**
-	 * Listing des calendriers appartenant à l'utilisateur
-	 * @param {listerCalendriersCallback} callback Fonction rappelée une fois les calendriers listés 
+	 * Lister les calendriers appartenant à l'utilisateur
+	 * 
+	 * @param {calendriersCallback} callback - Fonction appelée une fois les calendriers listés
 	 */
 	CalendrierGestion.prototype.listerMesCalendriers = function(callback) {
 		var me = this;
-		this.restManager.effectuerRequete("GET", "mescalendriers", { token: me.restManager.getToken() }, function(data) {
+		this.restManager.effectuerRequete("GET", "mescalendriers", {
+			token: me.restManager.getToken()
+		}, function(data) {
 			callback(data.resultCode, data.data);
 		});
 	};
 
 	/**
-	 * Création d'un calendrier ayant les informations fournies en paramètre
+	 * Création d'un calendrier
 	 * 
-	 * @param nom : String
-	 * @param matiere : String
-	 * @param type : String
-	 * @param idProprietaires : liste d'ID 
-	 * @param idGroupesParents : liste d'ID
-	 * @param callback : Fonction appelée une fois la requete de création effectuée
-	 *
+	 * @param {string} nom - Nom du calendrier
+	 * @param {string} matiere - Matière rattachée
+	 * @param {string} type - Type des cours liés
+	 * @param {integer[]} idProprietaires - Liste des identifiants des propriétaires
+	 * @param {integer[]} idGroupesParents - Liste des groupes parents
+	 * @param {simpleCallback} callback - Fonction appelée une fois la requête de création effectuée
 	 */
 	CalendrierGestion.prototype.creerCalendrier = function(nom_arg, matiere_arg, type_arg, idProprietaires_arg, idGroupesParents_arg, callback) {
 		var me = this;
-		this.restManager.effectuerRequete(
-			"POST",
-			"calendrier/creation", 
-			{ 
+		this.restManager.effectuerRequete("POST", "calendrier/creation", {
 			  token: me.restManager.getToken(),
 			  matiere: matiere_arg,
 			  nom: nom_arg,
 			  type: type_arg, 
 			  idProprietaires: idProprietaires_arg,
 			  idGroupesParents: idGroupesParents_arg
-			},
-			function(data){callback(data.resultCode);}
-		);
+		}, function(data) {
+			callback(data.resultCode);
+		});
 	};
 
 	/**
-	 * Modification d'un calendrier avec les informations fournies en paramètre
+	 * Modifier un calendrier
 	 * 
-	 * @param id : int
-	 * @param nom : String
-	 * @param matiere : String
-	 * @param type : String
-	 * @param idProprietaires : liste d'ID
-	 * @param idGroupesParents : liste d'ID
-	 * @param callback : Fonction appelée une fois la requete de création effectuée
-	 *
+	 * @param {integer} id - Identifiant du calendrier
+	 * @param {string} nom - Nom du calendrier
+	 * @param {string} matiere - Matière rattachée
+	 * @param {string} type - Type des cours liés
+	 * @param {integer[]} idProprietaires - Liste des identifiants des propriétaires
+	 * @param {integer[]} idGroupesParents - Liste des groupes parents
+	 * @param {simpleCallback} callback - Fonction appelée une fois la requête de modification effectuée
 	 */
 	CalendrierGestion.prototype.modifierCalendrier = function(id_arg, nom_arg, matiere_arg, type_arg, idProprietaires_arg, idGroupesParents_arg, callback) {
 		var me = this;
-		this.restManager.effectuerRequete(
-			"POST",
-			"calendrier/modification", 
-			{ 
+		this.restManager.effectuerRequete("POST", "calendrier/modification", { 
 			  token: me.restManager.getToken(),
 			  id: id_arg,
 			  matiere: matiere_arg,
@@ -91,56 +94,48 @@ define([], function() {
 			  type: type_arg, 
 			  idProprietaires: idProprietaires_arg,
 			  idGroupesParents: idGroupesParents_arg
-			},
-			function(data){callback(data.resultCode);}
-		);
+		}, function (data) {
+			callback(data.resultCode);
+		});
 	};
 	
 	
 	/**
 	 * Récupérer les calendriers dont l'utilisateur est propriétaire
 	 * 
-	 * @param callback : Fonction appelée une fois la requete de création effectuée
-	 *
+	 * @param {calendriersCallback} callback Fonction appelée une fois la requête effectuée
 	 */
 	CalendrierGestion.prototype.queryCalendrierUtilisateurProprietaire = function(callback) {
 		var me = this;
-		this.restManager.effectuerRequete(
-			"GET",
-			"calendrier", 
-			{ 
-			  token: me.restManager.getToken(),
-			},
-			function(data){callback(data.resultCode, data.data);}
-		);
+		this.restManager.effectuerRequete("GET", "calendrier", { 
+			  token: me.restManager.getToken()
+		}, function(data) {
+			callback(data.resultCode, data.data);
+		});
 	};
 	
 	
 	/**
-	 * Supprimer un calendrier, via son ID en paramètre
+	 * Supprimer un calendrier
 	 * 
-	 * @param id : ID du calendrier à supprimer
-	 * @param callback : Fonction appelée une fois la requete de création effectuée
-	 *
+	 * @param {integer} idCalendrier Identifiant du calendrier à supprimer
+	 * @param {simpleCallback} callback Fonction appelée une fois la requête de suppression effectuée
 	 */
-	CalendrierGestion.prototype.supprimerCalendrier = function(id, callback) {
+	CalendrierGestion.prototype.supprimerCalendrier = function(idCalendrier, callback) {
 		var me = this;
-		this.restManager.effectuerRequete(
-			"POST",
-			"calendrier/suppression", 
-			{ 
-			  token: me.restManager.getToken(),
-			  id: id
-			},
-			function(data){callback(data.resultCode);}
-		);
+		this.restManager.effectuerRequete("POST", "calendrier/suppression",	{
+			  token: me.restManager.getToken(), id: idCalendrier
+		}, function (data){
+			callback(data.resultCode);
+		});
 	};
 	
 
 	/**
-	 * Ne plus être propriétaire du calendrier dont l'id est en paramètre
-	 * @param groupeId
-	 * @param callback
+	 * Ne plus être propriétaire du calendrier
+	 * 
+	 * @param {integer} idCalendrier - Identifiant du calendrier
+	 * @param {simpleCallback} callback - Fonction appelée une fois la requête effectuée
 	 */
 	CalendrierGestion.prototype.queryNePlusEtreProprietaire = function(idCalendrier, callback) {
 		this.restManager.effectuerRequete("POST", "calendrier/nePlusEtreProprietaire", {
@@ -149,6 +144,7 @@ define([], function() {
 			callback(data.resultCode);
 		});
 	};
+	
 	
 	return CalendrierGestion;
 });

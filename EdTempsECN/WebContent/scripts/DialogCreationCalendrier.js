@@ -1,4 +1,5 @@
 /**
+ * Module de contrôle de la boîte de dialogue d'ajout de calendrier
  * @module DialogCreationCalendrier
  */
 define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion", "jquerymaskedinput" ], function(RestManager, CalendrierGestion, MultiWidget, UtilisateurGestion) {

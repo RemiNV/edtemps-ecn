@@ -1,5 +1,5 @@
-
 /**
+ * Module de MultiWidget utilisé pour les sélections de propriétaires dans les boîtes de dialogue
  * @module MultiWidget
  */
 define([ "jquery", "jqueryui" ], function() {

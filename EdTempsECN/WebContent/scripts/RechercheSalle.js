@@ -1,4 +1,5 @@
 /**
+ * Module de contrôle de la boîte de dialogue de recherche de salles
  * @module RechercheSalle
  */
 define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "jqueryquicksearch" ], function(RestManager) {

@@ -1,4 +1,5 @@
 /**
+ * Module de gestion/récupération des groupes de participants
  * @module GroupeGestion
  */
 define(["RestManager"], function(RestManager) {

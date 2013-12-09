@@ -1,4 +1,5 @@
 /**
+ * Module de contrôle de la boîte de dialogue de connexion
  * @module DialogConnexion
  */
 define(["RestManager", "jquery", "jqueryui"], function(RestManager) {

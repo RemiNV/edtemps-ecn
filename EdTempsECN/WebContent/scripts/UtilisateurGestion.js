@@ -1,4 +1,5 @@
 /**
+ * Module de gestion/récupération des utilisateurs
  * @module UtilisateurGestion
  */
 define(["RestManager"], function(RestManager) {

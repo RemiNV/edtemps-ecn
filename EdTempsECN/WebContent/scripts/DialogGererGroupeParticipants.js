@@ -1,11 +1,12 @@
 /**
+ * Module de contrôle de la boîte de dialogue de gestion de groupe de participants
  * @module DialogGererGroupeParticipants
  */
 define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManager, GroupeGestion, EcranParametres) {
 
 	/**
 	 * @constructor
-	 * @alias DialogGererGroupeParticipants
+	 * @alias module:DialogGererGroupeParticipants
 	 */
 	var DialogGererGroupeParticipants = function(restManager, ecranParametres, jqDialog) {
 		this.restManager = restManager;

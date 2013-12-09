@@ -1,11 +1,12 @@
 /**
+ * Module de contrôle de la boîte de dialogue de détail d'un groupe de participants
  * @module DialogDetailGroupeParticipants
  */
 define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) {
 
 	/**
 	 * @constructor
-	 * @alias DialogDetailGroupeParticipants
+	 * @alias module:DialogDetailGroupeParticipants
 	 */
 	var DialogDetailGroupeParticipants = function(restManager, jqDialog) {
 		this.restManager = restManager;

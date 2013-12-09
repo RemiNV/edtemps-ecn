@@ -1,4 +1,5 @@
 /**
+ * Module de gestion pour la liste des groupes de participants affichée dans le panneau de gauche de l'écran principal
  * @module ListeGroupesParticipants
  */
 define([ "RestManager", "jqueryrotate" ], function(RestManager) {

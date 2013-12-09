@@ -274,6 +274,8 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	
 	/**
 	 * Remplit une liste déroulante avec les clés/valeurs de l'objet fourni
+	 * @param {jQuery} jqDropdown Objet jquery de liste déroulante
+	 * @param {Object} objValues Objet contenant les clés/valeurs
 	 */
 	var remplirDropdown = function(jqDropdown, objValues) {
 		var currentValue = jqDropdown.val();
@@ -301,7 +303,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	/**
 	 * Filtre les évènements en fonction des filtres sélectionnés,
 	 * et remplit les listes déroulantes des filtres en fonction des évènements à afficher
-	 * @param evenements
+	 * @param {Object} evenements Objet contenant les événements à filtrer
 	 */
 	Calendrier.prototype.filtrerMatiereTypeRespo = function(evenements) {
 		// Récupération des filtres sélectionnés
