@@ -73,9 +73,9 @@ public class GroupeGestionTest {
 		
 		
 		// Création d'un groupe bidon à ajouter
-		Groupe groupe1 = new Groupe("groupe de \"test\" 123' haha", lstProprietaire, false, false, false);
+		Groupe groupe1 = new Groupe("groupe de test 123 haha", lstProprietaire, false, false, false);
 		groupe1.setIdCalendriers(new ArrayList<Integer>());
-		Groupe groupe2 = new Groupe("groupe de \"test\" 345' haha", lstProprietaire, true, true, false);
+		Groupe groupe2 = new Groupe("groupe de test 345 haha", lstProprietaire, true, true, false);
 		groupe2.setIdCalendriers(new ArrayList<Integer>());
 		
 		int idGroupe1 = this.groupeGestionnaire.sauverGroupe("groupe de test 123 haha", null, false, false, lstProprietaire, 1);

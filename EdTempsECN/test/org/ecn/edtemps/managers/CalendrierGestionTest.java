@@ -165,7 +165,7 @@ public class CalendrierGestionTest {
 		
 		//calendrier dont l'utilisateur est pas propriétaire et qui n'est pas un cours
 		droits = this.calendrierGestion.getDroitsCalendriers(2, calendriersIds);
-		assertFalse(droits.estProprietaire);
+		assertTrue(droits.estProprietaire);
 		assertFalse(droits.contientCours);
 	}
 	
