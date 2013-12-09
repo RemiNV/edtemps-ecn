@@ -138,6 +138,7 @@ td.datepickerSelected a {
 
 div.datepicker td > a:hover, div.datepicker th:not(.datepickerWeek) > a:hover {
 	color: #0187AA;
+	background-color: #eaeaea;
 }
 
 div.datepicker td.datepickerSelected a:hover {
