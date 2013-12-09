@@ -15,30 +15,19 @@ define([], function() {
 	/**
 	 * @typedef {Object} Calendrier
 	 * 
-	 * @property {integer} id - ID du calendrier
-	 * @property {string} nom - Nom du calendrier
-	 * @property {string} type - Type du calendrier (TD, TP...)
-	 * @property {string} matiere - Matière du calendrier
-	 * @property {integer[]} proprietaires - IDs des propriétaires du calendrier 
-	 * @property {boolean} estCours - VRAI si le calendrier est lié à au moins un groupe qui est un cours 
+	 * @property {number} id ID du calendrier
+	 * @property {string} nom Nom du calendrier
+	 * @property {string} type Type du calendrier (TD, TP...)
+	 * @property {string} matiere Matière du calendrier
+	 * @property {number[]} proprietaires IDs des propriétaires du calendrier 
+	 * @property {boolean} estCours VRAI si le calendrier est lié à au moins un groupe qui est un cours 
 	 */
 	
-	/**
-	 * @callback calendriersCallback
-	 * @param {ResultCode} resultCode - Code de retour de la requête
-	 * @param {Calendrier[]} calendriers - Calendriers renvoyés par la requête, en cas de succès
-	 */
-
-	/**
-	 * @callback simpleCallback
-	 * @param {ResultCode} resultCode - Code de retour de la requête
-	 */
-
 	
 	/**
 	 * Lister les calendriers appartenant à l'utilisateur
 	 * 
-	 * @param {calendriersCallback} callback - Fonction appelée une fois les calendriers listés
+	 * @param {function} callback Fonction appelée une fois les calendriers listés
 	 */
 	CalendrierGestion.prototype.listerMesCalendriers = function(callback) {
 		var me = this;
@@ -52,12 +41,12 @@ define([], function() {
 	/**
 	 * Création d'un calendrier
 	 * 
-	 * @param {string} nom - Nom du calendrier
-	 * @param {string} matiere - Matière rattachée
-	 * @param {string} type - Type des cours liés
-	 * @param {integer[]} idProprietaires - Liste des identifiants des propriétaires
-	 * @param {integer[]} idGroupesParents - Liste des groupes parents
-	 * @param {simpleCallback} callback - Fonction appelée une fois la requête de création effectuée
+	 * @param {string} nom Nom du calendrier
+	 * @param {string} matiere Matière rattachée
+	 * @param {string} type Type des cours liés
+	 * @param {number[]} idProprietaires Liste des identifiants des propriétaires
+	 * @param {number[]} idGroupesParents Liste des groupes parents
+	 * @param {function} callback Fonction appelée une fois la requête de création effectuée (paramètres resultCode)
 	 */
 	CalendrierGestion.prototype.creerCalendrier = function(nom_arg, matiere_arg, type_arg, idProprietaires_arg, idGroupesParents_arg, callback) {
 		var me = this;
@@ -76,13 +65,13 @@ define([], function() {
 	/**
 	 * Modifier un calendrier
 	 * 
-	 * @param {integer} id - Identifiant du calendrier
-	 * @param {string} nom - Nom du calendrier
-	 * @param {string} matiere - Matière rattachée
-	 * @param {string} type - Type des cours liés
-	 * @param {integer[]} idProprietaires - Liste des identifiants des propriétaires
-	 * @param {integer[]} idGroupesParents - Liste des groupes parents
-	 * @param {simpleCallback} callback - Fonction appelée une fois la requête de modification effectuée
+	 * @param {number} id Identifiant du calendrier
+	 * @param {string} nom Nom du calendrier
+	 * @param {string} matiere Matière rattachée
+	 * @param {string} type Type des cours liés
+	 * @param {number[]} idProprietaires Liste des identifiants des propriétaires
+	 * @param {number[]} idGroupesParents Liste des groupes parents
+	 * @param {function} callback Fonction appelée une fois la requête de modification effectuée (paramètres resultCode)
 	 */
 	CalendrierGestion.prototype.modifierCalendrier = function(id_arg, nom_arg, matiere_arg, type_arg, idProprietaires_arg, idGroupesParents_arg, callback) {
 		var me = this;
@@ -103,7 +92,7 @@ define([], function() {
 	/**
 	 * Récupérer les calendriers dont l'utilisateur est propriétaire
 	 * 
-	 * @param {calendriersCallback} callback Fonction appelée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée (paramètres resultCode et data)
 	 */
 	CalendrierGestion.prototype.queryCalendrierUtilisateurProprietaire = function(callback) {
 		var me = this;
@@ -118,8 +107,8 @@ define([], function() {
 	/**
 	 * Supprimer un calendrier
 	 * 
-	 * @param {integer} idCalendrier Identifiant du calendrier à supprimer
-	 * @param {simpleCallback} callback Fonction appelée une fois la requête de suppression effectuée
+	 * @param {number} idCalendrier Identifiant du calendrier à supprimer
+	 * @param {function} callback Fonction appelée une fois la requête de suppression effectuée (paramètres resultCode)
 	 */
 	CalendrierGestion.prototype.supprimerCalendrier = function(idCalendrier, callback) {
 		var me = this;
@@ -134,8 +123,8 @@ define([], function() {
 	/**
 	 * Ne plus être propriétaire du calendrier
 	 * 
-	 * @param {integer} idCalendrier - Identifiant du calendrier
-	 * @param {simpleCallback} callback - Fonction appelée une fois la requête effectuée
+	 * @param {number} idCalendrier Identifiant du calendrier
+	 * @param {function} callback Fonction appelée une fois la requête effectuée (paramètres resultCode)
 	 */
 	CalendrierGestion.prototype.queryNePlusEtreProprietaire = function(idCalendrier, callback) {
 		this.restManager.effectuerRequete("POST", "calendrier/nePlusEtreProprietaire", {

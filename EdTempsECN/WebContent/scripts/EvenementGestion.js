@@ -28,40 +28,47 @@ define(["RestManager"], function(RestManager) {
 	EvenementGestion.CACHE_MODE_MES_ABONNEMENTS = 4;
 
 	/**
-	 * Listing des évènements auxquels un utilisateur est abonné. Donne aussi les calendriers et groupes auxquels il est abonné.
-	 * Arguments : 
-	 * dateDebut/dateFin : intervalle de recherche pour les évènements
-	 * callback : fonction appelée une fois la requête effectuée. Paramètres de callback : 
-	 * - resultCode (entier) : code de retour de la requête. Vaut RestManager.resultCode_Success en cas de succès.
-	 * - data : objet contenant les évènements, calendriers et groupes demandés.
-	 * 	Non fourni si resultCode != RestManager.resultCode_Success
+	 * @typedef {Object} Evenement
 	 * 
-	 * Exemple de format de l'objet fourni : 
-	 * { evenements:
-		[
-			{id: 1, nom:"cours THERE", dateDebut: 1384708500000, dateFin: 1384712100000, calendriers: [7], 
-				salles: [{id: 123, nom: "Salle B1", batiment: "B", capacite: 30, niveau: 1, numero: 1, materiels: []}]},
-			{id: 5, nom:"cours THERF", dateDebut: 1384798500000, dateFin: 1384802100000, calendriers: [54],
-				salles: [{id: 155, nom: "Salle B2", batiment: "B", capacite: 30, niveau: 1, numero: 2, materiels: []}]}
-					
-		],
-	 *   calendriers: 
-	 * 	[
-	 * 		{id: 7, nom:"THERE Groupe L", type: "TD", matiere: "THERE", proprietaires: [1,5,8,7]},
-			{id: 54, nom:"THERF Groupe L", type: "TD", matiere: "THERF", proprietaires: [24]}
-	 * 	],
-	 *   groupes: 
-	 * 	[
+	 * @property {number} id ID de l'événement
+	 * @property {string} dateDebut Date de début de l'événement
+	 * @property {string} dateFin Date de fin de l'événement
+	 * @property {number[]} calendriers Liste des identifiants des calendriers auxquels l'événement est lié 
+	 */
+
+	
+	/**
+	 * <p>Listing des évènements auxquels un utilisateur est abonné. Donne aussi les calendriers et groupes auxquels il est abonné.</p>
+	 * 
+	 * <p>Exemple de format de l'objet fourni :<br> 
+	 * { evenements:<br>
+		[<br>
+			{id: 1, nom:"cours THERE", dateDebut: 1384708500000, dateFin: 1384712100000, calendriers: [7],<br> 
+				salles: [{id: 123, nom: "Salle B1", batiment: "B", capacite: 30, niveau: 1, numero: 1, materiels: []}]},<br>
+			{id: 5, nom:"cours THERF", dateDebut: 1384798500000, dateFin: 1384802100000, calendriers: [54],<br>
+				salles: [{id: 155, nom: "Salle B2", batiment: "B", capacite: 30, niveau: 1, numero: 2, materiels: []}]}<br>
+		],<br>
+	 *   calendriers:<br> 
+	 * 	[<br>
+	 * 		{id: 7, nom:"THERE Groupe L", type: "TD", matiere: "THERE", proprietaires: [1,5,8,7]},<br>
+			{id: 54, nom:"THERF Groupe L", type: "TD", matiere: "THERF", proprietaires: [24]}<br>
+	 * 	],<br>
+	 *   groupes:<br> 
+	 * 	[<br>
 	 * 		{id: 42, nom:"Groupe L", parentId: 24, rattachementAutorise: true, estCours: true, estCalendrierUnique: false, 
-	 * 			calendriers: [1, 5], proprietaires: [2]},
+	 * 			calendriers: [1, 5], proprietaires: [2]},<br>
 	 * 		{id: 24, nom:"Promo B", parentId: 12, rattachementAutorise: false, estCours: true, estCalendrierUnique: false, 
-	 * 			calendriers: [7], proprietaires: [2]},
+	 * 			calendriers: [7], proprietaires: [2]},<br>
 	 * 		{id: 12, nom:"EI1", parentId: 6, rattachementAutorise: false, estCours: true, estCalendrierUnique: false, 
-	 * 			calendriers: [], proprietaires: [2]},
+	 * 			calendriers: [], proprietaires: [2]},<br>
 	 * 		{id: 12, nom:"Elèves ingénieur", parent: null, rattachementAutorise: false, estCours: true, 
-	 * 			estCalendrierUnique: false, calendriers: [], proprietaires: [2]},
-	 * 	]
-	 * }
+	 * 			estCalendrierUnique: false, calendriers: [], proprietaires: [2]},<br>
+	 * 	]<br>
+	 * }<br>
+	 *
+	 * @param {Date} dateDebut Date de début pour la recherche
+	 * @param {Date} dateFin Date de fin pour la recherche
+	 * @param {function} callback Fonction appelée une fois la requête effectuée. Prend en paramètre resultCode et data (non fourni si resultCode != RestManager.resultCode_Success)
 	 */
 	EvenementGestion.prototype.queryAbonnements = function(dateDebut, dateFin, callback) {
 	
@@ -79,19 +86,20 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	
 	/**
-	 * Fonction générique de récupération d'évènements. Utilisable pour la récupération de : 
+	 * Fonction générique pour récupérer des évènements. Utilisable pour la récupération de : 
 	 * - Evénements de mes abonnements
 	 * - Evénements dont je suis intervenant
 	 * - Evénements d'une salle
 	 * - Evénements d'un groupe
 	 * 
-	 * @param url URL à laquelle faire la requête
-	 * @param dateDebut Début de la fenêtre de recherche
-	 * @param dateFin Fin de la fenêtre de recherche
-	 * @param callback Fonction à appeler pour fournir le résultat de la requête (paramètres resultCode et data)
-	 * @param idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
-	 * @param idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
+	 * @param {string} url URL à laquelle faire la requête
+	 * @param {Date} dateDebut Début de la fenêtre de recherche
+	 * @param {Date} dateFin Fin de la fenêtre de recherche
+	 * @param {function} callback Fonction à appeler pour fournir le résultat de la requête (paramètres resultCode et data)
+	 * @param {number[]} idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 * @param {number[]} idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
 	 */
 	EvenementGestion.prototype.queryEvenements = function(url, dateDebut, dateFin, callback, idSalle, idGroupe) {
 		
@@ -119,17 +127,18 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	
 	/**
-	 * Récupération des abonnements de l'utilisateur (evenements + calendriers + groupes)
-	 * Arguments start, end : bornes de recherche pour les évènements
-	 * callback : fonction prenant les arguments : 
-	 * - resultCode (entier) : code de retour de la requête. Vaut RestManager.resultCode_Success en cas de succès.
-	 * - data : objet contenant les évènements, calendriers et groupes demandés.
-	 * data contient 3 attributs : 
-	 * -- evenements (évènements au format de parseEventsFullcalendar)
-	 * -- calendriers (au format de queryAbonnements)
-	 * -- groupes (groupes au format de queryAbonnements)
-	 * 	Data est non fourni si resultCode != RestManager.resultCode_Success */
+	 * Récupérer des abonnements de l'utilisateur (evenements + calendriers + groupes)
+	 * 
+	 * @param {Date} start Date de début pour la récupération
+	 * @param {Date} end Date de fin pour la récupération
+	 * @param {function} callback Fonction à appeler pour fournir le résultat de la requête (paramètres resultCode et data)<br>
+	 * L'objet 'data' contient 3 attributs :<br>
+	 * <ul><li>evenements (évènements au format de parseEventsFullcalendar)</li>
+	 * <li>calendriers (au format de queryAbonnements)</li>
+	 * <li>groupes (groupes au format de queryAbonnements)</li>
+	 */
 	EvenementGestion.prototype.getAbonnements = function(start, end, callback) {
 		var me = this;
 		
@@ -159,7 +168,9 @@ define(["RestManager"], function(RestManager) {
 	
 	
 	/**
-	 * Fonction indiquant si l'utilisateur est propriétaire de l'évènement.
+	 * Vérifier si l'utilisateur est propriétaire de l'évènement
+	 * 
+	 * @param {object} evenement Evénement à vérifier 
 	 * @return Un booléen indiquant si l'utilisateur est propriétaire
 	 */
 	EvenementGestion.prototype.estProprietaire = function(evenement) {
@@ -186,11 +197,12 @@ define(["RestManager"], function(RestManager) {
 		return strSalles;
 	};
 	
+	
 	/**
 	 * Retourne un tableau d'évènements compatibles fullCalendar à partir d'évènements renvoyés par le serveur
 	 * (format complet, avec matières et types, classe EvenementComplet)
 	 * 
-	 * @param evenements Evènements renvoyés par le serveur
+	 * @param {Evenement[]} evenements Evènements renvoyés par le serveur
 	 * @return Tableau d'évènements parsés
 	 */
 	EvenementGestion.prototype.parseEventsCompletsFullCalendar = function(evenements) {
@@ -226,11 +238,14 @@ define(["RestManager"], function(RestManager) {
 	
 	
 	/**
-	 * Retourne un tableau d'évènements compatibles fullCalendar
-	 * à partir d'évènements renvoyés par le serveur (format simple, sans matières et types, classe EvenementIdentifie)
+	 * <p>Retourner un tableau d'évènements compatibles fullCalendar
+	 * à partir d'évènements renvoyés par le serveur (format simple, sans matières et types, classe EvenementIdentifie)</p>
 	 * 
-	 * getAbonnements doit avoir été appelé avant cette méthode pour avoir les calendriers,
-	 * et pouvoir remplir la matière et le type de chaque évènement. */
+	 * <p>getAbonnements doit avoir été appelé avant cette méthode pour avoir les calendriers,
+	 * et pouvoir remplir la matière et le type de chaque évènement.</p>
+	 * 
+	 * @param {Evenement[]} evenements Evènements renvoyés par le serveur
+	 */
 	EvenementGestion.prototype.parseEventsSimplesFullcalendar = function(evenements) {
 		
 		if(this.matieresCalendriers == null || this.typesCalendriers == null)
@@ -281,17 +296,19 @@ define(["RestManager"], function(RestManager) {
 		return res;
 	};
 	
+	
 	/**
 	 * Récupération générique d'évènements
-	 * @param url URL de récupération de ces évènements
-	 * @param modeCache Mode de cache des évènements. Doit correspondre à l'URL fourni avec le paramètre url
-	 * @param dateDebut Début de la fenêtre de recherche
-	 * @param dateFin Fin de la fenêtre de recherche
-	 * @param parsingMethod Méthode à utiliser pour convertir les évènements retournés par le serveur au format fullCalendar
-	 * @param ignoreCache Ignorer les évènements stockés en cache et forcer la requête vers le serveur
-	 * @param callback Fonction de rappel à appeler avec les résultats. Prend les paramètres resultCode et evenements (tableau des évènements)
-	 * @param idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
-	 * @param idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
+	 * 
+	 * @param {string} url URL de récupération de ces évènements
+	 * @param {string} modeCache Mode de cache des évènements. Doit correspondre à l'URL fourni avec le paramètre url
+	 * @param {Date} dateDebut Début de la fenêtre de recherche
+	 * @param {Date} dateFin Fin de la fenêtre de recherche
+	 * @param {function} parsingMethod Méthode à utiliser pour convertir les évènements retournés par le serveur au format fullCalendar
+	 * @param {boolean} ignoreCache Ignorer les évènements stockés en cache et forcer la requête vers le serveur
+	 * @param {function} callback Fonction de rappel à appeler avec les résultats. Prend les paramètres resultCode et evenements (tableau des évènements)
+	 * @param {number[]} idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 * @param {number[]} idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
 	 */
 	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, parsingMethod, ignoreCache, callback, idSalle, idGroupe) {
 		var me = this;
@@ -320,19 +337,17 @@ define(["RestManager"], function(RestManager) {
 		}
 	};
 	
+	
 	/**
-	 * Récupération des évènements auxquels l'utilisateur est abonné pour l'intervalle donné.
+	 * Récupérer les évènements auxquels l'utilisateur est abonné pour l'intervalle donné.
 	 * Les évènements sont éventuellements récupérés depuis le cache si disponibles.
 	 * Les matières des évènements sont remplis avec les calendriers précédemment chargés
 	 * depuis le serveur, donc getAbonnements doit avoir été appelé précédemment.
 	 * 
-	 * Arguments start/end : intervalle de recherche (dates)
-	 * ignoreCache : true pour forcer la récupération depuis le serveur
-	 * callback : fonction appelée pour fournir les résultats une fois la requête effectuée
-	 * Arguments de callback : 
-	 * - resultCode : code de retour de la requête (RestManager.resultCode_Success en cas de succès)
-	 * - data : évènements récupérés, au format de parseEventsFullcalendar
-	 * 
+	 * @param {Date} start Date de début pour la recherche
+	 * @param {Date} end Date de fin pour la recherche
+	 * @param {boolean} ignoreCache true pour forcer la récupération depuis le serveur
+	 * @param {function} callback Fonction appelée pour fournir les résultats une fois la requête effectuée.
 	 */
 	EvenementGestion.prototype.getEvenementsAbonnements = function(start, end, ignoreCache, callback) {
 		var me = this;
@@ -340,27 +355,63 @@ define(["RestManager"], function(RestManager) {
 				function(events) { return me.parseEventsSimplesFullcalendar(events); }, ignoreCache, callback);
 	};
 	
+
+	/**
+	 * Récupérer les évènements qui m'appartiennent
+	 * 
+	 * @param {Date} start Date de début pour la recherche
+	 * @param {Date} end Date de fin pour la recherche
+	 * @param {boolean} ignoreCache true pour forcer la récupération depuis le serveur
+	 * @param {function} callback Fonction appelée pour fournir les résultats une fois la requête effectuée.
+	 */
 	EvenementGestion.prototype.getMesEvenements = function(start, end, ignoreCache, callback) {
 		var me = this;
 		this.getEvenements("listerevenements/intervenant", EvenementGestion.CACHE_MODE_MES_EVENEMENTS, start, end, 
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback);
 	};
 	
+
+	/**
+	 * Récupérer les évènements d'un groupe
+	 * 
+	 * @param {Date} start Date de début pour la recherche
+	 * @param {Date} end Date de fin pour la recherche
+	 * @param {number} idGroupe Identifiant du groupe
+	 * @param {boolean} ignoreCache true pour forcer la récupération depuis le serveur
+	 * @param {function} callback Fonction appelée pour fournir les résultats une fois la requête effectuée.
+	 */
 	EvenementGestion.prototype.getEvenementsGroupe = function(start, end, idGroupe, ignoreCache, callback) {
 		var me = this;
 		this.getEvenements("listerevenements/groupe", EvenementGestion.CACHE_MODE_GROUPE, start, end, 
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, idGroupe);
 	};
 	
+	
+	/**
+	 * Récupérer les évènements d'une salle
+	 * 
+	 * @param {Date} start Date de début pour la recherche
+	 * @param {Date} end Date de fin pour la recherche
+	 * @param {number} idSalle Identifiant de la salle
+	 * @param {boolean} ignoreCache true pour forcer la récupération depuis le serveur
+	 * @param {function} callback Fonction appelée pour fournir les résultats une fois la requête effectuée.
+	 */
 	EvenementGestion.prototype.getEvenementsSalle = function(start, end, idSalle, ignoreCache, callback) {
 		var me = this;
 		this.getEvenements("listerevenements/salle", EvenementGestion.CACHE_MODE_SALLE, start, end, 
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, idSalle);
 	};
 	
+	
 	/**
 	 * Enregistrement des évènements récupérés pour un intervalle donné
-	 * pour éviter de refaire une requête au serveur si ils sont re-demandés */
+	 * pour éviter de refaire une requête au serveur si ils sont re-demandés
+	 * 
+	 * @param {string} modeVue Mode de vue pour la recherche
+	 * @param {Date} dateDebut Date de début de la recherche
+	 * @param {Date} dateFin Date de fin de la recherche
+	 * @param {Evenement[]} evenements Liste d'événements à enregistrer
+	 */
 	EvenementGestion.prototype.cacheEvents = function(modeVue, dateDebut, dateFin, events) {
 		
 		// Si l'intervalle récupéré contient des intervalles en cache, on les supprime
@@ -376,8 +427,14 @@ define(["RestManager"], function(RestManager) {
 		this.cachedEvents[modeVue].push({dateDebut: dateDebut, dateFin: dateFin, evenements: events});
 	};
 	
+	
 	/**
 	 * Filtrage des évènements pour ne garder que ceux situés dans l'intervalle donné.
+	 * 
+	 * @param {Date} dateDebut Date de début de la recherche
+	 * @param {Date} dateFin Date de fin de la recherche
+	 * @param {Evenement[]} evenements Liste d'événements à trier
+	 * @return Un tableau d'évènements si trouvé, sinon null
 	 */
 	var filtrerEvenementsIntervalle = function(dateDebut, dateFin, evenements) {
 		
@@ -391,9 +448,15 @@ define(["RestManager"], function(RestManager) {
 		return res;
 	};
 	
+	
 	/**
 	 * Recherche dans les évènements en cache d'un intervalle d'évènements
-	 * Renvoie : un tableau d'évènements si trouvé, sinon null */
+	 * 
+	 * @param {string} modeVue Mode de vue pour la recherche
+	 * @param {Date} dateDebut Date de début de la recherche
+	 * @param {Date} dateFin Date de fin de la recherche
+	 * @return Un tableau d'évènements si trouvé, sinon null
+	 */
 	EvenementGestion.prototype.getEventsFromCache = function(modeVue, dateDebut, dateFin) {
 		
 		for(var i=0, max=this.cachedEvents[modeVue].length; i<max; i++) {
@@ -413,12 +476,13 @@ define(["RestManager"], function(RestManager) {
 		return null;
 	};
 	
+	
 	/**
 	 * Invalidation du cache pendant un intervalle donné. Tous les modes de cache sont concernés
 	 * (CACHE_MODE_MES_EVENEMENTS, CACHE_MODE_MES_ABONNEMENTS...)
 	 * 
-	 * @param dateDebut début de la fenêtre à invalider
-	 * @param dateFin fin de la fenêtre à invalider
+	 * @param {Date} dateDebut début Date de début de la fenêtre à invalider
+	 * @param {Date} dateFin Date de fin de la fenêtre à invalider
 	 */
 	EvenementGestion.prototype.invalidateCache = function(dateDebut, dateFin) {
 		var me = this;
@@ -439,13 +503,15 @@ define(["RestManager"], function(RestManager) {
 		invalidateMode(EvenementGestion.CACHE_MODE_MES_ABONNEMENTS);
 	};
 	
+	
 	/**
 	 * Suppression de tout le cache d'un mode donné
-	 * @param modeCache Mode de cache concerné (CACHE_MODE_MES_EVENEMENTS, CACHE_MODE_MES_ABONNEMENTS...)
+	 * @param {string} modeCache Mode de cache concerné (CACHE_MODE_MES_EVENEMENTS, CACHE_MODE_MES_ABONNEMENTS...)
 	 */
 	EvenementGestion.prototype.clearCache = function(modeCache) {
 		this.cachedEvents[modeCache] = new Array();
 	};
+	
 	
 	/**
 	 * Ajout d'un évènement en base de données
@@ -486,13 +552,14 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	
 	/**
 	 * Modification d'un évènement en base de données.
 	 * Les paramètres peuvent être null ou non précisés pour indiquer "aucune modification" (sauf l'ID d'évènement).
 	 * <b>Ne pas oublier d'invalider le cache d'évènements</b> via EvenementGestion.invalidateCache() une fois
 	 * l'évènement modifié, pendant l'ancienne période de l'évènement (la nouvelle est automatiquement invalidée) 
 	 * 
-	 * @param {number] id ID de l'évènement à modifier
+	 * @param {number} id ID de l'évènement à modifier
 	 * @param {function} callback Fonction de rappel appelée une fois la requête effectuée. Prend un argument resultCode (resultCode du RestManager)
 	 * @param {Date} dateDebut Nouvelle date de début de l'évènement
 	 * @param {Date} dateFin Nouvelle date de fin de l'évènement
@@ -532,10 +599,11 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	
 	/**
 	 * Suppression d'un évènement en base de données. Effectue la purge du cache.
 	 * 
-	 * @param {Object} event Evénement à supprimer. Doit contenir les propriétés id, start, end
+	 * @param {Object} event Evénement à supprimer. Doit contenir les propriétés id, start, end.
 	 * @param {function} callback Fonction appelée une fois la suppression effectuée. Prend un argument resultCode.
 	 */
 	EvenementGestion.prototype.supprimerEvenement = function(event, callback) {
@@ -555,4 +623,5 @@ define(["RestManager"], function(RestManager) {
 	
 	
 	return EvenementGestion;
+	
 });

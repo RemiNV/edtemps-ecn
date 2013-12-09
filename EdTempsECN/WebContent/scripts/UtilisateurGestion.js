@@ -14,9 +14,19 @@ define(["RestManager"], function(RestManager) {
 	
 
 	/**
+	 * @typedef {Object} Utilisateur
+	 * 
+	 * @property {number} id ID de l'utilisateur
+	 * @property {string} nom Nom de l'utilisateur
+	 * @property {string} prenom Prénom de l'utilisateur
+	 * @property {string} email Adresse email de l'utilisateur 
+	 */
+
+	
+	/**
 	 * Récupère une liste des utilisateurs potentiellement propriétaires
 	 * 
-	 * @param callback Fonction appelée une fois la requête effectuée. Prend les arguments resultCode et proprietaires
+	 * @param {function} callback Fonction appelée une fois la requête effectuée. Prend les arguments resultCode et proprietaires
 	 */
 	UtilisateurGestion.prototype.recupererProprietairesPotentiels = function(callback) {
 		// Récupération de la liste des propriétaires potentiels
@@ -32,8 +42,10 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	
 	/**
 	 * Transforme au format autocomplete une liste d'utilisateurs (fonction statique)
+	 * 
 	 * @param {Utilisateur[]} utilisateurs Utilisateurs au format nom, prenom, email...
 	 * @return {Object[]} Objet avec attributs label, value, title 
 	 */
@@ -50,6 +62,7 @@ define(["RestManager"], function(RestManager) {
 		
 		return res;
 	};
+	
 	
 	/**
 	 * Récupère une liste des utilisateurs potentiellement propriétaires, au format autocomplete (objets avec attributs label, value)
@@ -70,6 +83,7 @@ define(["RestManager"], function(RestManager) {
 			}
 		});	
 	};
+	
 	
 	return UtilisateurGestion;
 });
