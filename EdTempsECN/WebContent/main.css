@@ -639,7 +639,7 @@ input.valide {
 .input_autocomplete_overlay {
 	z-index: 1;
 	position: absolute;
-	margin-top: 4px;
+	margin-top: 2px;
 	margin-left: 0px;
 	border-color: transparent !important;
 	background-color: white;
