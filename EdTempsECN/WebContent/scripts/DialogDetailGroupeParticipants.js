@@ -20,7 +20,7 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 
 	/**
 	 * Affiche la boîte de dialogue de détail d'un groupe de participants
-	 * @param idGroupe Identifiant du groupe à afficher
+	 * @param {number} idGroupe Identifiant du groupe à afficher
 	 */
 	DialogDetailGroupeParticipants.prototype.show = function(idGroupe) {
 		if(!this.initAppele) {
@@ -64,7 +64,7 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	
 	/**
 	 * Charge le contenu dans la boîte de dialogue
-	 * @param groupe Groupe à afficher
+	 * @param {groupe} groupe Groupe à afficher
 	 */
 	DialogDetailGroupeParticipants.prototype.chargerContenu = function(groupe) {
 		var me = this;

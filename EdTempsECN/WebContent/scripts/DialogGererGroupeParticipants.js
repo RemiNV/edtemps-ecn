@@ -21,8 +21,8 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 	
 	/**
 	 * Affiche la boîte de dialogue de gestion d'un groupe de participants
-	 * @param listeGroupes Liste des groupes en attente de validation
-	 * @param listeCalendriers Liste des calendriers en attente de validation
+	 * @param {groupe[]} listeGroupes Liste des groupes en attente de validation
+	 * @param {calendrier[]} listeCalendriers Liste des calendriers en attente de validation
 	 */
 	DialogGererGroupeParticipants.prototype.show = function(listeGroupes, listeCalendriers, idGroupe) {
 		if(!this.initAppele) {
@@ -69,8 +69,8 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 	
 	/**
 	 * Ecrit le contenu de la boite de dialogue
-	 * @param listeGroupes Liste des groupes en attente de validation
-	 * @param listeCalendriers Liste des calendriers en attente de validation
+	 * @param {groupe[]} listeGroupes Liste des groupes en attente de validation
+	 * @param {calendrier[]} listeCalendriers Liste des calendriers en attente de validation
 	 */
 	DialogGererGroupeParticipants.prototype.chargerContenu = function(listeGroupes, listeCalendriers) {
 		var me=this;
@@ -128,8 +128,8 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 	
 	/**
 	 * Fait le lien avec le serveur et met à jour la boite de dialogue
-	 * @param choix Choix pour le rattachement
-	 * @param groupeId Identifiant du groupe demandeur de rattachement
+	 * @param {boolean} choix Choix pour le rattachement
+	 * @param {number} groupeId Identifiant du groupe demandeur de rattachement
 	 */
 	DialogGererGroupeParticipants.prototype.deciderRattachementGroupe = function(choix, groupeId) {
 		var me=this;
@@ -161,8 +161,8 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 	
 	/**
 	 * Fait le lien avec le serveur et met à jour la boite de dialogue
-	 * @param choix Choix pour le rattachement
-	 * @param calendrierId Identifiant du calendrier demandeur de rattachement
+	 * @param {boolean} choix Choix pour le rattachement
+	 * @param {number} calendrierId Identifiant du calendrier demandeur de rattachement
 	 */
 	DialogGererGroupeParticipants.prototype.deciderRattachementCalendrier = function(choix, calendrierId) {
 		var me=this;

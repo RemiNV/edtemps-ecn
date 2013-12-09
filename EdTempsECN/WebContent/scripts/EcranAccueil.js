@@ -109,6 +109,10 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		return this.calendrier;
 	};
 	
+	/**
+	 * Afficher une vue
+	 * @param {string} vue Nom de la vue à afficher
+	 */
 	EcranAccueil.prototype.setVue = function(vue) {
 	
 		// Sélection de l'onglet
@@ -258,9 +262,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	
 	/**
 	 * Fonction appelée par fullCalendar lorsque le mécanisme de "fetch" est déclenché
-	 * @param start Début de la période pendant laquelle les évènements doivent être récupérés
-	 * @param end Fin de la période pendant laquelle les évènements doivent être récupérés
-	 * @param callback Callback de fullcalendar auquel il faut fournir les évènements (au format compatible fullcalendar)
+	 * @param {Date} start Début de la période pendant laquelle les évènements doivent être récupérés
+	 * @param {Date} end Fin de la période pendant laquelle les évènements doivent être récupérés
+	 * @param {function} callback Callback de fullcalendar auquel il faut fournir les évènements (au format compatible fullcalendar)
 	 */
 	EcranAccueil.prototype.onCalendarFetchEvents = function(start, end, callback) {
 
@@ -301,8 +305,11 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	};
 	
 	/**
-	 * Callback générique appelé après la récupération d'événements,
-	 * pour les fournir à fullcalendar
+	 * Callback générique appelé après la récupération d'événements pour les fournir à fullcalendar
+	 * 
+	 * @param {boolean} resultCode
+	 * @param {object} data Evénement à afficher
+	 * @param {function} callbackCalendrier Méthode appelée en retour
 	 */
 	var callbackRemplirEvenements = function(resultCode, data, callbackCalendrier) {
 		if(resultCode == RestManager.resultCode_Success) {
@@ -326,9 +333,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
 	 * pour les évènements d'abonnement de l'utilisateur
 	 * 
-	 * @param dateDebut date de début de la période
-	 * @param dateFin date de fin de la période
-	 * @param callbackCalendrier callback de fullcalendar
+	 * @param {Date} dateDebut date de début de la période
+	 * @param {Date} dateFin date de fin de la période
+	 * @param {function} callbackCalendrier callback de fullcalendar
 	 */
 	EcranAccueil.prototype.remplirEvenementsAbonnements = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
@@ -351,9 +358,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
 	 * pour les évènements dans lesquels l'utilisateur est intervenant
 	 * 
-	 * @param dateDebut date de début de la période
-	 * @param dateFin date de fin de la période
-	 * @param callbackCalendrier callback de fullcalendar
+	 * @param {Date} dateDebut date de début de la période
+	 * @param {Date} dateFin date de fin de la période
+	 * @param {function} callbackCalendrier callback de fullcalendar
 	 */
 	EcranAccueil.prototype.remplirMesEvenements = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
@@ -366,9 +373,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
 	 * pour les évènements d'un groupe
 	 * 
-	 * @param dateDebut date de début de la période
-	 * @param dateFin date de fin de la période
-	 * @param callbackCalendrier callback de fullcalendar
+	 * @param {Date} dateDebut date de début de la période
+	 * @param {Date} dateFin date de fin de la période
+	 * @param {function} callbackCalendrier callback de fullcalendar
 	 */
 	EcranAccueil.prototype.remplirEvenementsGroupe = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
@@ -381,9 +388,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 * Méthode fournissant au callback de fullcalendar les évènements de la période demandée,
 	 * pour les évènements d'une salle
 	 * 
-	 * @param dateDebut date de début de la période
-	 * @param dateFin date de fin de la période
-	 * @param callbackCalendrier callback de fullcalendar
+	 * @param {Date} dateDebut date de début de la période
+	 * @param {Date} dateFin date de fin de la période
+	 * @param {function} callbackCalendrier callback de fullcalendar
 	 */
 	EcranAccueil.prototype.remplirEvenementsSalle = function(dateDebut, dateFin, callbackCalendrier) {
 		var me = this;
@@ -397,9 +404,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 	 * les informations d'abonnement de l'utilisateur (calendriers, groupes). Est typiquement appelée une unique fois,
 	 * remplirEvenementsAbonnements peut être utilisée pour récupérer les évènements des autres périoders.
 	 * 
-	 * @param dateDebut Date de début de la période
-	 * @param dateFin Date de fin de la période
-	 * @param callbackCalendrier Callback de fullcalendar
+	 * @param {Date} dateDebut Date de début de la période
+	 * @param {Date} dateFin Date de fin de la période
+	 * @param {function} callbackCalendrier Callback de fullcalendar
 	 */
 	EcranAccueil.prototype.remplirMesAbonnements = function(dateDebut, dateFin, callbackCalendrier) {
 		// Récupération des abonnements pendant la période affichée

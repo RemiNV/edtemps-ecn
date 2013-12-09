@@ -105,8 +105,8 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	
 	/**
 	 * Définit les salles à afficher en les marquant toutes comme libres
-	 * @param salles
-	 * @param calendrierCours Indique si l'évènement à ajouter est rattaché à un calendrier de cours
+	 * @param {salle[]} salles
+	 * @param {boolean} calendrierCours Indique si l'évènement à ajouter est rattaché à un calendrier de cours
 	 */
 	DialogAjoutEvenement.prototype.setSalles = function(salles) {
 		this.rechercheDisponibiliteSalles.versionSalles++;
@@ -162,6 +162,10 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	/**
 	 * Fonction utilitaire permettant d'ajouter un évènement à une des listes d'évènements
 	 * des salles occupées
+	 * 
+	 * @param {object} jqListe Objet jquery pour la liste
+	 * @param {evenement} even Evénement 
+	 * @param {string} nomSalle Nom de la salle
 	 */
 	function ajouterEvenListeSalleOccupee(jqListe, even, nomSalle) {
 		jqListe.append("<li>" + 
@@ -173,9 +177,9 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	/**
 	 * Affichage des événements déjà prévus dans une salle à l'heure sélectionnée
 	 *  
-	 * @param evenementsCours Evénements de cours (peut être null)
-	 * @param evenementsNonCours Evénements non cours (peut être null)
-	 * @param calendrierCours L'évènement en cours de sélection est un cours
+	 * @param {boolean} evenementsCours Evénements de cours (peut être null)
+	 * @param {boolean} evenementsNonCours Evénements non cours (peut être null)
+	 * @param {boolean} calendrierCours L'évènement en cours de sélection est un cours
 	 */
 	DialogAjoutEvenement.prototype.afficherEvenementsSalleOccupee = function(evenementsCours, evenementsNonCours, calendrierCours, nomSalle) {
 		var lstEvenementsSallesOccupeesNonCours = this.jqDialog.find(
@@ -203,6 +207,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			}
 		}
 	};
+	
 	
 	DialogAjoutEvenement.prototype.verifierDisponibiliteSalles = function() {
 		
@@ -375,7 +380,8 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	/**
 	 * Vérifie qu'un contrôle est non vide, et le marque comme valide
 	 * si c'est le cas, sinon le marque comme non valide
-	 * @return valeur du champ du contrôle
+	 * @param {object} jqControl Objet jquery
+	 * @return {string} valeur du champ du contrôle
 	 */
 	function validateNotEmpty(jqControl) {
 		var val = jqControl.val(); 
@@ -637,7 +643,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	
 	/**
 	 * Méthode de remplissage des propriétaires et intervenants de la dialog, à l'initialisation
-	 * @param callback Fonction appelée une fois le remplissage effectué (asychrone). Prend un booléen en argument indiquant le succès.
+	 * @param {function} callback Fonction appelée une fois le remplissage effectué (asychrone). Prend un booléen en argument indiquant le succès.
 	 */
 	DialogAjoutEvenement.prototype.remplirProprietairesIntervenants = function(callback) {
 		var utilisateurGestion = new UtilisateurGestion(this.restManager);

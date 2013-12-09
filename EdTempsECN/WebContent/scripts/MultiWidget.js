@@ -165,9 +165,9 @@ define([ "jquery", "jqueryui" ], function() {
 	 * 
 	 * Exemple d'utilisation : new MultiWidget($("#id"), MultiWidget.AUTOCOMPLETE_OPTIONS(["aze", "rty"], 3));
 	 * 
-	 * @param source Paramètre source de l'autocomplete
-	 * @param minLength Paramètre minLength de l'autocomplete
-	 * @param width Paramètre width du MultiWidget
+	 * @param {object} source Paramètre source de l'autocomplete
+	 * @param {number} minLength Paramètre minLength de l'autocomplete
+	 * @param {number} width Paramètre width du MultiWidget
 	 */
 	MultiWidget.AUTOCOMPLETE_OPTIONS = function(source, minLength, width) {
 		return {

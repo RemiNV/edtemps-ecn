@@ -287,9 +287,6 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	/**
 	 * Permet la mise à jour des infobulles "abonné indirectement" 
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
-	 *
-	 * @param : id
-	 * @param : nom
 	 */
 	EcranParametres.prototype.miseAJourAbonnementsIndirectes = function() {
 		var me = this;
@@ -322,9 +319,9 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	/**
 	 * Permet d'ajouter l'info "abonné indirectement" aux parents et fils du groupe ayant l'id "id"
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
-	 *
-	 * @param : id
-	 * @param : nom
+	 * 
+	 * @param {number} id Identifiant
+	 * @param {string} nom Nom
 	 */
 	EcranParametres.prototype.afficheAbonnementsIndirectes = function(id, nom) {
 		this.afficheAbonnementsIndirectesFils(id, nom);
@@ -335,8 +332,8 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	 * Permet d'ajouter l'info "abonné indirectement" sur le calendrier en argument
 	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
 	 *
-	 * @param id : id du calendrier (pour pouvoir lui ajouter la classe "abonnement_indirect" et le title si besoin)
-	 * @param parentsId : chaine contenant les id des parents séparés par des virgules
+	 * @param {number} id Identifiant du calendrier (pour pouvoir lui ajouter la classe "abonnement_indirect" et le title si besoin)
+	 * @param {number[]} parentsId Chaine contenant les id des parents séparés par des virgules
 	 */
 	EcranParametres.prototype.afficheRattachementsAuCalendrier = function (id, parentsId) {
 		// Calendrier auquel ajouter la classe "abonnement_indirect"
@@ -378,15 +375,15 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	
 	
 	/**
-	 * Permet d'ajouter l'info "abonné indirectement" aux parents du groupe ayant l'id "id"
-	 * et le "nom nomGroupeAbonne"
-	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
+	 * <p>Permet d'ajouter l'info "abonné indirectement" aux parents du groupe ayant l'id "id"
+	 * et le "nom nomGroupeAbonne"<br>
+	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"</p>
 	 * 
-	 * Fonction récursive qui effectue l'opération sur le parent direct,
-	 * puis fait appel à elle-même pour réitérer l'opération sur le parent.
+	 * <p>Fonction récursive qui effectue l'opération sur le parent direct,
+	 * puis fait appel à elle-même pour réitérer l'opération sur le parent.</p>
 	 * 
-	 * @param : id = id du groupe pour lequel on va parcourir les parents 
-	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les parents)
+	 * @param {number} id Identifiant du groupe pour lequel on va parcourir les parents 
+	 * @param {string} nomGroupeAbonne Nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les parents)
 	 */
 	EcranParametres.prototype.afficheAbonnementsIndirectesParent = function(id, nomGroupeAbonne) {
 		//On cherche le parent (unique) de l'élément
@@ -410,15 +407,15 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	};
 	
 	/**
-	 * Permet d'ajouter l'info "abonné indirectement" aux fils du groupe ayant l'id "id"
-	 * et le nom "nomGroupeAbonne"
-	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"
+	 * <p>Permet d'ajouter l'info "abonné indirectement" aux fils du groupe ayant l'id "id"
+	 * et le nom "nomGroupeAbonne"<br>
+	 * Cette info est ajoutée sur les groupes de la liste "abonnements disponibles"</p>
 	 * 
-	 * Fonction récursive qui effectue l'opération sur les fils directs,
-	 * puis fait appel à elle-même pour réitérer l'opération sur chacun des fils.
+	 * <p>Fonction récursive qui effectue l'opération sur les fils directs,
+	 * puis fait appel à elle-même pour réitérer l'opération sur chacun des fils.</p>
 	 * 
-	 * @param : id = id du groupe pour lequel on va parcourir les fils
-	 * @param : nomGroupeAbonne = nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les fils)
+	 * @param {number} id Identifiant du groupe pour lequel on va parcourir les fils
+	 * @param {string} nomGroupeAbonne Nom du groupe auquel on est abonné et duquel on déduit les abonnements indirectes (par les fils)
 	 */
 	EcranParametres.prototype.afficheAbonnementsIndirectesFils = function(id, nomGroupeAbonne) {
 		var me = this;

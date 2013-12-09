@@ -31,10 +31,11 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 
 	/**
 	 * Affiche la boîte de dialogue de création d'un groupe de participants
-	 * @param titre : le titre de la boîte de dialogue
-	 * @param texteBouton : le texte du bouton de validation de la boîte de dialogue
-	 * @param groupe : groupe de participants dans le cas de la modification, null sinon
-	 * @param callback : méthode à exécuter lorsque du clique sur le bouton de validation de la boîte de dialogue
+	 * 
+	 * @param {string} titre Titre de la boîte de dialogue
+	 * @param {string} texteBouton Texte du bouton de validation de la boîte de dialogue
+	 * @param {groupe} groupe Groupe de participants dans le cas de la modification, null sinon
+	 * @param {function} callback Méthode à exécuter lorsque du clique sur le bouton de validation de la boîte de dialogue
 	 */
 	DialogCreationGroupeParticipants.prototype.show = function(titre, texteBouton, groupe, callback) {
 		if (!this.initAppele) {
@@ -80,10 +81,11 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 	
 	/**
 	 * Initialise la boîte de dialogue de création d'un groupe de participants (uniquement la première fois)
-	 * @param titre : le titre de la boîte de dialogue
-	 * @param texteBouton : le texte du bouton de validation de la boîte de dialogue
-	 * @param groupe : groupe de participants dans le cas de la modification, null sinon
-	 * @param callback : méthode à exécuter lorsque du clique sur le bouton de validation de la boîte de dialogue
+	 * 
+	 * @param {string} titre Titre de la boîte de dialogue
+	 * @param {string} texteBouton Texte du bouton de validation de la boîte de dialogue
+	 * @param {groupe} groupe Groupe de participants dans le cas de la modification, null sinon
+	 * @param {function} callback Méthode à exécuter lorsque du clique sur le bouton de validation de la boîte de dialogue
 	 */
 	DialogCreationGroupeParticipants.prototype.init = function(titre, texteBouton, groupe, callback) {
 		var me = this;
@@ -132,9 +134,10 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 
 	/**
 	 * Ecrit la liste des groupes parents potentiels dans le select dédié
-	 * @param object Objet jquery où il faut écrire la liste des groupes
-	 * @param groupe : groupe de participants dans le cas de la modification, null sinon
-	 * @param callback
+	 * 
+	 * @param {object} object Objet jquery où il faut écrire la liste des groupes
+	 * @param {groupe} groupe Groupe de participants dans le cas de la modification, null sinon
+	 * @param {function} callback
 	 */
 	DialogCreationGroupeParticipants.prototype.ecritListeGroupesParentsDisponibles = function(object, groupe, callback) {
 		var me = this;
@@ -177,7 +180,8 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 
 	/**
 	 * Valide le formulaire
-	 * @return VRAI si le formulaire est valide, FAUX sinon
+	 * 
+	 * @return {boolean} VRAI si le formulaire est valide, FAUX sinon
 	 */
 	DialogCreationGroupeParticipants.prototype.validationFormulaire = function() {
 		var correct = true;
@@ -202,12 +206,13 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 
 	/**
 	 * Méthode qui ajoute un groupe en base de données
-	 * @param nom Nom du groupe
-	 * @param idGroupe Identifiant du groupe parent
-	 * @param rattachementAutorise Booleen qui indique si un rattachement est autorisé
-	 * @param estCours Booleen qui indique si le groupe est un cours
-	 * @param listeIdProprietaires Liste des identifiants des propriétaires
-	 * @param callback Méthode appelé en cas de réussite
+	 * 
+	 * @param {string} nom Nom du groupe
+	 * @param {number} idGroupe Identifiant du groupe parent
+	 * @param {boolean} rattachementAutorise Booleen qui indique si un rattachement est autorisé
+	 * @param {boolean} estCours Booleen qui indique si le groupe est un cours
+	 * @param {number[]} listeIdProprietaires Liste des identifiants des propriétaires
+	 * @param {function} callback Méthode appelé en cas de réussite
 	 */
 	DialogCreationGroupeParticipants.prototype.ajouterGroupe = function(nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, callback) {
 		var me = this;
@@ -253,13 +258,14 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 	
 	/**
 	 * Méthode qui modifie un groupe en base de données
-	 * @param id Idenfitiant du groupe à modifier
-	 * @param nom Nom du groupe
-	 * @param idGroupe Identifiant du groupe parent
-	 * @param rattachementAutorise Booleen qui indique si un rattachement est autorisé
-	 * @param estCours Booleen qui indique si le groupe est un cours
-	 * @param listeIdProprietaires Liste des identifiants des propriétaires
-	 * @param callback Méthode appelé en cas de réussite
+	 * 
+	 * @param {number} id Idenfitiant du groupe à modifier
+	 * @param {string} nom Nom du groupe
+	 * @param {number} idGroupe Identifiant du groupe parent
+	 * @param {boolean} rattachementAutorise Booleen qui indique si un rattachement est autorisé
+	 * @param {boolean} estCours Booleen qui indique si le groupe est un cours
+	 * @param {number[]} listeIdProprietaires Liste des identifiants des propriétaires
+	 * @param {function} callback Méthode appelé en cas de réussite
 	 */
 	DialogCreationGroupeParticipants.prototype.modifierGroupe = function(id, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, callback) {
 		var me = this;
@@ -304,7 +310,8 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 	
 	/**
 	 * Remplir la liste des utilisateurs potentiellement propriétaires
-	 * @param callback
+	 * 
+	 * @param {function} callback
 	 */
 	DialogCreationGroupeParticipants.prototype.recupererProprietairesPotentiels = function(callback) {
 		var me = this;
@@ -346,9 +353,10 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 		this.jqChampNom.css("border", "1px solid black");
 	};
 	
+	
 	/**
 	 * Pré-remplie la boîte de dialogue avec le groupe 
-	 * @param groupe
+	 * @param {groupe} groupe Groupe de participant à pré-remplir
 	 */
 	DialogCreationGroupeParticipants.prototype.preRemplirDialog = function(groupe) {
 		

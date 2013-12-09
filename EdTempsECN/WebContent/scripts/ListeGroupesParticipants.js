@@ -73,7 +73,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	/**
 	 * Initialise gestionnaire d'affichage des agendas
 	 * 
-	 * @param groupes
+	 * @param {Groupe[]} groupes Liste de groupes de participants
 	 */
 	ListeGroupesParticipants.prototype.initBlocVosAgendas = function(groupes) {
 
@@ -114,6 +114,12 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	};
 
 	
+	/**
+	 * Afficher un noeud de l'arborescence (fonction récursive)
+	 * @param {object} noeud Noeud à traiter
+	 * @param {string} str Chaine de caractères à compléter
+	 * @return {string} la nouvelle chaine
+	 */
 	ListeGroupesParticipants.prototype.afficherNoeud = function(noeud, str) {
 
 		// Nombre de fils
@@ -211,8 +217,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	/**
 	 * Méthode appellée lors du click sur un triangle
 	 * 
-	 * @param groupeId
-	 * 			identifiant du groupe
+	 * @param {number} groupeId Identifiant du groupe
 	 */
 	ListeGroupesParticipants.prototype.afficheCacheArborescence = function(groupeId) {
 		var sousGroupe = this.jqListe.find("#liste_groupes_sous_groupe_" + groupeId);
@@ -258,8 +263,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	/**
 	 * Méthode appellée lors du click sur les checkbox
 	 * 
-	 * @param groupeId
-	 * 			identifiant du groupe
+	 * @param {number} groupeId Identifiant du groupe
 	 */
 	ListeGroupesParticipants.prototype.afficheCacheAgenda = function(groupeId) {
 
@@ -289,10 +293,8 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 	/**
 	 * Filtre les événements à afficher
 	 * 
-	 * @param evenements
-	 *			tous les événements 
-	 *
-	 * @return les événements filtrés
+	 * @param {evenement[]} evenements Tous les événements à filtrer
+	 * @return {evenement[]} les événements filtrés
 	 */
 	ListeGroupesParticipants.prototype.filtrerEvenementsGroupesActifs = function(evenements) {
 		
@@ -336,6 +338,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 	/**
 	 * Créer l'arbre des groupes pour l'affichage de l'arborescence
+	 * @param {groupe[]} groupes Tous les groupes 
 	 */
 	ListeGroupesParticipants.prototype.creerArborescenceDesGroupes = function(groupes) {
 

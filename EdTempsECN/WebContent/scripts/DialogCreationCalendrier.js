@@ -115,8 +115,8 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	/**
 	 * Affiche la boîte de dialogue de création/modification d'un calendrier
 	 * 
-	 * @param casModifier : vrai si modification d'un calendrier / faux si création d'un calendrier
-	 * @param calendrierAModifier : objet contenant les informations du calendrier à modifier (uniquement si casModifier = true)
+	 * @param {boolean} casModifier Vrai si modification d'un calendrier / faux si création d'un calendrier
+	 * @param {boolean} calendrierAModifier Objet contenant les informations du calendrier à modifier (uniquement si casModifier = true)
 	 * 
 	 */
 	DialogCreationCalendrier.prototype.show = function(casModifier, calendrierAModifier) {
@@ -180,6 +180,8 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 
 	/**
 	 * Méthode qui remplit les comboboxes contenant matieres et types
+	 * 
+	 * @param {function} callback
 	 */
 	DialogCreationCalendrier.prototype.remplirComboboxes = function(callback) {
 
@@ -250,8 +252,8 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	 * Méthode qui charge le contenu des combobox groupes parents (validés ou non)
 	 * Elle affiche par ailleurs les groupes parents existants (dans le cas d'une modification)
 	 * 
-	 * @param groupesParents (tableau) : id des groupes parents validés du calendrier
-	 * @param groupesParentsTmp (tableau) : id des groupes parents non validés du calendrier
+	 * @param {number[]} groupesParents Identifiants des groupes parents validés du calendrier
+	 * @param {number[]} groupesParentsTmp Identifiants des groupes parents non validés du calendrier
 	 * 			
 	 */
 	DialogCreationCalendrier.prototype.remplirGroupesParents = function(groupesParents, groupesParentsTmp) {
@@ -319,7 +321,8 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	/**
 	 * Méthode qui remplit les propriétaires d'un calendrier à modifier 
 	 * 
-	 * @param proprietaires (tableau) : id des proprietaires du calendrier
+	 * @param {number[]} proprietaires Identifiants des proprietaires du calendrier
+	 * @param {number} createur Identifiant du créateur
 	 */
 	DialogCreationCalendrier.prototype.remplirProprietaires = function(proprietaires, createur) {
 		var me = this;
@@ -347,7 +350,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	/**
 	 * Méthode qui vérifie que le formulaire est remplit correctement
 	 * 
-	 * @return VRAI si le formulaire est valide et FAUX sinon
+	 * @return {boolean} VRAI si le formulaire est valide et FAUX sinon
 	 */
 	DialogCreationCalendrier.prototype.validationFormulaire = function() {
 		var valid = true;
@@ -373,9 +376,8 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	/**
 	 * Méthode qui effectue la requête de création OU modification d'un calendrier
 	 * 
-	 * @param casModifier : vaut true si on souhaite modifier un calendrier (calendrier déjà existant)
-	 * et vaut false si on veut le créer
-	 * @param idCal : id du calendrier à modifier (si on est dans le cas d'un modification d'un calendrier)
+	 * @param {boolean} casModifier Vrai si on souhaite modifier un calendrier (calendrier déjà existant) et false si on veut le créer
+	 * @param {number} idCal Identifiant du calendrier à modifier (si on est dans le cas d'un modification d'un calendrier)
 	 */
 	DialogCreationCalendrier.prototype.effectuerRequeteCreationModification = function(casModifier, idCal) {
 		var me = this;
