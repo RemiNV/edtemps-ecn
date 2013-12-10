@@ -111,6 +111,32 @@
 		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
 
 	INSERT INTO edt.calendrier(cal_nom) VALUES('PGROU projet emploi du temps');
+	
+		/* Calendriers pour le test de la classe EvenementGestion */
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
+		SELECT matiere.matiere_id, 'testEvenementGestion1', typecalendrier.typecal_id
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='THERE'
+		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
+	
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
+		SELECT matiere.matiere_id, 'testEvenementGestion2', typecalendrier.typecal_id
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='THERE'
+		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
+	
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
+		SELECT matiere.matiere_id, 'testEvenementGestionPere', typecalendrier.typecal_id
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='THERE'
+		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
+	
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
+		SELECT matiere.matiere_id, 'testEvenementGestionFils', typecalendrier.typecal_id
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='THERE'
+		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
+	
 
 /* proprietairecalendrier */
 	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
@@ -182,6 +208,18 @@
 
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
 		SELECT 'EI3 Info', true, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI3' LIMIT 1;
+	
+		/* Groupes pour le test unitaire de la classe evenement gestion*/
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
+		VALUES('testEvenementGestionPere', false, null, true, false);
+	
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
+		SELECT 'testEvenementGestion', true, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='testEvenementGestionPere' LIMIT 1;
+		
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
+		SELECT 'testEvenementGestionFils', true, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='testEvenementGestion' LIMIT 1;
+	
+	
 
 	/* Groupes uniques des calendriers */
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique) VALUES('OBJET TD', false, true);
@@ -255,6 +293,34 @@
 		WHERE calendrier.cal_nom = 'PGROU projet emploi du temps'
 		AND groupeparticipant.groupeparticipant_nom='PGROU projet emploi du temps' LIMIT 1;
 
+		/* Test de la classe EvenementGestion */
+	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
+		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
+		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
+		WHERE calendrier.cal_nom = 'testEvenementGestion1'
+		AND groupeparticipant.groupeparticipant_nom='testEvenementGestion' LIMIT 1;
+		
+	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
+		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
+		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
+		WHERE calendrier.cal_nom = 'testEvenementGestion2'
+		AND groupeparticipant.groupeparticipant_nom='testEvenementGestion' LIMIT 1;
+
+	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
+		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
+		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
+		WHERE calendrier.cal_nom = 'testEvenementGestionPere'
+		AND groupeparticipant.groupeparticipant_nom='testEvenementGestionPere' LIMIT 1;
+		
+	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
+		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
+		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
+		WHERE calendrier.cal_nom = 'testEvenementGestionFils'
+		AND groupeparticipant.groupeparticipant_nom='testEvenementGestionFils' LIMIT 1;
+
+
+
+		
 /* abonnegroupeparticipant */
 
 	INSERT INTO edt.abonnegroupeparticipant(utilisateur_id, groupeparticipant_id, abonnementgroupeparticipant_obligatoire)
@@ -354,6 +420,16 @@
 
 	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('Point d''avancement', '2013-10-23 17:00:00', '2013-10-23 18:00:00');
 
+	/* Test de la classe EvenementGestion */
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion1', '2013-10-01 08:00:00', '2013-10-01 10:00:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion2', '2013-10-01 10:15:00', '2013-10-01 12:15:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion3', '2013-10-01 13:45:00', '2013-10-01 15:45:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion4', '2013-10-01 16:00:00', '2013-10-01 18:00:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion5', '2013-10-04 08:00:00', '2013-10-04 10:00:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion6', '2013-10-04 10:15:00', '2013-10-04 12:15:00');
+		
+	
+	
 /* responsableevenement */
 
 	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
@@ -380,6 +456,44 @@
 		WHERE utilisateur.utilisateur_token='6'
 		AND evenement.eve_nom='Point d''avancement';
 
+	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_token='1'
+		AND evenement.eve_nom='testEvenementGestion1';
+
+	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_token='1'
+		AND evenement.eve_nom='testEvenementGestion2';
+		
+	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_token='1'
+		AND evenement.eve_nom='testEvenementGestion3';
+		
+	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_token='1'
+		AND evenement.eve_nom='testEvenementGestion4';
+		
+	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_token='1'
+		AND evenement.eve_nom='testEvenementGestion5';
+
+	INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_token='1'
+		AND evenement.eve_nom='testEvenementGestion6';
+
+
+		
 /* evenementappartient */
 
 	INSERT INTO edt.evenementappartient(eve_id, cal_id)
@@ -427,6 +541,36 @@
 		FROM edt.evenement CROSS JOIN edt.calendrier
 		WHERE evenement.eve_nom='Point d''avancement' AND calendrier.cal_nom='PGROU projet emploi du temps' LIMIT 1;
 
+	INSERT INTO edt.evenementappartient(eve_id, cal_id)
+		SELECT evenement.eve_id, calendrier.cal_id
+		FROM edt.evenement CROSS JOIN edt.calendrier
+		WHERE evenement.eve_nom='testEvenementGestion1' AND calendrier.cal_nom='testEvenementGestion1' LIMIT 1;
+
+	INSERT INTO edt.evenementappartient(eve_id, cal_id)
+		SELECT evenement.eve_id, calendrier.cal_id
+		FROM edt.evenement CROSS JOIN edt.calendrier
+		WHERE evenement.eve_nom='testEvenementGestion2' AND calendrier.cal_nom='testEvenementGestion1' LIMIT 1;
+		
+	INSERT INTO edt.evenementappartient(eve_id, cal_id)
+		SELECT evenement.eve_id, calendrier.cal_id
+		FROM edt.evenement CROSS JOIN edt.calendrier
+		WHERE evenement.eve_nom='testEvenementGestion3' AND calendrier.cal_nom='testEvenementGestion2' LIMIT 1;
+		
+	INSERT INTO edt.evenementappartient(eve_id, cal_id)
+		SELECT evenement.eve_id, calendrier.cal_id
+		FROM edt.evenement CROSS JOIN edt.calendrier
+		WHERE evenement.eve_nom='testEvenementGestion4' AND calendrier.cal_nom='testEvenementGestion2' LIMIT 1;
+
+	INSERT INTO edt.evenementappartient(eve_id, cal_id)
+		SELECT evenement.eve_id, calendrier.cal_id
+		FROM edt.evenement CROSS JOIN edt.calendrier
+		WHERE evenement.eve_nom='testEvenementGestion5' AND calendrier.cal_nom='testEvenementGestionPere' LIMIT 1;
+
+	INSERT INTO edt.evenementappartient(eve_id, cal_id)
+		SELECT evenement.eve_id, calendrier.cal_id
+		FROM edt.evenement CROSS JOIN edt.calendrier
+		WHERE evenement.eve_nom='testEvenementGestion6' AND calendrier.cal_nom='testEvenementGestionFils' LIMIT 1;
+
 /* alieuensalle */
 
 	INSERT INTO edt.alieuensalle(eve_id, salle_id)
@@ -472,7 +616,38 @@
 		FROM edt.evenement CROSS JOIN edt.salle
 		WHERE evenement.eve_nom='Point d''avancement' AND salle.salle_nom='Salle D03' LIMIT 1;
 	
-
+	/* Données pour le test de evenementGestion */
+	INSERT INTO edt.alieuensalle(eve_id, salle_id)
+		SELECT evenement.eve_id, salle.salle_id
+		FROM edt.evenement CROSS JOIN edt.salle
+		WHERE evenement.eve_nom='testEvenementGestion1' AND salle.salle_nom='Salle D03' LIMIT 1;
+	
+	INSERT INTO edt.alieuensalle(eve_id, salle_id)
+		SELECT evenement.eve_id, salle.salle_id
+		FROM edt.evenement CROSS JOIN edt.salle
+		WHERE evenement.eve_nom='testEvenementGestion2' AND salle.salle_nom='Salle D03' LIMIT 1;
+	
+	INSERT INTO edt.alieuensalle(eve_id, salle_id)
+		SELECT evenement.eve_id, salle.salle_id
+		FROM edt.evenement CROSS JOIN edt.salle
+		WHERE evenement.eve_nom='testEvenementGestion3' AND salle.salle_nom='Salle D03' LIMIT 1;
+	
+	INSERT INTO edt.alieuensalle(eve_id, salle_id)
+		SELECT evenement.eve_id, salle.salle_id
+		FROM edt.evenement CROSS JOIN edt.salle
+		WHERE evenement.eve_nom='testEvenementGestion4' AND salle.salle_nom='Salle D03' LIMIT 1;
+	
+	INSERT INTO edt.alieuensalle(eve_id, salle_id)
+		SELECT evenement.eve_id, salle.salle_id
+		FROM edt.evenement CROSS JOIN edt.salle
+		WHERE evenement.eve_nom='testEvenementGestion5' AND salle.salle_nom='Salle D03' LIMIT 1;
+	
+	INSERT INTO edt.alieuensalle(eve_id, salle_id)
+		SELECT evenement.eve_id, salle.salle_id
+		FROM edt.evenement CROSS JOIN edt.salle
+		WHERE evenement.eve_nom='testEvenementGestion6' AND (salle.salle_nom='Salle D03' OR salle.salle_nom='Salle info B12') LIMIT 2;
+	
+	
 /* intervenantevenement */
 
 	/* Je ne mets pas le prof en intervenant ici, flemme */
@@ -482,6 +657,47 @@
 		WHERE utilisateur.utilisateur_nom='Doe' AND utilisateur.utilisateur_prenom='John'
 		AND evenement.eve_nom='Réunion d''information alternance';
 
+	INSERT INTO edt.intervenantevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_nom='Doe' AND utilisateur.utilisateur_prenom='John'
+		AND evenement.eve_nom='testEvenementGestion1';
+
+	INSERT INTO edt.intervenantevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_nom='Doe' AND utilisateur.utilisateur_prenom='John'
+		AND evenement.eve_nom='testEvenementGestion2';
+
+		
+	INSERT INTO edt.intervenantevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_nom='Doe' AND utilisateur.utilisateur_prenom='John'
+		AND evenement.eve_nom='testEvenementGestion3';
+
+		
+	INSERT INTO edt.intervenantevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_nom='Doe' AND utilisateur.utilisateur_prenom='John'
+		AND evenement.eve_nom='testEvenementGestion4';
+
+		
+	INSERT INTO edt.intervenantevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_nom='Doe' AND utilisateur.utilisateur_prenom='John'
+		AND evenement.eve_nom='testEvenementGestion5';
+
+		
+	INSERT INTO edt.intervenantevenement(utilisateur_id, eve_id)
+		SELECT utilisateur.utilisateur_id, evenement.eve_id
+		FROM edt.utilisateur CROSS JOIN edt.evenement
+		WHERE utilisateur.utilisateur_nom='Doe' AND utilisateur.utilisateur_prenom='John'
+		AND evenement.eve_nom='testEvenementGestion6';
+
+		
 /* droits */
 INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (1, 'CREER_GROUPE');
 INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (2, 'RATTACHER_CALENDRIER_GROUPE');

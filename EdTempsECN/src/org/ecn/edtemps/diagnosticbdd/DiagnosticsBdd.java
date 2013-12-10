@@ -19,6 +19,11 @@ import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 
+/**
+ * Classe générale pour les scripts de test sur la cohérence de la base de données
+ * 
+ * @author Remi
+ */
 public class DiagnosticsBdd {
 	
 	Logger logger = LogManager.getLogger(DiagnosticsBdd.class.getName());
@@ -32,6 +37,7 @@ public class DiagnosticsBdd {
 	
 	/**
 	 * Lanceur de tous les tests existants
+	 * !Important : il faut mettre à jour le nombre de tests
 	 * @return un tableau avec les résultats de chaque test
 	 */
 	public ArrayList<TestBddResult> runAllTests() {
@@ -67,8 +73,8 @@ public class DiagnosticsBdd {
 	
 	
 	/**
-	 * Créer un test 
-	 * @param idTest Identifiant du test à créer
+	 * Créer un testeur à partir de son identifiant
+	 * @param idTest Identifiant du testeur à créer
 	 * @return le testeur
 	 */
 	public TestBdd createTest(int idTest) {
@@ -106,7 +112,7 @@ public class DiagnosticsBdd {
 	
 	/**
 	 * Créer une chaîne avec les 5 premiers entiers de la liste passée en paramètres
-	 * @param ids Liste d'identifiants
+	 * @param ids Liste d'identifiants entiers
 	 * @return chaîne de caractères
 	 */
 	public static String getStrPremiersIds(List<Integer> ids) {

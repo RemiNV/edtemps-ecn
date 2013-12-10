@@ -25,13 +25,11 @@ public class BddGestion {
 	
 	private static Logger logger = LogManager.getLogger(BddGestion.class.getName());
 
+	
 	/**
 	 * Méthode de connexion à la base de données
-	 * 
 	 * @return le connecteur
-	 * 
 	 * @throws DatabaseException
-	 *             si une erreur intervient lors de la connexion
 	 */
 	private static Connection connect() throws DatabaseException {
 
@@ -58,17 +56,18 @@ public class BddGestion {
 		return connection;
 	}
 	
+	
 	/**
 	 * Constructeur principale. Effectue une connection à la base de données
-	 * @throws DatabaseException Erreur de connexion à la base de données
+	 * @throws DatabaseException
 	 */
 	public BddGestion() throws DatabaseException {
 		_connection = connect();
 	}
 	
+	
 	/**
 	 * Fermeture de la connexion associée à cet objet
-	 * @throws DatabaseException Erreur de fermeture de la connexion
 	 */
 	public boolean close() {
 		try {
@@ -79,9 +78,10 @@ public class BddGestion {
 		}
 	}
 	
+	
 	/**
 	 * Démarre une transaction avec la connection associée à cet objet BddGestion 
-	 * @throws SQLException
+	 * @throws DatabaseException
 	 */
 	public void startTransaction() throws DatabaseException {
 		try {
@@ -91,9 +91,10 @@ public class BddGestion {
 		}
 	}
 	
+	
 	/**
 	 * Commit une transaction associée à la connection de cet objet BddGestion
-	 * @throws SQLException
+	 * @throws DatabaseException
 	 */
 	public void commit() throws DatabaseException {
 		try {
@@ -103,9 +104,10 @@ public class BddGestion {
 		}
 	}
 	
+	
 	/**
 	 * Rollback une transaction associée à la connection de cet objet BddGestion
-	 * @throws SQLException 
+	 * @throws DatabaseException 
 	 */
 	public void rollback() throws DatabaseException {
 		try {
@@ -115,6 +117,7 @@ public class BddGestion {
 		}
 	}
 
+	
 	/**
 	 * Récupération de l'objet Connection pour des usages plus avancées
 	 * (requêtes préparées avec paramètres par exemple)
@@ -129,15 +132,9 @@ public class BddGestion {
 	
 	/**
 	 * Exécuter une requête SQL
-	 * 
-	 * @param request
-	 *            requête à effectuer
-	 * 
-	 * @return le résultat de la requête ou NULL si la requête ne renvoie rien
-	 *         ou si la requete est vide
-	 * 
+	 * @param request Requête à effectuer
+	 * @return le résultat de la requête ou NULL si la requête ne renvoie rien ou si la requete est vide
 	 * @throws DatabaseException
-	 *             si une erreur intervient lors d'exécution de la requête
 	 */
 	public ResultSet executeRequest(String request) throws DatabaseException {
 
@@ -192,15 +189,10 @@ public class BddGestion {
 	
 	/**
 	 * Récupérer l'ID (contenu dans la colonne <nomColonne>) d'une ligne spécifique d'une table
-	 * 
 	 * @param requete : requête préparée à effectuer, devant retourner une et une seule ligne 
 	 * @param nomColonne : nom de la colonne contenant l'id
-	 * 
-	 * @return id : id de la ligne cherchée 
-	 * 			  ou -1 si le résultat n'existe pas / n'est pas unique
-	 * 
+	 * @return id : id de la ligne cherchée ou -1 si le résultat n'existe pas / n'est pas unique
 	 * @throws DatabaseException
-	 *            si une erreur intervient lors d'exécution de la requête
 	 */
 	public int recupererId(PreparedStatement request, String nomColonne) throws DatabaseException {
 		

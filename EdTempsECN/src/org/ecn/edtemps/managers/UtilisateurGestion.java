@@ -44,9 +44,10 @@ public class UtilisateurGestion {
 	/** Gestionnaire de base de données */
 	protected BddGestion bdd;
 
+	/** Clé permettant de générer les jetons de connexion (token) */
 	private static final String KEY_TOKENS = "F.Lecuyer,R.NguyenVan,A.Pouchoulin,J.Terrade,M.Terrade,R.Traineau,OnCrypteToutAvecNosNomsYeah";
 	
-	// Configuration pour accéder à LDAP depuis l'extérieur
+	/** Configuration pour accéder à LDAP depuis l'extérieur */
 	private static final String ADRESSE_LDAP = "ldaps.nomade.ec-nantes.fr";
 	private static final int PORT_LDAP = 636;
 	private static final boolean USE_SSL_LDAP = true;
@@ -88,12 +89,10 @@ public class UtilisateurGestion {
 	}
 	
 	
-	
 	/**
 	 * Définit les actions qui peuvent être faites, pour vérification des autorisations.
 	 * L'ID du droit doit correspondre avec l'ID en base de donnée.
 	 * @author Remi
-	 *
 	 */
 	public static enum ActionsEdtemps {
 		
@@ -186,7 +185,7 @@ public class UtilisateurGestion {
 	 * @param token Token à vérifier
 	 * @return ID de l'utilisateur si le token est valide
 	 * @throws IdentificationException Token de l'utilisateur invalide ou expiré
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	public int verifierConnexion(String token) throws IdentificationException, DatabaseException {
 		
@@ -215,7 +214,7 @@ public class UtilisateurGestion {
 	 * @param token Token à vérifier
 	 * @return ID de l'utilisateur déduit du token
 	 * @throws IdentificationException Le token est invalide
-	 * @throws DatabaseException Erreur de connexion à la base de données
+	 * @throws DatabaseException
 	 */
 	public int verifierTokenIcal(String token) throws IdentificationException, DatabaseException {
 		if(!StringUtils.isAlphanumeric(token))
@@ -238,14 +237,22 @@ public class UtilisateurGestion {
 		}
 	}
 	
+	
+	/**
+	 * Récupère l'url ICal d'un utilisateur
+	 * @param idUtilisateur Identifiant de l'utilisateur
+	 * @return l'url du fichier ical
+	 * @throws DatabaseException
+	 */
 	public String getTokenICal(int idUtilisateur) throws DatabaseException {
 		ResultSet res = bdd.executeRequest("SELECT utilisateur_url_ical FROM edt.utilisateur WHERE utilisateur_id=" + idUtilisateur);
 		
 		try {
-			if(res.next())
+			if(res.next()) {
 				return res.getString(1);
-			else
+			} else {
 				return null;
+			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -256,7 +263,7 @@ public class UtilisateurGestion {
 	 * L'utilisateur doit déjà avoir été enregistré sur le système emploi du temps
 	 * @param dn dn LDAP de l'utilisateur
 	 * @return ID de l'utilisateur, ou null si il n'est pas présent dans la base
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	private Integer getUserIdFromDN(String dn) throws DatabaseException {
 		
@@ -283,7 +290,7 @@ public class UtilisateurGestion {
 	/**
 	 * Déconnexion d'un utilisateur
 	 * @param idUtilisateur ID de l'utilisateur à déconnecter
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	public void seDeconnecter(int idUtilisateur) throws DatabaseException {
 		// Invalidation du token
@@ -296,7 +303,7 @@ public class UtilisateurGestion {
 	 * @param pass Mot de passe
 	 * @return ObjetRetourMethodeConnexion qui contient le yoken de connexion créé et l'identifiant de l'utilisateur
 	 * @throws IdentificationException Identifiants invalides ou erreur de connexion à LDAP
-	 * @throws DatabaseException Erreur relative à la base de données
+	 * @throws DatabaseException
 	 */
 	public ObjetRetourMethodeConnexion seConnecter(String utilisateur, String pass) throws IdentificationException, DatabaseException {
 		
@@ -402,7 +409,7 @@ public class UtilisateurGestion {
 	 * utilisateur_id, utilisateur_nom, utilisateur_prenom, utilisateur_email
 	 * @param row Résultat de la requête placé sur la ligne à lire
 	 * @return Utilisateur créé
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	private UtilisateurIdentifie inflateUtilisateurFromRow(ResultSet row) throws SQLException {
 		int id = row.getInt("utilisateur_id");
@@ -413,6 +420,13 @@ public class UtilisateurGestion {
 		return new UtilisateurIdentifie(id, nom, prenom, email);
 	}
 	
+	
+	/**
+	 * Recherche les utilisateurs dont les noms comportent une chaine
+	 * @param debutNomPrenomMail Chaine de caractères à rechercher
+	 * @return une liste d'utilisateur correspondant
+	 * @throws DatabaseException
+	 */
 	public ArrayList<UtilisateurIdentifie> rechercherUtilisateur(String debutNomPrenomMail) throws DatabaseException{
 		try {
 			ArrayList<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();

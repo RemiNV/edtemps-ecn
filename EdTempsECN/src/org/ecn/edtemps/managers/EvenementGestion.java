@@ -31,6 +31,7 @@ public class EvenementGestion {
 	/** Nombre maximum d'événements récupérables en une requête */
 	public static final int MAX_ROWS_QUERY_EVENEMENTS = 500;
 	
+	
 	/**
 	 * Initialise un gestionnaire d'evenements
 	 * @param bdd Gestionnaire de base de données à utiliser
@@ -40,25 +41,41 @@ public class EvenementGestion {
 	}
 		
 	
-	protected void verifierDateEvenement(Date dateDebut) throws EdtempsException {
+	/**
+	 * Vérifie la validité d'une date selon certains critères :
+	 * 	- date < aujourd'hui + 2 ans
+	 *  - date > aujourd'hui - 1 an
+	 * @param date Date à tester
+	 * @throws EdtempsException
+	 */
+	protected void verifierDateEvenement(Date date) throws EdtempsException {
 		Date dansDeuxAns = new Date();
 		long millisUnAn = 1000L * 3600L * 24L * 365L;
 		dansDeuxAns.setTime(dansDeuxAns.getTime() + millisUnAn * 2L);
-		if(dateDebut.after(dansDeuxAns)) {
+		if(date.after(dansDeuxAns)) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Impossible de créer un événement dans plus de 2 ans");
 		}
 		
 		Date ilYAUnAn = new Date();
 		ilYAUnAn.setTime(ilYAUnAn.getTime() - millisUnAn);
-		if(dateDebut.before(ilYAUnAn)) {
+		if(date.before(ilYAUnAn)) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Impossible de créer un événement il y a plus d'un an");
 		}
 	}
 	
+	
 	/**
 	 * Méthode d'enregistrement d'un evenement dans la base de données
-	 * 
-	 * @param evenement
+	 * @param nom Nom de l'événement
+	 * @param dateDebut Date de début
+	 * @param dateFin Date de fin
+	 * @param idCalendriers Liste des identifiants des calendriers auxquels l'événement est rattaché
+	 * @param idCreateur Identifiant du créateur
+	 * @param idSalles Liste des identifiants des salles
+	 * @param idIntervenants Liste des identifiants des intervenants
+	 * @param idResponsables Liste des identifiants des responsables
+	 * @param startTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @throws EdtempsException
 	 */
 	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, Integer idCreateur, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean startTransaction) throws EdtempsException {
@@ -154,14 +171,23 @@ public class EvenementGestion {
 			
 	}
 	
+	
 	/**
 	 * Modification d'un événement existant (en base de données)
 	 * 
 	 * <p>Permet d'actualiser dans la base de données les anciens attributs d'un événements (date, nom, intervenant, ...)
 	 * avec de nouveaux ayant été modifiés par un utilisateur</p>
 	 * 
-	 * @param 
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @param id Identifiant de l'événement à modifier
+	 * @param nom Nom de l'événement
+	 * @param dateDebut Date de début
+	 * @param dateFin Date de fin
+	 * @param idCalendriers Liste des identifiants des calendriers auxquels l'événement est rattaché
+	 * @param idSalles Liste des identifiants des salles
+	 * @param idIntervenants Liste des identifiants des intervenants
+	 * @param idResponsables Liste des identifiants des responsables
+	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
+	 * @throws EdtempsException
 	 */
 	public void modifierEvenement(int id, String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean createTransaction) throws EdtempsException{
@@ -266,13 +292,14 @@ public class EvenementGestion {
 		}
 	}
 	
+	
 	/**
 	 * Suppression d'un évènement
 	 * 
-	 * Permet de supprimer un évènement dans la base de données,
-	 * l'évènement est identifié par son ID entier
+	 * <p>Permet de supprimer un évènement dans la base de données,
+	 * l'évènement est identifié par son ID entier</p>
 	 * 
-	 * @param idEvement idetifiant de l'événement
+	 * @param idEvement identifiant de l'événement
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @throws EdtempsException
 	 */
@@ -315,11 +342,12 @@ public class EvenementGestion {
 		}
 	}
 	
+	
 	/**
 	 * Récupération d'un évènement en base
 	 * @param idEvenement ID de l'évènement à récupérer
 	 * @return Evènement récupéré
-	 * @throws DatabaseException 
+	 * @throws DatabaseException
 	 */
 	public EvenementIdentifie getEvenement(int idEvenement) throws DatabaseException {
 		ResultSet reponse = _bdd.executeRequest(
@@ -341,21 +369,20 @@ public class EvenementGestion {
 		return res;
 	}
 	
+	
 	/**
 	 * Liste les évènements auxquels un utilisateur est abonné par l'intermédiaire de ses abonnements aux groupes, et donc aux calendriers.
 	 * Le nombre d'événements est limité à MAX_ROWS_QUERY_EVENEMENTS.
-	 * 
 	 * @param idUtilisateur Utilisateur dont les évènements sont à récupérer
-	 * @param dateDebut
-	 * @param dateFin
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
-	 * @param maxNbEvenements Nombre maximum d'événements à renvoyer
 	 * 
 	 * @see GroupeGestion#makeTempTableListeGroupesAbonnement(BddGestion, int)
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 * @throws MaxRowCountExceededException nombre de résultats trop important
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, Date dateDebut, Date dateFin, 
@@ -363,11 +390,12 @@ public class EvenementGestion {
 		return listerEvenementsUtilisateur(idUtilisateur, dateDebut, dateFin, createTransaction, reuseTempTableAbonnements, MAX_ROWS_QUERY_EVENEMENTS);
 	}
 	
+	
 	/**
 	 * Liste les évènements auxquels un utilisateur est abonné par l'intermédiaire de ses abonnements aux groupes, et donc aux calendriers
 	 * @param idUtilisateur Utilisateur dont les évènements sont à récupérer
-	 * @param dateDebut
-	 * @param dateFin
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @param reuseTempTableAbonnements makeTempTableListeGroupesAbonnement() a déjà été appelé dans la transaction en cours
 	 * @param maxNbEvenements Nombre maximum d'événements à renvoyer
@@ -375,7 +403,7 @@ public class EvenementGestion {
 	 * @see GroupeGestion#makeTempTableListeGroupesAbonnement(BddGestion, int)
 	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 * @throws MaxRowCountExceededException nombre de résultats trop important
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementsUtilisateur(int idUtilisateur, Date dateDebut, Date dateFin, 
@@ -405,12 +433,14 @@ public class EvenementGestion {
 		return res;
 	}
 	
+	
 	/**
 	 * Liste les évènements liés à un groupe d'utilisateurs. <b>Les événements des groupes parents et enfants sont aussi renvoyés.</b>
 	 * Le nombre d'événements est limité à MAX_ROWS_QUERY_EVENEMENTS
 	 * @param idGroupe groupe dont les évènements sont à récupérer
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
-	 * 
 	 * @return Liste d'évènements récupérés
 	 * @throws DatabaseException 
 	 * @throws MaxRowCountExceededException Nombre d'événements supérieur à MAX_ROWS_QUERY_EVENEMENTS
@@ -439,9 +469,9 @@ public class EvenementGestion {
 		return res;
 	}
 	
+	
 	/**
 	 * Méthode de listing des évènements de cours ou pas de cours (exclusivement l'un ou l'autre) d'une salle
-	 * 
 	 * @param idSalle ID de la salle en question
 	 * @param dateDebut Date de début de la fenêtre de recherche d'évènements
 	 * @param dateFin Date de fin de la fenêtre de recherche d'évènements
@@ -467,15 +497,15 @@ public class EvenementGestion {
 		return res;
 	}
 	
+	
 	/**
 	 * Méthode générique de listing d'évènements complets ou incomplets d'une salle
-	 * 
 	 * @param idSalle identifiant de la salle dont les évènements sont à récupérer
-	 * @param dateDebut
-	 * @param dateFin
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
-	 * @param inflater
-	 * @return
+	 * @parm inflater Inflater permettant de créer l'objet voulu à partir des lignes de base de données
+	 * @return Liste des évènements trouvés
 	 * @throws EdtempsException 
 	 */
 	protected <T extends EvenementIdentifie> ArrayList<T> listerEvenementsSalle(int idSalle, Date dateDebut, Date dateFin, 
@@ -490,13 +520,13 @@ public class EvenementGestion {
 		return res;
 	}
 	
+	
 	/**
 	 * Liste les évènements liés à une salle, sous forme d'évènement complet
 	 * @param idSalle identifiant de la salle dont les évènements sont à récupérer
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
-	 * @param dateDebut
-	 * @param dateFin
-	 * 
 	 * @return Liste d'évènements récupérés
 	 * @throws EdtempsException 
 	 */
@@ -505,13 +535,13 @@ public class EvenementGestion {
 		return listerEvenementsSalle(idSalle, dateDebut, dateFin, createTransaction, new EvenementCompletInflater());
 	}
 	
+	
 	/**
 	 * Liste les évènements liés à une salle, sous forme d'évènement identifié
 	 * @param idSalle identifiant de la salle dont les évènements sont à récupérer
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
-	 * @param dateDebut
-	 * @param dateFin
-	 * 
 	 * @return Liste d'évènements récupérés
 	 * @throws EdtempsException 
 	 */
@@ -524,10 +554,9 @@ public class EvenementGestion {
 	/**
 	 * Liste les évènements liés à un intervenant
 	 * @param idResponsable identifiant de l'utilisateur intervenant dans les évènements à récupérer
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
-	 * @param dateDebut
-	 * @param dateFin
-	 * 
 	 * @return Liste d'évènements récupérés
 	 * @throws EdtempsException 
 	 */
@@ -543,13 +572,13 @@ public class EvenementGestion {
 		return res;
 	}
 	
+	
 	/**
 	 * Liste les évènements liés à un calendrier
 	 * @param idCalendrier identifiant du calendrier dont les évènements sont à récupérer
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
-	 * @param dateDebut
-	 * @param dateFin
-	 * 
 	 * @return Liste d'évènements récupérés
 	 * @throws EdtempsException 
 	 */
@@ -568,10 +597,9 @@ public class EvenementGestion {
 	/**
 	 * Suppression de l'association d'un évènement "non cours" à une salle.
 	 * Utile pour ajouter des évènements de cours dans une salle déjà occupée par autre chose (les cours sont prioritaires)
-	 * 
 	 * @param idSalles ID des salles à libérer (peut contenir plus de salles que celles occupées)
 	 * @param idEvenements ID des évènements concernés
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	public void supprimerSallesEvenementsNonCours(List<Integer> idSalles, List<Integer> idEvenements) throws DatabaseException {
 		
@@ -597,15 +625,13 @@ public class EvenementGestion {
 	/**
 	 * Liste les évènements correspondant à une requête préparée (pour obtenir les événements liés à un groupe, à une salle, à un calendrier, à un responsable).
 	 * Le nombre d'événements renvoyé n'est pas vérifié (peut être très élevé), donc attention aux requêtes utilisées.
-	 * 
 	 * @param request requêre SQL pour obtenir les événements souhaités
-	 * @param dateDebut
-	 * @param dateFin
-	 * @parm inflater Inflater permettant de créer l'objet voulu à partir des lignes de base de donnée
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
+	 * @parm inflater Inflater permettant de créer l'objet voulu à partir des lignes de base de données
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
-	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException Erreur de communication avec la BDD
+	 * @throws DatabaseException
 	 */
 	private <T  extends EvenementIdentifie> ArrayList<T> listerEvenements(String request, Date dateDebut, Date dateFin, 
 			AbsEvenementInflater<T> inflater, boolean createTransaction) throws DatabaseException {
@@ -620,14 +646,13 @@ public class EvenementGestion {
 	/**
 	 * Liste les évènements correspondant à une requête préparée (pour obtenir les événements liés à un groupe, à une salle, à un calendrier, à un responsable)
 	 * @param request requêre SQL pour obtenir les événements souhaités
-	 * @param dateDebut
-	 * @param dateFin
-	 * @parm inflater Inflater permettant de créer l'objet voulu à partir des lignes de base de donnée
+	 * @param dateDebut Date de début de la recherche
+	 * @param dateFin Date de fin de la recherche
+	 * @parm inflater Inflater permettant de créer l'objet voulu à partir des lignes de base de données
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @param nbMaxEvenements Indique le nombre maximum d'événements à renvoyer (comparé avec MAX_ROWS_QUERY_EVENEMENTS). -1 si la vérification ne doit pas être effectuée.
-	 * 
 	 * @return Liste d'évènements récupérés
-	 * @throws DatabaseException Erreur de communication avec la BDD
+	 * @throws DatabaseException
 	 * @throws EdtempsException Uniquement si le paramètre checkCount est true, est levé si le nombre d'événements excède MAX_ROWS_QUERY_EVENEMENTS
 	 */
 	private <T  extends EvenementIdentifie> ArrayList<T> listerEvenements(String request, Date dateDebut, Date dateFin, 

@@ -1,4 +1,5 @@
 /**
+ * Module de contrôle de la boîte de dialogue de recherche de salles
  * @module RechercheSalle
  */
 define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "jqueryquicksearch" ], function(RestManager) {
@@ -28,6 +29,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	
 	/**
 	 * Affiche la boîte de dialogue de recherche d'une salle libre
+	 * @param {DialogAjoutEvenement} dialogAjoutEvenement Boite de dialogue pour l'ajout d'événements
 	 */
 	RechercheSalle.prototype.show = function(dialogAjoutEvenement) {
 		if(!this.initAppele) {
@@ -42,6 +44,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * Initialise la boîte de dialogue de recherche d'une salle libre
 	 * Doit être appelé uniquement une fois.
 	 * Est automatiquement appelé par show() si nécessaire.
+	 * @param {DialogAjoutEvenement} dialogAjoutEvenement Boite de dialogue pour l'ajout d'événements
 	 */
 	RechercheSalle.prototype.init = function(dialogAjoutEvenement) {
 		var me = this;
@@ -175,7 +178,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	/**
 	 * Méthode qui vérifie que le formulaire est correct
 	 * 
-	 * @return VRAI si le formulaire est valide et FAUX sinon
+	 * @return {boolean} VRAI si le formulaire est valide et FAUX sinon
 	 */
 	RechercheSalle.prototype.validationFormulaire = function() {
 		var valid = true;
@@ -340,16 +343,16 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	
 	/**
 	 * Méthode qui effectue la requête
-	 * @param dateDebut Date de début de l'événement (objet Date javascript)
-	 * @param dateFin Date de fin de l'événement (objet Date javascript)
-	 * @param effectif Effectif requis pour l'événement
-	 * @param materiels Liste du matériel nécessaire : une liste d'objets qui possèdent deux attributs : id et quantité
-	 * @param inclureSallesOccupees VRAI si la recherche doit inclure les salles occupées par des événements autres que des cours
-	 * @param idEvenementIgnorer identifiant d'un événement qu'il faut ignorer dans la recherche
-	 * @param callbackChargement méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
+	 * @param {Date} dateDebut Date de début de l'événement (objet Date javascript)
+	 * @param {Date} dateFin Date de fin de l'événement (objet Date javascript)
+	 * @param {number} effectif Effectif requis pour l'événement
+	 * @param {Materiel[]} materiels Liste du matériel nécessaire : une liste d'objets qui possèdent deux attributs : id et quantité
+	 * @param {boolean} inclureSallesOccupees VRAI si la recherche doit inclure les salles occupées par des événements autres que des cours
+	 * @param {number[]} idEvenementIgnorer identifiant d'un événement qu'il faut ignorer dans la recherche
+	 * @param {function} callbackChargement méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
 	 * 	Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
 	 * 	par le paramètre suivant "callback". Un message d'erreur est déjà affiché dans cette méthode en cas d'erreur.
-	 * @param callback Méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
+	 * @param {function} callback Méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
 	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, inclureSallesOccupees, idEvenementIgnorer, callbackChargement, callback) {
 		var me = this;
@@ -454,11 +457,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	/**
 	 * Méthode qui affiche le résultat
 	 * 
-	 * @param data
-	 * 			liste des salles retournées par le serveur
-	 * 
-	 * @param callback
-	 * 		méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
+	 * @param {Salle[]} data liste des salles retournées par le serveur
+	 * @param {function} callback Méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
 	RechercheSalle.prototype.afficherResultat = function(data, callback) {
 		
@@ -523,11 +523,8 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	
 	/**
 	 * Met une bordure de couleur autour de l'élément
-	 * 
-	 * @param champ
-	 * 			champ à entourer
-	 * @param color
-	 * 			couleur de la bordure, si elle vaut NULL la bordure est enlevée
+	 * @param {object} champ Champ à entourer
+	 * @param {string} color Couleur de la bordure, si elle vaut NULL la bordure est enlevée
 	 */
 	RechercheSalle.prototype.bordureSurChamp = function(champ, color) {
 		if (color == null) {

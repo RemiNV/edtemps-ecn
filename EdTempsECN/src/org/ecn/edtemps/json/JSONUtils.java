@@ -15,7 +15,6 @@ import javax.json.JsonValue;
  * @author Remi
  */
 public class JSONUtils {
-
 	
 	/**
 	 * Créé un JsonArray à partir d'une collection itérable (List par exemple) de JSONAble

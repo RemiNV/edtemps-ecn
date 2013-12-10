@@ -26,7 +26,6 @@ public class Calendrier {
 	
 	/** 
 	 * Constructeur avec tous les attributs
-	 * 
 	 * @param nom Nom du calendrier
 	 * @param type Type du calendrier
 	 * @param matiere Matière du calendrier

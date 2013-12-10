@@ -1,11 +1,12 @@
 /**
+ * Module de contrôle de la boîte de dialogue de détail d'un groupe de participants
  * @module DialogDetailGroupeParticipants
  */
 define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) {
 
 	/**
 	 * @constructor
-	 * @alias DialogDetailGroupeParticipants
+	 * @alias module:DialogDetailGroupeParticipants
 	 */
 	var DialogDetailGroupeParticipants = function(restManager, jqDialog) {
 		this.restManager = restManager;
@@ -19,7 +20,7 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 
 	/**
 	 * Affiche la boîte de dialogue de détail d'un groupe de participants
-	 * @param idGroupe Identifiant du groupe à afficher
+	 * @param {number} idGroupe Identifiant du groupe à afficher
 	 */
 	DialogDetailGroupeParticipants.prototype.show = function(idGroupe) {
 		if(!this.initAppele) {
@@ -63,7 +64,7 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 	
 	/**
 	 * Charge le contenu dans la boîte de dialogue
-	 * @param groupe Groupe à afficher
+	 * @param {groupe} groupe Groupe à afficher
 	 */
 	DialogDetailGroupeParticipants.prototype.chargerContenu = function(groupe) {
 		var me = this;

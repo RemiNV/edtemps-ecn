@@ -25,9 +25,9 @@ public class GroupeComplet extends GroupeIdentifie implements JSONAble {
 	/** Groupe parent */
 	protected GroupeIdentifie parent;
 
+	
 	/**
 	 * Constructeur complet
-	 * 
 	 * @param id Identifiant du groupe
 	 * @param nom Nom du groupe
 	 * @param rattachementAutorise VRAI si le groupe accepte le rattachement

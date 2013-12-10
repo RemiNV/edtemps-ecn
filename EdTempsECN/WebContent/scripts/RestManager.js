@@ -1,6 +1,5 @@
-/** Module effectuant les requêtes sur le serveur,
- * et gérant la connexion à celui-ci. Gère entre autres
- * le token de connexion
+/** Module effectuant les requêtes sur le serveur, et gérant la connexion à celui-ci.
+ * Gère entre autres le token de connexion.
  * @module RestManager 
  */
 define(["jquery"], function() {
@@ -81,6 +80,10 @@ define(["jquery"], function() {
 		}
 	};
 
+	/**
+	 * Affecte une valeur à l'attribut "userId"
+	 * @param {number} userId Identifiant de l'utilisateur
+	 */
 	RestManager.prototype.setUserId = function(userId) {
 		this._userId = userId;
 		if(window.localStorage) {
@@ -88,18 +91,20 @@ define(["jquery"], function() {
 		}
 	};
 
+	/**
+	 * Affecte une valeur à l'attribut "listeActionsAutorisees"
+	 * @param {number[]} listeActionsAutorisees Liste des identifiants des actions autorisées
+	 */
 	RestManager.prototype.setListeActionsAutorisees = function(listeActionsAutorisees) {
 		this._listeActionsAutorisees = listeActionsAutorisees;
 	};
 
 	/** 
-	 * Fonction de connexion auprès du serveur.
-	 * @param identifiant identifiant de l'utilisateur
-	 * @param pass mot de passe de l'utilisateur
-	 * @param callback fonction de rappel appelée pour fournir les résultats de la requête
+	 * Fonction de connexion auprès du serveur
 	 * 
-	 * 	La fonction callback prend les arguments : 
-	 *  - resultCode (entier) : résultat de la connexion, correspondant à RestManager.resultCode_*
+	 * @param {string} identifiant identifiant de l'utilisateur
+	 * @param {string} pass mot de passe de l'utilisateur
+	 * @param {function} callback fonction de rappel appelée pour fournir les résultats de la requête. Paramètres : resultCode
 	 */
 	RestManager.prototype.connexion = function(identifiant, pass, callback) {
 		var me = this;
@@ -121,10 +126,10 @@ define(["jquery"], function() {
 	};
 	
 	/**
-	 * Fonction de déconnexion auprès du serveur.
-	 * Arguments de callback : 
-	 * - resultCode (entier) : code de résultat renvoyé par le serveur. RestManager.resultCode_Success en cas de succès de la déconnexion.
+	 * Fonction de déconnexion auprès du serveur
+	 * 
 	 * @param callback : fonction appelée une fois la requête terminée.
+	 * Paramètre: resultCode : code de résultat renvoyé par le serveur. RestManager.resultCode_Success en cas de succès de la déconnexion.
 	 */
 	RestManager.prototype.deconnexion = function(callback) {
 		this.effectuerRequete("GET", "identification/disconnect", { token: this._token }, function(data) {
@@ -138,14 +143,17 @@ define(["jquery"], function() {
 		});
 	};
 	
-	/* Récupère le token de connexion en cours */
+	/**
+	 * Récupération du token de l'utilisateur
+	 * @return {string} le token en cours pour l'utilisateur
+	 */
 	RestManager.prototype.getToken = function() {
 		return this._token;
 	};
 	
 	/**
 	 * Récupération de l'ID d'utilisateur de l'utilisateur actuel
-	 * @return ID de l'utilisateur actuel
+	 * @return {number} ID de l'utilisateur actuel
 	 */
 	RestManager.prototype.getUserId = function() {
 		return this._userId;
@@ -156,7 +164,7 @@ define(["jquery"], function() {
 	 * vérifie auprès du serveur que ce token est (encore) valide.
 	 * Paramètres de callback : 
 	 * - resultCode (int) : code de retour, RestManager.resultCode_Success en cas de succès
-	 * @param callback fonction de rappel appelée une fois la requête effectuée.
+	 * @param {function} callback Fonction de rappel appelée une fois la requête effectuée.
 	 */
 	RestManager.prototype.checkConnection = function(callback) {
 		var me = this;
@@ -179,7 +187,8 @@ define(["jquery"], function() {
 	 * Indique si l'utilisateur en cours est connecté.
 	 * L'utilisateur peut être connecté si on a fait appel à connexion(), ou à checkConnection si un token valide était enregistré
 	 * (si les informations de connexion ont été stockées dans le navigateur par exemple)
-	 * @return true si l'utilisateur est connecté */
+	 * @return {boolean} Vrai si l'utilisateur est connecté
+	 */
 	RestManager.prototype.isConnected = function() {
 		return this._isConnected;
 	};
@@ -193,23 +202,23 @@ define(["jquery"], function() {
 	 * - callback : fonction à appeler une fois la reconnexion effectuée.
 	 *   La fonction callback doit être appelée avec un argument booléen indiquant si la reconnexion a réussi.
 	 * 
-	 * @param fallback : fonction à appeler en cas d'erreur de connexion lors d'une requête.
+	 * @param {function} fallback Fonction à appeler en cas d'erreur de connexion lors d'une requête.
 	 */
 	RestManager.prototype.setIdentificationErrorFallback = function(fallback) {
 		this._identificationErrorFallback = fallback;
 	};
 	
 	/**
-	 *  Effectue une requête AJAX avec la méthode donnée ('GET', 'POST', 'PUT' ou 'DELETE'),
-	 * pour l'URL donnée, avec les données fournies.
-	 * La fonction de callback prend en argument : 
-	 * - data (object) : résultat de la requête.
-	 * En cas d'échec de la connexion, il ne contient qu'un attribut resultCode correspondant à
-	 * RestManager.resultCode_NetworkError.
+	 *  Effectue une requête AJAX
 	 * 
-	 * Lorsque le token de connexion de l'utilisateur n'est pas valide, cette méthode peut utiliser un fallback
-	 * défini précédemment pour rétablir la connexion avant de renvoyer un résultat.
-	 * Le paramètre ignoreFallback (booléen) permet de ne pas utiliser ce fallback et renvoyer un code IdentificationError
+	 * <p>Lorsque le token de connexion de l'utilisateur n'est pas valide, cette méthode peut utiliser un fallback
+	 * défini précédemment pour rétablir la connexion avant de renvoyer un résultat.</p>
+	 * 
+	 * @param {string} method Méthode à utiliser pour effectuer la requête ('GET', 'POST', 'PUT' ou 'DELETE')
+	 * @param {string} url Url pour la requête
+	 * @param {object} data Objet json transmis dans la requête
+	 * @param {function} callback
+	 * @param {boolean} ignoreFallback VRAI pour ne pas utiliser ce fallback et renvoyer un code IdentificationError
 	 */
 	RestManager.prototype.effectuerRequete = function(method, url, data, callback, ignoreFallback) {
 		
@@ -247,8 +256,9 @@ define(["jquery"], function() {
 	 * Vérifie si un utilisateur a le droit d'effectuer une action
 	 * Cette méthode ne fait pas de requête au serveur. Elle va chercher l'information dans le RestManager
 	 * qui a récupéré la liste des actions que l'utilisateur peut faire, au moment de sa connexion
-	 * @param codeAction Action à vérifier
-	 * @return VRAI ou FAUX en fonction des droits de l'utilisateur
+	 * 
+	 * @param {string} codeAction Action à vérifier
+	 * @return {boolean} VRAI ou FAUX en fonction des droits de l'utilisateur
 	 */
 	RestManager.prototype.aDroit = function(codeAction) {
 		if (jQuery.inArray(codeAction, this._listeActionsAutorisees)>0) {

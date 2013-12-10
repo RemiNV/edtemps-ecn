@@ -1,4 +1,5 @@
 /**
+ * Module de contrôle de la boîte de dialogue de connexion
  * @module DialogConnexion
  */
 define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
@@ -94,8 +95,8 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 	
 	/**
 	 * Affichage de la dialog de connexion
-	 * @param title Titre à assigner à la dialog
-	 * @param connectionCallback Callback de connexion (obligatoire)
+	 * @param {string} title Titre à assigner à la dialog
+	 * @param {function} connectionCallback Callback de connexion (obligatoire)
 	 */
 	DialogConnection.prototype.show = function(title, connectionCallback, isReconnection) {
 		

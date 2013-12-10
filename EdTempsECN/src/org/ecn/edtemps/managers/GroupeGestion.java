@@ -54,7 +54,7 @@ public class GroupeGestion {
 	 * Récupérer un groupe identifié de participants dans la base de données
 	 * @param identifiant Identifiant du groupe à récupérer
 	 * @return le groupe identifié (standard)
-	 * @throws EdtempsException En cas d'erreur de connexion avec la base de données
+	 * @throws EdtempsException
 	 */
 	public GroupeIdentifie getGroupe(int identifiant) throws DatabaseException {
 
@@ -89,7 +89,7 @@ public class GroupeGestion {
 	 * Récupérer un groupe complet de participants dans la base de données
 	 * @param identifiant Identifiant du groupe à récupérer
 	 * @return le groupe complet
-	 * @throws EdtempsException En cas d'erreur de connexion avec la base de données
+	 * @throws EdtempsException
 	 */
 	public GroupeComplet getGroupeComplet(int identifiant) throws EdtempsException {
 
@@ -127,7 +127,7 @@ public class GroupeGestion {
 	 * @param estCours VRAI si le groupe est un cours
 	 * @param listeIdProprietaires Liste des identifiants des propriétaires du groupe
 	 * @return l'identifiant de la ligne insérée
-	 * @throws EdtempsException En cas d'erreur
+	 * @throws EdtempsException
 	 */
 	public int sauverGroupe(String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
 
@@ -230,7 +230,7 @@ public class GroupeGestion {
 	 * @param rattachementAutorise VRAI si le groupe accepte le rattachement
 	 * @param estCours VRAI si le groupe est un cours
 	 * @param listeIdProprietaires Liste des identifiants des propriétaires du groupe
-	 * @throws EdtempsException En cas d'erreur
+	 * @throws EdtempsException
 	 */
 	public void modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, 
 			boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
@@ -430,7 +430,7 @@ public class GroupeGestion {
 	 * Créé une table temporaire de listing de groupes
 	 * @param bdd Gestionnaire de base de données
 	 * @param nomTable Nom de la table à créer
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	protected static void makeTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
 		bdd.executeUpdate("CREATE TEMP TABLE " + nomTable + " (groupeparticipant_id INTEGER NOT NULL, groupeparticipant_nom VARCHAR, " +
@@ -442,7 +442,7 @@ public class GroupeGestion {
 	 * Itère sur les parents des lignes d'une temporaire de groupes pour les ajouter à cette même table
 	 * @param bdd Gestionnaire de base de données
 	 * @param nomTable Nom de la table temporaire à utiliser
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	protected static void completerParentsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
 		try {
@@ -475,7 +475,7 @@ public class GroupeGestion {
 	 * Itère sur les enfants des lignes d'une temporaire de groupes pour les ajouter à cette même table
 	 * @param bdd Gestionnaire de base de données
 	 * @param nomTable Nom de la table temporaire à utiliser
-	 * @throws DatabaseException Erreur de communication avec la base de données
+	 * @throws DatabaseException
 	 */
 	protected static void completerEnfantsTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
 
@@ -511,6 +511,7 @@ public class GroupeGestion {
 	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
 	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
 	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_ABONNEMENTS}
+	 * @param bdd Gestionnaire de base de données
 	 * @param idUtilisateur
 	 * @throws DatabaseException
 	 */
@@ -533,6 +534,14 @@ public class GroupeGestion {
 		completerParentsTempTableListeGroupes(bdd, NOM_TEMPTABLE_ABONNEMENTS);
 	}
 	
+	
+	/**
+	 * Ajouter un groupe dans la table temporaire des groupes
+	 * @param bdd Gestionnaire de base de données
+	 * @param idGroupe Identifiant du groupe à ajouter
+	 * @param nomTable Nom de la table temporaire à affecter
+	 * @throws DatabaseException
+	 */
 	protected static void ajouterGroupeTempTableListeGroupes(BddGestion bdd, int idGroupe, String nomTable) throws DatabaseException {
 		bdd.executeUpdate("INSERT INTO " + nomTable + "(groupeparticipant_id," +
 			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
@@ -550,6 +559,7 @@ public class GroupeGestion {
 	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
 	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
 	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_PARENTSENFANTS}
+	 * @param bdd Gestionnaire de base de données
 	 * @param idGroupe ID du groupe pour lequel les parents et enfants sont à lister.
 	 * @throws DatabaseException
 	 */
@@ -569,6 +579,7 @@ public class GroupeGestion {
 	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
 	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
 	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_ENFANTS}
+	 * @param bdd Gestionnaire de base de données
 	 * @param idGroupe ID du groupe pour lequel les parents et enfants sont à lister.
 	 * @throws DatabaseException
 	 */
@@ -798,7 +809,7 @@ public class GroupeGestion {
 	 * Listing des groupes auxquels l'utilisateur est abonné directement (sans remonter ni descendre les parents/enfants)
 	 * @param idUtilisateur Utilisateur dont les abonnements sont à lister
 	 * @return Liste des groupes trouvés
-	 * @throws DatabaseException Erreur d'accès à la base de données
+	 * @throws DatabaseException
 	 */
 	public ArrayList<GroupeIdentifie> listerGroupesAssocies(int idUtilisateur) throws DatabaseException {
 		ResultSet resGroupes = _bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
@@ -826,7 +837,7 @@ public class GroupeGestion {
 	 * Listing des groupes desquels l'utilisateur fait parti des propriétaires (sans remonter ni descendre les parents/enfants)
 	 * @param idUtilisateur Utilisateur dont les groupes sont à lister
 	 * @return Liste des groupes trouvés
-	 * @throws DatabaseException Erreur d'accès à la base de données
+	 * @throws DatabaseException
 	 */
 	public ArrayList<GroupeIdentifie> listerGroupesProprietaire(int idProprietaire) throws DatabaseException {
 		

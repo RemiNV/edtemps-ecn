@@ -9,13 +9,13 @@ import javax.json.JsonValue;
 import org.ecn.edtemps.json.JSONAble;
 
 /**
- * Classe modèle d'un matériel
+ * Classe modèle d'un type matériel
  * 
  * @author Audrey
  */
 public class Materiel implements JSONAble {
 
-	/** identifiant du matériel*/
+	/** Identifiant du matériel*/
 	protected int id;
 
 	/** Libellé du matériel*/
@@ -26,7 +26,8 @@ public class Materiel implements JSONAble {
 	
 	/** 
 	 * Constructeur avec les paramètres obligatoires
-	 * @param id identifiant du matériel, nom dénomination du matériel
+	 * @param id Identifiant du matériel
+	 * @param nom Dénomination du matériel
 	 */
 	public Materiel (int id, String nom){
 		this.id = id;
@@ -36,7 +37,9 @@ public class Materiel implements JSONAble {
 	
 	/** 
 	 * Constructeur avec tous les paramètres
-	 * @param id identifiant du matériel, nom dénomination du matériel, quantité
+	 * @param id Identifiant du matériel
+	 * @param nom Dénomination du matériel
+	 * @param quantite Quantité du matériel (utile pour indiquer la quantité d'un matériel dans une salle)
 	 */
 	public Materiel (int id, String nom, int quantite){
 		this.id = id;
@@ -70,7 +73,7 @@ public class Materiel implements JSONAble {
 	
 	/**
 	 * Lit un objet Materiel à partir de sa représentation JSON
-	 * @param object représentation JSON du matériel (attributs id, nom, quantite)
+	 * @param object Représentation JSON du matériel (attributs id, nom, quantite)
 	 * @return Matériel créé
 	 * @throws ClassCastException Si un attribut est présent mais invalide
 	 */

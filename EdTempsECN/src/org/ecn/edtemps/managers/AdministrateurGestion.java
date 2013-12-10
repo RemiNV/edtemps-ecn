@@ -14,7 +14,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 
-
 /**
  * Classe de gestion des administrateurs
  * 
@@ -25,7 +24,9 @@ public class AdministrateurGestion {
 	/** Gestionnaire de base de données */
 	protected BddGestion bdd;
 
+	/** Clé qui sert à crypter les mots de passe spécifiques à l'espace d'administration */
 	private static final String KEY_CRYPTAGE_PASSWORD = "Chaine de cryptage";
+	
 	
 	/**
 	 * Initialise un gestionnaire d'administrateurs
@@ -39,7 +40,7 @@ public class AdministrateurGestion {
 	/**
 	 * Lister tous les administrateurs de la base de données
 	 * @return la liste des administrateurs
-	 * @throws DatabaseException En cas d'erreur avec la base de données
+	 * @throws DatabaseException
 	 */
 	public Map<Integer, String> listerAdministrateurs() throws DatabaseException {
 		
@@ -69,8 +70,8 @@ public class AdministrateurGestion {
 	 * @param password Mot de passe
 	 * @return VRAI si la connexion est réussie
 	 * @throws DatabaseException
-	 * @throws InvalidKeyException
-	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeyException Clé fournie de format invalide
+	 * @throws NoSuchAlgorithmException La machine Java hôte est incapable de produire un HMAC_SHA256 (ne devrait jamais se produire)
 	 */
 	public boolean seConnecter(String login, String password) throws DatabaseException, InvalidKeyException, NoSuchAlgorithmException {
 
@@ -101,9 +102,9 @@ public class AdministrateurGestion {
 	 * @param login Identifiant de connexion
 	 * @param password Mot de passe
 	 * @return l'identifiant de l'administrateur ajouté
-	 * @throws DatabaseException 
-	 * @throws NoSuchAlgorithmException 
-	 * @throws InvalidKeyException 
+	 * @throws DatabaseException
+	 * @throws InvalidKeyException Clé fournie de format invalide
+	 * @throws NoSuchAlgorithmException La machine Java hôte est incapable de produire un HMAC_SHA256 (ne devrait jamais se produire)
 	 */
 	public int ajouterAdministrateur(String login, String password) throws DatabaseException, InvalidKeyException, NoSuchAlgorithmException {
 

@@ -26,11 +26,23 @@ public abstract class TokenServlet extends HttpServlet {
 	private static final long serialVersionUID = 4516265930296858166L;
 	Logger logger = LogManager.getLogger(TokenServlet.class.getName());
 	
+	
+	/**
+	 * Enumération des méthodes de requête supportées 
+	 */
 	public static enum SupportedMethods {
 		GET,
 		POST;
 	}
 	
+	/**
+	 * Exécution d'une méthode
+	 * @param method Méthode de la requête
+	 * @param req Requête
+	 * @param resp Réponse
+	 * @throws IOException
+	 * @throws ServletException
+	 */
 	private void doMethod(SupportedMethods method, HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		// Vérification de la présence du token
 		String token = req.getParameter("token");
@@ -88,7 +100,7 @@ public abstract class TokenServlet extends HttpServlet {
 	 * @param token Token à vérifier
 	 * @return ID de l'utilisateur
 	 * @throws IdentificationException Identification invalide ou erreur
-	 * @throws DatabaseException Erreur de connexion à la base de données
+	 * @throws DatabaseException
 	 */
 	protected abstract int verifierToken(BddGestion bdd, String token) throws IdentificationException, DatabaseException;
 	
