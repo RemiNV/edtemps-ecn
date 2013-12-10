@@ -15,3 +15,65 @@ Le droit de modification du logiciel inclut entre autres la modification du code
 Il n’y a aucune garantie pour le programme, dans les limites permises par la loi applicable. Les développeurs fournissent le programme "en l’état" sans garantie d’aucune sorte, qu’elle soit exprimée ou implicite, ceci comprenant, sans se limiter à celles-ci, les garanties implicites de commercialisabilité et d’adéquation à un objectif particulier. L'utilisateur assume l'ensemble des risques concernant la qualité et les performances du programme. Dans l’éventualité où le programme s’avérerait défectueux, l'utilisateur assume les coûts de tous les services, réparations ou corrections nécessaires.
 
 Les développeurs ne peuvent en aucune circonstance être tenus pour responsables des dommages, incluant tout dommage général, spécial, accidentel ou induit survenant par suite de l’utilisation ou de l’incapacité d’utiliser le logiciel (y compris, sans se limiter à celles-ci, la perte de données ou l’inexactitude des données retournées ou les pertes subies par l'utilisateur ou des parties tierces ou l’incapacité du logiciel à fonctionner avec tout autre logiciel), même si un tel titulaire ou toute autre partie a été avisé de la possibilité de tels dommages.
+
+Ce programme utilise les logiciels suivants, soumis aux licences Apache 2.0 et MIT : 
+
+******************** Apache Commons, Apache Log4J ********************
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+************************************************************
+
+******************** UnboundID LDAP SDK ********************
+  LDAP SDK, Copyright (C) 2008-2013 UnboundID Corp.
+  Licence LGPL v2.1
+ 
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+ 
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  
+  Le texte complet de cette licence peut être trouvé à : 
+  http://www.gnu.org/licenses/lgpl-2.1.html
+************************************************************
+
+******************** jQuery, jQuery UI, requireJS, Davis.js ********************
+******************** Fullcalendar, QUnit, MockJax, Date Picker ********************
+Licence MIT 
+ 
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+************************************************************
+  
