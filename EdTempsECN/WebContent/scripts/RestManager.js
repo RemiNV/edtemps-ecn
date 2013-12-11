@@ -173,6 +173,7 @@ define(["jquery"], function() {
 				if(data.resultCode == RestManager.resultCode_Success) {
 					me._isConnected = true;
 					me.setUserId(data.data.id);
+					me.setListeActionsAutorisees(data.data.actionsAutorisees);
 				}
 			
 				callback(data.resultCode);
