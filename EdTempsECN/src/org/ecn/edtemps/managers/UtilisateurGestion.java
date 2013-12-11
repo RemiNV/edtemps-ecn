@@ -97,10 +97,7 @@ public class UtilisateurGestion {
 	public static enum ActionsEdtemps {
 		
 		// Actions possibles à compléter
-		CREER_GROUPE(1),
-		RATTACHER_CALENDRIER_GROUPE(2),
 		CREER_GROUPE_COURS(3),
-		CHOISIR_PROPRIETAIRES_EVENEMENT(4),
 		LIMITE_CALENDRIERS_ETENDUE(5);
 		
 		private int id;
