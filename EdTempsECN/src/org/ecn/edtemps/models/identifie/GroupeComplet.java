@@ -72,25 +72,14 @@ public class GroupeComplet extends GroupeIdentifie implements JSONAble {
 	public void setParent(GroupeIdentifie parent) {
 		this.parent = parent;
 	}
-
+	
 	@Override
-	public JsonValue toJson() {
-		JsonObjectBuilder builder = Json.createObjectBuilder()
-			.add("id", id)
-			.add("nom", nom)
-			.add("parentId", parentId)
-			.add("parentIdTmp", parentIdTmp)
-			.add("createur", idCreateur)
-			.add("rattachementAutorise", rattachementAutorise)
-			.add("estCours", estCours)
-			.add("estCalendrierUnique", estCalendrierUnique)
-			.add("calendriers", JSONUtils.getJsonArray(calendriers))
-			.add("proprietaires", JSONUtils.getJsonArray(proprietaires));
+	protected JsonObjectBuilder makeJsonObjectBuilder() {
+		JsonObjectBuilder builder = super.makeJsonObjectBuilder();
 		
 		if (parent!=null) {
 			builder.add("parent", parent.toJson());
 		}
-			
-		return builder.build();
+		return builder;
 	}
 }

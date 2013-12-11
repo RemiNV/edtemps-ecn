@@ -3,6 +3,7 @@ package org.ecn.edtemps.models.identifie;
 import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
@@ -40,17 +41,13 @@ public class GroupeIdentifieAbonnement extends GroupeIdentifie implements JSONAb
 		this.rattachementsDuCalendrier = rattachementsDuCalendrier;
 	}
 	
-
 	@Override
-	public JsonValue toJson() {
-		return Json.createObjectBuilder()
-				.add("id", id)
-				.add("nom", nom)
+	protected JsonObjectBuilder makeJsonObjectBuilder() {
+		return super.makeJsonObjectBuilder()
 				.add("parentId", parentId)
 				.add("abonnementObligatoire", abonnementObligatoire)
 				.add("estCalendrierUnique", estCalendrierUnique)
-				.add("rattachementsDuCalendrier", JSONUtils.getJsonIntArray(this.rattachementsDuCalendrier))
-				.build();
+				.add("rattachementsDuCalendrier", JSONUtils.getJsonIntArray(this.rattachementsDuCalendrier));
 	}
 
 }

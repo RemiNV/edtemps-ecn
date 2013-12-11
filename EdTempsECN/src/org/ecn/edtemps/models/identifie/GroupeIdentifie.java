@@ -3,6 +3,7 @@ package org.ecn.edtemps.models.identifie;
 import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
@@ -78,10 +79,9 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 	public void setIdCreateur(int idCreateur) {
 		this.idCreateur = idCreateur;
 	}
-
-	@Override
-	public JsonValue toJson() {
-		return Json.createObjectBuilder()
+	
+	protected JsonObjectBuilder makeJsonObjectBuilder() {
+		JsonObjectBuilder builder = Json.createObjectBuilder()
 				.add("id", id)
 				.add("nom", nom)
 				.add("parentId", parentId)
@@ -89,10 +89,29 @@ public class GroupeIdentifie extends Groupe implements JSONAble {
 				.add("createur", idCreateur)
 				.add("rattachementAutorise", rattachementAutorise)
 				.add("estCours", estCours)
-				.add("estCalendrierUnique", estCalendrierUnique)
-				.add("calendriers", JSONUtils.getJsonIntArray(idCalendriers))
-				.add("proprietaires", JSONUtils.getJsonIntArray(idProprietaires))
-				.build();
+				.add("estCalendrierUnique", estCalendrierUnique);
+		
+		
+		if(idProprietaires != null) {
+			builder.add("proprietaires", JSONUtils.getJsonIntArray(idProprietaires));
+		}
+		else {
+			builder.addNull("proprietaires");
+		}
+		
+		if(idCalendriers != null) {
+			builder.add("calendriers", JSONUtils.getJsonIntArray(idCalendriers));
+		}
+		else {
+			builder.addNull("calendriers");
+		}
+		
+		return builder;
+	}
+
+	@Override
+	public final JsonValue toJson() {
+		return makeJsonObjectBuilder().build();
 	}
 
 }
