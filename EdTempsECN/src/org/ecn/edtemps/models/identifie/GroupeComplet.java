@@ -80,6 +80,21 @@ public class GroupeComplet extends GroupeIdentifie implements JSONAble {
 		if (parent!=null) {
 			builder.add("parent", parent.toJson());
 		}
+		
+		if(calendriers != null) {
+			builder.add("proprietaires", JSONUtils.getJsonArray(proprietaires));
+		}
+		else {
+			builder.addNull("proprietaires");
+		}
+		
+		if(proprietaires != null) {
+			builder.add("calendriers", JSONUtils.getJsonArray(calendriers));
+		}
+		else {
+			builder.addNull("calendriers");
+		}
+		
 		return builder;
 	}
 }

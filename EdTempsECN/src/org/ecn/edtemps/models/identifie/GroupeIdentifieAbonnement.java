@@ -44,9 +44,7 @@ public class GroupeIdentifieAbonnement extends GroupeIdentifie implements JSONAb
 	@Override
 	protected JsonObjectBuilder makeJsonObjectBuilder() {
 		return super.makeJsonObjectBuilder()
-				.add("parentId", parentId)
 				.add("abonnementObligatoire", abonnementObligatoire)
-				.add("estCalendrierUnique", estCalendrierUnique)
 				.add("rattachementsDuCalendrier", JSONUtils.getJsonIntArray(this.rattachementsDuCalendrier));
 	}
 
