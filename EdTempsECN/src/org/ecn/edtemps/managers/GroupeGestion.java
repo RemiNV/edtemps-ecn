@@ -1021,8 +1021,9 @@ public class GroupeGestion {
 	 * @param proprietaireId Identifiant du propriétaire à supprimer
 	 * @param groupeId Identifiant
 	 * @throws DatabaseException 
+	 * @throws EdtempsException Le groupe n'a pas d'autres propriétaire que celui supprimé
 	 */
-	public void supprimerProprietaire(int proprietaireId, int groupeId) throws DatabaseException {
+	public void supprimerProprietaire(int proprietaireId, int groupeId) throws EdtempsException {
 
 		try {
 			
@@ -1038,6 +1039,11 @@ public class GroupeGestion {
 				// Supprime le propriétaire pour le groupe
 				_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant" +
 						" WHERE utilisateur_id="+proprietaireId+" AND groupeparticipant_id="+groupeId);
+				res.close();
+			}
+			else {
+				res.close();
+				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir au moins un propriétaire");
 			}
 		
 			// Termine la transaction
