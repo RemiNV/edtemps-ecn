@@ -54,7 +54,7 @@ CREATE TABLE edt.GroupeParticipant (
 				groupeParticipant_estCours BOOLEAN NOT NULL DEFAULT FALSE,
 				groupeParticipant_estCalendrierUnique BOOLEAN NOT NULL,
 				groupeParticipant_aParentCours BOOLEAN NOT NULL DEFAULT FALSE,
-				groupeParticipant_createur INTEGER DEFAULT NULL,
+				groupeParticipant_createur INTEGER NOT NULL DEFAULT NULL,
 				CONSTRAINT groupeparticipant_pas_propre_parent CHECK (groupeparticipant_id <> groupeparticipant_id_parent),
   				CONSTRAINT groupeparticipant_pas_propre_parent_tmp CHECK (groupeparticipant_id <> groupeparticipant_id_parent_tmp),
   				CONSTRAINT groupeparticipant_calendrierUnique_non_rattachable CHECK (NOT groupeParticipant_estCalendrierUnique OR 
@@ -99,7 +99,7 @@ CREATE TABLE edt.Evenement (
                 eve_nom VARCHAR,
                 eve_dateDebut TIMESTAMP,
                 eve_dateFin TIMESTAMP,
-				eve_createur INTEGER,
+				eve_createur INTEGER NOT NULL,
 				CONSTRAINT eve_dates_coherentes CHECK (eve_dateDebut <= eve_dateFin),
                 CONSTRAINT eve_id PRIMARY KEY (eve_id)
 );
@@ -132,7 +132,7 @@ CREATE TABLE edt.Calendrier (
                 matiere_id INTEGER,
                 cal_nom VARCHAR UNIQUE,
                 typeCal_id INTEGER,
-		cal_createur INTEGER DEFAULT NULL,
+				cal_createur INTEGER NOT NULL DEFAULT NULL,
                 CONSTRAINT cal_id PRIMARY KEY (cal_id)
 );
 
