@@ -954,8 +954,12 @@ public class GroupeGestion {
 				" FROM edt.proprietairegroupeparticipant P WHERE P.utilisateur_id="+userId+")");
 
 		// Récupère et traite le résultat
+		UtilisateurGestion gestionnaireUtilisateur = new UtilisateurGestion(_bdd);
 		while (requete.next()) {
-			calendriersEnAttenteDeValidation.add(new CalendrierCompletInflater().inflateCalendrier(requete, _bdd));
+			CalendrierComplet cal = new CalendrierCompletInflater().inflateCalendrier(requete, _bdd);
+			cal.setCreateur(gestionnaireUtilisateur.getUtilisateur(cal.getIdCreateur()));
+			
+			calendriersEnAttenteDeValidation.add(cal);
 		}
 		requete.close();
 		

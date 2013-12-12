@@ -97,6 +97,7 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 		GroupeGestion gestionnaireGroupes = new GroupeGestion(bdd);
 		List<GroupeComplet> listeGroupes = gestionnaireGroupes.listerDemandesDeRattachementGroupes(userId);
 		List<CalendrierComplet> listeCalendriers = gestionnaireGroupes.listerDemandesDeRattachementCalendriers(userId);
+		
 		JsonObject data = Json.createObjectBuilder()
 				.add("listeGroupes", JSONUtils.getJsonArray(listeGroupes))
 				.add("listeCalendriers", JSONUtils.getJsonArray(listeCalendriers)).build();

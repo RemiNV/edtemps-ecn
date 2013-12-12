@@ -24,6 +24,9 @@ public class CalendrierComplet extends CalendrierIdentifie {
 
 	/** Liste contenant les id des groupes auxquels le calendrier est en attente de rattachement (hormis le groupe unique) */
 	protected List<Integer> idGroupesParentsTmp;
+	
+	/** Le créateur complet : uniquement récupéré quand nécessaire : pas présent dans le constructeur*/
+	protected UtilisateurIdentifie createur;
 
 
 	/**
@@ -42,9 +45,17 @@ public class CalendrierComplet extends CalendrierIdentifie {
 	public JsonObjectBuilder makeObjectBuilder() {
 		JsonObjectBuilder builder = super.makeObjectBuilder();
 		
-		return builder.add("estCours", this.estCours)
-			.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents))
-			.add("groupesParentsTmp", JSONUtils.getJsonIntArray(this.idGroupesParentsTmp));
+		if (this.createur==null) {
+			return builder.add("estCours", this.estCours)
+					.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents))
+					.add("groupesParentsTmp", JSONUtils.getJsonIntArray(this.idGroupesParentsTmp));
+		} else {
+			return builder.add("estCours", this.estCours)
+					.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents))
+					.add("groupesParentsTmp", JSONUtils.getJsonIntArray(this.idGroupesParentsTmp))
+					.add("createurComplet", this.createur.toJson());
+		}
+		
 	}
 
 	public List<Integer> getIdGroupesParents() {
@@ -55,6 +66,14 @@ public class CalendrierComplet extends CalendrierIdentifie {
 		this.idGroupesParents = idGroupesParents;
 	}
 	
+	public UtilisateurIdentifie getCreateur() {
+		return createur;
+	}
+
+	public void setCreateur(UtilisateurIdentifie createur) {
+		this.createur = createur;
+	}
+
 	public List<Integer> getIdGroupesParentsTmp() {
 		return idGroupesParentsTmp;
 	}
