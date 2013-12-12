@@ -57,7 +57,7 @@ public class CalendrierGestion {
 	 */
 	public int sauverCalendrier(Calendrier calendrier, List<Integer> idGroupesParents) throws EdtempsException {
 		
-		// Vérifier si l'utilisateur n'a pas créé trop de groupes
+		// Vérifier si l'utilisateur n'a pas créé trop de calendriers
 		UtilisateurGestion userGestion = new UtilisateurGestion(_bdd);
 		boolean limiteEtendue = userGestion.aDroit(ActionsEdtemps.LIMITE_CALENDRIERS_ETENDUE, calendrier.getIdCreateur());
 		int nbCalendriersDejaCrees = this.getNombresCalendriersCres(calendrier.getIdCreateur());
