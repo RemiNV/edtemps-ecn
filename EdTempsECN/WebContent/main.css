@@ -152,7 +152,9 @@ ul.button_nav li:last-child {
 	margin-left: 20px;
 }
 
-#form_chercher_salle, #resultat_chercher_salle, #form_creer_calendrier, #form_creer_groupe {
+#form_chercher_salle, #resultat_chercher_salle, #form_creer_calendrier, #form_creer_groupe,
+#select-abonnements, #dialog_detail_groupe, #dialog_gerer_groupe, #form_creer_groupe_parent_message,
+#form_creer_groupe_chargement, #tbl_mes_groupes_chargement {
 	display: none;
 }
 
