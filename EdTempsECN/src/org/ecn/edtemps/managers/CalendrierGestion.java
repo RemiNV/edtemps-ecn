@@ -173,14 +173,31 @@ public class CalendrierGestion {
 					+ "VALUES (" + idGroupeCree + ", " + idCalendrier + ")"
 					);
 			
-			// On lie le calendrier aux groupes parents désirés (en argument) -> rattachements en attente
+			// On lie le calendrier aux groupes parents désirés (en argument) 
+			//   -> rattachement en attente (champ "_tmp") si le créateur n'est pas propriétaire du groupe parent
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
 				int idGroupeParent = itr.next();
-				_bdd.executeUpdate(
-						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
-						+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
-						);
+				// Requête pour savoir si le créateur est propriétaire du groupe parent 
+				ResultSet estProprietaireGroupeParent = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.proprietairegroupeparticipant"
+						+ " WHERE groupeparticipant_id="+idGroupeParent
+						+ " AND utilisateur_id="+calendrier.getIdCreateur()
+				).executeQuery();
+				//Si le créateur est propriétaire (ie si le resultat de la requete est non vide)
+				if (estProprietaireGroupeParent.next()) {
+					_bdd.executeUpdate(
+							"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id, cal_id) "
+							+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
+							);
+				}
+				//S'il n'est pas propriétaire
+				else {
+					_bdd.executeUpdate(
+							"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
+							+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
+							);
+				}
 			}
 			
 			// Définition des propriétaires du calendrier 
@@ -384,10 +401,27 @@ public class CalendrierGestion {
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
 				int idGroupeARattacher = itr.next();
-				_bdd.executeUpdate(
-						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
-						+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
-						);
+				// Requête pour savoir si le créateur est propriétaire du groupe parent 
+				ResultSet estProprietaireGroupeParent = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.proprietairegroupeparticipant"
+						+ " WHERE groupeparticipant_id="+idGroupeARattacher
+						+ " AND utilisateur_id="+calId.getIdCreateur()  //l'attribut "créateur" contient l'id du propriétaire effectuant la modification (cf Servlet)
+				).executeQuery();
+				//Si le créateur est propriétaire (ie si le resultat de la requete est non vide)
+				if (estProprietaireGroupeParent.next()) {
+					_bdd.executeUpdate(
+							"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id, cal_id) "
+							+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
+							);
+				}
+				//S'il n'est pas propriétaire
+				else {
+					_bdd.executeUpdate(
+							"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
+							+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
+							);
+				}
+				
 			}
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
