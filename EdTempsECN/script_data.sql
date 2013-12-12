@@ -222,13 +222,13 @@
 	
 
 	/* Groupes uniques des calendriers */
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('OBJET TD', false, true, 5);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('GELOL TD', false, true, 5);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('dSIBAD TD', false, true, 5);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('Sport groupes K,L', false, true, 5);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('OBJET TD', false, true, 1);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('GELOL TD', false, true, 4);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('dSIBAD TD', false, true, 4);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('Sport groupes K,L', false, true, 4);
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('THERE CM Promo B', false, true, 5);
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('Réunions d''information EI1', false, true, 5);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('PGROU projet emploi du temps', false, true, 5);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('PGROU projet emploi du temps', false, true, 2);
 
 
 
@@ -404,29 +404,29 @@
 
 /* evenement */
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('OBJET', '2013-10-21 09:00:00', '2013-10-21 12:00:00', 5);
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('OBJET', '2013-10-23 14:00:00', '2013-10-23 17:00:00', 5);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('OBJET', '2013-10-21 09:00:00', '2013-10-21 12:00:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('OBJET', '2013-10-23 14:00:00', '2013-10-23 17:00:00', 1);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('GELOL', '2013-11-08 14:00:00', '2013-11-08 17:30:00', 5);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('GELOL', '2013-11-08 14:00:00', '2013-11-08 17:30:00', 3);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('dSIBAD', '2013-10-21 08:00:00', '2013-10-21 10:00:00', 5);
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('dSIBAD', '2013-10-22 10:15:00', '2013-10-22 12:15:00', 5);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('dSIBAD', '2013-10-21 08:00:00', '2013-10-21 10:00:00', 4);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('dSIBAD', '2013-10-22 10:15:00', '2013-10-22 12:15:00', 4);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('Sport', '2013-10-23 10:15:00', '2013-10-23 12:15:00', 5);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('Sport', '2013-10-23 10:15:00', '2013-10-23 12:15:00', 4);
 
 	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('Réunion d''information alternance', '2013-09-23 10:15:00', '2013-09-23 12:15:00', 5);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('THERE', '2013-10-24 13:45:00', '2013-10-24 15:45:00', 5);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('THERE', '2013-10-24 13:45:00', '2013-10-24 15:45:00', 4);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('Point d''avancement', '2013-10-23 17:00:00', '2013-10-23 18:00:00', 5);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('Point d''avancement', '2013-10-23 17:00:00', '2013-10-23 18:00:00', 6);
 
 	/* Test de la classe EvenementGestion */
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion1', '2013-10-01 08:00:00', '2013-10-01 10:00:00', 5);
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion2', '2013-10-01 10:15:00', '2013-10-01 12:15:00', 5);
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion3', '2013-10-01 13:45:00', '2013-10-01 15:45:00', 5);
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion4', '2013-10-01 16:00:00', '2013-10-01 18:00:00', 5);
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion5', '2013-10-04 08:00:00', '2013-10-04 10:00:00', 5);
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion6', '2013-10-04 10:15:00', '2013-10-04 12:15:00', 5);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion1', '2013-10-01 08:00:00', '2013-10-01 10:00:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion2', '2013-10-01 10:15:00', '2013-10-01 12:15:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion3', '2013-10-01 13:45:00', '2013-10-01 15:45:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion4', '2013-10-01 16:00:00', '2013-10-01 18:00:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion5', '2013-10-04 08:00:00', '2013-10-04 10:00:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion6', '2013-10-04 10:15:00', '2013-10-04 12:15:00', 1);
 		
 	
 	

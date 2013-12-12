@@ -70,8 +70,12 @@ public class CalendrierGestion {
 		String matiere = calendrier.getMatiere();
 		String nom = calendrier.getNom();
 		String type = calendrier.getType();
-		int idCreateur = calendrier.getIdCreateur();
+		Integer idCreateur = calendrier.getIdCreateur();
 		List<Integer> idProprietaires = calendrier.getIdProprietaires(); 
+		
+		if(idCreateur==null) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un calendrier doit avoir un créateur");
+		}
 		
 		if(!StringUtils.isAlphanumericSpace(nom)) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique");
@@ -150,12 +154,14 @@ public class CalendrierGestion {
 			// Requete préparée pour la création du groupe unique associé 
 			PreparedStatement req = _bdd.getConnection().prepareStatement(
 						"INSERT INTO edt.groupeparticipant "
-						+ "(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique) "
-						+ "VALUES (?, 'FALSE', 'TRUE') "
+						+ "(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique, groupeparticipant_createur) "
+						+ "VALUES (?, 'FALSE', 'TRUE', ?) "
 						+ "RETURNING groupeparticipant_id"
 						);
 			// nom du groupe unique = nom du calendrier
 			req.setString(1, nom); 
+			// créateur du groupe unique = créateur du calendrier
+			req.setInt(2, idCreateur); 
 			// On effectue la requete et récupère l'id du gpe de paricipant créé
 			ResultSet req_ligneCreee = req.executeQuery();
 			req_ligneCreee.next();

@@ -129,12 +129,12 @@ public class GroupeGestion {
 	 * @return l'identifiant de la ligne insérée
 	 * @throws EdtempsException
 	 */
-	public int sauverGroupe(String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, int userId) throws EdtempsException {
+	public int sauverGroupe(String nom, Integer idGroupeParent, boolean rattachementAutorise, boolean estCours, List<Integer> listeIdProprietaires, Integer userId) throws EdtempsException {
 
 		int idInsertion = -1;
 		
-		if (StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires)) {
-			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom et au moins un responsable");
+		if (StringUtils.isBlank(nom) || CollectionUtils.isEmpty(listeIdProprietaires) || userId==null) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom, un créateur et au moins un responsable");
 		}
 
 		if (!StringUtils.isAlphanumericSpace(nom)) {

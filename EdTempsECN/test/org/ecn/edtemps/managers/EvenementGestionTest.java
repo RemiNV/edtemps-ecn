@@ -171,12 +171,12 @@ public class EvenementGestionTest {
 		
 		
 		//Enregistrement de l'évenement
-		evenementGestion.sauverEvenement("EvenementTestJUnit", dateDebut, dateFin, listeIdCal, null, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
+		evenementGestion.sauverEvenement("EvenementTestJUnit", dateDebut, dateFin, listeIdCal, 1, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
 		
 		//Test de l'impossibilité d'enregistrer un évènement au même moment dans une même salle
 		int resultatException = 0;
 		try{
-			evenementGestion.sauverEvenement("EvenementTestJUnit2", dateDebut, dateFin, listeIdCal, null, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
+			evenementGestion.sauverEvenement("EvenementTestJUnit2", dateDebut, dateFin, listeIdCal, 1, listeIdSalles, listeIdIntervenants, listeIdResponsables, true);
 		}
 		catch(EdtempsException e) {
 			 
