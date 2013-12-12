@@ -66,7 +66,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 					me.jqCreationGroupeForm.find("#form_creer_groupe_chargement").css("display", "none");
 				}
 				
-				// Récupération des propriétaires potentiels
+				// Pré-rempli la boite de dialogue
 				me.preRemplirDialog(groupe);
 			});
 
@@ -320,10 +320,8 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 			if (resultCode == RestManager.resultCode_Success) {
 				me.multiWidgetProprietaires = new MultiWidget(
 						me.jqCreationGroupeForm.find("#form_creer_groupe_proprietaire"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(utilisateurs, 1, 230));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(utilisateurs, 3, 230));
 				
-				me.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: me.restManager.getUserId(), readOnly: true }]);
-
 				callback();
 			} else if (data.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de la liste des utilisateurs potentiellement propriétaires ; vérifiez votre connexion.");
@@ -345,7 +343,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 		this.jqCreationGroupeForm.find("#form_creer_groupe_rattachement").prop("checked", false);
 		this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", false);
 		if (this.multiWidgetProprietaires != null) {
-			this.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: this.restManager.getUserId(), readOnly: true }]);
+			this.multiWidgetProprietaires.clear();
 		}
 
 		// Enlève les bordures sur le champ nom
@@ -379,12 +377,20 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 			this.jqCreationGroupeForm.find("#form_creer_groupe_cours").prop("checked", groupe.estCours);
 			
 			// Sélection des propriétaires
-			var listeProprietaires = groupe.proprietaires;
+			var listeProprietaires = UtilisateurGestion.makeUtilisateursAutocomplete(groupe.proprietaires);
 			for (var i=0, maxI = listeProprietaires.length; i<maxI; i++) {
-				listeProprietaires[i].readOnly = (listeProprietaires[i].id==groupe.createur);
+				if (listeProprietaires[i].value!=groupe.createur) {
+					listeProprietaires[i].readOnly = false;
+				} else {
+					listeProprietaires.splice(i, 1);
+				}
 			}
-			this.multiWidgetProprietaires.setValues(UtilisateurGestion.makeUtilisateursAutocomplete(listeProprietaires));
+			listeProprietaires.unshift({ label: "Vous-même", value: this.restManager.getUserId(), readOnly: true });
+			
+			this.multiWidgetProprietaires.setValues(listeProprietaires);
 
+		} else {
+			this.multiWidgetProprietaires.setValues([{ label: "Vous-même", value: this.restManager.getUserId(), readOnly: true }]);
 		}
 
 	};

@@ -170,7 +170,7 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		if (casModifier) {
 			int id = Integer.parseInt(req.getParameter("id"));
 			// Création d'un calendrier identifié, contenant les informations récupérées
-			CalendrierIdentifie cal = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id, -1);  //-1 car on se fiche de savoir qui est le créateur
+			CalendrierIdentifie cal = new CalendrierIdentifie(nom, type, matiere, idProprietaires, id, userId);  //ici, l'attribut "créateur" contient l'id du propriétaire effectuant la modification
 			// Modification du calendrier = modification de la ligne correspondante dans la BDD
 			calendrierGestion.modifierCalendrier(cal, idGroupesParents);
 		}

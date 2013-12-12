@@ -487,7 +487,7 @@ public class UtilisateurGestion {
 	public UtilisateurIdentifie getUtilisateur(int idUtilisateur) throws DatabaseException{
 		try {
 			ResultSet reponse = bdd.executeRequest(
-					"SELECT utilisateur_nom, utilisateur.prenom, utilisateur_email, utilisateur_id "
+					"SELECT utilisateur_nom, utilisateur_prenom, utilisateur_email, utilisateur_id "
 					+ "FROM edt.utilisateur "
 					+ "WHERE utilisateur_id = " + idUtilisateur);
 			UtilisateurIdentifie res = null;

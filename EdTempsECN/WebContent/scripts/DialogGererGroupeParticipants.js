@@ -77,17 +77,31 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 
 		// Préparation du template pour remplir le tableau des demandes de rattachement
 		var tableRattachementTemplate = 
-			"<% _.each(elements, function(element) { %> <tr id='dialog_gerer_groupe_table_ligne_<%= element.id %>'>" +
-				"<td class='dialog_gerer_groupe_table_noms'><%= element.nom %></td>" +
+			"<% _.each(elements, function(e) { %> <tr id='dialog_gerer_groupe_table_ligne_<%= e.id %>'>" +
+				"<td class='dialog_gerer_groupe_table_noms'><%= e.nom %> (<span title='<%= e.adresseMailProprietaire %>'><%= e.nomPrenomProprietaire %></span>)</td>" +
 				"<td class='dialog_gerer_groupe_table_boutons'>" +
-					"<input type='button' demandeur-id='<%= element.id %>' class='button dialog_gerer_groupe_accepter' value='Accepter' />" +
-					"<input type='button' demandeur-id='<%= element.id %>' class='button dialog_gerer_groupe_refuser' value='Refuser' />" +
+					"<input type='button' demandeur-id='<%= e.id %>' class='button dialog_gerer_groupe_accepter' value='Accepter' />" +
+					"<input type='button' demandeur-id='<%= e.id %>' class='button dialog_gerer_groupe_refuser' value='Refuser' />" +
 				"</td>" +
 			"</tr> <% }); %>";
 
 		// Ecriture de la partie sur les groupes
-		if (listeGroupes.length>0) {
+		var nbGroupes = listeGroupes.length;
+		if (nbGroupes>0) {
 
+			// Récupération du nom du créateur est écriture dans un nouvel attribut des groupes pour avoir l'accès facilement dans le template
+			for (var i=0; i<nbGroupes; i++) {
+				var groupe = listeGroupes[i];
+				for (var j=0, maxJ=groupe.proprietaires.length; j<maxJ; j++) {
+					var proprietaire = groupe.proprietaires[j];
+					if (proprietaire.id==groupe.createur) {
+						groupe.nomPrenomProprietaire = proprietaire.prenom + " " + proprietaire.nom;
+						groupe.adresseMailProprietaire = proprietaire.email;
+					}
+				}
+			}
+
+			// Ecriture du tableau dans la boîte de dialogue
 			var html = "<tr><td colspan='2' class='dialog_gerer_groupe_titre'>Liste de(s) groupe(s) qui demande(nt) le rattachement à ce groupe :</td></tr>";
 			html += _.template(tableRattachementTemplate, {elements: listeGroupes});
 			this.jqDialog.find("#dialog_gerer_groupe_groupes").html(html);
@@ -104,8 +118,18 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 			this.jqDialog.find("#dialog_gerer_groupe_groupes").html("");
 		}
 
+		
+		
 		// Ecriture de la partie sur les calendriers
-		if (listeCalendriers.length>0) {
+		var nbCalendriers = listeCalendriers.length;
+		if (nbCalendriers>0) {
+
+			// Récupération du nom du créateur est écriture dans un nouvel attribut des calendriers pour avoir l'accès facilement dans le template
+			for (var i=0; i<nbCalendriers; i++) {
+				var cal = listeCalendriers[i];
+				cal.nomPrenomProprietaire = cal.createurComplet.prenom + " " + cal.createurComplet.nom;
+				cal.adresseMailProprietaire = cal.createurComplet.email;
+			}
 
 			var html = "<tr><td colspan='2' class='dialog_gerer_groupe_titre'>Liste de(s) calendrier(s) qui demande(nt) le rattachement à ce groupe :</td></tr>";
 			html += _.template(tableRattachementTemplate, {elements: listeCalendriers});

@@ -78,61 +78,61 @@
 	INSERT INTO edt.typecalendrier(typecal_libelle) VALUES('CM');
 
 /* calendrier */
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'OBJET TD', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'OBJET TD', typecalendrier.typecal_id, 1
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='OBJET'
 		AND typecalendrier.typecal_libelle='TD' LIMIT 1;
 
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'GELOL TD', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'GELOL TD', typecalendrier.typecal_id, 4
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='GELOL'
 		AND typecalendrier.typecal_libelle='TD' LIMIT 1;
 
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'dSIBAD TD', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'dSIBAD TD', typecalendrier.typecal_id, 4
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='dSIBAD'
 		AND typecalendrier.typecal_libelle='TD' LIMIT 1;
 
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'Sport groupes K,L', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'Sport groupes K,L', typecalendrier.typecal_id, 4
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='Sport'
 		AND typecalendrier.typecal_libelle='TP' LIMIT 1;
 
-	INSERT INTO edt.calendrier(cal_nom) VALUES('Réunions d''information EI1');
+	INSERT INTO edt.calendrier(cal_nom, cal_createur) VALUES('Réunions d''information EI1', 5);
 
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'THERE CM Promo B', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'THERE CM Promo B', typecalendrier.typecal_id, 5
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='THERE'
 		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
 
-	INSERT INTO edt.calendrier(cal_nom) VALUES('PGROU projet emploi du temps');
+	INSERT INTO edt.calendrier(cal_nom, cal_createur) VALUES('PGROU projet emploi du temps', 2);
 	
 		/* Calendriers pour le test de la classe EvenementGestion */
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'testEvenementGestion1', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'testEvenementGestion1', typecalendrier.typecal_id, 1
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='THERE'
 		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
 	
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'testEvenementGestion2', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'testEvenementGestion2', typecalendrier.typecal_id, 1
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='THERE'
 		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
 	
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'testEvenementGestionPere', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'testEvenementGestionPere', typecalendrier.typecal_id, 1
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='THERE'
 		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
 	
-	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id)
-		SELECT matiere.matiere_id, 'testEvenementGestionFils', typecalendrier.typecal_id
+	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
+		SELECT matiere.matiere_id, 'testEvenementGestionFils', typecalendrier.typecal_id, 1
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='THERE'
 		AND typecalendrier.typecal_libelle='CM' LIMIT 1;
@@ -181,54 +181,80 @@
 		FROM edt.utilisateur CROSS JOIN edt.calendrier
 		WHERE utilisateur.utilisateur_token='6' OR utilisateur.utilisateur_token='2'
 		AND calendrier.cal_nom='PGROU projet emploi du temps' LIMIT 2;
+		
+	/* Calendriers pour le test de la classe EvenementGestion */
+	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
+		SELECT utilisateur.utilisateur_id, calendrier.cal_id
+		FROM edt.utilisateur CROSS JOIN edt.calendrier
+		WHERE utilisateur.utilisateur_token='1'
+		AND calendrier.cal_nom='testEvenementGestion1' LIMIT 1;
+
+	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
+		SELECT utilisateur.utilisateur_id, calendrier.cal_id
+		FROM edt.utilisateur CROSS JOIN edt.calendrier
+		WHERE utilisateur.utilisateur_token='1'
+		AND calendrier.cal_nom='testEvenementGestion2' LIMIT 1;
+	
+	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
+		SELECT utilisateur.utilisateur_id, calendrier.cal_id
+		FROM edt.utilisateur CROSS JOIN edt.calendrier
+		WHERE utilisateur.utilisateur_token='1'
+		AND calendrier.cal_nom='testEvenementGestionPere' LIMIT 1;
+	
+	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
+		SELECT utilisateur.utilisateur_id, calendrier.cal_id
+		FROM edt.utilisateur CROSS JOIN edt.calendrier
+		WHERE utilisateur.utilisateur_token='1'
+		AND calendrier.cal_nom='testEvenementGestionFils' LIMIT 1;
+		
 
 
 /* groupedeparticipant */
 
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		VALUES('Elèves ingénieur', false, null, true, false);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		VALUES('Elèves ingénieur', false, null, true, false, 5);
 		
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'Electifs', false, groupeparticipant.groupeparticipant_id, false, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'Electifs', false, groupeparticipant.groupeparticipant_id, false, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
 
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'EI1', false, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'EI1', false, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
 
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'EI1 Promo B', false, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI1' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'EI1 Promo B', false, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI1' LIMIT 1;
 
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'EI1 Groupe K', true, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI1 Promo B' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'EI1 Groupe K', true, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI1 Promo B' LIMIT 1;
 
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'EI1 Groupe L', true, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI1 Promo B' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'EI1 Groupe L', true, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI1 Promo B' LIMIT 1;
 
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'EI3', false, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'EI3', false, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
 
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'EI3 Info', true, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI3' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'EI3 Info', true, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI3' LIMIT 1;
 	
-		/* Groupes pour le test unitaire de la classe evenement gestion*/
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		VALUES('testEvenementGestionPere', false, null, true, false);
+	/* Groupes pour le test unitaire de la classe evenement gestion*/
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		VALUES('testEvenementGestionPere', false, null, true, false, 5);
 	
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'testEvenementGestion', true, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='testEvenementGestionPere' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'testEvenementGestion', true, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='testEvenementGestionPere' LIMIT 1;
 		
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique)
-		SELECT 'testEvenementGestionFils', true, groupeparticipant.groupeparticipant_id, true, false FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='testEvenementGestion' LIMIT 1;
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'testEvenementGestionFils', true, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='testEvenementGestion' LIMIT 1;
 	
 	
 
 	/* Groupes uniques des calendriers */
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique) VALUES('OBJET TD', false, true);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique) VALUES('GELOL TD', false, true);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique) VALUES('dSIBAD TD', false, true);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique) VALUES('Sport groupes K,L', false, true);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique) VALUES('THERE CM Promo B', false, true);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique) VALUES('Réunions d''information EI1', false, true);
-	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique) VALUES('PGROU projet emploi du temps', false, true);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('OBJET TD', false, true, 1);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('GELOL TD', false, true, 4);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('dSIBAD TD', false, true, 4);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('Sport groupes K,L', false, true, 4);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('THERE CM Promo B', false, true, 5);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('Réunions d''information EI1', false, true, 5);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('PGROU projet emploi du temps', false, true, 2);
 
 
 
@@ -404,29 +430,29 @@
 
 /* evenement */
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('OBJET', '2013-10-21 09:00:00', '2013-10-21 12:00:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('OBJET', '2013-10-23 14:00:00', '2013-10-23 17:00:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('OBJET', '2013-10-21 09:00:00', '2013-10-21 12:00:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('OBJET', '2013-10-23 14:00:00', '2013-10-23 17:00:00', 1);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('GELOL', '2013-11-08 14:00:00', '2013-11-08 17:30:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('GELOL', '2013-11-08 14:00:00', '2013-11-08 17:30:00', 3);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('dSIBAD', '2013-10-21 08:00:00', '2013-10-21 10:00:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('dSIBAD', '2013-10-22 10:15:00', '2013-10-22 12:15:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('dSIBAD', '2013-10-21 08:00:00', '2013-10-21 10:00:00', 4);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('dSIBAD', '2013-10-22 10:15:00', '2013-10-22 12:15:00', 4);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('Sport', '2013-10-23 10:15:00', '2013-10-23 12:15:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('Sport', '2013-10-23 10:15:00', '2013-10-23 12:15:00', 4);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('Réunion d''information alternance', '2013-09-23 10:15:00', '2013-09-23 12:15:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('Réunion d''information alternance', '2013-09-23 10:15:00', '2013-09-23 12:15:00', 5);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('THERE', '2013-10-24 13:45:00', '2013-10-24 15:45:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('THERE', '2013-10-24 13:45:00', '2013-10-24 15:45:00', 4);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('Point d''avancement', '2013-10-23 17:00:00', '2013-10-23 18:00:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('Point d''avancement', '2013-10-23 17:00:00', '2013-10-23 18:00:00', 6);
 
 	/* Test de la classe EvenementGestion */
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion1', '2013-10-01 08:00:00', '2013-10-01 10:00:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion2', '2013-10-01 10:15:00', '2013-10-01 12:15:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion3', '2013-10-01 13:45:00', '2013-10-01 15:45:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion4', '2013-10-01 16:00:00', '2013-10-01 18:00:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion5', '2013-10-04 08:00:00', '2013-10-04 10:00:00');
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin) VALUES('testEvenementGestion6', '2013-10-04 10:15:00', '2013-10-04 12:15:00');
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion1', '2013-10-01 08:00:00', '2013-10-01 10:00:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion2', '2013-10-01 10:15:00', '2013-10-01 12:15:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion3', '2013-10-01 13:45:00', '2013-10-01 15:45:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion4', '2013-10-01 16:00:00', '2013-10-01 18:00:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion5', '2013-10-04 08:00:00', '2013-10-04 10:00:00', 1);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('testEvenementGestion6', '2013-10-04 10:15:00', '2013-10-04 12:15:00', 1);
 		
 	
 	
@@ -699,14 +725,13 @@
 
 		
 /* droits */
-INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (1, 'CREER_GROUPE');
-INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (2, 'RATTACHER_CALENDRIER_GROUPE');
-INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (3, 'CREER_GROUPE_COURS');
-INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (4, 'CHOISIR_PROPRIETAIRES_EVENEMENT');
-INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (5, 'LIMITE_CALENDRIERS_ETENDUE');
+	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (1, 'CREER_GROUPE');
+	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (2, 'RATTACHER_CALENDRIER_GROUPE');
+	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (3, 'CREER_GROUPE_COURS');
+	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (4, 'CHOISIR_PROPRIETAIRES_EVENEMENT');
+	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (5, 'LIMITE_CALENDRIERS_ETENDUE');
 
 /* aledroitde */
-
 	/* L'enseignant et l'administration peuvent tout faire */
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 1);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 2);
@@ -722,10 +747,5 @@ INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (5, 'LIMITE_CALENDRIERS
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 1);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 2);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 4);
-
-
-
-
-
 
 COMMIT;
