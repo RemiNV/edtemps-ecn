@@ -181,6 +181,32 @@
 		FROM edt.utilisateur CROSS JOIN edt.calendrier
 		WHERE utilisateur.utilisateur_token='6' OR utilisateur.utilisateur_token='2'
 		AND calendrier.cal_nom='PGROU projet emploi du temps' LIMIT 2;
+		
+	/* Calendriers pour le test de la classe EvenementGestion */
+	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
+		SELECT utilisateur.utilisateur_id, calendrier.cal_id
+		FROM edt.utilisateur CROSS JOIN edt.calendrier
+		WHERE utilisateur.utilisateur_token='1'
+		AND calendrier.cal_nom='testEvenementGestion1' LIMIT 1;
+
+	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
+		SELECT utilisateur.utilisateur_id, calendrier.cal_id
+		FROM edt.utilisateur CROSS JOIN edt.calendrier
+		WHERE utilisateur.utilisateur_token='1'
+		AND calendrier.cal_nom='testEvenementGestion2' LIMIT 1;
+	
+	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
+		SELECT utilisateur.utilisateur_id, calendrier.cal_id
+		FROM edt.utilisateur CROSS JOIN edt.calendrier
+		WHERE utilisateur.utilisateur_token='1'
+		AND calendrier.cal_nom='testEvenementGestionPere' LIMIT 1;
+	
+	INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)
+		SELECT utilisateur.utilisateur_id, calendrier.cal_id
+		FROM edt.utilisateur CROSS JOIN edt.calendrier
+		WHERE utilisateur.utilisateur_token='1'
+		AND calendrier.cal_nom='testEvenementGestionFils' LIMIT 1;
+		
 
 
 /* groupedeparticipant */
@@ -209,7 +235,7 @@
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
 		SELECT 'EI3 Info', true, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI3' LIMIT 1;
 	
-		/* Groupes pour le test unitaire de la classe evenement gestion*/
+	/* Groupes pour le test unitaire de la classe evenement gestion*/
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
 		VALUES('testEvenementGestionPere', false, null, true, false, 5);
 	
