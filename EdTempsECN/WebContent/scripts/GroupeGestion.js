@@ -66,7 +66,7 @@ define(["RestManager"], function(RestManager) {
 	 * @param {function} callback Fonction appellée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryGroupesUtilisateurProprietaire = function(callback) {
-		this.restManager.effectuerRequete("POST", "groupesutilisateurproprietaire", {
+		this.restManager.effectuerRequete("GET", "groupesutilisateurproprietaire", {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {

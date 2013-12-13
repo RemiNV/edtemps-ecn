@@ -62,7 +62,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 					doModifierGroupeParticipants(userId, bdd, req, resp);
 					break;
 				case "/supprimer":
-					doSupprimerGroupeParticipants(bdd, req, resp);
+					doSupprimerGroupeParticipants(userId, bdd, req, resp);
 					break;
 				case "/nePlusEtreProprietaire":
 					doSupprimerProprietaire(userId, bdd, req, resp);
@@ -208,6 +208,13 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		JsonArray jsonIdProprietaires = jsonGroupe.getJsonArray("proprietaires");
 		List<Integer> listeIdProprietaires = (jsonIdProprietaires == null) ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdProprietaires);
 		
+		// Vérifie que l'utilisateur est propriétaire du groupe
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		GroupeIdentifie groupe = groupeGestion.getGroupe(idGroupe);
+		if (!groupe.getIdProprietaires().contains(userId)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Tentative de modifier un groupe sans être propriétaire");
+		}
+
 		// Vérification que l'objet est bien complet
 		if (StringUtils.isBlank(nom) || rattachementAutorise == null || estCours == null || CollectionUtils.isEmpty(listeIdProprietaires)) {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet groupe incomplet : paramètres manquants", null));
@@ -216,7 +223,6 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 		}
 
 		// Modification
-		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		groupeGestion.modifierGroupe(idGroupe, nom, idGroupeParent, rattachementAutorise, estCours, listeIdProprietaires, userId);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe ajouté", null));
 	}
@@ -225,6 +231,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	/**
 	 * Supprimer un groupe de participants
 	 * 
+	 * @param userId Identifiant de l'utilisateur qui fait la demande de modification
 	 * @param bdd Gestionnaire de la base de données
 	 * @param resp Réponse à compléter
 	 * @param requete Requête
@@ -232,9 +239,23 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */
-	protected void doSupprimerGroupeParticipants(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+	protected void doSupprimerGroupeParticipants(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
+		
+		// Récupération de l'identifiant du groupe à supprimer
+		Integer id = req.getParameter("id")!=null ? Integer.valueOf(req.getParameter("id")) : null;
+		if (id==null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Tentative de supprimer un groupe avec un identifiant incorrect");
+		}
+		
+		// Vérifie que l'utilisateur est propriétaire du groupe
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		groupeGestion.supprimerGroupe(Integer.valueOf(req.getParameter("id")), true);
+		GroupeIdentifie groupe = groupeGestion.getGroupe(id);
+		if (!groupe.getIdProprietaires().contains(userId)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Tentative de supprimer un groupe sans être propriétaire");
+		}
+
+		// Supprime le groupe
+		groupeGestion.supprimerGroupe(id, true);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Groupe supprimé", null));
 	}
 	
