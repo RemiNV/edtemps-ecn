@@ -271,7 +271,7 @@ table.liste_materiel th {
 }
 
 #bloc_vos_agendas .header {
-	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	background-color: #f6f6f6;
 	border-bottom: 1px solid #bfc2bf;
 	padding: 5px 10px;
 	border-top-right-radius: 5px;
@@ -731,16 +731,9 @@ input.valide {
 }
 
 .fc-first .fc-widget-header {
-	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	background-color: #f6f6f6;
 	font-size: 0.8em;
 	padding: 2px;
-}
-
-/* On ne redéfinit pas le week-number fc-widget-header (barre du haut), 
- * mais pour les autres (côté) on applique la règle */
-.fc-first .fc-agenda-axis.fc-widget-header:not(.fc-week-number), .fc-week-number {
-	background-image: none;
-	background-color: #f6f6f6;
 }
 
 /** Choix du groupe et de la salle pour les vues groupe et salle */
