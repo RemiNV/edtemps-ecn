@@ -45,7 +45,6 @@ define([ "jquery", "jqueryui" ], function() {
 		
 		// Création de l'élément à ajouter à chaque clic sur le bouton "ajouter"
 		this.newLine = jqControl.parent().clone();
-		console.log(jqControl.width());
 		var jqBtnSupprimer = $("<img src='img/corbeille.png' alt='Supprimer la ligne' class='multiwidget_btn' />");
 		this.newLine.append(jqBtnSupprimer);
 		
