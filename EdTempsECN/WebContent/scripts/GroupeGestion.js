@@ -129,7 +129,7 @@ define(["RestManager"], function(RestManager) {
 	 * @param {function} callback Fonction appellée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryGroupesEtCalendriersEnAttenteRattachement = function(callback) {
-		this.restManager.effectuerRequete("POST", "rattachementgroupe/listermesdemandes", {
+		this.restManager.effectuerRequete("GET", "rattachementgroupe/listermesdemandes", {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {

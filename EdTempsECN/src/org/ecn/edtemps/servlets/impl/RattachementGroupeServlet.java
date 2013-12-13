@@ -47,9 +47,6 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 		try {
 			// Renvoies vers les différentes fonctionnalités
 			switch (pathInfo) {
-				case "/listermesdemandes":
-					doListerMesDemandesDeRattachement(userId, bdd, req, resp);
-					break;
 				case "/decidergroupe":
 					doDeciderDemandeDeRattachementGroupe(userId, bdd, req, resp);
 					break;
@@ -66,8 +63,36 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 			logger.error("Erreur avec le servlet de rattachement à un groupe de participants (listerDemandes ou accepter ou refuser)", e);
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 			bdd.close();
+		}
+	}
+	
+	/**
+	 * Méthode générale du servlet appelée par la requête GET
+	 * Elle gère l'action listermesdemandes.
+	 * @param userId Identifiant de l'utilisateur qui a fait la requête
+	 * @param bdd Gestionnaire de la base de données
+	 * @param req Requête
+	 * @param resp Réponse pour le client
+	 */
+	@Override
+	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		
+		try {
+			if(req.getPathInfo().equals("/listermesdemandes")) {
+				doListerMesDemandesDeRattachement(userId, bdd, req, resp);
+			}
+			else {
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+			}
+			
+			bdd.close();
+		}
+		catch(EdtempsException e) {
+			logger.error("Erreur de récupération des demandes de rattachement", e);
+			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			bdd.close();
 		} catch(SQLException e) {
-			logger.error("Erreur avec le servlet de rattachement à un groupe de participants (listerDemandes ou accepter ou refuser)", e);
+			logger.error("Erreur de récupération des demandes de rattachement", e);
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.DATABASE_ERROR, e.getMessage(), null));
 			bdd.close();
 		}
