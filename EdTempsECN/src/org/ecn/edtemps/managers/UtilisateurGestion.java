@@ -349,7 +349,7 @@ public class UtilisateurGestion {
 			if(userId != null) { // Utilisateur déjà présent en base
 				// Token valable 1h, heure du serveur de base de donnée. Le token est constitué de caractères alphanumériques et de "_" : pas d'échappement nécessaire
 				PreparedStatement statement = conn.prepareStatement("UPDATE edt.utilisateur SET utilisateur_token=?, utilisateur_nom=?, utilisateur_prenom=?, " +
-						"utilisateur_email=?, utilisateur_token_expire=now() + interval '1 hour' WHERE utilisateur_id=?");
+						"utilisateur_email=?, utilisateur_active=TRUE, utilisateur_token_expire=now() + interval '1 hour' WHERE utilisateur_id=?");
 				
 				statement.setString(1, token);
 				statement.setString(2, nom);
