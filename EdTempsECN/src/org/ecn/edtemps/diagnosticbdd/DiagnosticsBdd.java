@@ -359,25 +359,26 @@ public class DiagnosticsBdd {
 	 * @return le testeur
 	 */
 	protected TestBdd createTestGroupesSansProprietaire(int id) {
-		return new TestEntiteIncorrecte("Présence de groupes de participants sans propriétaire", id, "Supprimer ces groupes de participants") {
+		return new TestEntiteIncorrecte("Présence de groupes de participants sans propriétaire", id, "Indiquer le créateur du groupe comme propriétaire") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
-				GroupeGestion groupeGestion = new GroupeGestion(bdd);
-				for(int id : ids) {
-					groupeGestion.supprimerGroupe(id, true);
+				for (int id : ids) {
+					bdd.executeUpdate("INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)" +
+					" SELECT groupeparticipant.groupeparticipant_createur, "+id+" FROM edt.groupeparticipant" +
+					" WHERE groupeparticipant.groupeparticipant_id="+id+" LIMIT 1");
 				}
 				
-				return ids.size() + " groupes de participants supprimés";
+				return ids.size() + " groupes de participants réparés";
 			}
 
 			@Override
 			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
 				return bdd.getConnection().prepareStatement("SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant" +
 					" LEFT JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id" +
-					" LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.groupeparticipant_id=groupeparticipant.groupeparticipant_id" +
 					" GROUP BY groupeparticipant.groupeparticipant_id" +
-					" HAVING COUNT(proprietairegroupeparticipant.utilisateur_id) = 0 AND COUNT(calendrierappartientgroupe.calendrierappartientgroupe_id) = 0");
+					" HAVING COUNT(proprietairegroupeparticipant.utilisateur_id) = 0" +
+					" AND NOT groupeparticipant.groupeparticipant_estcalendrierunique");
 			}
 
 			@Override
