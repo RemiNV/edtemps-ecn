@@ -503,7 +503,7 @@ public class DiagnosticsBdd {
 	
 	
 	protected TestBdd createTestGroupesNonCoursSansProprietaireActif(int id) {
-		return new TestEntiteIncorrecte("Présence de groupes sans propriétaire actif n'étant pas des groupes de cours ni des groupes \"calendrier unique\"", id, "Supprimer ces groupes") {
+		return new TestEntiteIncorrecte("Présence de groupes sans propriétaire actif n'étant pas des groupes de cours ni des groupes \"calendrier unique\" (\"vieux groupes\")", id, "Supprimer ces groupes") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
@@ -534,7 +534,7 @@ public class DiagnosticsBdd {
 	}
 	
 	protected TestBdd createTestCalendriersNonCoursSansProprietaireActif(int id) {
-		return new TestEntiteIncorrecte("Présence de calendriers sans propriétaire actif n'étant pas des calendriers de cours", id, "Supprimer ces calendriers") {
+		return new TestEntiteIncorrecte("Présence de calendriers sans propriétaire actif n'étant pas des calendriers de cours (\"vieux calendriers\")", id, "Supprimer ces calendriers") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
