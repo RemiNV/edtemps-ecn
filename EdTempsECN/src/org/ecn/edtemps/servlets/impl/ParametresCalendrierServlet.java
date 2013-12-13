@@ -2,6 +2,8 @@ package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,7 @@ import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet permettant la création, la modification et la suppression d'un calendrier
+ * Servlet permettant la création, la modification, le listing et la suppression d'un calendrier
  * @author Maxime Terrade
  *
  */
@@ -43,7 +45,6 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 			CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 			JsonValue data;
 			try {
-				// Récupération de la liste des utilisateurs potentiellement proprietaires
 				List<CalendrierComplet> listeCalendriers = calendrierGestion.listerCalendriersUtilisateur(userId);
 				// Création de la réponse
 				data = Json.createObjectBuilder()
@@ -71,12 +72,8 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		String pathInfo = req.getPathInfo();
 		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 		
-		// Page /calendrier/, accessible en GET et non en POST
-		if(pathInfo == null) { 
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-		}
 		// Page /calendrier/creation
-		else if(pathInfo.equals("/creation")) { 
+		if(pathInfo.equals("/creation")) { 
 			try {
 				creationOuModificationCalendrier(false, userId, calendrierGestion, req);
 				// Génération réponse si aucune exception
@@ -91,7 +88,16 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		// Page /calendrier/modification
 		else if(pathInfo.equals("/modification")) { 
 			try {
-				creationOuModificationCalendrier(true, userId, calendrierGestion, req);
+				// On vérifie que l'utilisateur est bien propriétaire du calendrier 
+				ResultSet estProprietaireCalendrier = bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.proprietairecalendrier"
+						+ " WHERE cal_id="+ Integer.parseInt(req.getParameter("id"))
+						+ " AND utilisateur_id="+userId
+				).executeQuery();
+				if (estProprietaireCalendrier.next()) { //si le résultat de la requete est non vide
+					// Modification du calendrier
+					creationOuModificationCalendrier(true, userId, calendrierGestion, req);
+				}
 				// Génération réponse si aucune exception
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Modification calendrier réussie", null));
 				logger.debug("Modification calendrier réussie");
@@ -99,13 +105,25 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 				// Génération réponse si exception
 				resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 				logger.error("Erreur lors de la modification du calendrier", e);
+			} catch (SQLException e) {
+				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.DATABASE_ERROR, e.getMessage(), null));
+				logger.error("Erreur lors de la modification du calendrier (erreur SQL)", e);
 			}
 		}
 		// Page /calendrier/suppression
 		else if(pathInfo.equals("/suppression")) { 
 			try {
 				int idCalendrierASupprimer = Integer.parseInt(req.getParameter("id"));
-				calendrierGestion.supprimerCalendrier(idCalendrierASupprimer, true);
+				// On vérifie que l'utilisateur est bien propriétaire du calendrier 
+				ResultSet estProprietaireCalendrier = bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.proprietairecalendrier"
+						+ " WHERE cal_id="+idCalendrierASupprimer
+						+ " AND utilisateur_id="+userId
+				).executeQuery();
+				if (estProprietaireCalendrier.next()) { //si le résultat de la requete est non vide
+					// Suppression du calendrier
+					calendrierGestion.supprimerCalendrier(idCalendrierASupprimer, true);
+				}
 				// Génération réponse si aucune exception
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Suppression calendrier réussie", null));
 				logger.debug("Suppression calendrier réussie");
@@ -113,13 +131,16 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 				// Génération réponse si exception
 				resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 				logger.error("Erreur lors de la suppression du calendrier", e);
+			} catch (SQLException e) {
+				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.DATABASE_ERROR, e.getMessage(), null));
+				logger.error("Erreur lors de la suppression du calendrier (erreur SQL)", e);
 			}
 		}
 		// Page /calendrier/nePlusEtreProprietaire
 		else if(pathInfo.equals("/nePlusEtreProprietaire")) { 
 			try {
 				int idCalendrier = Integer.parseInt(req.getParameter("idCalendrier"));
-				calendrierGestion.nePlusEtreProprietaire(idCalendrier, userId);
+				calendrierGestion.nePlusEtreProprietaire(idCalendrier, userId, true);
 				// Génération réponse si aucune exception
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Action NePlusEtreProprietaire réussie", null));
 				logger.debug("Action NePlusEtreProprietaire réussie");

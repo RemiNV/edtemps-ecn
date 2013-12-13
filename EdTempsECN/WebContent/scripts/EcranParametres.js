@@ -567,7 +567,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					// Listeners pour les boutons "ne plus être propriétaire"
 					$("#tbl_mes_groupes .tbl_mes_groupes_boutons_plusproprietaire").click(function() {
 						if (confirm("Etes-vous sur de ne plus vouloir etre proprietaire du groupe '"+me.listeGroupes[$(this).attr("data-id")].nom+"' ?")) {
-							me.groupeGestion.queryNePlusEtreProprietaire($(this).attr("data-id"), function() {
+							me.groupeGestion.queryNePlusEtreProprietaire($(this).attr("data-id"), function(resultCode) {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Vous n'êtes plus propriétaire du groupe.");
 									me.afficheListeMesGroupes();
@@ -581,7 +581,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					// Listeners pour les boutons Supprimer
 					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
 						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+me.listeGroupes[$(this).attr("data-id")].nom+"' ?")) {
-							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function () {
+							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function(resultCode) {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Le groupe a été supprimé avec succès.");
 									me.afficheListeMesGroupes();
@@ -673,7 +673,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					// Listeners pour les boutons "ne plus être propriétaire"
 					$("#tbl_mes_calendriers .tbl_mes_calendriers_boutons_plusproprietaire").click(function() {
 						if (confirm("Etes-vous sur de ne plus vouloir etre proprietaire du calendrier '" + $(this).parent().siblings().first().text()+"' ?")) {
-							me.calendrierGestion.queryNePlusEtreProprietaire($(this).attr("data-id"), function() {
+							me.calendrierGestion.queryNePlusEtreProprietaire($(this).attr("data-id"), function(resultCode) {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Vous n'êtes plus propriétaire du calendrier.");
 									me.afficheListeMesCalendriers();
