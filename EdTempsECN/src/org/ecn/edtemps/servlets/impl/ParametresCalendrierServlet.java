@@ -24,7 +24,7 @@ import org.ecn.edtemps.models.identifie.CalendrierIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet permettant la création, la modification et la suppression d'un calendrier
+ * Servlet permettant la création, la modification, le listing et la suppression d'un calendrier
  * @author Maxime Terrade
  *
  */
@@ -43,7 +43,6 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 			CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 			JsonValue data;
 			try {
-				// Récupération de la liste des utilisateurs potentiellement proprietaires
 				List<CalendrierComplet> listeCalendriers = calendrierGestion.listerCalendriersUtilisateur(userId);
 				// Création de la réponse
 				data = Json.createObjectBuilder()
@@ -71,12 +70,8 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		String pathInfo = req.getPathInfo();
 		CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 		
-		// Page /calendrier/, accessible en GET et non en POST
-		if(pathInfo == null) { 
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-		}
 		// Page /calendrier/creation
-		else if(pathInfo.equals("/creation")) { 
+		if(pathInfo.equals("/creation")) { 
 			try {
 				creationOuModificationCalendrier(false, userId, calendrierGestion, req);
 				// Génération réponse si aucune exception
