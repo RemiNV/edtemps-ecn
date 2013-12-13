@@ -37,16 +37,14 @@ public class DiagnosticsBdd {
 	
 	/**
 	 * Lanceur de tous les tests existants
-	 * !Important : il faut mettre à jour le nombre de tests
 	 * @return un tableau avec les résultats de chaque test
 	 */
 	public ArrayList<TestBddResult> runAllTests() {
-		int nbTests = 8; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
 		
-		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
+		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>();
 		
-		for(int i=1; i<=nbTests; i++) {
-			TestBdd test = createTest(i);
+		TestBdd test = createTest(1);
+		for(int i=1; test != null; i++, test = createTest(i)) {
 			
 			try {
 				bdd.startTransaction();
@@ -74,6 +72,7 @@ public class DiagnosticsBdd {
 	
 	/**
 	 * Créer un testeur à partir de son identifiant
+	 * !Attention : les IDs gérés doivent être consécutifs à partir de 1
 	 * @param idTest Identifiant du testeur à créer
 	 * @return le testeur
 	 */
@@ -103,6 +102,13 @@ public class DiagnosticsBdd {
 
 		case 8:
 			return createTestEvenementsSansProprietaire(8);
+			
+		case 9:
+			return createTestGroupesNonCoursSansProprietaireActif(9);
+			
+		case 10:
+			return createTestCalendriersNonCoursSansProprietaireActif(10);
+			
 		
 		default:
 			return null;
@@ -403,7 +409,7 @@ public class DiagnosticsBdd {
 				CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
 				try {
 					for(int id : ids) {
-						calendrierGestion.supprimerCalendrier(id);
+						calendrierGestion.supprimerCalendrier(id, false);
 					}
 				} catch (EdtempsException e) {
 					throw new DatabaseException(e);
@@ -491,6 +497,74 @@ public class DiagnosticsBdd {
 			@Override
 			protected String getColonneId() {
 				return "utilisateur_id";
+			}
+			
+		};
+	}
+	
+	
+	protected TestBdd createTestGroupesNonCoursSansProprietaireActif(int id) {
+		return new TestEntiteIncorrecte("Présence de groupes sans propriétaire actif n'étant pas des groupes de cours ni des groupes \"calendrier unique\" (\"vieux groupes\")", id, "Supprimer ces groupes") {
+
+			@Override
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
+				
+				GroupeGestion groupeGestion = new GroupeGestion(bdd);
+				
+				for(int id : ids) {
+					groupeGestion.supprimerGroupe(id, false);
+				}
+				
+				return ids.size() + " groupe supprimés.";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant " +
+						"LEFT JOIN edt.proprietairegroupeparticipant prop ON prop.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
+						"LEFT JOIN edt.utilisateur ON utilisateur.utilisateur_id=prop.utilisateur_id AND utilisateur.utilisateur_active " +
+						"WHERE NOT groupeparticipant.groupeparticipant_estcours AND NOT groupeparticipant.groupeparticipant_estcalendrierunique AND utilisateur.utilisateur_id IS NULL");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "groupeparticipant_id";
+			}
+			
+		};
+	}
+	
+	protected TestBdd createTestCalendriersNonCoursSansProprietaireActif(int id) {
+		return new TestEntiteIncorrecte("Présence de calendriers sans propriétaire actif n'étant pas des calendriers de cours (\"vieux calendriers\")", id, "Supprimer ces calendriers") {
+
+			@Override
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
+				
+				CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
+				
+				for(int id : ids) {
+					calendrierGestion.supprimerCalendrier(id, false);
+				}
+				
+				return ids.size() + " calendriers supprimés.";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("SELECT calendrier.cal_id FROM edt.calendrier " +
+						"LEFT JOIN edt.calendrierappartientgroupe cag ON cag.cal_id = calendrier.cal_id " +
+						"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=cag.groupeparticipant_id " +
+							"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours) " +
+						"LEFT JOIN edt.proprietairecalendrier prop ON prop.cal_id=calendrier.cal_id " +
+						"LEFT JOIN edt.utilisateur ON utilisateur.utilisateur_id=prop.utilisateur_id AND utilisateur.utilisateur_active " +
+						"WHERE utilisateur.utilisateur_id IS NULL " +
+						"GROUP BY calendrier.cal_id " +
+						"HAVING COUNT(groupecours.groupeparticipant_id) = 0");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "cal_id";
 			}
 			
 		};

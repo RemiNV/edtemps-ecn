@@ -453,13 +453,15 @@ public class CalendrierGestion {
 	/**
 	 * Supprimer un calendrier dans la base de données 
 	 * @param idCalendrier Identifiant du calendrier
+	 * @param startTransaction Démarrer une transaction dans cette méthode, sinon elle doit être appelée à l'intérieur d'une transaction
 	 * @throws EdtempsException
 	 */
-	public void supprimerCalendrier(int idCalendrier) throws EdtempsException {
+	public void supprimerCalendrier(int idCalendrier, boolean startTransaction) throws DatabaseException {
 		
 		try {
-			// Début transaction
-			_bdd.startTransaction();
+			if(startTransaction) {
+				_bdd.startTransaction();
+			}
 			
 			// Supprimer liste de propriétaires du calendrier
 			_bdd.executeUpdate(
@@ -477,7 +479,7 @@ public class CalendrierGestion {
 					);
 			int idGroupeUnique = _bdd.recupererId(requeteIdGpe, "groupeparticipant_id");
 			if (idGroupeUnique == -1) {
-				throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID groupe unique associé au calendrier à supprimer non existant ou non unique"); 
+				throw new DatabaseException("ID groupe unique associé au calendrier à supprimer non existant ou non unique"); 
 			}
 			// Supprimer dépendance avec les groupes de participants
 			_bdd.executeUpdate(
@@ -510,11 +512,13 @@ public class CalendrierGestion {
 					"DELETE FROM edt.calendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
-			// Fin transaction
-			_bdd.commit(); 
+			
+			if(startTransaction) {
+				_bdd.commit();
+			}
 
-		} catch (DatabaseException | SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
 		}
 		
 	}	

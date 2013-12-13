@@ -105,7 +105,7 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		else if(pathInfo.equals("/suppression")) { 
 			try {
 				int idCalendrierASupprimer = Integer.parseInt(req.getParameter("id"));
-				calendrierGestion.supprimerCalendrier(idCalendrierASupprimer);
+				calendrierGestion.supprimerCalendrier(idCalendrierASupprimer, true);
 				// Génération réponse si aucune exception
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Suppression calendrier réussie", null));
 				logger.debug("Suppression calendrier réussie");
