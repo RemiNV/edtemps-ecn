@@ -552,7 +552,7 @@ public class CalendrierGestion {
 			// Ajout des paramètres à la requete préparée
 			req.setInt(1, idCalendrier);
 			req.setInt(2, idProprietaire);
-			req.executeQuery();
+			req.executeUpdate();
 			
 			if(createTransaction) {
 				_bdd.commit();
