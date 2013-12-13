@@ -528,10 +528,22 @@ public class CalendrierGestion {
 	 * Supprimer le lien "propriétaire" entre un utilisateur et un calendrier
 	 * @param idCalendrier Identifiant du calendrier
 	 * @param idProprietaire Identifiant du propriétaire
+	 * @param createTransaction Indique si une transaction doit être démarrée dans la méthode, sinon elle doit être appelée dans une transaction
 	 * @throws EdtempsException 
 	 */
-	public void nePlusEtreProprietaire(int idCalendrier, int idProprietaire) throws EdtempsException {
+	public void nePlusEtreProprietaire(int idCalendrier, int idProprietaire, boolean createTransaction) throws EdtempsException {
 		try {
+			if(createTransaction) {
+				_bdd.startTransaction();
+			}
+			
+			// Vérification : le créateur du calendrier ne peut pas se supprimer
+			CalendrierIdentifie cal = getCalendrier(idCalendrier);
+			
+			if(cal.getIdCreateur() == idProprietaire) {
+				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Le créateur d'un calendrier doit en être propriétaire");
+			}
+			
 			// Requete préparée
 			PreparedStatement req = _bdd.getConnection().prepareStatement(
 					"DELETE FROM edt.proprietairecalendrier "
@@ -541,8 +553,13 @@ public class CalendrierGestion {
 			req.setInt(1, idCalendrier);
 			req.setInt(2, idProprietaire);
 			req.executeQuery();
+			
+			if(createTransaction) {
+				_bdd.commit();
+			}
+			
 		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 		
 	}

@@ -1032,37 +1032,29 @@ public class GroupeGestion {
 	 * Supprimer le propriétaire d'un groupe de participants
 	 * @param proprietaireId Identifiant du propriétaire à supprimer
 	 * @param groupeId Identifiant
+	 * @param startTransaction Indique si une transaction doit être démarrée dans la méthode, sinon elle doit être appelée dans une transaction
 	 * @throws DatabaseException 
 	 * @throws EdtempsException Le groupe n'a pas d'autres propriétaire que celui supprimé
 	 */
-	public void supprimerProprietaire(int proprietaireId, int groupeId) throws EdtempsException {
+	public void supprimerProprietaire(int proprietaireId, int groupeId, boolean startTransaction) throws EdtempsException {
 
-		try {
-			
-			// Démarre une transaction
+		// Démarre une transaction
+		if(startTransaction) {
 			_bdd.startTransaction();
-	
-			// Vérifie qu'il y ait d'autres propriétaires sinon n'autorise pas la suppression
-			// Cela permet d'éviter d'avoir des groupes sans propriétaires
-			ResultSet res = _bdd.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant" +
-						" WHERE groupeparticipant_id="+groupeId+" AND utilisateur_id<>"+proprietaireId);
-			
-			if (res.next()) {
-				// Supprime le propriétaire pour le groupe
-				_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant" +
-						" WHERE utilisateur_id="+proprietaireId+" AND groupeparticipant_id="+groupeId);
-				res.close();
-			}
-			else {
-				res.close();
-				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir au moins un propriétaire");
-			}
-		
-			// Termine la transaction
-			_bdd.commit();
+		}
 
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
+		// Vérifie qu'on n'est pas en train de supprimer le créateur (qui doit rester propriétaire)
+		GroupeIdentifie groupe = getGroupe(groupeId);
+		if(groupe.getIdCreateur() == proprietaireId) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Le créateur d'un groupe doit en rester propriétaire");
+		}
+		
+		// Supprime le propriétaire pour le groupe
+		_bdd.executeUpdate("DELETE FROM edt.proprietairegroupeparticipant" +
+				" WHERE utilisateur_id="+proprietaireId+" AND groupeparticipant_id="+groupeId);
+	
+		if(startTransaction) {
+			_bdd.commit();
 		}
 	}
 	

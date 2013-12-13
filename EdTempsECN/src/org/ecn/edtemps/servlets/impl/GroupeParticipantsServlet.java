@@ -319,7 +319,7 @@ public class GroupeParticipantsServlet extends RequiresConnectionServlet {
 
 		// Suppression du propriétaire
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
-		groupeGestion.supprimerProprietaire(userId, idGroupe);
+		groupeGestion.supprimerProprietaire(userId, idGroupe, true);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Propriétaire supprimé de la liste des propriétaires du groupe", null));
 	}
 

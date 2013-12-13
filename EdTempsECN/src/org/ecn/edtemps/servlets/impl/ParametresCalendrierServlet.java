@@ -114,7 +114,7 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 		else if(pathInfo.equals("/nePlusEtreProprietaire")) { 
 			try {
 				int idCalendrier = Integer.parseInt(req.getParameter("idCalendrier"));
-				calendrierGestion.nePlusEtreProprietaire(idCalendrier, userId);
+				calendrierGestion.nePlusEtreProprietaire(idCalendrier, userId, true);
 				// Génération réponse si aucune exception
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Action NePlusEtreProprietaire réussie", null));
 				logger.debug("Action NePlusEtreProprietaire réussie");
