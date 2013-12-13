@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.json.Json;
-import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,16 +42,9 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	@Override
 	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-		// Vérification des valeurs possibles dans le path de la requête
 		String pathInfo = req.getPathInfo();
-		if (!pathInfo.equals("/listermesdemandes") && !pathInfo.equals("/decidergroupe") && !pathInfo.equals("/decidercalendrier") ) {
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-			bdd.close();
-			return;
-		}
-
+		
 		try {
-
 			// Renvoies vers les différentes fonctionnalités
 			switch (pathInfo) {
 				case "/listermesdemandes":
@@ -64,13 +56,12 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 				case "/decidercalendrier":
 					doDeciderDemandeDeRattachementCalendrier(userId, bdd, req, resp);
 					break;
+				default:
+					resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			}
 
 			bdd.close();
 		
-		} catch(JsonException | ClassCastException e) {
-			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format de l'objet JSON incorrect", null));
-			bdd.close();
 		} catch(EdtempsException e) {
 			logger.error("Erreur avec le servlet de rattachement à un groupe de participants (listerDemandes ou accepter ou refuser)", e);
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
@@ -80,7 +71,6 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.DATABASE_ERROR, e.getMessage(), null));
 			bdd.close();
 		}
-
 	}
 	
 	/**
