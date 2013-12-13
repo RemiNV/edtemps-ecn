@@ -45,6 +45,7 @@ define([ "jquery", "jqueryui" ], function() {
 		
 		// Création de l'élément à ajouter à chaque clic sur le bouton "ajouter"
 		this.newLine = jqControl.parent().clone();
+		console.log(jqControl.width());
 		var jqBtnSupprimer = $("<img src='img/corbeille.png' alt='Supprimer la ligne' class='multiwidget_btn' />");
 		this.newLine.append(jqBtnSupprimer);
 		
@@ -191,11 +192,8 @@ define([ "jquery", "jqueryui" ], function() {
 			width: width,
 			initControl: function(jqElem) {
 				var inputAutocompletion = $("<input type='text' disabled='disabled' class='input_autocomplete_overlay' />");
-				var pos = jqElem.position();
 				inputAutocompletion.css({
-					width: jqElem.css("width"),
-					top: pos.top,
-					left: pos.left
+					width: jqElem.css("width")
 				});
 				jqElem.autocomplete({
 					source: source,
@@ -238,6 +236,9 @@ define([ "jquery", "jqueryui" ], function() {
 				};
 				
 				jqElem.after(inputAutocompletion);
+				
+				// Pour prendre de la place étant donné que l'input est en position absolute :
+				inputAutocompletion.after($("<div class='autocomplete_placeholder'></div>").width(jqElem.outerWidth())); 
 				jqElem.addClass("input_autocomplete");
 			}
 		};

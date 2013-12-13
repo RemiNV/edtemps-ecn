@@ -642,6 +642,8 @@ input.valide {
 /** Multiwidget */
 .multiwidget_line {
 	position: relative;
+	height: 20px;
+	margin-bottom: 5px;
 }
 
 .multiwidget_btn {
@@ -649,26 +651,31 @@ input.valide {
 	height: 20px;
 	cursor: pointer;
 	vertical-align: text-bottom;
-	margin-left:5px;
+	margin-left: 5px;
 }
 
 .input_autocomplete_overlay {
 	z-index: 1;
 	position: absolute;
-	margin-top: 2px;
-	margin-left: 0px;
 	border-color: transparent !important;
 	background-color: white;
+	margin: 0px;
+	padding: 1px;
 }
 
 .input_autocomplete {
 	z-index: 2;
-	position: relative;
-	margin: 0;
+	position: absolute;
+	margin: 0px;
+	padding: 1px;
+}
+
+.autocomplete_placeholder {
+	display: inline-block;
 }
 
 .input_autocomplete:not([disabled]) {
-	background-color: transparent;
+	background-color: rgba(0,0,0,0); /* "transparent" ne fonctionne pas sous IE10- */
 }
 
 /** Dialog de détails d'un événement */
