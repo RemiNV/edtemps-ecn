@@ -32,7 +32,7 @@ public class GroupesParentsPotentielsServlet extends RequiresConnectionServlet {
 	private static Logger logger = LogManager.getLogger(GroupesParentsPotentielsServlet.class.getName());
 
 	@Override
-	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
 		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		JsonValue data;

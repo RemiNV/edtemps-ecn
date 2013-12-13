@@ -148,7 +148,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 			params.idGroupeIgnorerEnfants = groupe.id;
 		}
 		
-		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", params, function(data) {
+		this.restManager.effectuerRequete("GET", "groupesparentspotentiels", params, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
 
 				var maxI = data.data.listeGroupes.length;

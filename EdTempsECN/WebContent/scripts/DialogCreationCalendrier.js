@@ -258,7 +258,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 	 */
 	DialogCreationCalendrier.prototype.remplirGroupesParents = function(groupesParents, groupesParentsTmp) {
 		var me = this;
-		this.restManager.effectuerRequete("POST", "groupesparentspotentiels", {
+		this.restManager.effectuerRequete("GET", "groupesparentspotentiels", {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
