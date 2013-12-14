@@ -2,9 +2,7 @@ package org.ecn.edtemps.models.identifie;
 
 import java.util.List;
 
-import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
 import org.ecn.edtemps.json.JSONUtils;

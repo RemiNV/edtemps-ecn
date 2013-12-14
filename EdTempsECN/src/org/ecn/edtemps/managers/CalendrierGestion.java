@@ -57,7 +57,7 @@ public class CalendrierGestion {
 	 */
 	public int sauverCalendrier(Calendrier calendrier, List<Integer> idGroupesParents) throws EdtempsException {
 		
-		// Vérifier si l'utilisateur n'a pas créé trop de groupes
+		// Vérifier si l'utilisateur n'a pas créé trop de calendriers
 		UtilisateurGestion userGestion = new UtilisateurGestion(_bdd);
 		boolean limiteEtendue = userGestion.aDroit(ActionsEdtemps.LIMITE_CALENDRIERS_ETENDUE, calendrier.getIdCreateur());
 		int nbCalendriersDejaCrees = this.getNombresCalendriersCres(calendrier.getIdCreateur());
@@ -70,8 +70,12 @@ public class CalendrierGestion {
 		String matiere = calendrier.getMatiere();
 		String nom = calendrier.getNom();
 		String type = calendrier.getType();
-		int idCreateur = calendrier.getIdCreateur();
+		Integer idCreateur = calendrier.getIdCreateur();
 		List<Integer> idProprietaires = calendrier.getIdProprietaires(); 
+		
+		if(idCreateur==null) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un calendrier doit avoir un créateur");
+		}
 		
 		if(!StringUtils.isAlphanumericSpace(nom)) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique");
@@ -150,12 +154,14 @@ public class CalendrierGestion {
 			// Requete préparée pour la création du groupe unique associé 
 			PreparedStatement req = _bdd.getConnection().prepareStatement(
 						"INSERT INTO edt.groupeparticipant "
-						+ "(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique) "
-						+ "VALUES (?, 'FALSE', 'TRUE') "
+						+ "(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estcalendrierunique, groupeparticipant_createur) "
+						+ "VALUES (?, 'FALSE', 'TRUE', ?) "
 						+ "RETURNING groupeparticipant_id"
 						);
 			// nom du groupe unique = nom du calendrier
 			req.setString(1, nom); 
+			// créateur du groupe unique = créateur du calendrier
+			req.setInt(2, idCreateur); 
 			// On effectue la requete et récupère l'id du gpe de paricipant créé
 			ResultSet req_ligneCreee = req.executeQuery();
 			req_ligneCreee.next();
@@ -167,14 +173,31 @@ public class CalendrierGestion {
 					+ "VALUES (" + idGroupeCree + ", " + idCalendrier + ")"
 					);
 			
-			// On lie le calendrier aux groupes parents désirés (en argument) -> rattachements en attente
+			// On lie le calendrier aux groupes parents désirés (en argument) 
+			//   -> rattachement en attente (champ "_tmp") si le créateur n'est pas propriétaire du groupe parent
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
 				int idGroupeParent = itr.next();
-				_bdd.executeUpdate(
-						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
-						+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
-						);
+				// Requête pour savoir si le créateur est propriétaire du groupe parent 
+				ResultSet estProprietaireGroupeParent = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.proprietairegroupeparticipant"
+						+ " WHERE groupeparticipant_id="+idGroupeParent
+						+ " AND utilisateur_id="+calendrier.getIdCreateur()
+				).executeQuery();
+				//Si le créateur est propriétaire (ie si le resultat de la requete est non vide)
+				if (estProprietaireGroupeParent.next()) {
+					_bdd.executeUpdate(
+							"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id, cal_id) "
+							+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
+							);
+				}
+				//S'il n'est pas propriétaire
+				else {
+					_bdd.executeUpdate(
+							"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
+							+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
+							);
+				}
 			}
 			
 			// Définition des propriétaires du calendrier 
@@ -378,10 +401,27 @@ public class CalendrierGestion {
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
 				int idGroupeARattacher = itr.next();
-				_bdd.executeUpdate(
-						"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
-						+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
-						);
+				// Requête pour savoir si le créateur est propriétaire du groupe parent 
+				ResultSet estProprietaireGroupeParent = _bdd.getConnection().prepareStatement(
+						"SELECT * FROM edt.proprietairegroupeparticipant"
+						+ " WHERE groupeparticipant_id="+idGroupeARattacher
+						+ " AND utilisateur_id="+calId.getIdCreateur()  //l'attribut "créateur" contient l'id du propriétaire effectuant la modification (cf Servlet)
+				).executeQuery();
+				//Si le créateur est propriétaire (ie si le resultat de la requete est non vide)
+				if (estProprietaireGroupeParent.next()) {
+					_bdd.executeUpdate(
+							"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id, cal_id) "
+							+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
+							);
+				}
+				//S'il n'est pas propriétaire
+				else {
+					_bdd.executeUpdate(
+							"INSERT INTO edt.calendrierappartientgroupe (groupeparticipant_id_tmp, cal_id) "
+							+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
+							);
+				}
+				
 			}
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
@@ -413,13 +453,15 @@ public class CalendrierGestion {
 	/**
 	 * Supprimer un calendrier dans la base de données 
 	 * @param idCalendrier Identifiant du calendrier
+	 * @param startTransaction Démarrer une transaction dans cette méthode, sinon elle doit être appelée à l'intérieur d'une transaction
 	 * @throws EdtempsException
 	 */
-	public void supprimerCalendrier(int idCalendrier) throws EdtempsException {
+	public void supprimerCalendrier(int idCalendrier, boolean startTransaction) throws DatabaseException {
 		
 		try {
-			// Début transaction
-			_bdd.startTransaction();
+			if(startTransaction) {
+				_bdd.startTransaction();
+			}
 			
 			// Supprimer liste de propriétaires du calendrier
 			_bdd.executeUpdate(
@@ -437,7 +479,7 @@ public class CalendrierGestion {
 					);
 			int idGroupeUnique = _bdd.recupererId(requeteIdGpe, "groupeparticipant_id");
 			if (idGroupeUnique == -1) {
-				throw new EdtempsException(ResultCode.DATABASE_ERROR,"ID groupe unique associé au calendrier à supprimer non existant ou non unique"); 
+				throw new DatabaseException("ID groupe unique associé au calendrier à supprimer non existant ou non unique"); 
 			}
 			// Supprimer dépendance avec les groupes de participants
 			_bdd.executeUpdate(
@@ -470,11 +512,13 @@ public class CalendrierGestion {
 					"DELETE FROM edt.calendrier "
 					 + "WHERE cal_id = " + idCalendrier 
 					 );
-			// Fin transaction
-			_bdd.commit(); 
+			
+			if(startTransaction) {
+				_bdd.commit();
+			}
 
-		} catch (DatabaseException | SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
 		}
 		
 	}	
@@ -484,10 +528,22 @@ public class CalendrierGestion {
 	 * Supprimer le lien "propriétaire" entre un utilisateur et un calendrier
 	 * @param idCalendrier Identifiant du calendrier
 	 * @param idProprietaire Identifiant du propriétaire
+	 * @param createTransaction Indique si une transaction doit être démarrée dans la méthode, sinon elle doit être appelée dans une transaction
 	 * @throws EdtempsException 
 	 */
-	public void nePlusEtreProprietaire(int idCalendrier, int idProprietaire) throws EdtempsException {
+	public void nePlusEtreProprietaire(int idCalendrier, int idProprietaire, boolean createTransaction) throws EdtempsException {
 		try {
+			if(createTransaction) {
+				_bdd.startTransaction();
+			}
+			
+			// Vérification : le créateur du calendrier ne peut pas se supprimer
+			CalendrierIdentifie cal = getCalendrier(idCalendrier);
+			
+			if(cal.getIdCreateur() == idProprietaire) {
+				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Le créateur d'un calendrier doit en être propriétaire");
+			}
+			
 			// Requete préparée
 			PreparedStatement req = _bdd.getConnection().prepareStatement(
 					"DELETE FROM edt.proprietairecalendrier "
@@ -496,9 +552,14 @@ public class CalendrierGestion {
 			// Ajout des paramètres à la requete préparée
 			req.setInt(1, idCalendrier);
 			req.setInt(2, idProprietaire);
-			req.executeQuery();
+			req.executeUpdate();
+			
+			if(createTransaction) {
+				_bdd.commit();
+			}
+			
 		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 		
 	}

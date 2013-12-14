@@ -15,7 +15,7 @@ import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet permettant l'abonnement d'un utilisateur à un groupeDeParcipants
+ * Servlet permettant l'abonnement d'un utilisateur à un groupeDeParticipants
  * 
  * @author Maxime Terrade
  */

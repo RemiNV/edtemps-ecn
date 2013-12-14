@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResult;
 import org.ecn.edtemps.diagnosticbdd.TestBdd.TestBddResultCode;
 import org.ecn.edtemps.exceptions.DatabaseException;
-import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
@@ -37,16 +36,14 @@ public class DiagnosticsBdd {
 	
 	/**
 	 * Lanceur de tous les tests existants
-	 * !Important : il faut mettre à jour le nombre de tests
 	 * @return un tableau avec les résultats de chaque test
 	 */
 	public ArrayList<TestBddResult> runAllTests() {
-		int nbTests = 8; // Nombre de tests gérés dans createTest (et de clauses dans le switch)
 		
-		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>(nbTests);
+		ArrayList<TestBddResult> res = new ArrayList<TestBddResult>();
 		
-		for(int i=1; i<=nbTests; i++) {
-			TestBdd test = createTest(i);
+		TestBdd test = createTest(1);
+		for(int i=1; test != null; i++, test = createTest(i)) {
 			
 			try {
 				bdd.startTransaction();
@@ -74,6 +71,7 @@ public class DiagnosticsBdd {
 	
 	/**
 	 * Créer un testeur à partir de son identifiant
+	 * !Attention : les IDs gérés doivent être consécutifs à partir de 1
 	 * @param idTest Identifiant du testeur à créer
 	 * @return le testeur
 	 */
@@ -96,13 +94,20 @@ public class DiagnosticsBdd {
 			return createTestVieuxComptesUtilisateur(5);
 			
 		case 6:
-			return createTestGroupesSansProprietaire(6);
+			return createTestGroupesCreateurNonProprietaire(6);
 
 		case 7:
-			return createTestCalendriersSansProprietaire(7);
+			return createTestCalendriersCreateurNonProprietaire(7);
 
 		case 8:
-			return createTestEvenementsSansProprietaire(8);
+			return createTestEvenementsCreateurNonProprietaire(8);
+			
+		case 9:
+			return createTestGroupesNonCoursSansProprietaireActif(9);
+			
+		case 10:
+			return createTestCalendriersNonCoursSansProprietaireActif(10);
+			
 		
 		default:
 			return null;
@@ -136,8 +141,8 @@ public class DiagnosticsBdd {
 				try {
 					for(Integer idCal : ids) {
 						ResultSet reponse = bdd.executeRequest("INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, " +
-								"groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-								"SELECT cal_nom, FALSE, FALSE, TRUE FROM edt.calendrier WHERE cal_id = " + idCal + " " +
+								"groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur) " +
+								"SELECT cal_nom, FALSE, FALSE, TRUE, cal_createur FROM edt.calendrier WHERE cal_id = " + idCal + " " +
 								"RETURNING groupeparticipant_id");
 						
 						reponse.next();
@@ -354,30 +359,32 @@ public class DiagnosticsBdd {
 	
 	
 	/**
-	 * Définition d'un test sur la base de données pour détecter les groupes de participants qui n'ont pas de propriétaire
+	 * Définition d'un test sur la base de données pour détecter les groupes de participants dont le créateur n'est pas propriétaire
 	 * @param id Identifiant du test
 	 * @return le testeur
 	 */
-	protected TestBdd createTestGroupesSansProprietaire(int id) {
-		return new TestEntiteIncorrecte("Présence de groupes de participants sans propriétaire", id, "Supprimer ces groupes de participants") {
+	protected TestBdd createTestGroupesCreateurNonProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence de groupes de participants non \"groupe calendrier unique\" dont le créateur n'est pas propriétaire", id, "Mettre le créateur du groupe comme propriétaire") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
-				GroupeGestion groupeGestion = new GroupeGestion(bdd);
-				for(int id : ids) {
-					groupeGestion.supprimerGroupe(id, true);
+				for (int id : ids) {
+					bdd.executeUpdate("INSERT INTO edt.proprietairegroupeparticipant(utilisateur_id, groupeparticipant_id)" +
+					" SELECT groupeparticipant.groupeparticipant_createur, "+id+" FROM edt.groupeparticipant" +
+					" WHERE groupeparticipant.groupeparticipant_id="+id+" LIMIT 1");
 				}
 				
-				return ids.size() + " groupes de participants supprimés";
+				return ids.size() + " groupes de participants réparés";
 			}
 
 			@Override
 			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
 				return bdd.getConnection().prepareStatement("SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant" +
 					" LEFT JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id" +
-					" LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.groupeparticipant_id=groupeparticipant.groupeparticipant_id" +
+					" AND proprietairegroupeparticipant.utilisateur_id = groupeparticipant.groupeparticipant_createur" +
+					" WHERE NOT groupeparticipant.groupeparticipant_estcalendrierunique" +
 					" GROUP BY groupeparticipant.groupeparticipant_id" +
-					" HAVING COUNT(proprietairegroupeparticipant.utilisateur_id) = 0 AND COUNT(calendrierappartientgroupe.calendrierappartientgroupe_id) = 0");
+					" HAVING COUNT(proprietairegroupeparticipant.utilisateur_id) = 0");
 			}
 
 			@Override
@@ -390,31 +397,29 @@ public class DiagnosticsBdd {
 
 	
 	/**
-	 * Définition d'un test sur la base de données pour détecter les calendriers qui n'ont pas de propriétaire
+	 * Définition d'un test sur la base de données pour détecter les calendriers dont le créateur n'est pas propriétaire
 	 * @param id Identifiant du test
 	 * @return le testeur
 	 */
-	protected TestBdd createTestCalendriersSansProprietaire(int id) {
-		return new TestEntiteIncorrecte("Présence de calendriers sans propriétaire", id, "Supprimer ces calendriers de participants") {
+	protected TestBdd createTestCalendriersCreateurNonProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence de calendriers dont le créateur n'est pas propriétaire", id, "Mettre le créateur du calendrier comme propriétaire") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
-				CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
-				try {
-					for(int id : ids) {
-						calendrierGestion.supprimerCalendrier(id);
-					}
-				} catch (EdtempsException e) {
-					throw new DatabaseException(e);
+				for(int id : ids) {
+					bdd.executeUpdate("INSERT INTO edt.proprietairecalendrier(utilisateur_id, cal_id)" +
+					" SELECT calendrier.cal_createur, "+id+" FROM edt.calendrier" +
+					" WHERE calendrier.cal_id="+id+" LIMIT 1");
 				}
 				
-				return ids.size() + " calendriers supprimés";
+				return ids.size() + " calendriers réparés";
 			}
 
 			@Override
 			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
 				return bdd.getConnection().prepareStatement("SELECT calendrier.cal_id FROM edt.calendrier" +
 					" LEFT JOIN edt.proprietairecalendrier ON proprietairecalendrier.cal_id=calendrier.cal_id" +
+					" AND proprietairecalendrier.utilisateur_id = calendrier.cal_createur" +
 					" GROUP BY calendrier.cal_id" +
 					" HAVING COUNT(proprietairecalendrier.utilisateur_id) = 0");
 			}
@@ -429,27 +434,29 @@ public class DiagnosticsBdd {
 
 	
 	/**
-	 * Définition d'un test sur la base de données pour détecter les événements qui n'ont pas de propriétaire
+	 * Définition d'un test sur la base de données pour détecter les événements dont le créateur n'est pas propriétaire
 	 * @param id Identifiant du test
 	 * @return le testeur
 	 */
-	protected TestBdd createTestEvenementsSansProprietaire(int id) {
-		return new TestEntiteIncorrecte("Présence d'événements sans propriétaire", id, "Supprimer ces événements") {
+	protected TestBdd createTestEvenementsCreateurNonProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence d'événements dont le créateur n'est pas propriétaire", id, "Mettre le créateur de l'événement comme propriétaire") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
-				EvenementGestion evenementGestion = new EvenementGestion(bdd);
 				for(int id : ids) {
-					evenementGestion.supprimerEvenement(id, true);
+					bdd.executeUpdate("INSERT INTO edt.responsableevenement(utilisateur_id, eve_id)" +
+					" SELECT evenement.eve_createur, "+id+" FROM edt.evenement" +
+					" WHERE evenement.eve_id="+id+" LIMIT 1");
 				}
 				
-				return ids.size() + " événements supprimés";
+				return ids.size() + " événements réparés";
 			}
 
 			@Override
 			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
 				return bdd.getConnection().prepareStatement("SELECT evenement.eve_id FROM edt.evenement" +
 					" LEFT JOIN edt.responsableevenement ON responsableevenement.eve_id=evenement.eve_id" +
+					" AND responsableevenement.utilisateur_id=evenement.eve_createur" +
 					" GROUP BY evenement.eve_id" +
 					" HAVING COUNT(responsableevenement.utilisateur_id) = 0");
 			}
@@ -490,6 +497,74 @@ public class DiagnosticsBdd {
 			@Override
 			protected String getColonneId() {
 				return "utilisateur_id";
+			}
+			
+		};
+	}
+	
+	
+	protected TestBdd createTestGroupesNonCoursSansProprietaireActif(int id) {
+		return new TestEntiteIncorrecte("Présence de groupes sans propriétaire actif n'étant pas des groupes de cours ni des groupes \"calendrier unique\" (\"vieux groupes\")", id, "Supprimer ces groupes") {
+
+			@Override
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
+				
+				GroupeGestion groupeGestion = new GroupeGestion(bdd);
+				
+				for(int id : ids) {
+					groupeGestion.supprimerGroupe(id, false);
+				}
+				
+				return ids.size() + " groupe supprimés.";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant " +
+						"LEFT JOIN edt.proprietairegroupeparticipant prop ON prop.groupeparticipant_id=groupeparticipant.groupeparticipant_id " +
+						"LEFT JOIN edt.utilisateur ON utilisateur.utilisateur_id=prop.utilisateur_id AND utilisateur.utilisateur_active " +
+						"WHERE NOT groupeparticipant.groupeparticipant_estcours AND NOT groupeparticipant.groupeparticipant_estcalendrierunique AND utilisateur.utilisateur_id IS NULL");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "groupeparticipant_id";
+			}
+			
+		};
+	}
+	
+	protected TestBdd createTestCalendriersNonCoursSansProprietaireActif(int id) {
+		return new TestEntiteIncorrecte("Présence de calendriers sans propriétaire actif n'étant pas des calendriers de cours (\"vieux calendriers\")", id, "Supprimer ces calendriers") {
+
+			@Override
+			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
+				
+				CalendrierGestion calendrierGestion = new CalendrierGestion(bdd);
+				
+				for(int id : ids) {
+					calendrierGestion.supprimerCalendrier(id, false);
+				}
+				
+				return ids.size() + " calendriers supprimés.";
+			}
+
+			@Override
+			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
+				return bdd.getConnection().prepareStatement("SELECT calendrier.cal_id FROM edt.calendrier " +
+						"LEFT JOIN edt.calendrierappartientgroupe cag ON cag.cal_id = calendrier.cal_id " +
+						"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id=cag.groupeparticipant_id " +
+							"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours) " +
+						"LEFT JOIN edt.proprietairecalendrier prop ON prop.cal_id=calendrier.cal_id " +
+						"LEFT JOIN edt.utilisateur ON utilisateur.utilisateur_id=prop.utilisateur_id AND utilisateur.utilisateur_active " +
+						"WHERE utilisateur.utilisateur_id IS NULL " +
+						"GROUP BY calendrier.cal_id " +
+						"HAVING COUNT(groupecours.groupeparticipant_id) = 0");
+			}
+
+			@Override
+			protected String getColonneId() {
+				return "cal_id";
 			}
 			
 		};

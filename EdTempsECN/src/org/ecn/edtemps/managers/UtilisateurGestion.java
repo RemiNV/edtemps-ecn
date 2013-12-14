@@ -349,7 +349,7 @@ public class UtilisateurGestion {
 			if(userId != null) { // Utilisateur déjà présent en base
 				// Token valable 1h, heure du serveur de base de donnée. Le token est constitué de caractères alphanumériques et de "_" : pas d'échappement nécessaire
 				PreparedStatement statement = conn.prepareStatement("UPDATE edt.utilisateur SET utilisateur_token=?, utilisateur_nom=?, utilisateur_prenom=?, " +
-						"utilisateur_email=?, utilisateur_token_expire=now() + interval '1 hour' WHERE utilisateur_id=?");
+						"utilisateur_email=?, utilisateur_active=TRUE, utilisateur_token_expire=now() + interval '1 hour' WHERE utilisateur_id=?");
 				
 				statement.setString(1, token);
 				statement.setString(2, nom);
@@ -487,7 +487,7 @@ public class UtilisateurGestion {
 	public UtilisateurIdentifie getUtilisateur(int idUtilisateur) throws DatabaseException{
 		try {
 			ResultSet reponse = bdd.executeRequest(
-					"SELECT utilisateur_nom, utilisateur.prenom, utilisateur_email, utilisateur_id "
+					"SELECT utilisateur_nom, utilisateur_prenom, utilisateur_email, utilisateur_id "
 					+ "FROM edt.utilisateur "
 					+ "WHERE utilisateur_id = " + idUtilisateur);
 			UtilisateurIdentifie res = null;
@@ -590,7 +590,7 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public List<UtilisateurIdentifie> getResponsablesPotentiels() throws DatabaseException {
-		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur WHERE utilisateur_active='TRUE'");
+		ResultSet reponse = bdd.executeRequest("SELECT * FROM edt.utilisateur WHERE utilisateur_active");
 
 		List<UtilisateurIdentifie> res = new ArrayList<UtilisateurIdentifie>();
 

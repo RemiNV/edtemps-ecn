@@ -67,6 +67,9 @@ public class CalendrierGestionTest {
 
 	@Test
 	public void testAjoutSuppressionCalendrier() throws Exception {
+		
+		// TODO : utiliser une transaction pour ce test
+		
 		// Création d'un calendrier
 		HashMap<Integer, String> matieres = calendrierGestion.listerMatieres();
 		assertTrue(matieres.size() > 0); // Il doit y avoir des matières pré-rentrées dans la base de données
@@ -100,7 +103,7 @@ public class CalendrierGestionTest {
 		comparerCalendriers(calAjoute, calendrier);
 		
 		// Suppression du calendrier et test d'absence
-		calendrierGestion.supprimerCalendrier(idCal);
+		calendrierGestion.supprimerCalendrier(idCal, true);
 		
 		boolean thrown = false;
 		try {

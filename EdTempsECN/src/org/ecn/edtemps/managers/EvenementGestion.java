@@ -80,10 +80,10 @@ public class EvenementGestion {
 	public void sauverEvenement(String nom, Date dateDebut, Date dateFin, List<Integer> idCalendriers, Integer idCreateur, List<Integer> idSalles, 
 			List<Integer> idIntervenants, List<Integer> idResponsables, boolean startTransaction) throws EdtempsException {
 		
-		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty()) {
-			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un événement doit avoir un nom, un calendrier et un responsable");
+		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty() || idCreateur==null) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un événement doit avoir un nom, un calendrier et un responsable et un créateur");
 		}
-		
+
 		verifierDateEvenement(dateDebut);
 		
 		if(!StringUtils.isAlphanumericSpace(nom)) {
@@ -112,13 +112,7 @@ public class EvenementGestion {
 			req.setString(1, nom);
 			req.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
 			req.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
-			
-			if(idCreateur == null) {
-				req.setNull(4, java.sql.Types.INTEGER);
-			}
-			else {
-				req.setInt(4, idCreateur);
-			}
+			req.setInt(4, idCreateur);
 			
 			ResultSet rsLigneCreee = req.executeQuery();
 			 

@@ -30,7 +30,7 @@ define(["RestManager"], function(RestManager) {
 	 */
 	UtilisateurGestion.prototype.recupererProprietairesPotentiels = function(callback) {
 		// Récupération de la liste des propriétaires potentiels
-		this.restManager.effectuerRequete("POST", "proprietairespotentiels", {
+		this.restManager.effectuerRequete("GET", "proprietairespotentiels", {
 			token: this.restManager.getToken()
 		}, function(data) {
 			if (data.resultCode == RestManager.resultCode_Success) {
