@@ -85,7 +85,7 @@
 		AND typecalendrier.typecal_libelle='TD' LIMIT 1;
 
 	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
-		SELECT matiere.matiere_id, 'GELOL TD', typecalendrier.typecal_id, 4
+		SELECT matiere.matiere_id, 'GELOL TD', typecalendrier.typecal_id, 1
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='GELOL'
 		AND typecalendrier.typecal_libelle='TD' LIMIT 1;
