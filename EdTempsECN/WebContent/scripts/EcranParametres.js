@@ -648,7 +648,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 				"<td><%= calendrier.matiere %></td>" +
 				"<td><%= calendrier.type %></td>" +
 				"<td class='tbl_mes_calendriers_boutons'>" +
-					"<% if(calendrier.proprietaires.length>1) { %><input type='button' data-id='<%= calendrier.id %>' class='button tbl_mes_calendriers_boutons_plusproprietaire' value='Ne plus être propriétaire' /><% } %>" +
+					"<% if(calendrier.createur != userId) { %><input type='button' data-id='<%= calendrier.id %>' class='button tbl_mes_calendriers_boutons_plusproprietaire' value='Ne plus être propriétaire' /><% } %>" +
 					"<input type='button' data-id='<%= calendrier.id %>' class='button tbl_mes_calendriers_boutons_modifier' value='Modifier' />" +
 					"<input type='button' class='button tbl_mes_calendriers_boutons_supprimer' data-id='<%= calendrier.id %>' value='Supprimer' />" +
 				"</td>" +
@@ -668,7 +668,8 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					// Enregistrement de la liste des calendriers
 					me.listeCalendriers = data.listeCalendriers;
 					// Ecriture du tableau dans la page, en utilisant le template
-					$("#tbl_mes_calendriers").html(_.template(listMesCalendriersTemplate, {calendriers: data.listeCalendriers}));
+					console.log(data.listeCalendriers);
+					$("#tbl_mes_calendriers").html(_.template(listMesCalendriersTemplate, {calendriers: data.listeCalendriers, userId: me.restManager.getUserId()}));
 					
 					// Listeners pour les boutons "ne plus être propriétaire"
 					$("#tbl_mes_calendriers .tbl_mes_calendriers_boutons_plusproprietaire").click(function() {
