@@ -310,21 +310,9 @@ public class EvenementGestionTest {
 	@Test
 	public void testListerEvenementsGroupe() throws Exception {
 	
-		//méthode récupère les événements des groupes fils et parents !!
-		//-> créer un groupe de test avec deux calendriers contenant deux événements, avec un groupe parent et un groupe fils qui contiennent aussi des données.
-		//groupe contient des calendriers -> tester avec un groupe qui contient 2 calendriers ?
-		//groupe : 	groupe
-		//evenement : evenement, responsableEvenement, evenementAppartient, aLieuEnSalle, intervenantsEvenement
-		//calendrier : calendrier, calendrierAppartientGroupe
-		// nom groupe : testEvenementGestion, testEvenementGestionPere, testEvenementGestionFils
-		// nom calendrier : testEvenementGestion1, testEvenementGestion2, testEvenementGestionPere, testEvenementGestionFils
-		// nom evenement : testEvenementGestion1, testEvenementGestion2, testEvenementGestion3...
-		
-		//TODO : insérer les evenements, calendriers et groupe dans la base de données
-		
-		
-		
-		
+		//Utilisation de données spécifiques insérées dans la base de données : 6 événements testCalendrierGestion1 à testCalendrierGestion6
+		//4 de ces événements sont rattachés à un groupe de participant, 1 événement à un groupe père et le dernier à un groupe fils.
+				
 		//récupération de l'id du groupe
 		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
 						"SELECT groupeParticipant_id FROM edt.GroupeParticipant WHERE groupeparticipant_nom = 'testEvenementGestion'");
