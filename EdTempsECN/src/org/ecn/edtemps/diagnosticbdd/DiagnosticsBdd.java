@@ -100,7 +100,7 @@ public class DiagnosticsBdd {
 			return createTestCalendriersCreateurNonProprietaire(7);
 
 		case 8:
-			return createTestEvenementsSansProprietaire(8);
+			return createTestEvenementsCreateurNonProprietaire(8);
 			
 		case 9:
 			return createTestGroupesNonCoursSansProprietaireActif(9);
@@ -434,12 +434,12 @@ public class DiagnosticsBdd {
 
 	
 	/**
-	 * Définition d'un test sur la base de données pour détecter les événements qui n'ont pas de propriétaire
+	 * Définition d'un test sur la base de données pour détecter les événements dont le créateur n'est pas propriétaire
 	 * @param id Identifiant du test
 	 * @return le testeur
 	 */
-	protected TestBdd createTestEvenementsSansProprietaire(int id) {
-		return new TestEntiteIncorrecte("Présence d'événements sans propriétaire", id, "Mettre le créateur de l'événement comme propriétaire") {
+	protected TestBdd createTestEvenementsCreateurNonProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence d'événements dont le créateur n'est pas propriétaire", id, "Mettre le créateur de l'événement comme propriétaire") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
@@ -456,6 +456,7 @@ public class DiagnosticsBdd {
 			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
 				return bdd.getConnection().prepareStatement("SELECT evenement.eve_id FROM edt.evenement" +
 					" LEFT JOIN edt.responsableevenement ON responsableevenement.eve_id=evenement.eve_id" +
+					" AND responsableevenement.utilisateur_id=evenement.eve_createur" +
 					" GROUP BY evenement.eve_id" +
 					" HAVING COUNT(responsableevenement.utilisateur_id) = 0");
 			}

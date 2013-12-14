@@ -433,7 +433,7 @@
 	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('OBJET', '2013-10-21 09:00:00', '2013-10-21 12:00:00', 1);
 	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('OBJET', '2013-10-23 14:00:00', '2013-10-23 17:00:00', 1);
 
-	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('GELOL', '2013-11-08 14:00:00', '2013-11-08 17:30:00', 3);
+	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('GELOL', '2013-11-08 14:00:00', '2013-11-08 17:30:00', 1);
 
 	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('dSIBAD', '2013-10-21 08:00:00', '2013-10-21 10:00:00', 4);
 	INSERT INTO edt.evenement(eve_nom, eve_datedebut, eve_datefin, eve_createur) VALUES('dSIBAD', '2013-10-22 10:15:00', '2013-10-22 12:15:00', 4);
