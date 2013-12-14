@@ -15,6 +15,9 @@ import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
+import org.ecn.edtemps.models.inflaters.AbsEvenementInflater;
+import org.ecn.edtemps.models.inflaters.EvenementCompletInflater;
+import org.ecn.edtemps.models.inflaters.EvenementIdentifieInflater;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -317,7 +320,6 @@ public class EvenementGestionTest {
 		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
 						"SELECT groupeParticipant_id FROM edt.GroupeParticipant WHERE groupeparticipant_nom = 'testEvenementGestion'");
 		int idGroupe = bdd.recupererId(requetePreparee, "groupeparticipant_id");
-		System.out.println(idGroupe);
 		
 		//Les donnees de test contiennent des evenement créés entre le 01/10/2013 et le 04/10/2013
 		Date dateDebut = new Date(113, 8, 01, 06, 00, 00);
@@ -326,7 +328,6 @@ public class EvenementGestionTest {
 		
 		//Récupération des évenements correspondant au groupe de test : 6 évenements récupérés
 		ArrayList<EvenementComplet> listeEvenements = evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true);
-		System.out.println(listeEvenements.size());
 		assertTrue(listeEvenements.size() == 6);
 		
 		//On initialise les listes qui vont servir à comparer. 
@@ -377,6 +378,55 @@ public class EvenementGestionTest {
 			}
 		}
 		
+	}
+	
+	
+	/**
+	 * Test de la méthode listerEvenementCompletsSalle de la classe EvenementGestion
+	 * 
+	 * Le test se base sur les données de test de la base de données
+	 */
+	@Test
+	public void testListerEvenementSalle() throws Exception{
+		
+		//Test de la méthode sur la salle C02 : 2 événements présents dans la base ayant lieu dans cette salle
+		//Récupération de l'id de la salle
+		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT salle_id FROM edt.Salle WHERE salle_nom = 'Salle C02'");
+		int idSalle = bdd.recupererId(requetePreparee, "salle_id");
+		
+		
+		//On initialise les listes qui vont servir à comparer. 
+		ArrayList<String> nomsIntervenants = new ArrayList<String>();
+		nomsIntervenants.add("ProfSportThere");
+		ArrayList<String> nomsSalles = new ArrayList<String>();
+		nomsSalles.add("Salle C02");
+		ArrayList<String> nomsMatieres = new ArrayList<String>();
+		nomsMatieres.add("dSIBAD");
+		ArrayList<String> nomsTypes = new ArrayList<String>();
+		nomsTypes.add("TD");
+		
+		ArrayList<EvenementComplet> listeEvenement = new ArrayList<EvenementComplet>();
+		listeEvenement = evenementGestion.listerEvenementCompletsSalle(idSalle, new Date(2013,9,21, 8,00,00),new Date(2013,9,22,18,00,00), true);
+		
+		//On s'attend à avoir récupéré 2 événements
+		assertTrue(listeEvenement.size()==2);
+		for (EvenementComplet evenement : listeEvenement) {
+			switch (evenement.getDateDebut().getDay()) {
+			
+			case 21:
+				this.comparerEvenementComplet(evenement, "dSIBAD", new Date(113, 9, 21, 8, 00, 00), new Date(113, 9, 21, 10, 00, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+				
+			case 22:
+				this.comparerEvenementComplet(evenement, "dSIBAD", new Date(113, 9, 22, 10, 15, 00), new Date(113, 9, 22, 12, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+				
+			default:
+				fail();
+				break;
+			}
+		}
 	}
 
 }
