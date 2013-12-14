@@ -327,7 +327,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				var matiere = evenements[i].matieres[j];
 				matieres[matiere] = matiere;
 				
-				if(matiere == filtreMatiere) {
+				if(matiere === filtreMatiere) {
 					okMatiere = true;
 				}
 			}
@@ -337,7 +337,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				var type = evenements[i].types[j];
 				types[type] = type;
 				
-				if(type == filtreType) {
+				if(type === filtreType) {
 					okType = true;
 				}
 			}
@@ -347,7 +347,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				var respo = evenements[i].responsables[j];
 				responsables[respo.id] = respo.prenom + " " + respo.nom;
 				
-				if(respo.id == filtreRespo) {
+				if(respo.id === parseInt(filtreRespo)) {
 					okRespo = true;
 				}
 			}
@@ -356,6 +356,17 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			if((!filtreMatiere || okMatiere) && (!filtreType || okType) && (!filtreRespo || okRespo)) {
 				res.push(evenements[i]);
 			}
+		}
+		
+		// Ajout des options déjà sélectionnés dans les dropdown
+		if(filtreMatiere) {
+			matieres[filtreMatiere] = filtreMatiere;
+		}
+		if(filtreType) {
+			types[filtreType] = filtreType;
+		}
+		if(filtreRespo) {
+			responsables[filtreRespo] = jqFiltreRespo.children("option:selected").text();
 		}
 		
 		// Remplissage des listes déroulantes
