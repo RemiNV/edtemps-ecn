@@ -141,8 +141,8 @@ public class DiagnosticsBdd {
 				try {
 					for(Integer idCal : ids) {
 						ResultSet reponse = bdd.executeRequest("INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, " +
-								"groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-								"SELECT cal_nom, FALSE, FALSE, TRUE FROM edt.calendrier WHERE cal_id = " + idCal + " " +
+								"groupeparticipant_estcours, groupeparticipant_estcalendrierunique, groupeparticipant_createur) " +
+								"SELECT cal_nom, FALSE, FALSE, TRUE, cal_createur FROM edt.calendrier WHERE cal_id = " + idCal + " " +
 								"RETURNING groupeparticipant_id");
 						
 						reponse.next();
