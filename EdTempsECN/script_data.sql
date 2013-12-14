@@ -105,7 +105,7 @@
 	INSERT INTO edt.calendrier(cal_nom, cal_createur) VALUES('Réunions d''information EI1', 5);
 
 	INSERT INTO edt.calendrier(matiere_id, cal_nom, typecal_id, cal_createur)
-		SELECT matiere.matiere_id, 'THERE CM Promo B', typecalendrier.typecal_id, 5
+		SELECT matiere.matiere_id, 'THERE CM Promo B', typecalendrier.typecal_id, 4
 		FROM edt.matiere CROSS JOIN edt.typecalendrier
 		WHERE matiere.matiere_nom='THERE'
 		AND typecalendrier.typecal_libelle='CM' LIMIT 1;

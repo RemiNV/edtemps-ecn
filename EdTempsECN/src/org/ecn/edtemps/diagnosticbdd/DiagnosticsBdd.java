@@ -94,10 +94,10 @@ public class DiagnosticsBdd {
 			return createTestVieuxComptesUtilisateur(5);
 			
 		case 6:
-			return createTestGroupesSansProprietaire(6);
+			return createTestGroupesCreateurNonProprietaire(6);
 
 		case 7:
-			return createTestCalendriersSansProprietaire(7);
+			return createTestCalendriersCreateurNonProprietaire(7);
 
 		case 8:
 			return createTestEvenementsSansProprietaire(8);
@@ -359,12 +359,12 @@ public class DiagnosticsBdd {
 	
 	
 	/**
-	 * Définition d'un test sur la base de données pour détecter les groupes de participants qui n'ont pas de propriétaire
+	 * Définition d'un test sur la base de données pour détecter les groupes de participants dont le créateur n'est pas propriétaire
 	 * @param id Identifiant du test
 	 * @return le testeur
 	 */
-	protected TestBdd createTestGroupesSansProprietaire(int id) {
-		return new TestEntiteIncorrecte("Présence de groupes de participants sans propriétaire", id, "Mettre le créateur du groupe comme propriétaire") {
+	protected TestBdd createTestGroupesCreateurNonProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence de groupes de participants non \"groupe calendrier unique\" dont le créateur n'est pas propriétaire", id, "Mettre le créateur du groupe comme propriétaire") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
@@ -381,9 +381,10 @@ public class DiagnosticsBdd {
 			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
 				return bdd.getConnection().prepareStatement("SELECT groupeparticipant.groupeparticipant_id FROM edt.groupeparticipant" +
 					" LEFT JOIN edt.proprietairegroupeparticipant ON proprietairegroupeparticipant.groupeparticipant_id=groupeparticipant.groupeparticipant_id" +
+					" AND proprietairegroupeparticipant.utilisateur_id = groupeparticipant.groupeparticipant_createur" +
+					" WHERE NOT groupeparticipant.groupeparticipant_estcalendrierunique" +
 					" GROUP BY groupeparticipant.groupeparticipant_id" +
-					" HAVING COUNT(proprietairegroupeparticipant.utilisateur_id) = 0" +
-					" AND NOT groupeparticipant.groupeparticipant_estcalendrierunique");
+					" HAVING COUNT(proprietairegroupeparticipant.utilisateur_id) = 0");
 			}
 
 			@Override
@@ -396,12 +397,12 @@ public class DiagnosticsBdd {
 
 	
 	/**
-	 * Définition d'un test sur la base de données pour détecter les calendriers qui n'ont pas de propriétaire
+	 * Définition d'un test sur la base de données pour détecter les calendriers dont le créateur n'est pas propriétaire
 	 * @param id Identifiant du test
 	 * @return le testeur
 	 */
-	protected TestBdd createTestCalendriersSansProprietaire(int id) {
-		return new TestEntiteIncorrecte("Présence de calendriers sans propriétaire", id, "Mettre le créateur du calendrier comme propriétaire") {
+	protected TestBdd createTestCalendriersCreateurNonProprietaire(int id) {
+		return new TestEntiteIncorrecte("Présence de calendriers dont le créateur n'est pas propriétaire", id, "Mettre le créateur du calendrier comme propriétaire") {
 
 			@Override
 			protected String reparerIncorrects(BddGestion bdd, ArrayList<Integer> ids) throws DatabaseException {
@@ -418,6 +419,7 @@ public class DiagnosticsBdd {
 			protected PreparedStatement getStatementListing(BddGestion bdd) throws SQLException {
 				return bdd.getConnection().prepareStatement("SELECT calendrier.cal_id FROM edt.calendrier" +
 					" LEFT JOIN edt.proprietairecalendrier ON proprietairecalendrier.cal_id=calendrier.cal_id" +
+					" AND proprietairecalendrier.utilisateur_id = calendrier.cal_createur" +
 					" GROUP BY calendrier.cal_id" +
 					" HAVING COUNT(proprietairecalendrier.utilisateur_id) = 0");
 			}
