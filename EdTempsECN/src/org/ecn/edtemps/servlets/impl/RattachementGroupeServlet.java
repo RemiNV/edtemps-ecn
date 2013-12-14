@@ -19,6 +19,7 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.GroupeGestion;
 import org.ecn.edtemps.models.identifie.CalendrierComplet;
 import org.ecn.edtemps.models.identifie.GroupeComplet;
+import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
@@ -129,9 +130,20 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	 * @throws IOException
 	 */
 	protected void doDeciderDemandeDeRattachementGroupe(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		Boolean choix = Boolean.valueOf(req.getParameter("etat"));
-		Integer groupeId = Integer.valueOf(req.getParameter("id"));
+		Integer groupeId = req.getParameter("id")!=null ? Integer.valueOf(req.getParameter("id")) : null;
+		if (groupeId==null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Les paramètres de la requêtes ne sont pas corrects, il faut un identifiant et un choix.");
+		}
+		
+		// Vérifie que l'utilisateur qui fait la demande est bien propriétaire
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		GroupeIdentifie groupe = groupeGestion.getGroupe(groupeId);
+		if (!groupe.getIdProprietaires().contains(userId)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Tentative de décider une demande de rattachement sans être propriétaire");
+		}
+		
+		// Décide le rattachement pour ce groupe
 		groupeGestion.deciderRattachementGroupe(choix, groupeId);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement "+(choix ? "accepté" : "refusé"), null));
 	}
@@ -146,13 +158,21 @@ public class RattachementGroupeServlet extends RequiresConnectionServlet {
 	 * @throws IOException
 	 */
 	protected void doDeciderDemandeDeRattachementCalendrier(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		GroupeGestion groupeGestion = new GroupeGestion(bdd);
 		Boolean choix = Boolean.valueOf(req.getParameter("etat"));
 		Integer groupeIdParent = req.getParameter("groupeIdParent")==null ? null : Integer.valueOf(req.getParameter("groupeIdParent"));
 		Integer calendrierId = req.getParameter("calendrierId")==null ? null : Integer.valueOf(req.getParameter("calendrierId"));
 		if (calendrierId==null | groupeIdParent==null | choix==null) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Les paramètres de la requêtes ne sont pas corrects, il faut un identifiant de groupe parent, un identifiant de calendrier et un choix.");
 		}
+		
+		// Vérifie que l'utilisateur qui fait la demande est bien propriétaire
+		GroupeGestion groupeGestion = new GroupeGestion(bdd);
+		GroupeIdentifie groupe = groupeGestion.getGroupe(groupeIdParent);
+		if (!groupe.getIdProprietaires().contains(userId)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Tentative de décider une demande de rattachement sans être propriétaire");
+		}
+		
+		// Décide le rattachement pour ce groupe
 		groupeGestion.deciderRattachementCalendrier(choix, groupeIdParent, calendrierId);
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Rattachement "+(choix ? "accepté" : "refusé"), null));
 	}
