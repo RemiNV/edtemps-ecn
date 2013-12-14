@@ -77,51 +77,51 @@ public class EvenementGestionTest {
 			
 			assertTrue(exists);
 		}
-		
+
 		//Comparaison des salles rattachées à l'évenement
-			List<SalleIdentifie> sallesCalRecup = evenementRecup.getSalles();
-				
-				assertEquals(sallesCalRecup.size(), idSalles.size());
-				
-				for(SalleIdentifie salleRecup : sallesCalRecup) {
-					boolean exists = false;
-					for(Integer idSalle : idSalles) {
-						if(idSalle == salleRecup.getId())
-							exists = true;
-					}
-					
-					assertTrue(exists);
-				}
+		List<SalleIdentifie> sallesCalRecup = evenementRecup.getSalles();
+
+		assertEquals(sallesCalRecup.size(), idSalles.size());
+
+		for(SalleIdentifie salleRecup : sallesCalRecup) {
+			boolean exists = false;
+			for(Integer idSalle : idSalles) {
+				if(idSalle == salleRecup.getId())
+					exists = true;
+			}
+
+			assertTrue(exists);
+		}
 	
-				//Comparaison des intervenants rattachés à l'évenement
-				List<UtilisateurIdentifie> intervenantsCalRecup = evenementRecup.getIntervenants();
-					
-					assertEquals(intervenantsCalRecup.size(), idIntervenants.size());
-					
-					for(UtilisateurIdentifie intervenantRecup : intervenantsCalRecup) {
-						boolean exists = false;
-						for(Integer idIntervenant : idIntervenants) {
-							if(idIntervenant == intervenantRecup.getId())
-								exists = true;
-						}
-						
-						assertTrue(exists);
-					}
-		
-					//Comparaison des responsables rattachés à l'évenement
-					List<UtilisateurIdentifie> responsablesCalRecup = evenementRecup.getResponsables();
-						
-						assertEquals(responsablesCalRecup.size(), idResponsables.size());
-						
-						for(UtilisateurIdentifie responsableRecup : responsablesCalRecup) {
-							boolean exists = false;
-							for(Integer idResponsable : idResponsables) {
-								if(idResponsable == responsableRecup.getId())
-									exists = true;
-							}
-							
-							assertTrue(exists);
-						}
+		//Comparaison des intervenants rattachés à l'évenement
+		List<UtilisateurIdentifie> intervenantsCalRecup = evenementRecup.getIntervenants();
+
+		assertEquals(intervenantsCalRecup.size(), idIntervenants.size());
+
+		for(UtilisateurIdentifie intervenantRecup : intervenantsCalRecup) {
+			boolean exists = false;
+			for(Integer idIntervenant : idIntervenants) {
+				if(idIntervenant == intervenantRecup.getId())
+					exists = true;
+			}
+
+			assertTrue(exists);
+		}
+
+		//Comparaison des responsables rattachés à l'évenement
+		List<UtilisateurIdentifie> responsablesCalRecup = evenementRecup.getResponsables();
+
+		assertEquals(responsablesCalRecup.size(), idResponsables.size());
+
+		for(UtilisateurIdentifie responsableRecup : responsablesCalRecup) {
+			boolean exists = false;
+			for(Integer idResponsable : idResponsables) {
+				if(idResponsable == responsableRecup.getId())
+					exists = true;
+			}
+
+			assertTrue(exists);
+		}
 	}
 	
 
@@ -251,18 +251,18 @@ public class EvenementGestionTest {
 		
 	}
 	
+	
+	
 	/**
-	 * Methode pour comparer un evenement complet recuperé avec les données connues.
+	 * Methode pour comparer un evenement identifie récupéré avec des données connues
 	 * @param evenement : evenement récupéré
 	 * @param nom : nom de l'événement
 	 * @param dateDebut : date et heure de début de l'événement
 	 * @param dateFin : date et heure de fin de l'événement
 	 * @param nomsIntervenants : noms des intervenants de l'événement
 	 * @param nomsSalles : noms des salles dans lesquelles l'événement a lieu
-	 * @param nomMatiere : noms des matières de l'événement
-	 * @param nomType : noms des types de l'événement
 	 */
-	public void comparerEvenementComplet(EvenementComplet evenement, String nom, Date dateDebut, Date dateFin, List<String> nomsIntervenants, List<String> nomsSalles, List<String> nomsMatieres, List<String> nomsTypes){
+	public void comparerEvenementIdentifie(EvenementIdentifie evenement, String nom, Date dateDebut, Date dateFin, List<String> nomsIntervenants, List<String> nomsSalles){
 		
 		assertEquals(evenement.getNom(), nom);
 		assertEquals(evenement.getDateDebut().compareTo(dateDebut),0);
@@ -291,6 +291,23 @@ public class EvenementGestionTest {
 			}
 		assertTrue(exists);
 		}
+	}
+	
+	
+	/**
+	 * Methode pour comparer un evenement complet recuperé avec les données connues.
+	 * @param evenement : evenement récupéré
+	 * @param nom : nom de l'événement
+	 * @param dateDebut : date et heure de début de l'événement
+	 * @param dateFin : date et heure de fin de l'événement
+	 * @param nomsIntervenants : noms des intervenants de l'événement
+	 * @param nomsSalles : noms des salles dans lesquelles l'événement a lieu
+	 * @param nomMatiere : noms des matières de l'événement
+	 * @param nomType : noms des types de l'événement
+	 */
+	public void comparerEvenementComplet(EvenementComplet evenement, String nom, Date dateDebut, Date dateFin, List<String> nomsIntervenants, List<String> nomsSalles, List<String> nomsMatieres, List<String> nomsTypes){
+		
+		this.comparerEvenementIdentifie(evenement, nom, dateDebut, dateFin, nomsIntervenants, nomsSalles);
 	
 		//Comparaison de la liste des matieres
 		assertEquals(evenement.getMatieres().size(), nomsMatieres.size());
@@ -427,6 +444,74 @@ public class EvenementGestionTest {
 				break;
 			}
 		}
+	}
+	
+	
+	/**
+	 * Test de la méthode listerEvenementsUtilisateur de la classe EvenementGestion
+	 */
+	public void testListerEvenementsUtilisateur() throws Exception{
+		
+		//On va récupérer les événements auxquels est abonné l'utilisateur ayant le token 3
+		// Cet utilisateur est abonné au groupe de participant "EI Groupe K", on s'attend donc à récupérer 3 événements :
+		// "Sport", "Réunion d''information alternance", "THERE"
+		
+		//Fait parti du groupe de participant EI Groupe K
+		//Groupe participant pères et fils : "EI1 Groupe K", "EI1 Promo B", "EI1", "Elèves ingénieur"
+		//Abonné aux calendriers : "Sport groupes K,L", "THERE CM Promo B", "Réunions d''information EI1"
+		//Evénements récupérés : 
+		//evenement.eve_nom='Sport' AND evenement.eve_datedebut='2013-10-23 10:15:00'
+		//evenement.eve_nom='Réunion d''information alternance' AND evenement.eve_datedebut='2013-09-23 10:15:00'
+		//evenement.eve_nom='THERE' AND evenement.eve_datedebut='2013-10-24 13:45:00'
+		
+		//Récupération de l'id de l'utilisateur
+		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.Utilisateur WHERE utilisateur_token = '3'");
+		int idUtilisateur = bdd.recupererId(requetePreparee, "utilisateur_id");
+				
+		//On récupère la liste d'événements		
+		ArrayList<EvenementIdentifie> listeEvenement = evenementGestion.listerEvenementsUtilisateur(idUtilisateur, new Date(2013, 8, 23, 8,00,00), new Date(2013, 9, 24, 18,00,00), true, false);
+		
+		//Déclaration des listes contenant les informations à comparer
+		ArrayList<String> nomsIntervenants = new ArrayList<String>();
+		ArrayList<String> nomsSalles = new ArrayList<String>();
+		
+		//On s'attend à avoir récupéré 3 événements
+				assertTrue(listeEvenement.size()==3);
+				for (EvenementIdentifie evenement : listeEvenement) {
+					switch (evenement.getNom()) {
+					
+					case "Sport":
+						//Pas d'intervenant ni de salle pour le sport
+						nomsIntervenants.clear();
+						nomsSalles.clear();
+						//Comparaison
+						this.comparerEvenementIdentifie(evenement, "Sport", new Date(2013,9,23,10,15,00),new Date(2013,9,23,12,15,00), nomsIntervenants, nomsSalles);
+						break;
+						
+					case "THERE":
+						//Remplissage des informations de salle. (pas d'intervenant pour la there)
+						nomsIntervenants.clear();
+						nomsSalles.clear();
+						nomsSalles.add("Amphi L");
+						this.comparerEvenementIdentifie(evenement, "THERE", new Date(2013,9,24,13,45,00),new Date(2013,9,24,15,45,00), nomsIntervenants, nomsSalles);
+						break;
+					
+					case "Réunion d''information alternance":
+						//Remplissage des informations de salle et d'intervenant
+						nomsIntervenants.clear();
+						nomsSalles.clear();
+						nomsSalles.add("Amphi L");
+						nomsIntervenants.add("Doe");
+						this.comparerEvenementIdentifie(evenement, "Réunion d''information alternance", new Date(2013,8,23,12,15,00),new Date(2013,8,23,10,15,00), nomsIntervenants, nomsSalles);
+						break;
+						
+					default:
+						fail();
+						break;
+						
+					}
+				}
 	}
 
 }
