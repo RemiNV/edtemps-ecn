@@ -409,13 +409,12 @@ public class EvenementGestionTest {
 		//Test de la méthode sur la salle C02 : 2 événements présents dans la base ayant lieu dans cette salle
 		//Récupération de l'id de la salle
 		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
-				"SELECT salle_id FROM edt.Salle WHERE salle_nom = 'Salle C02'");
+				"SELECT salle_id FROM edt.salle WHERE salle_nom = 'Salle C02'");
 		int idSalle = bdd.recupererId(requetePreparee, "salle_id");
 		
 		
 		//On initialise les listes qui vont servir à comparer. 
-		ArrayList<String> nomsIntervenants = new ArrayList<String>();
-		nomsIntervenants.add("ProfSportThere");
+		ArrayList<String> nomsIntervenants = new ArrayList<String>(); //Il n'y a pas d'intervenant pour le cours
 		ArrayList<String> nomsSalles = new ArrayList<String>();
 		nomsSalles.add("Salle C02");
 		ArrayList<String> nomsMatieres = new ArrayList<String>();
@@ -424,12 +423,13 @@ public class EvenementGestionTest {
 		nomsTypes.add("TD");
 		
 		ArrayList<EvenementComplet> listeEvenement = new ArrayList<EvenementComplet>();
-		listeEvenement = evenementGestion.listerEvenementCompletsSalle(idSalle, new Date(2013,9,21, 8,00,00),new Date(2013,9,22,18,00,00), true);
+		listeEvenement = evenementGestion.listerEvenementCompletsSalle(idSalle, new Date(113,9,21, 8,00,00),new Date(113,9,22,18,00,00), true);
 		
 		//On s'attend à avoir récupéré 2 événements
 		assertTrue(listeEvenement.size()==2);
+		
 		for (EvenementComplet evenement : listeEvenement) {
-			switch (evenement.getDateDebut().getDay()) {
+			switch (evenement.getDateDebut().getDate()) {
 			
 			case 21:
 				this.comparerEvenementComplet(evenement, "dSIBAD", new Date(113, 9, 21, 8, 00, 00), new Date(113, 9, 21, 10, 00, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
@@ -450,19 +450,13 @@ public class EvenementGestionTest {
 	/**
 	 * Test de la méthode listerEvenementsUtilisateur de la classe EvenementGestion
 	 */
+	@Test
 	public void testListerEvenementsUtilisateur() throws Exception{
 		
 		//On va récupérer les événements auxquels est abonné l'utilisateur ayant le token 3
 		// Cet utilisateur est abonné au groupe de participant "EI Groupe K", on s'attend donc à récupérer 3 événements :
-		// "Sport", "Réunion d''information alternance", "THERE"
+		// "Sport", "Réunion d'information alternance", "THERE"
 		
-		//Fait parti du groupe de participant EI Groupe K
-		//Groupe participant pères et fils : "EI1 Groupe K", "EI1 Promo B", "EI1", "Elèves ingénieur"
-		//Abonné aux calendriers : "Sport groupes K,L", "THERE CM Promo B", "Réunions d''information EI1"
-		//Evénements récupérés : 
-		//evenement.eve_nom='Sport' AND evenement.eve_datedebut='2013-10-23 10:15:00'
-		//evenement.eve_nom='Réunion d''information alternance' AND evenement.eve_datedebut='2013-09-23 10:15:00'
-		//evenement.eve_nom='THERE' AND evenement.eve_datedebut='2013-10-24 13:45:00'
 		
 		//Récupération de l'id de l'utilisateur
 		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
@@ -470,7 +464,7 @@ public class EvenementGestionTest {
 		int idUtilisateur = bdd.recupererId(requetePreparee, "utilisateur_id");
 				
 		//On récupère la liste d'événements		
-		ArrayList<EvenementIdentifie> listeEvenement = evenementGestion.listerEvenementsUtilisateur(idUtilisateur, new Date(2013, 8, 23, 8,00,00), new Date(2013, 9, 24, 18,00,00), true, false);
+		ArrayList<EvenementIdentifie> listeEvenement = evenementGestion.listerEvenementsUtilisateur(idUtilisateur, new Date(113, 8, 23, 8,00,00), new Date(113, 9, 24, 18,00,00), true, false);
 		
 		//Déclaration des listes contenant les informations à comparer
 		ArrayList<String> nomsIntervenants = new ArrayList<String>();
@@ -486,7 +480,7 @@ public class EvenementGestionTest {
 						nomsIntervenants.clear();
 						nomsSalles.clear();
 						//Comparaison
-						this.comparerEvenementIdentifie(evenement, "Sport", new Date(2013,9,23,10,15,00),new Date(2013,9,23,12,15,00), nomsIntervenants, nomsSalles);
+						this.comparerEvenementIdentifie(evenement, "Sport", new Date(113,9,23,10,15,00),new Date(113,9,23,12,15,00), nomsIntervenants, nomsSalles);
 						break;
 						
 					case "THERE":
@@ -494,19 +488,20 @@ public class EvenementGestionTest {
 						nomsIntervenants.clear();
 						nomsSalles.clear();
 						nomsSalles.add("Amphi L");
-						this.comparerEvenementIdentifie(evenement, "THERE", new Date(2013,9,24,13,45,00),new Date(2013,9,24,15,45,00), nomsIntervenants, nomsSalles);
+						this.comparerEvenementIdentifie(evenement, "THERE", new Date(113,9,24,13,45,00),new Date(113,9,24,15,45,00), nomsIntervenants, nomsSalles);
 						break;
 					
-					case "Réunion d''information alternance":
+					case "Réunion d'information alternance":
 						//Remplissage des informations de salle et d'intervenant
 						nomsIntervenants.clear();
 						nomsSalles.clear();
 						nomsSalles.add("Amphi L");
 						nomsIntervenants.add("Doe");
-						this.comparerEvenementIdentifie(evenement, "Réunion d''information alternance", new Date(2013,8,23,12,15,00),new Date(2013,8,23,10,15,00), nomsIntervenants, nomsSalles);
+						this.comparerEvenementIdentifie(evenement, "Réunion d'information alternance", new Date(113,8,23,10,15,00),new Date(113,8,23,12,15,00), nomsIntervenants, nomsSalles);
 						break;
 						
 					default:
+						System.out.println(evenement.getNom());
 						fail();
 						break;
 						
