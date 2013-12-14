@@ -261,7 +261,7 @@ define(["RestManager"], function(RestManager) {
 			for(var j=0, maxJ = idCalendriers.length; j<maxJ; j++) {
 				var type = this.typesCalendriers[idCalendriers[j]];
 				if(type) {
-					types.push();
+					types.push(type);
 				}
 				
 				var matiere = this.matieresCalendriers[idCalendriers[j]];
