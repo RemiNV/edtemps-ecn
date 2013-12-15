@@ -25,7 +25,7 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 			reportMessage += "\nStack : \n" + stack;
 		}
 		
-		if(console && console.log) {
+		if(window.console && console.log) {
 			console.log("Erreur signalée au serveur : ", reportMessage);
 		}
 		$.ajax("logging", {
@@ -40,7 +40,7 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 	requirejs.onError = function(e) {
 		// Pas d'erreur lancée pour les timeout : log manuel
 		if(e.requireType == "timeout") {
-			if(console && console.log) {
+			if(window.console && console.log) {
 				console.log("requireJS : Timeout au chargement des scripts : ", e);
 			}
 		}

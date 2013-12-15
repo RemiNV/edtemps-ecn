@@ -668,7 +668,6 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					// Enregistrement de la liste des calendriers
 					me.listeCalendriers = data.listeCalendriers;
 					// Ecriture du tableau dans la page, en utilisant le template
-					console.log(data.listeCalendriers);
 					$("#tbl_mes_calendriers").html(_.template(listMesCalendriersTemplate, {calendriers: data.listeCalendriers, userId: me.restManager.getUserId()}));
 					
 					// Listeners pour les boutons "ne plus être propriétaire"
