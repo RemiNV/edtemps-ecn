@@ -15,6 +15,9 @@ import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
+import org.ecn.edtemps.models.inflaters.AbsEvenementInflater;
+import org.ecn.edtemps.models.inflaters.EvenementCompletInflater;
+import org.ecn.edtemps.models.inflaters.EvenementIdentifieInflater;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -74,51 +77,51 @@ public class EvenementGestionTest {
 			
 			assertTrue(exists);
 		}
-		
+
 		//Comparaison des salles rattachées à l'évenement
-			List<SalleIdentifie> sallesCalRecup = evenementRecup.getSalles();
-				
-				assertEquals(sallesCalRecup.size(), idSalles.size());
-				
-				for(SalleIdentifie salleRecup : sallesCalRecup) {
-					boolean exists = false;
-					for(Integer idSalle : idSalles) {
-						if(idSalle == salleRecup.getId())
-							exists = true;
-					}
-					
-					assertTrue(exists);
-				}
+		List<SalleIdentifie> sallesCalRecup = evenementRecup.getSalles();
+
+		assertEquals(sallesCalRecup.size(), idSalles.size());
+
+		for(SalleIdentifie salleRecup : sallesCalRecup) {
+			boolean exists = false;
+			for(Integer idSalle : idSalles) {
+				if(idSalle == salleRecup.getId())
+					exists = true;
+			}
+
+			assertTrue(exists);
+		}
 	
-				//Comparaison des intervenants rattachés à l'évenement
-				List<UtilisateurIdentifie> intervenantsCalRecup = evenementRecup.getIntervenants();
-					
-					assertEquals(intervenantsCalRecup.size(), idIntervenants.size());
-					
-					for(UtilisateurIdentifie intervenantRecup : intervenantsCalRecup) {
-						boolean exists = false;
-						for(Integer idIntervenant : idIntervenants) {
-							if(idIntervenant == intervenantRecup.getId())
-								exists = true;
-						}
-						
-						assertTrue(exists);
-					}
-		
-					//Comparaison des responsables rattachés à l'évenement
-					List<UtilisateurIdentifie> responsablesCalRecup = evenementRecup.getResponsables();
-						
-						assertEquals(responsablesCalRecup.size(), idResponsables.size());
-						
-						for(UtilisateurIdentifie responsableRecup : responsablesCalRecup) {
-							boolean exists = false;
-							for(Integer idResponsable : idResponsables) {
-								if(idResponsable == responsableRecup.getId())
-									exists = true;
-							}
-							
-							assertTrue(exists);
-						}
+		//Comparaison des intervenants rattachés à l'évenement
+		List<UtilisateurIdentifie> intervenantsCalRecup = evenementRecup.getIntervenants();
+
+		assertEquals(intervenantsCalRecup.size(), idIntervenants.size());
+
+		for(UtilisateurIdentifie intervenantRecup : intervenantsCalRecup) {
+			boolean exists = false;
+			for(Integer idIntervenant : idIntervenants) {
+				if(idIntervenant == intervenantRecup.getId())
+					exists = true;
+			}
+
+			assertTrue(exists);
+		}
+
+		//Comparaison des responsables rattachés à l'évenement
+		List<UtilisateurIdentifie> responsablesCalRecup = evenementRecup.getResponsables();
+
+		assertEquals(responsablesCalRecup.size(), idResponsables.size());
+
+		for(UtilisateurIdentifie responsableRecup : responsablesCalRecup) {
+			boolean exists = false;
+			for(Integer idResponsable : idResponsables) {
+				if(idResponsable == responsableRecup.getId())
+					exists = true;
+			}
+
+			assertTrue(exists);
+		}
 	}
 	
 
@@ -248,18 +251,18 @@ public class EvenementGestionTest {
 		
 	}
 	
+	
+	
 	/**
-	 * Methode pour comparer un evenement complet recuperé avec les données connues.
+	 * Methode pour comparer un evenement identifie récupéré avec des données connues
 	 * @param evenement : evenement récupéré
 	 * @param nom : nom de l'événement
 	 * @param dateDebut : date et heure de début de l'événement
 	 * @param dateFin : date et heure de fin de l'événement
 	 * @param nomsIntervenants : noms des intervenants de l'événement
 	 * @param nomsSalles : noms des salles dans lesquelles l'événement a lieu
-	 * @param nomMatiere : noms des matières de l'événement
-	 * @param nomType : noms des types de l'événement
 	 */
-	public void comparerEvenementComplet(EvenementComplet evenement, String nom, Date dateDebut, Date dateFin, List<String> nomsIntervenants, List<String> nomsSalles, List<String> nomsMatieres, List<String> nomsTypes){
+	public void comparerEvenementIdentifie(EvenementIdentifie evenement, String nom, Date dateDebut, Date dateFin, List<String> nomsIntervenants, List<String> nomsSalles){
 		
 		assertEquals(evenement.getNom(), nom);
 		assertEquals(evenement.getDateDebut().compareTo(dateDebut),0);
@@ -288,6 +291,23 @@ public class EvenementGestionTest {
 			}
 		assertTrue(exists);
 		}
+	}
+	
+	
+	/**
+	 * Methode pour comparer un evenement complet recuperé avec les données connues.
+	 * @param evenement : evenement récupéré
+	 * @param nom : nom de l'événement
+	 * @param dateDebut : date et heure de début de l'événement
+	 * @param dateFin : date et heure de fin de l'événement
+	 * @param nomsIntervenants : noms des intervenants de l'événement
+	 * @param nomsSalles : noms des salles dans lesquelles l'événement a lieu
+	 * @param nomMatiere : noms des matières de l'événement
+	 * @param nomType : noms des types de l'événement
+	 */
+	public void comparerEvenementComplet(EvenementComplet evenement, String nom, Date dateDebut, Date dateFin, List<String> nomsIntervenants, List<String> nomsSalles, List<String> nomsMatieres, List<String> nomsTypes){
+		
+		this.comparerEvenementIdentifie(evenement, nom, dateDebut, dateFin, nomsIntervenants, nomsSalles);
 	
 		//Comparaison de la liste des matieres
 		assertEquals(evenement.getMatieres().size(), nomsMatieres.size());
@@ -310,26 +330,13 @@ public class EvenementGestionTest {
 	@Test
 	public void testListerEvenementsGroupe() throws Exception {
 	
-		//méthode récupère les événements des groupes fils et parents !!
-		//-> créer un groupe de test avec deux calendriers contenant deux événements, avec un groupe parent et un groupe fils qui contiennent aussi des données.
-		//groupe contient des calendriers -> tester avec un groupe qui contient 2 calendriers ?
-		//groupe : 	groupe
-		//evenement : evenement, responsableEvenement, evenementAppartient, aLieuEnSalle, intervenantsEvenement
-		//calendrier : calendrier, calendrierAppartientGroupe
-		// nom groupe : testEvenementGestion, testEvenementGestionPere, testEvenementGestionFils
-		// nom calendrier : testEvenementGestion1, testEvenementGestion2, testEvenementGestionPere, testEvenementGestionFils
-		// nom evenement : testEvenementGestion1, testEvenementGestion2, testEvenementGestion3...
-		
-		//TODO : insérer les evenements, calendriers et groupe dans la base de données
-		
-		
-		
-		
+		//Utilisation de données spécifiques insérées dans la base de données : 6 événements testCalendrierGestion1 à testCalendrierGestion6
+		//4 de ces événements sont rattachés à un groupe de participant, 1 événement à un groupe père et le dernier à un groupe fils.
+				
 		//récupération de l'id du groupe
 		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
 						"SELECT groupeParticipant_id FROM edt.GroupeParticipant WHERE groupeparticipant_nom = 'testEvenementGestion'");
 		int idGroupe = bdd.recupererId(requetePreparee, "groupeparticipant_id");
-		System.out.println(idGroupe);
 		
 		//Les donnees de test contiennent des evenement créés entre le 01/10/2013 et le 04/10/2013
 		Date dateDebut = new Date(113, 8, 01, 06, 00, 00);
@@ -338,7 +345,6 @@ public class EvenementGestionTest {
 		
 		//Récupération des évenements correspondant au groupe de test : 6 évenements récupérés
 		ArrayList<EvenementComplet> listeEvenements = evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true);
-		System.out.println(listeEvenements.size());
 		assertTrue(listeEvenements.size() == 6);
 		
 		//On initialise les listes qui vont servir à comparer. 
@@ -389,6 +395,118 @@ public class EvenementGestionTest {
 			}
 		}
 		
+	}
+	
+	
+	/**
+	 * Test de la méthode listerEvenementCompletsSalle de la classe EvenementGestion
+	 * 
+	 * Le test se base sur les données de test de la base de données
+	 */
+	@Test
+	public void testListerEvenementSalle() throws Exception{
+		
+		//Test de la méthode sur la salle C02 : 2 événements présents dans la base ayant lieu dans cette salle
+		//Récupération de l'id de la salle
+		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT salle_id FROM edt.salle WHERE salle_nom = 'Salle C02'");
+		int idSalle = bdd.recupererId(requetePreparee, "salle_id");
+		
+		
+		//On initialise les listes qui vont servir à comparer. 
+		ArrayList<String> nomsIntervenants = new ArrayList<String>(); //Il n'y a pas d'intervenant pour le cours
+		ArrayList<String> nomsSalles = new ArrayList<String>();
+		nomsSalles.add("Salle C02");
+		ArrayList<String> nomsMatieres = new ArrayList<String>();
+		nomsMatieres.add("dSIBAD");
+		ArrayList<String> nomsTypes = new ArrayList<String>();
+		nomsTypes.add("TD");
+		
+		ArrayList<EvenementComplet> listeEvenement = new ArrayList<EvenementComplet>();
+		listeEvenement = evenementGestion.listerEvenementCompletsSalle(idSalle, new Date(113,9,21, 8,00,00),new Date(113,9,22,18,00,00), true);
+		
+		//On s'attend à avoir récupéré 2 événements
+		assertTrue(listeEvenement.size()==2);
+		
+		for (EvenementComplet evenement : listeEvenement) {
+			switch (evenement.getDateDebut().getDate()) {
+			
+			case 21:
+				this.comparerEvenementComplet(evenement, "dSIBAD", new Date(113, 9, 21, 8, 00, 00), new Date(113, 9, 21, 10, 00, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+				
+			case 22:
+				this.comparerEvenementComplet(evenement, "dSIBAD", new Date(113, 9, 22, 10, 15, 00), new Date(113, 9, 22, 12, 15, 00), nomsIntervenants, nomsSalles, nomsMatieres, nomsTypes);
+				break;
+				
+			default:
+				fail();
+				break;
+			}
+		}
+	}
+	
+	
+	/**
+	 * Test de la méthode listerEvenementsUtilisateur de la classe EvenementGestion
+	 */
+	@Test
+	public void testListerEvenementsUtilisateur() throws Exception{
+		
+		//On va récupérer les événements auxquels est abonné l'utilisateur ayant le token 3
+		// Cet utilisateur est abonné au groupe de participant "EI Groupe K", on s'attend donc à récupérer 3 événements :
+		// "Sport", "Réunion d'information alternance", "THERE"
+		
+		
+		//Récupération de l'id de l'utilisateur
+		PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.Utilisateur WHERE utilisateur_token = '3'");
+		int idUtilisateur = bdd.recupererId(requetePreparee, "utilisateur_id");
+				
+		//On récupère la liste d'événements		
+		ArrayList<EvenementIdentifie> listeEvenement = evenementGestion.listerEvenementsUtilisateur(idUtilisateur, new Date(113, 8, 23, 8,00,00), new Date(113, 9, 24, 18,00,00), true, false);
+		
+		//Déclaration des listes contenant les informations à comparer
+		ArrayList<String> nomsIntervenants = new ArrayList<String>();
+		ArrayList<String> nomsSalles = new ArrayList<String>();
+		
+		//On s'attend à avoir récupéré 3 événements
+				assertTrue(listeEvenement.size()==3);
+				for (EvenementIdentifie evenement : listeEvenement) {
+					switch (evenement.getNom()) {
+					
+					case "Sport":
+						//Pas d'intervenant ni de salle pour le sport
+						nomsIntervenants.clear();
+						nomsSalles.clear();
+						//Comparaison
+						this.comparerEvenementIdentifie(evenement, "Sport", new Date(113,9,23,10,15,00),new Date(113,9,23,12,15,00), nomsIntervenants, nomsSalles);
+						break;
+						
+					case "THERE":
+						//Remplissage des informations de salle. (pas d'intervenant pour la there)
+						nomsIntervenants.clear();
+						nomsSalles.clear();
+						nomsSalles.add("Amphi L");
+						this.comparerEvenementIdentifie(evenement, "THERE", new Date(113,9,24,13,45,00),new Date(113,9,24,15,45,00), nomsIntervenants, nomsSalles);
+						break;
+					
+					case "Réunion d'information alternance":
+						//Remplissage des informations de salle et d'intervenant
+						nomsIntervenants.clear();
+						nomsSalles.clear();
+						nomsSalles.add("Amphi L");
+						nomsIntervenants.add("Doe");
+						this.comparerEvenementIdentifie(evenement, "Réunion d'information alternance", new Date(113,8,23,10,15,00),new Date(113,8,23,12,15,00), nomsIntervenants, nomsSalles);
+						break;
+						
+					default:
+						System.out.println(evenement.getNom());
+						fail();
+						break;
+						
+					}
+				}
 	}
 
 }
