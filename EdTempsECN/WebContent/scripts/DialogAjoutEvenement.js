@@ -233,7 +233,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		this.jqDialog.find("#notes_salles_occupees").css("display", "none");
 		this.jqDialog.find("#lst_evenements_salles_occupees").children().remove();
 		
-		this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
+		this.jqDialog.find("#btn_valider_ajout_evenement,#btn_rechercher_salle_evenement").attr("disabled", "disabled");
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Vérification de la disponibilité des salles...");
 		
@@ -283,7 +283,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 					nbVerificationsRestantes--;
 					if(nbVerificationsRestantes == 0) {
 						me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
-						me.jqDialog.find("#btn_valider_ajout_evenement").removeAttr("disabled");
+						me.jqDialog.find("#btn_valider_ajout_evenement,#btn_rechercher_salle_evenement").removeAttr("disabled");
 						
 						// Mise à jour de l'affichage des salles
 						me.affichageSalles();
@@ -782,7 +782,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 	 */
 	DialogAjoutEvenement.prototype.init = function() {
 		// Récupération des calendriers auxquels l'utilisateur peut ajouter des évènements
-		this.jqDialog.find("#btn_valider_ajout_evenement").attr("disabled", "disabled");
+		this.jqDialog.find("#btn_valider_ajout_evenement,#btn_rechercher_salle_evenement").attr("disabled", "disabled");
 		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
 		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Chargement des options...");
 		
@@ -822,7 +822,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			}
 			
 			if(succesChargementGlobal) {
-				me.jqDialog.find("#btn_valider_ajout_evenement").removeAttr("disabled");
+				me.jqDialog.find("#btn_valider_ajout_evenement,#btn_rechercher_salle_evenement").removeAttr("disabled");
 			}
 			
 			me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
