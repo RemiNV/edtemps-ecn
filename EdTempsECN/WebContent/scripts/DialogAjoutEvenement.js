@@ -85,15 +85,27 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			me.validationDialog();
 		});
 		
-		var handlerChangementHeure = function(e) {
+		var lastHeureDebut = "";
+		var handlerChangementHeureDebut = function(e) {
+			var val = $(this).val();
 			// Vérification que la saisie est complète (pas le masque "_" à compléter)
-			if($(this).val().charAt(4) != "_") {
+			if(val.charAt(4) != "_" && val != lastHeureDebut) {
+				lastHeureDebut = val;
 				me.verifierDisponibiliteSalles();
 			}
 		};
 		
-		jqDialog.find("#heure_debut").on("paste keyup", handlerChangementHeure);
-		jqDialog.find("#heure_fin").on("paste keyup", handlerChangementHeure);
+		var lastHeureFin = "";
+		var handlerChangementHeureFin = function(e) {
+			var val = $(this).val();
+			if(val.charAt(4) != "_" && val != lastHeureFin) {
+				lastHeureFin = val;
+				me.verifierDisponibiliteSalles();
+			}
+		};
+		
+		jqDialog.find("#heure_debut").on("paste keyup", handlerChangementHeureDebut);
+		jqDialog.find("#heure_fin").on("paste keyup", handlerChangementHeureFin);
 		jqDialog.find("#calendriers_evenement").change(function() {
 			me.verifierDisponibiliteSalles();
 		});
