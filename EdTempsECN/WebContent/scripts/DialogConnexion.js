@@ -120,6 +120,7 @@ define(["RestManager", "jquery", "jqueryui"], function(RestManager) {
 		this.connectionSuccess = false;
 		this.connectionCallback = connectionCallback;
 
+		this.jqDialog.find("#btn_connexion").removeAttr("disabled");
 		this.jqDialog.dialog("option", "title", title);
 		this.jqDialog.dialog("open");
 	};

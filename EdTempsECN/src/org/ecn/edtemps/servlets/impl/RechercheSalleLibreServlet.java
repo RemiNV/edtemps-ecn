@@ -56,11 +56,13 @@ public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format du paramètre materiel incorrect");
 			}
 			
-			String[] tableauMateriel = paramMateriel.split(",");
-			for (int i = 0 ; i < tableauMateriel.length ; i++) {
-				String[] infos = tableauMateriel[i].split(":");
-				if (Integer.valueOf(infos[1])!=0) {
-					listeMateriel.add(new Materiel(Integer.valueOf(infos[0]), "", Integer.valueOf(infos[1])));
+			if(!paramMateriel.equals("")) {
+				String[] tableauMateriel = paramMateriel.split(",");
+				for (int i = 0 ; i < tableauMateriel.length ; i++) {
+					String[] infos = tableauMateriel[i].split(":");
+					if (Integer.valueOf(infos[1])!=0) {
+						listeMateriel.add(new Materiel(Integer.valueOf(infos[0]), "", Integer.valueOf(infos[1])));
+					}
 				}
 			}
 

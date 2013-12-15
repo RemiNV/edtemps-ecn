@@ -229,7 +229,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		
 		// Validation des quantités de matériel
 		var me = this;
-		this.jqRechercheSalleForm.find(".quantite input[type=number]").each(function() {
+		this.jqRechercheSalleForm.find(".quantite input").each(function() {
 			if (isNaN($(this).val()) || $(this).val()<0 || $(this).val()>9999 || $(this).val()=="" ) {
 				me.bordureSurChamp($(this), "#FF0000");
 				valid = false;
@@ -295,7 +295,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 					jqTableMateriel.addClass("liste_materiel");
 			
 					// Ajout des masques sur les quantités de matériel
-					jqTableMateriel.find(".quantite input[type=number]").each(function() {
+					jqTableMateriel.find(".quantite input").each(function() {
 						$(this).mask("?9999", { placeholder: "" });
 						$(this).click(function() {
 							me.bordureSurChamp($(this), "#FFFFFF");
@@ -331,7 +331,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 */
 	RechercheSalle.prototype.getContenuListeMateriel = function(jqTableMateriel) {
 		var listeMateriel = new Array();
-		jqTableMateriel.find(".quantite input[type=number]").each(function() {
+		jqTableMateriel.find(".quantite input").each(function() {
 			var materiel = new Object();
 			materiel.id = parseInt($(this).attr("materiel-id"));
 			materiel.quantite = parseInt($(this).val());
