@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
+import org.ecn.edtemps.managers.PreferencesManager.EdtempsPreference;
 
 /**
  * Classe d'outils pour se connecter à la base de données et exécuter des
@@ -41,9 +42,9 @@ public class BddGestion {
 			logger.debug("Driver postgres chargé");
 
 			// Création de l'url de connexion
-			String url = "jdbc:postgresql://localhost:5432/edtemps-ecn";
-			String user = "edtemps-ecn";
-			String passwd = "passwordEdtemps";
+			String url = PreferencesManager.getPreference(EdtempsPreference.PGSQL_JDBC_URL);
+			String user = PreferencesManager.getPreference(EdtempsPreference.PGSQL_USER);
+			String passwd = PreferencesManager.getPreference(EdtempsPreference.PGSQL_PASS);
 
 			// Connexion à la base de données
 			connection = DriverManager.getConnection(url, user, passwd);

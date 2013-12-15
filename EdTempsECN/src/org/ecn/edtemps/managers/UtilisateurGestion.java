@@ -26,6 +26,7 @@ import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.IdentificationErrorException;
 import org.ecn.edtemps.exceptions.IdentificationException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.managers.PreferencesManager.EdtempsPreference;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -46,11 +47,6 @@ public class UtilisateurGestion {
 
 	/** Clé permettant de générer les jetons de connexion (token) */
 	private static final String KEY_TOKENS = "F.Lecuyer,R.NguyenVan,A.Pouchoulin,J.Terrade,M.Terrade,R.Traineau,OnCrypteToutAvecNosNomsYeah";
-	
-	/** Configuration pour accéder à LDAP depuis l'extérieur */
-	private static final String ADRESSE_LDAP = "ldaps.nomade.ec-nantes.fr";
-	private static final int PORT_LDAP = 636;
-	private static final boolean USE_SSL_LDAP = true;
 	
 	private static Logger logger = LogManager.getLogger(UtilisateurGestion.class.getName());
 	
@@ -303,15 +299,27 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public ObjetRetourMethodeConnexion seConnecter(String utilisateur, String pass) throws IdentificationException, DatabaseException {
-		
 		// Connexion à LDAP
 		String dn = "uid=" + utilisateur + ",ou=people,dc=ec-nantes,dc=fr";
+		
+		String ldapHost = PreferencesManager.getPreference(EdtempsPreference.LDAP_HOST);
+		boolean ldapUseSsl = Boolean.parseBoolean(PreferencesManager.getPreference(EdtempsPreference.LDAP_USE_SSL));
+		int ldapPort;
+		try {
+			ldapPort = Integer.valueOf(PreferencesManager.getPreference(EdtempsPreference.LDAP_PORT));
+		}
+		catch(NumberFormatException e) {
+			String message = "Valeur incorrecte pour le paramètre " + EdtempsPreference.LDAP_PORT.getKey() + ", vérifiez le fichier de configuration";
+			logger.error(message, e);
+			throw new IdentificationErrorException(ResultCode.LDAP_CONNECTION_ERROR, message, e);
+		}
+
 		try {
 			
 			// SocketFactory selon l'utilisation de SSL
-			SocketFactory socketFactoryConnection = USE_SSL_LDAP ? SSLSocketFactory.getDefault() : SocketFactory.getDefault();
+			SocketFactory socketFactoryConnection = ldapUseSsl ? SSLSocketFactory.getDefault() : SocketFactory.getDefault();
 			
-			LDAPConnection connection = new LDAPConnection(socketFactoryConnection, ADRESSE_LDAP, PORT_LDAP, dn, pass);
+			LDAPConnection connection = new LDAPConnection(socketFactoryConnection, ldapHost, ldapPort, dn, pass);
 			
 			// Succès de la connexion : récupération des nom, prénom, mail de l'utilisateur
 			String filtre = "(uid=" + utilisateur + ")";
