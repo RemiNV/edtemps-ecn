@@ -51,6 +51,10 @@ public class PreferencesManager {
 			this.key = key;
 		}
 		
+		/**
+		 * Récupération de la clé du fichier de configuration correspondant à la préférence
+		 * @return La clé
+		 */
 		public String getKey() {
 			return key;
 		}
@@ -73,7 +77,7 @@ public class PreferencesManager {
 		} catch (IOException e) {
 			String message = "Erreur de chargement du fichier de configuration " + CONFIG_FILENAME + " ; l'application ne peut pas s'exécuter correctement";
 			logger.fatal(message, e);
-			throw new RuntimeException(message);
+			throw new RuntimeException(message, e);
 		}
 		
 	}
