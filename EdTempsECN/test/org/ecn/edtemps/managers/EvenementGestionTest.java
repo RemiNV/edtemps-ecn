@@ -515,6 +515,7 @@ public class EvenementGestionTest {
 	 * Ce test utilise les données de la base de données de test
 	 * @throws Exception
 	 */
+	@Test
 	public void testListerEvenementsCalendrier() throws Exception{
 		 
 		//On va récupérer les deux événements du calendrier "OBJET TD"

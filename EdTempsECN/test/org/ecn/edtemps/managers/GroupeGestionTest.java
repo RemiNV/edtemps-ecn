@@ -8,7 +8,9 @@ import java.util.List;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.models.Groupe;
+import org.ecn.edtemps.models.identifie.GroupeComplet;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
+import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -95,4 +97,63 @@ public class GroupeGestionTest {
 		assertNull(this.groupeGestionnaire.getGroupe(idGroupe2));
 	}
 
+	
+	public void testModifierGroupe() throws Exception{
+		
+		//Modifier un groupe existant ou utiliser un groupe existant déjà en base de donnée ?
+		//-> à priori getGroupe fonctionne !
+		//modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, 
+			//	boolean estCours, List<Integer> listeIdProprietaires, int userId)
+		
+		//checker comment fonctionne le constructeur groupe + quelles infos renvoie getGroupe + quelles infos réutiliser pour le modifierGroupe
+	
+		//Tests : 	modifier un groupe de cours avec un userId non autorisé
+		// 			Modifier les différents éléments d'un groupe
+		
+		//On va tester la modification du groupe "EI1 Groupe K"
+		
+		//Récupération de l'id du groupe
+		PreparedStatement requetePreparee = bddGestion.getConnection().prepareStatement(
+				"SELECT groupeParticipant_id FROM edt.GroupeParticipant WHERE groupeParticipant_nom = 'EI1 Groupe K'");
+		int idGroupe = bddGestion.recupererId(requetePreparee, "groupeParticipant_id");
+		
+		//Récupération des informations sur le groupe
+		GroupeComplet groupeK = groupeGestionnaire.getGroupeComplet(idGroupe);
+		
+		//Récupération de l'id d'un utilisateur ayant le droit de modifier ce groupe
+		requetePreparee = bddGestion.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.Utilisateur WHERE utilisateur_token = '5'");
+		int idUtilisateur = bddGestion.recupererId(requetePreparee, "utilisateur_id");
+		
+		//Récupération de l'id d'un autre utilisateur
+		requetePreparee = bddGestion.getConnection().prepareStatement(
+				"SELECT utilisateur_id FROM edt.Utilisateur WHERE utilisateur_token = '1'");
+		int idUtilisateur2 = bddGestion.recupererId(requetePreparee, "utilisateur_id");
+		
+		//Informations modifiées dans le groupe
+		String nomModifie = new String("Groupe Modifie");
+		ArrayList<Integer> listeIdProprietairesModifie = new ArrayList<Integer>();
+		listeIdProprietairesModifie.add(idUtilisateur);
+		listeIdProprietairesModifie.add(idUtilisateur2);
+		boolean rattachementAutoriseModifie = false;
+		boolean estCoursModifie = false;
+		
+		//Modification du groupe : on supprime le lien de parenté du groupe
+		groupeGestionnaire.modifierGroupe(idGroupe, nomModifie, null, rattachementAutoriseModifie, estCoursModifie, listeIdProprietairesModifie, idUtilisateur);
+		
+		//Récupération du groupe modifie
+		GroupeComplet groupeModifie = groupeGestionnaire.getGroupeComplet(idGroupe);
+		
+		//Comparaison
+		assertEquals(groupeModifie.getNom(),nomModifie);
+		assertNull(groupeModifie.getParentId());
+		assertEquals(groupeModifie.getRattachementAutorise(), rattachementAutoriseModifie);
+		assertEquals(groupeModifie.estCours(), estCoursModifie);
+		
+		//Comparaison de la liste des propriétaires
+		assertEquals(listeIdProprietairesModifie.size(),groupeModifie.getProprietaires().size());
+		for (UtilisateurIdentifie parent : groupeModifie.getProprietaires()){
+			assertTrue(listeIdProprietairesModifie.contains(parent.getId()));
+		}
+	}
 }
