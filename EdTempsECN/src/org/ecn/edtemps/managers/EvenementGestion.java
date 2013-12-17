@@ -727,7 +727,7 @@ public class EvenementGestion {
 			ResultSet reponse = statement.executeQuery();
 			
 			reponse.next();
-			int res = reponse.getINt("max");
+			int res = reponse.getInt("max");
 			reponse.close();
 			return res;
 		}
