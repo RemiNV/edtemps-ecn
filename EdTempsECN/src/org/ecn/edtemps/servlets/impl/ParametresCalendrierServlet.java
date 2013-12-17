@@ -98,6 +98,7 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 					// Modification du calendrier
 					creationOuModificationCalendrier(true, userId, calendrierGestion, req);
 				}
+				estProprietaireCalendrier.close();
 				// Génération réponse si aucune exception
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Modification calendrier réussie", null));
 				logger.debug("Modification calendrier réussie");
@@ -124,6 +125,7 @@ public class ParametresCalendrierServlet extends RequiresConnectionServlet {
 					// Suppression du calendrier
 					calendrierGestion.supprimerCalendrier(idCalendrierASupprimer, true);
 				}
+				estProprietaireCalendrier.close();
 				// Génération réponse si aucune exception
 				resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Suppression calendrier réussie", null));
 				logger.debug("Suppression calendrier réussie");

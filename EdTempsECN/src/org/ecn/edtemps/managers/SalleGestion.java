@@ -59,8 +59,8 @@ public class SalleGestion {
 			// Accède au premier élément du résultat
 			if (requeteSalle.next()) {
 				salleRecuperee = new SalleIdentifieInflater().inflateSalle(requeteSalle, _bdd);
-				requeteSalle.close();
 			}
+			requeteSalle.close();
 
 			if(createTransaction) {
 				_bdd.commit();
@@ -122,6 +122,7 @@ public class SalleGestion {
 							"Tentative d'enregistrer une salle en base de données avec un nom déjà utilisé.");
 				}
 			}
+			nomDejaPrisResult.close();
 
 			// Prépare la requête
 			PreparedStatement requete = _bdd.getConnection().prepareStatement(
@@ -202,6 +203,7 @@ public class SalleGestion {
 				throw new EdtempsException(ResultCode.NAME_TAKEN,
 						"Tentative d'enregistrer une salle en base de données avec un nom déjà utilisé.");
 			}
+			nomDejaPrisResult.close();
 
 			// Ajoute la salle dans la bdd et récupère l'identifiant de la ligne
 			PreparedStatement requete = _bdd.getConnection().prepareStatement(
@@ -456,6 +458,7 @@ public class SalleGestion {
 			while(requete.next()) {
 				res.add(new SalleIdentifieInflater().inflateSalle(requete, _bdd));
 			}
+			requete.close();
 			
 			return res;
 			

@@ -43,11 +43,8 @@ public abstract class AbsCalendrierInflater<T extends CalendrierIdentifie> {
 			String type = reponse.getString("typecal_libelle");
 	
 			// Récupération des propriétaires du calendrier
-			ResultSet rs_proprios = bdd.executeRequest("SELECT utilisateur_id FROM edt.proprietairecalendrier WHERE cal_id="+id);
-			List<Integer> idProprietaires = new ArrayList<Integer>();
-			while(rs_proprios.next()){
-				 idProprietaires.add(rs_proprios.getInt("utilisateur_id"));
-			}
+			List<Integer> idProprietaires = bdd.recupererIds(bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.proprietairecalendrier WHERE cal_id="+id),
+					"utilisateur_id");
 
 			/* Si au moins un proprio existe, le ou les ajouter aux attibuts du Calendrier. 
 			 * Sinon, exception EdtempsException

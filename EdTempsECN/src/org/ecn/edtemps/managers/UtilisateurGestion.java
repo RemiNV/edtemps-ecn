@@ -189,10 +189,11 @@ public class UtilisateurGestion {
 		
 			PreparedStatement req = bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_token=? AND utilisateur_token_expire > now()");
 			req.setString(1, token);
-			ResultSet res = req.executeQuery();
+			
+			int id = bdd.recupererId(req, "utilisateur_id");
 		
-			if(res.next()) {
-				return res.getInt(1);
+			if(id != -1) {
+				return id;
 			}
 			else {
 				throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Token invalide ou expiré");
@@ -217,10 +218,11 @@ public class UtilisateurGestion {
 			
 			PreparedStatement req = bdd.getConnection().prepareStatement("SELECT utilisateur_id FROM edt.utilisateur WHERE utilisateur_url_ical=?");
 			req.setString(1, token);
-			ResultSet res = req.executeQuery();
-
-			if(res.next()) {
-				return res.getInt(1);
+			
+			int userId = bdd.recupererId(req, "utilisateur_id");
+			
+			if(userId != -1) {
+				return userId;
 			}
 			else {
 				throw new IdentificationException(ResultCode.IDENTIFICATION_ERROR, "Token invalide.");
@@ -238,14 +240,16 @@ public class UtilisateurGestion {
 	 * @throws DatabaseException
 	 */
 	public String getTokenICal(int idUtilisateur) throws DatabaseException {
-		ResultSet res = bdd.executeRequest("SELECT utilisateur_url_ical FROM edt.utilisateur WHERE utilisateur_id=" + idUtilisateur);
+		ResultSet reponse = bdd.executeRequest("SELECT utilisateur_url_ical FROM edt.utilisateur WHERE utilisateur_id=" + idUtilisateur);
+		String res = null;
 		
 		try {
-			if(res.next()) {
-				return res.getString(1);
-			} else {
-				return null;
+			if(reponse.next()) {
+				res = reponse.getString(1);
 			}
+			reponse.close();
+			
+			return res;
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -386,6 +390,7 @@ public class UtilisateurGestion {
 				// Récupération de l'identifiant de l'utilisateur ajouté
 				reponse.next();
 				userId = reponse.getInt(1);
+				reponse.close();
 			}
 			
 			bdd.commit();
@@ -762,25 +767,14 @@ public class UtilisateurGestion {
 	 */
 	public List<Integer> getListeTypes(int idUtilisateur) throws DatabaseException {
 
-		List<Integer> resultat = new ArrayList<Integer>();
-		
 		try {
-			ResultSet reponse = bdd.executeRequest(
-					"SELECT typeutilisateur.type_id "
+			return bdd.recupererIds(bdd.getConnection().prepareStatement("SELECT typeutilisateur.type_id "
 					+ "FROM edt.typeutilisateur "
 					+ "INNER JOIN edt.estdetype ON estdetype.type_id = typeutilisateur.type_id "
-					+ "WHERE utilisateur_id = " + idUtilisateur);
-			while(reponse.next()) {
-				resultat.add(reponse.getInt("type_id"));
-			}
-			
-			reponse.close();
+					+ "WHERE utilisateur_id = " + idUtilisateur), "type_id");
 			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
-
-		return resultat;
-		
 	}
 }

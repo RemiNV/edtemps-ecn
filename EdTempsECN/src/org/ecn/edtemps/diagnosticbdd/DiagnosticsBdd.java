@@ -295,7 +295,6 @@ public class DiagnosticsBdd {
 					PreparedStatement statementIteration = makeStatementIteration(bdd);
 					
 					createTempTableParente(bdd);
-					ResultSet reponse = null;
 					for(int idIteration=2, nbParents=1; nbParents > 0; idIteration++) {
 						
 						statementIteration.setInt(1, idIteration);
@@ -307,15 +306,8 @@ public class DiagnosticsBdd {
 					statementIteration.close();
 				
 					// Récupération des groupes impliqués dans un lien circulaire
-					reponse = bdd.executeRequest("SELECT groupe_id FROM tmp_derniers_parents " +
-							"WHERE groupe_id = groupe_point_depart AND iteration <> 0");
-					
-					ArrayList<Integer> res = new ArrayList<Integer>();
-					while(reponse.next()) {
-						res.add(reponse.getInt(1));
-					}
-					
-					reponse.close();
+					ArrayList<Integer> res = bdd.recupererIds(bdd.getConnection().prepareStatement("SELECT groupe_id FROM tmp_derniers_parents " +
+							"WHERE groupe_id = groupe_point_depart AND iteration <> 0"), "groupe_id");
 					
 					return res;
 				}

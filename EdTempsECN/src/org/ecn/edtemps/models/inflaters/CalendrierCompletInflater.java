@@ -44,8 +44,8 @@ public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierC
 			else {
 				idGroupesParents.add(idGroupe);
 			}
-	    	
 	    }
+	    rs_idGroupesParents.close();
 
 	    // Création du calendrier complet
 		CalendrierComplet res = new CalendrierComplet(calendrier, estCours, idGroupesParents);

@@ -21,26 +21,15 @@ public class GroupeIdentifieInflater extends AbsGroupeInflater<GroupeIdentifie> 
 					throws DatabaseException, SQLException {
 		
 		// Récupérer la liste des identifiants des propriétaires */
-		ResultSet requeteProprietaires = bdd.executeRequest("SELECT * FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+id);
-		
-		ArrayList<Integer> idProprietaires = new ArrayList<Integer>();
-		while (requeteProprietaires.next()) {
-			idProprietaires.add(requeteProprietaires.getInt("utilisateur_id"));
-		}
-		requeteProprietaires.close();
+		ArrayList<Integer> idProprietaires = bdd.recupererIds(bdd.getConnection().prepareStatement("SELECT * FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+id), 
+				"utilisateur_id");
 		
 		GroupeIdentifie groupeRecupere = new GroupeIdentifie(id, nom, idProprietaires, rattachementAutorise, estCours, estCalendrierUnique, idCreateur);
 		groupeRecupere.setParentId(idParent); // Eventuellement 0
 		groupeRecupere.setParentIdTmp(idParentTmp);
 
 		// Récupérer la liste des identifiants des calendriers */
-		ResultSet requeteCalendriers = bdd.executeRequest("SELECT * FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id="+id);
-		
-		ArrayList<Integer> idCalendriers = new ArrayList<Integer>();
-		while (requeteCalendriers.next()) {
-			idCalendriers.add(requeteCalendriers.getInt("cal_id"));
-		}
-		requeteCalendriers.close();
+		ArrayList<Integer> idCalendriers = bdd.recupererIds(bdd.getConnection().prepareStatement("SELECT cal_id FROM edt.calendrierappartientgroupe WHERE groupeparticipant_id="+id), "cal_id");
 		groupeRecupere.setIdCalendriers(idCalendriers);
 		
 		return groupeRecupere;

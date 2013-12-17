@@ -73,9 +73,8 @@ public class GroupeGestion {
 			// Accède au premier élément du résultat
 			if(requeteGroupe.next()) {
 				groupeRecupere = new GroupeIdentifieInflater().inflateGroupe(requeteGroupe, _bdd);
-				
-				requeteGroupe.close();
 			}
+			requeteGroupe.close();
 
 		} catch (DatabaseException | SQLException e) {
 			throw new DatabaseException(e);
@@ -108,9 +107,8 @@ public class GroupeGestion {
 			// Accède au premier élément du résultat
 			if(requeteGroupe.next()) {
 				groupeRecupere = new GroupeCompletInflater().inflateGroupe(requeteGroupe, _bdd);
-				requeteGroupe.close();
 			}
-
+			requeteGroupe.close();
 		} catch (DatabaseException | SQLException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
 		}
@@ -173,6 +171,7 @@ public class GroupeGestion {
 				throw new EdtempsException(ResultCode.NAME_TAKEN,
 						"Tentative d'enregistrer un groupe en base de données avec un nom déjà utilisé.");
 			}
+			nomDejaPrisResult.close();
 			
 			// Prépare la requête avec un traitement différent si un groupe parent a été indiqué
 			PreparedStatement req = null;
@@ -183,11 +182,8 @@ public class GroupeGestion {
 				req.setString(1, nom);
 			} else {
 				// Requête pour récupérer la liste des propriétaires du groupe parent
-				List<Integer> listeProprioGpParent = new ArrayList<Integer>();
-				ResultSet listeProprietaireGroupeParent = _bdd.executeRequest("SELECT utilisateur_id FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+idGroupeParent);
-				while (listeProprietaireGroupeParent.next()) {
-					listeProprioGpParent.add(listeProprietaireGroupeParent.getInt("utilisateur_id"));
-				}
+				List<Integer> listeProprioGpParent = _bdd.recupererIds(_bdd.getConnection().prepareStatement(
+						"SELECT utilisateur_id FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+idGroupeParent), "utilisateur_id");
 				
 				// Préparation de la requête avec un idParent temporaire si le propriétaire du groupe parent n'est pas l'utilisateur en cours
 				req = _bdd.getConnection().prepareStatement("INSERT INTO edt.groupeparticipant (groupeparticipant_nom, groupeparticipant_rattachementautorise, "+(listeProprioGpParent.contains(userId) ? "groupeparticipant_id_parent" : "groupeparticipant_id_parent_tmp")+", groupeparticipant_estcalendrierunique, groupeparticipant_estcours, groupeparticipant_createur) VALUES (" +
@@ -288,6 +284,7 @@ public class GroupeGestion {
 				int ancienIdParent = ancienGroupeParent.getInt("groupeparticipant_id_parent");
 				int ancienIdParentTmp = ancienGroupeParent.getInt("groupeparticipant_id_parent_tmp");
 				int createur = ancienGroupeParent.getInt("groupeparticipant_createur");
+				ancienGroupeParent.close();
 				
 				// Vérifie que le créateur fait partie de la liste des propriétaires
 				if (!listeIdProprietaires.contains(createur)) {
@@ -303,6 +300,7 @@ public class GroupeGestion {
 					if (nomDejaPrisResult.getInt(1)>0) {
 						throw new EdtempsException(ResultCode.NAME_TAKEN, "Tentative de modifier un groupe en base de données avec un nom déjà utilisé.");
 					}
+					nomDejaPrisResult.close();
 				}
 				
 				// Prépare la requête avec un traitement différent si un groupe parent a été indiqué (else) 
@@ -333,11 +331,8 @@ public class GroupeGestion {
 					} else {
 						
 						// Requête pour récupérer la liste des propriétaires du groupe parent
-						List<Integer> listeProprioGpParent = new ArrayList<Integer>();
-						ResultSet listeProprietaireGroupeParent = _bdd.executeRequest("SELECT utilisateur_id FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+idGroupeParent);
-						while (listeProprietaireGroupeParent.next()) {
-							listeProprioGpParent.add(listeProprietaireGroupeParent.getInt("utilisateur_id"));
-						}
+						List<Integer> listeProprioGpParent = _bdd.recupererIds(_bdd.getConnection().prepareStatement(
+								"SELECT utilisateur_id FROM edt.proprietairegroupeparticipant WHERE groupeparticipant_id="+idGroupeParent), "utilisateur_id");
 					
 						// Préparation de la requête avec un idParent temporaire si le propriétaire du groupe parent n'est pas l'utilisateur en cours 
 						req = _bdd.getConnection().prepareStatement("UPDATE edt.groupeparticipant SET" +
@@ -655,6 +650,7 @@ public class GroupeGestion {
 			while(resGroupes.next()) {
 				res.add(new GroupeIdentifieInflater().inflateGroupe(resGroupes, _bdd));
 			}
+			resGroupes.close();
 
 			if(createTransaction){
 				_bdd.commit();
@@ -697,6 +693,7 @@ public class GroupeGestion {
 			while(resGroupes.next()) {
 				res.add(new GroupeIdentifieInflater().inflateGroupe(resGroupes, _bdd));
 			}
+			resGroupes.close();
 			
 			// Supprime aussi la table temporaire
 			if(createTransaction)
@@ -751,9 +748,11 @@ public class GroupeGestion {
 					while(rs_rattachements.next()) {
 						rattachementsDuCalendrier.add(rs_rattachements.getInt("groupeparticipant_id"));
 					}
+					rs_rattachements.close();
 				}
 				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, estCalendrierUnique, abonnementObligatoire, rattachementsDuCalendrier));
 			}
+			resGroupes.close();
 			
 			return res;
 		}
@@ -802,9 +801,11 @@ public class GroupeGestion {
 					while(rs_rattachements.next()) {
 						rattachementsDuCalendrier.add(rs_rattachements.getInt("groupeparticipant_id"));
 					}
+					rs_rattachements.close();
 				}
 				res.add(new GroupeIdentifieAbonnement(id, nom, parentId, estCalendrierUnique, abonnementObligatoire, rattachementsDuCalendrier));
 			}
+			resGroupes.close();
 			
 			return res;
 		}
@@ -833,6 +834,7 @@ public class GroupeGestion {
 			while(resGroupes.next()) {
 				res.add(new GroupeIdentifieInflater().inflateGroupe(resGroupes, _bdd));
 			}
+			resGroupes.close();
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -864,6 +866,7 @@ public class GroupeGestion {
 			while(resGroupes.next()) {
 				res.add(new GroupeIdentifieInflater().inflateGroupe(resGroupes, _bdd));
 			}
+			resGroupes.close();
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -1069,7 +1072,9 @@ public class GroupeGestion {
 		try {
 			ResultSet res = _bdd.executeRequest("SELECT COUNT(*) FROM edt.groupeparticipant WHERE groupeparticipant_createur="+userId);
 			res.next();
-			return res.getInt(1);
+			int nombre = res.getInt(1);
+			res.close();
+			return nombre;
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

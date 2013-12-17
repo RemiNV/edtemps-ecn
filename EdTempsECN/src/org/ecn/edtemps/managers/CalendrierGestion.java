@@ -93,6 +93,7 @@ public class CalendrierGestion {
 			if (nomDejaPrisResult.getInt(1)>0) {
 				throw new EdtempsException(ResultCode.NAME_TAKEN, "Tentative de créer un calendrier avec un nom déjà utilisé.");
 			}
+			nomDejaPrisResult.close();
 			
 			// Requete préparée pour la création du calendrier dans la base de données
 			PreparedStatement rs_ligneCreee_prepare = _bdd.getConnection().prepareStatement(
@@ -150,6 +151,7 @@ public class CalendrierGestion {
 			ResultSet rs_ligneCreee = rs_ligneCreee_prepare.executeQuery();
 			rs_ligneCreee.next();
 			int idCalendrier = rs_ligneCreee.getInt(1);
+			rs_ligneCreee.close();
 			
 			// Requete préparée pour la création du groupe unique associé 
 			PreparedStatement req = _bdd.getConnection().prepareStatement(
@@ -166,6 +168,7 @@ public class CalendrierGestion {
 			ResultSet req_ligneCreee = req.executeQuery();
 			req_ligneCreee.next();
 			int idGroupeCree = req_ligneCreee.getInt(1);
+			req_ligneCreee.close();
 			
 			// On lie le calendrier au groupe unique
 			_bdd.executeUpdate(
@@ -198,6 +201,7 @@ public class CalendrierGestion {
 							+ "VALUES (" + idGroupeParent + ", " + idCalendrier + ")"
 							);
 				}
+				estProprietaireGroupeParent.close();
 			}
 			
 			// Définition des propriétaires du calendrier 
@@ -255,6 +259,7 @@ public class CalendrierGestion {
 			else {
 				throw new EdtempsException(ResultCode.DATABASE_ERROR, "getCalendrier() error : pas de calendrier correspondant à l'idCalendrier en argument");
 			}
+			rs_calendrier.close();
 			
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
@@ -289,6 +294,7 @@ public class CalendrierGestion {
 			if (nomDejaPrisResult.getInt(1)>0 ) {
 				throw new EdtempsException(ResultCode.NAME_TAKEN, "Tentative de modifier un calendrier avec un nom déjà utilisé.");
 			}
+			nomDejaPrisResult.close();
 			
 			// Requete préparée pour la modification du calendrier
 			PreparedStatement requete = _bdd.getConnection().prepareStatement(
@@ -397,6 +403,8 @@ public class CalendrierGestion {
 					);
 				}
 			}
+			rs_ancienRattachements.close();
+			
 			// Ajout des rattachements restants
 			Iterator<Integer> itr = idGroupesParents.iterator();
 			while (itr.hasNext()){
@@ -421,7 +429,7 @@ public class CalendrierGestion {
 							+ "VALUES (" + idGroupeARattacher + ", " + calId.getId() + ")"
 							);
 				}
-				
+				estProprietaireGroupeParent.close();
 			}
 			
 			// Supprimer ancienne liste de propriétaires du calendrier
@@ -507,6 +515,7 @@ public class CalendrierGestion {
 				EvenementGestion eveGestionnaire = new EvenementGestion(this._bdd);
 				eveGestionnaire.supprimerEvenement(rs_evenementsAssocies.getInt("eve_id"), false);
 			}
+			rs_evenementsAssocies.close();
 			// Supprimer calendrier
 			_bdd.executeUpdate(
 					"DELETE FROM edt.calendrier "
@@ -579,6 +588,7 @@ public class CalendrierGestion {
 			while(bddRes.next()) {
 				res.put(bddRes.getInt(1), bddRes.getString(2));
 			}
+			bddRes.close();
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -600,6 +610,7 @@ public class CalendrierGestion {
 			while(bddRes.next()) {
 				res.put(bddRes.getInt(1), bddRes.getString(2));
 			}
+			bddRes.close();
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -642,6 +653,7 @@ public class CalendrierGestion {
 			while(results.next()) {
 				res.add(new CalendrierIdentifieInflater().inflateCalendrier(results, _bdd));
 			}
+			results.close();
 			
 			if(createTransaction)
 				_bdd.commit(); // Supprime la table temporaire
@@ -740,8 +752,10 @@ public class CalendrierGestion {
 		
 		try {
 			results.next();
+			DroitsCalendriers res = new DroitsCalendriers(results.getInt(1) == calendriersIds.size(), results.getInt(2) > 0);
+			results.close();
 			
-			return new DroitsCalendriers(results.getInt(1) == calendriersIds.size(), results.getInt(2) > 0);
+			return res;
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -785,9 +799,11 @@ public class CalendrierGestion {
 	 */
 	public int getNombresCalendriersCres(int userId) throws DatabaseException {
 		try {
-			ResultSet res = _bdd.executeRequest("SELECT COUNT(*) FROM edt.calendrier WHERE cal_createur="+userId);
-			res.next();
-			return res.getInt(1);
+			ResultSet reponse = _bdd.executeRequest("SELECT COUNT(*) FROM edt.calendrier WHERE cal_createur="+userId);
+			reponse.next();
+			int res = reponse.getInt(1);
+			reponse.close();
+			return res;
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

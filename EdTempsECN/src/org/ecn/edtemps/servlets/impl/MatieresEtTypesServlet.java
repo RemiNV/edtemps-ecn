@@ -1,13 +1,9 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
 import java.util.HashMap;
 
 import javax.json.Json;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

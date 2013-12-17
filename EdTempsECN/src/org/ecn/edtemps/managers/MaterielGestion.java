@@ -101,6 +101,7 @@ public class MaterielGestion {
 				throw new EdtempsException(ResultCode.NAME_TAKEN,
 						"Tentative d'enregistrer un matériel en base de données avec un nom déjà utilisé");
 			}
+			nomDejaPrisResult.close();
 			
 			// Préparation de la requête
 			PreparedStatement requete = _bdd.getConnection().prepareStatement("INSERT INTO edt.materiel (materiel_nom) VALUES (?) RETURNING materiel_id");

@@ -23,7 +23,6 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		this.rechercheSalle = rechercheSalle;
 		this.evenementGestion = evenementGestion;
 		this.callbackRafraichirCalendrier = callbackRafraichirCalendrier;
-		this.strOptionsCalendriers = null; // HTML à ajouter au select pour sélectionner les calendriers
 		this.sallesSelectionnees = new Array();
 		this.sallesLibres = new Array();
 		this.initAppele = false;
@@ -588,7 +587,6 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 						strRemplissageSelect += "<option value='" + data[i].id + "'>" + data[i].nom + "</option>\n";
 					}
 					
-					me.strOptionsCalendriers = strRemplissageSelect;
 					var selectCalendriers = me.jqDialog.find("#calendriers_evenement .select_calendriers"); 
 					selectCalendriers.html(strRemplissageSelect);
 					

@@ -724,10 +724,12 @@ public class EvenementGestion {
 			statement.setTimestamp(2, new java.sql.Timestamp(dateFin.getTime()));
 			statement.setTimestamp(3, new java.sql.Timestamp(dateDebut.getTime()));
 			
-			ResultSet res = statement.executeQuery();
+			ResultSet reponse = statement.executeQuery();
 			
-			res.next();
-			return res.getInt("max");
+			reponse.next();
+			int res = reponse.getINt("max");
+			reponse.close();
+			return res;
 		}
 		catch(SQLException e) {
 			throw new DatabaseException(e);

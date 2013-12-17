@@ -54,6 +54,8 @@ public class AdministrateurGestion {
 			while (requete.next()) {
 				liste.put(requete.getInt("admin_id"), requete.getString("admin_login"));
 			}
+			
+			requete.close();
 
 			return liste;
 			
@@ -87,8 +89,11 @@ public class AdministrateurGestion {
 
 			// Exécute la requête
 			ResultSet reqResultat = reqPreparee.executeQuery();
+			boolean hasValue = reqResultat.next();
 			
-			return (reqResultat.next());
+			reqResultat.close();
+			
+			return hasValue;
 			
 		} catch (SQLException e) {
 			throw new DatabaseException(e); 
@@ -235,6 +240,8 @@ public class AdministrateurGestion {
 					throw new DatabaseException("Le nom du type d'utilisateur doit être unique");
 				}
 			}
+			
+			nomDejaPrisResult.close();
 		
 			// Modifie le nom du type
 			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement("UPDATE edt.typeutilisateur SET type_libelle=? WHERE type_id="+idType);
@@ -292,7 +299,8 @@ public class AdministrateurGestion {
 			if (nomDejaPrisResult.next()) {
 				throw new DatabaseException("Le nom du type d'utilisateur doit être alphanumérique");
 			}
-
+			nomDejaPrisResult.close();
+			
 			// Ajouter le type
 			PreparedStatement ajout = bdd.getConnection().prepareStatement("INSERT INTO edt.typeutilisateur (type_libelle) VALUES (?)");
 			ajout.setString(1, nom);
