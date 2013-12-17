@@ -508,5 +508,62 @@ public class EvenementGestionTest {
 					}
 				}
 	}
+	
+	
+	/**
+	 * Test de la méthode listerEvenementsCalendrier
+	 * Ce test utilise les données de la base de données de test
+	 * @throws Exception
+	 */
+	@Test
+	public void testListerEvenementsCalendrier() throws Exception{
+		 
+		//On va récupérer les deux événements du calendrier "OBJET TD"
+		//evenement.eve_nom='OBJET' AND evenement.eve_datedebut='2013-10-21 09:00:00';salle.salle_nom='Salle D03'
+		//evenement.eve_nom='OBJET' AND evenement.eve_datedebut='2013-10-23 14:00:00'; salle.salle_nom='Salle info B12' OR salle.salle_nom='Salle info B13'
+		
+		//Récupération de l'id du calendrier
+				PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(
+						"SELECT cal_id FROM edt.Calendrier WHERE cal_nom = 'OBJET TD'");
+				int idCalendrier = bdd.recupererId(requetePreparee, "cal_id");
+						
+				//On récupère la liste d'événements	
+		ArrayList<EvenementIdentifie> listeEvenements = evenementGestion.listerEvenementsCalendrier(idCalendrier, new Date(113,9,21, 8,00,00), new Date(113,9,23, 18,00,00), true);
+				
+				//Déclaration des listes contenant les informations à comparer
+		ArrayList<String> nomsIntervenants = new ArrayList<String>();
+		ArrayList<String> nomsSalles = new ArrayList<String>();
+
+		//On s'attend à avoir récupéré 2 événements
+		assertTrue(listeEvenements.size()==2);
+		for (EvenementIdentifie evenement : listeEvenements) {
+			switch (evenement.getDateDebut().getDate()) {
+			
+			case 21:
+				//Pas d'intervenant pour les cours d'OBJET, salle : D03
+				nomsIntervenants.clear();
+				nomsSalles.clear();
+				nomsSalles.add("Salle D03");
+				//Comparaison
+				this.comparerEvenementIdentifie(evenement, "OBJET", new Date(113,9,21,9,00,00),new Date(113,9,21,12,00,00), nomsIntervenants, nomsSalles);
+				break;
+
+			case 23:
+				//Pas d'intervenant pour les cours d'OBJET, salle : B12 et B13
+				nomsIntervenants.clear();
+				nomsSalles.clear();
+				nomsSalles.add("Salle info B12");
+				nomsSalles.add("Salle info B13");
+				//Comparaison
+				this.comparerEvenementIdentifie(evenement, "OBJET", new Date(113,9,23,14,00,00),new Date(113,9,23,17,00,00), nomsIntervenants, nomsSalles);
+				break;
+				
+			default:
+				fail();
+				break;
+			}
+		}
+		
+	}
 
 }
