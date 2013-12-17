@@ -46,6 +46,12 @@
 		CROSS JOIN edt.utilisateur
 		WHERE typeutilisateur.type_libelle='administration'
 		AND utilisateur.utilisateur_token='1' LIMIT 1;
+		
+	INSERT INTO edt.estdetype(type_id, utilisateur_id)
+		SELECT typeutilisateur.type_id, utilisateur.utilisateur_id FROM edt.typeutilisateur
+		CROSS JOIN edt.utilisateur
+		WHERE typeutilisateur.type_libelle='administration'
+		AND utilisateur.utilisateur_token='5' LIMIT 1;
 
 /* matiere */
 	INSERT INTO edt.matiere(matiere_nom) VALUES('OBJET');

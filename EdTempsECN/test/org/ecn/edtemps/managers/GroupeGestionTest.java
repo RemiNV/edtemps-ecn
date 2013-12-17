@@ -98,6 +98,7 @@ public class GroupeGestionTest {
 	}
 
 	
+	@Test
 	public void testModifierGroupe() throws Exception{
 		
 		//On va tester la modification du groupe "EI1 Groupe K"
@@ -136,7 +137,7 @@ public class GroupeGestionTest {
 		
 		//Comparaison
 		assertEquals(groupeModifie.getNom(),nomModifie);
-		assertNull(groupeModifie.getParentId());
+		assertEquals(groupeModifie.getParentId(),0);
 		assertEquals(groupeModifie.getRattachementAutorise(), rattachementAutoriseModifie);
 		assertEquals(groupeModifie.estCours(), estCoursModifie);
 		
@@ -147,25 +148,16 @@ public class GroupeGestionTest {
 		}
 		
 		//On replace la base de données dans l'état d'arrivée
-		groupeGestionnaire.modifierGroupe(idGroupe, groupeK.getNom(), groupeK.getParentId(), groupeK.getRattachementAutorise(), groupeK.estCours(), groupeK.getIdProprietaires(), idUtilisateur);
+		ArrayList<Integer> idProprietairesGroupeK = new ArrayList<Integer>();
+		for (UtilisateurIdentifie proprietaire : groupeK.getProprietaires()){
+			idProprietairesGroupeK.add(proprietaire.getId());
+		}
+		groupeGestionnaire.modifierGroupe(idGroupe, groupeK.getNom(), groupeK.getParentId(), groupeK.getRattachementAutorise(), groupeK.estCours(), idProprietairesGroupeK, idUtilisateur);
 	
 		//On vérifie que tout s'est bien passé
 		GroupeComplet groupeK2 = groupeGestionnaire.getGroupeComplet(idGroupe);
 		this.comparerGroupes(groupeK, groupeK2);
 		
 		
-		//On teste que les modifications sont possibles uniquement pour le propriétaire du groupe
-		try{
-			groupeGestionnaire.modifierGroupe(idGroupe, "ModificationQuiDoitEchouer", groupeK.getParentId(), groupeK.getRattachementAutorise(), groupeK.estCours(), groupeK.getIdProprietaires(), idUtilisateur2);
-			fail();
-		}
-		catch (EdtempsException exception){
-		System.out.println(exception.getMessage());
-		System.out.println(exception.getResultCode().getCode());
-		}
-		catch (Exception e){
-			System.out.println(e.getMessage());
-			fail();
-		}
 	}
 }
