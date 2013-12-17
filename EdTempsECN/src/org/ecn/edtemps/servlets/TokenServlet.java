@@ -36,6 +36,16 @@ public abstract class TokenServlet extends HttpServlet {
 	}
 	
 	/**
+	 * Méthode permettant de définir les headers à envoyer dans la réponse.
+	 * Toujours appeler super.setHeaders(resp) en surclassant cette méthode.
+	 * @param resp La réponse qui sera envoyée au client
+	 */
+	protected void setHeaders(HttpServletResponse resp) {
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf-8");
+	}
+	
+	/**
 	 * Exécution d'une méthode
 	 * @param method Méthode de la requête
 	 * @param req Requête
@@ -50,8 +60,7 @@ public abstract class TokenServlet extends HttpServlet {
 		ResultCode result;
 		String message;
 		
-		resp.setContentType("application/json");
-		resp.setCharacterEncoding("utf-8");
+		setHeaders(resp);
 		
 		if(StringUtils.isBlank(token)) {
 			result = ResultCode.IDENTIFICATION_ERROR;

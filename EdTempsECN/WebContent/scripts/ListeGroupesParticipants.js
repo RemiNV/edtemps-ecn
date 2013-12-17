@@ -137,11 +137,11 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			
 			// S'il y a des fils, affichage d'une icone pour dérouler
 			if ( nbFils > 0 ){
-				str += "<img class='liste_groupes_triangle' src='./img/triangle.png' title='Cliquer pour afficher/cacher l&apos;arborescence' id='liste_groupes_triangle_"+noeud.id+"' data-groupe-id='"+noeud.id+"' />";
+				str += "<img class='liste_groupes_triangle' src='./img/triangle.png' id='liste_groupes_triangle_"+noeud.id+"' data-groupe-id='"+noeud.id+"' />";
 			}
 
 			// Affiche les checkbox en fonction de l'état d'affichage du groupe
-			str += "<input data-groupe-id='" + noeud.id + "' class='liste_groupes_checkbox' type='checkbox' title='Cliquer pour afficher/cacher les événements de cet agenda' ";
+			str += "<input data-groupe-id='" + noeud.id + "' class='liste_groupes_checkbox' type='checkbox' ";
 			str += this.groupes[noeud.id].affiche ? "checked >" : " >";
 
 			// Affiche le nom du groupe

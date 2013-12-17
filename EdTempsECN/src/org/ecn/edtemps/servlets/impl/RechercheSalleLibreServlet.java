@@ -52,11 +52,17 @@ public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 			}
 			
 			// Liste du matériel
-			String[] tableauMateriel = paramMateriel.split(",");
-			for (int i = 0 ; i < tableauMateriel.length ; i++) {
-				String[] infos = tableauMateriel[i].split(":");
-				if (Integer.valueOf(infos[1])!=0) {
-					listeMateriel.add(new Materiel(Integer.valueOf(infos[0]), "", Integer.valueOf(infos[1])));
+			if(!paramMateriel.matches("|\\d+:\\d+(,\\d+:\\d+)*")) { // Vide ou au format entier:entier,entier:entier...
+				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format du paramètre materiel incorrect");
+			}
+			
+			if(!paramMateriel.equals("")) {
+				String[] tableauMateriel = paramMateriel.split(",");
+				for (int i = 0 ; i < tableauMateriel.length ; i++) {
+					String[] infos = tableauMateriel[i].split(":");
+					if (Integer.valueOf(infos[1])!=0) {
+						listeMateriel.add(new Materiel(Integer.valueOf(infos[0]), "", Integer.valueOf(infos[1])));
+					}
 				}
 			}
 
