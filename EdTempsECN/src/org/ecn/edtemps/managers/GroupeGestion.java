@@ -39,6 +39,9 @@ public class GroupeGestion {
 
 	/** Nombre maximum de groupes qu'un utilisateur peut créer avec un droit étendu */
 	public static final int LIMITE_GROUPES_PAR_UTILISATEUR_ETENDUE = 100;
+	
+	/** Nombre de caractères maximum pour le nom d'un groupe */
+	public static final int TAILLE_MAX_NOM_GROUPE = 50;
 
 
 	/**
@@ -135,8 +138,8 @@ public class GroupeGestion {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom, un créateur et au moins un responsable");
 		}
 
-		if (!StringUtils.isAlphanumericSpace(nom)) {
-			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique");
+		if (nom.length() > TAILLE_MAX_NOM_GROUPE || !StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique et de moins de " + TAILLE_MAX_NOM_GROUPE + " caractères");
 		}
 		
 		// Vérifier que l'utilisateur a le droit de créer un groupe de cours
@@ -239,8 +242,8 @@ public class GroupeGestion {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un groupe doit avoir un nom et au moins un responsable");
 		}
 
-		if(!StringUtils.isAlphanumericSpace(nom)) {
-			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique");
+		if(nom.length() > TAILLE_MAX_NOM_GROUPE || !StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un groupe doit être alphanumérique et de moins de " + TAILLE_MAX_NOM_GROUPE + " caractères");
 		}
 
 		if(idGroupeParent != null && idGroupeParent.equals(id)) {

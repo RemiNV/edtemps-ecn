@@ -31,6 +31,8 @@ public class EvenementGestion {
 	/** Nombre maximum d'événements récupérables en une requête */
 	public static final int MAX_ROWS_QUERY_EVENEMENTS = 500;
 	
+	/** Nombre de caractères maximum pour le nom d'un événement */
+	public static final int TAILLE_MAX_NOM_EVENEMENT = 50;
 	
 	/**
 	 * Initialise un gestionnaire d'evenements
@@ -86,8 +88,8 @@ public class EvenementGestion {
 
 		verifierDateEvenement(dateDebut);
 		
-		if(!StringUtils.isAlphanumericSpace(nom)) {
-			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique");
+		if(nom.length() > TAILLE_MAX_NOM_EVENEMENT || !StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique et de moins de " + TAILLE_MAX_NOM_EVENEMENT + " caractères");
 		}
 		
 		try {
@@ -194,8 +196,8 @@ public class EvenementGestion {
 				throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un événement doit avoir un nom, un calendrier et un responsable");
 			}
 			
-			if(!StringUtils.isAlphanumericSpace(nom)) {
-				throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique");
+			if(nom.length() > TAILLE_MAX_NOM_EVENEMENT || !StringUtils.isAlphanumericSpace(nom)) {
+				throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique et de moins de " + TAILLE_MAX_NOM_EVENEMENT + " caractères");
 			}
 			
 			//début d'une transaction si requis
