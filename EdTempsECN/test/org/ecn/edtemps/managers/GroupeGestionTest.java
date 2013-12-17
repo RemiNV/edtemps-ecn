@@ -100,16 +100,6 @@ public class GroupeGestionTest {
 	
 	public void testModifierGroupe() throws Exception{
 		
-		//Modifier un groupe existant ou utiliser un groupe existant déjà en base de donnée ?
-		//-> à priori getGroupe fonctionne !
-		//modifierGroupe(int id, String nom, Integer idGroupeParent, boolean rattachementAutorise, 
-			//	boolean estCours, List<Integer> listeIdProprietaires, int userId)
-		
-		//checker comment fonctionne le constructeur groupe + quelles infos renvoie getGroupe + quelles infos réutiliser pour le modifierGroupe
-	
-		//Tests : 	modifier un groupe de cours avec un userId non autorisé
-		// 			Modifier les différents éléments d'un groupe
-		
 		//On va tester la modification du groupe "EI1 Groupe K"
 		
 		//Récupération de l'id du groupe
@@ -154,6 +144,28 @@ public class GroupeGestionTest {
 		assertEquals(listeIdProprietairesModifie.size(),groupeModifie.getProprietaires().size());
 		for (UtilisateurIdentifie parent : groupeModifie.getProprietaires()){
 			assertTrue(listeIdProprietairesModifie.contains(parent.getId()));
+		}
+		
+		//On replace la base de données dans l'état d'arrivée
+		groupeGestionnaire.modifierGroupe(idGroupe, groupeK.getNom(), groupeK.getParentId(), groupeK.getRattachementAutorise(), groupeK.estCours(), groupeK.getIdProprietaires(), idUtilisateur);
+	
+		//On vérifie que tout s'est bien passé
+		GroupeComplet groupeK2 = groupeGestionnaire.getGroupeComplet(idGroupe);
+		this.comparerGroupes(groupeK, groupeK2);
+		
+		
+		//On teste que les modifications sont possibles uniquement pour le propriétaire du groupe
+		try{
+			groupeGestionnaire.modifierGroupe(idGroupe, "ModificationQuiDoitEchouer", groupeK.getParentId(), groupeK.getRattachementAutorise(), groupeK.estCours(), groupeK.getIdProprietaires(), idUtilisateur2);
+			fail();
+		}
+		catch (EdtempsException exception){
+		System.out.println(exception.getMessage());
+		System.out.println(exception.getResultCode().getCode());
+		}
+		catch (Exception e){
+			System.out.println(e.getMessage());
+			fail();
 		}
 	}
 }
