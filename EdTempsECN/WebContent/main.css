@@ -80,7 +80,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .button {
 	background-color: #f5f5f5;
-	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	background-image: linear-gradient(to bottom, #fafafa, #e6e6e6);
 	border: 1px solid #bfc2bf;
 	border-radius: 4px;
 	cursor: pointer;
@@ -109,7 +109,7 @@ ul.button_nav li {
 	border-left: none;
 	list-style-type: none;
 	background-color: #f5f5f5; /* pour IE 9- */
-	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	background-image: linear-gradient(to bottom, #fafafa, #e6e6e6);
 	cursor: pointer;
 }
 
@@ -726,6 +726,9 @@ input.valide {
 }
 
 /** Modifications fullcalendar */
+.fc-state-default:not(.fc-state-active) {
+	background-image: linear-gradient(to bottom, #fafafa, #e6e6e6);
+}
 .fc-agenda-allday, .fc-agenda-allday + .fc-agenda-divider {
 	display: none; /* Pas de support du "journée entière" */
 }
@@ -756,7 +759,7 @@ input.valide {
 /** Combobox */
 .custom-combobox {
 	background-color: #f5f5f5;
-	background-image: linear-gradient(to bottom, white, #e6e6e6);
+	background-image: linear-gradient(to bottom, #fafafa, #e6e6e6);
 	height: 22px;
 	display: inline-block;
 	border: 1px solid #bfc2bf;
