@@ -4,10 +4,24 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
 		</Console>
+		<File name="fichier_standard" fileName="chemin/absolu/edtemps_ecn.log" />
+		<File name="fichier_js" fileName="chemin/absolu/edtemps_ecn_javascript.log" />
 	</Appenders>
 	<Loggers>
-		<Root level="trace">
+	    <Logger name="org.ecn.edtemps.servlets.ClientLoggingServlet" level="warning" additivity="false">
+	        <AppenderRef ref="Console"/>
+	        <!-- A réactiver une fois le chemin de fichier précisé
+	        <AppenderRef ref="fichier_js"/>
+	        -->
+	    </Logger>
+	    <Root level="trace">
 			<AppenderRef ref="Console"/>
+		</Root>
+		<Root level="warning">
+			<AppenderRef ref="Console"/>
+			<!-- A réactiver une fois le chemin de fichier précisé
+			<AppenderRef ref="fichier_standard" />
+			-->
 		</Root>
 
 	</Loggers>
