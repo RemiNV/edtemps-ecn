@@ -156,8 +156,22 @@ ul.button_nav li:last-child {
 
 #form_chercher_salle, #resultat_chercher_salle, #form_creer_calendrier, #form_creer_groupe,
 #select-abonnements, #dialog_detail_groupe, #dialog_gerer_groupe, #form_creer_groupe_parent_message,
-#form_creer_groupe_chargement, #tbl_mes_groupes_chargement {
+#form_creer_groupe_chargement, #tbl_mes_groupes_chargement, #confirm {
 	display: none;
+}
+
+
+#confirm table {
+	width: 100%;
+}
+
+#confirm_buttons {
+	text-align: right;
+}
+
+#confirm_icon {
+	width: 40px;
+	margin-right: 20px;
 }
 
 #form_chercher_salle_liste_materiel {
