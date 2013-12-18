@@ -21,11 +21,6 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 		if(colNb) {
 			reportMessage += " colonne " + colNb;
 		}
-		
-		if(window.navigator) {
-			reportMessage += "\nUserAgent : " + navigator.userAgent;
-		}
-		
 		if(stack) {
 			reportMessage += "\nStack : \n" + stack;
 		}
@@ -82,7 +77,7 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 	};
 	
 	// TODO : ajouter une dialog permettant de faire un window.confirm plus joli
-
+	
 	function init() {
 		
 		/**
