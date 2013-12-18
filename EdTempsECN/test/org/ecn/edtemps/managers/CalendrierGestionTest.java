@@ -125,9 +125,9 @@ public class CalendrierGestionTest {
 	
 	@Test
 	public void testlisterCalendriersUtilisateur() throws Exception {
-		// utilisateur 1 est propriétaire de 2 calendrier
+		// utilisateur 1 est propriétaire de 6 calendriers
 		ArrayList<CalendrierComplet> calendriers = this.calendrierGestion.listerCalendriersUtilisateur(1);
-		assertEquals(2, calendriers.size());
+		assertEquals(6, calendriers.size());
 	}
 	
 	@Test

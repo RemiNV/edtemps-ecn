@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.ResultCode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,48 +27,49 @@ public class MaterielGestionTest {
 
 	@Test
 	public void testgetListeMateriel() throws EdtempsException {
-		assertEquals(3, this.materielGestionnaire.getListeMateriel().size());
+		assertEquals(this.materielGestionnaire.getListeMateriel().size(), 3);
 	}
 	
 	@Test
 	public void testSauverMateriel() throws EdtempsException {
-		int resultatException = 0;
+		ResultCode resultatException = null;
 		
 		// test d'impossibilité de sauver un matériel sans nom
 		try{
 			this.materielGestionnaire.sauverMateriel("");
 		}
 		catch(EdtempsException e) {
-			resultatException = e.getResultCode().getCode();
+			resultatException = e.getResultCode();
 		}
-		assertTrue(resultatException == 7); //Code 7 : Nom invalide
+		assertTrue(resultatException == ResultCode.INVALID_OBJECT); //Code 7 : Nom invalide
+		resultatException = null;
 		
 		// test d'impossibilité de sauver un matériel avec un nom non alphanumérique
-				try{
-					this.materielGestionnaire.sauverMateriel("Bonjour*+-");
-				}
-				catch(EdtempsException e) {
-					resultatException = e.getResultCode().getCode();
-				}
-				assertTrue(resultatException == 11); //Code 11 : Nom non alphanumérique
+		try{
+			this.materielGestionnaire.sauverMateriel("Bonjour*+-");
+		}
+		catch(EdtempsException e) {
+			resultatException = e.getResultCode();
+		}
+		assertTrue(resultatException == ResultCode.ALPHANUMERIC_REQUIRED); //Code 11 : Nom non alphanumérique
+		resultatException = null;
 		
 		// test d'impossibilité de sauver un matériel déjà existant en base de données
 		try{
 			this.materielGestionnaire.sauverMateriel("Ordinateur");
 		}
 		catch(EdtempsException e) {
-			resultatException = e.getResultCode().getCode();
+			resultatException = e.getResultCode();
 		}
-		assertTrue(resultatException == 8); //Code 8 : Nom déjà pris en base de données
+		assertTrue(resultatException == ResultCode.NAME_TAKEN); //Code 8 : Nom déjà pris en base de données
+		resultatException = null;
 		
 		//test de sauvegarde d'un nouveau matériel
-		this.materielGestionnaire.sauverMateriel("Tablette");
+		int idMateriel = this.materielGestionnaire.sauverMateriel("Tablette");
 		assertEquals(4, this.materielGestionnaire.getListeMateriel().size());
-	}
-	
-	@Test
-	public void testSupprimerMateriel() throws EdtempsException {
-		this.materielGestionnaire.supprimerMateriel(4);
+		
+		// Test de suppression du matériel
+		this.materielGestionnaire.supprimerMateriel(idMateriel);
 		assertEquals(3, this.materielGestionnaire.getListeMateriel().size());
 	}
 
