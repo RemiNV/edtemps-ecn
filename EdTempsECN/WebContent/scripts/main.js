@@ -78,25 +78,31 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 	
 	/**
 	 * Dialogue personnalisée pour les confirmations
+	 * 
+	 * @param {String} mess Message à afficher
+	 * @param {function} actionOui Action à effectuer en cas de clique sur le bouton "Oui"
+	 * @param {function} actionNon Action à effectuer en cas de clique sur le bouton "Non"
 	 */
-	window.confirm = function(mess) {
-		var res = false;
+	window.confirm = function(mess, actionOui, actionNon) {
 		$("#confirm_text").html(mess);
+		
 		$("#confirm").dialog({
 			autoOpen: true,
 			width: 400,
 			height: 150,
 			modal: true,
 			show: { effect: "fade", duration: 100 },
-			hide: { effect: "fade", duration: 100 },
-			close: function( event, ui ) { return res; }
+			hide: { effect: "fade", duration: 100 }
 		});
-		$("#confirm_oui").click(function() {
-			res = true;
+		
+		$("#confirm_oui").unbind("click").bind("click", function() {
 			$("#confirm").dialog("close");
+			if (actionOui!=null) actionOui();
 		});
-		$("#confirm_non").click(function() {
+		
+		$("#confirm_non").unbind("click").bind("click", function() {
 			$("#confirm").dialog("close");
+			if (actionNon!=null) actionNon();
 		});
     };
     

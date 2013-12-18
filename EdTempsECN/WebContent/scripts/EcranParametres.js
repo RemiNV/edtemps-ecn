@@ -566,8 +566,9 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 
 					// Listeners pour les boutons "ne plus être propriétaire"
 					$("#tbl_mes_groupes .tbl_mes_groupes_boutons_plusproprietaire").click(function() {
-						if (confirm("Etes-vous sur de ne plus vouloir etre proprietaire du groupe '"+me.listeGroupes[$(this).attr("data-id")].nom+"' ?")) {
-							me.groupeGestion.queryNePlusEtreProprietaire($(this).attr("data-id"), function(resultCode) {
+						var id = $(this).attr("data-id");
+						confirm("Etes-vous sur de ne plus vouloir etre proprietaire du groupe '"+me.listeGroupes[$(this).attr("data-id")].nom+"' ?", function() {
+							me.groupeGestion.queryNePlusEtreProprietaire(id, function(resultCode) {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Vous n'êtes plus propriétaire du groupe.");
 									me.afficheListeMesGroupes();
@@ -575,13 +576,14 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 									window.showToast("La modification du groupe a échoué ; vérifiez votre connexion.");
 								}
 							});
-						}
+						}, null);
 					});
 					
 					// Listeners pour les boutons Supprimer
 					$(".tbl_mes_groupes_boutons_supprimer").click(function() {
-						if(confirm("Etes-vous sur de vouloir supprimer le groupe '"+me.listeGroupes[$(this).attr("data-id")].nom+"' ?")) {
-							me.groupeGestion.querySupprimerGroupes($(this).attr("data-id"), function(resultCode) {
+						var id = $(this).attr("data-id");
+						confirm("Etes-vous sur de vouloir supprimer le groupe '"+me.listeGroupes[$(this).attr("data-id")].nom+"' ?", function() {
+							me.groupeGestion.querySupprimerGroupes(id, function(resultCode) {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Le groupe a été supprimé avec succès.");
 									me.afficheListeMesGroupes();
@@ -589,7 +591,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 									window.showToast("La suppression du groupe a échoué ; vérifiez votre connexion.");
 								}
 							});
-						}
+						}, null);
 					});
 					
 					// Listeners pour les boutons Modifier
@@ -672,8 +674,9 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 					
 					// Listeners pour les boutons "ne plus être propriétaire"
 					$("#tbl_mes_calendriers .tbl_mes_calendriers_boutons_plusproprietaire").click(function() {
-						if (confirm("Etes-vous sur de ne plus vouloir etre proprietaire du calendrier '" + $(this).parent().siblings().first().text()+"' ?")) {
-							me.calendrierGestion.queryNePlusEtreProprietaire($(this).attr("data-id"), function(resultCode) {
+						var id = $(this).attr("data-id");
+						confirm("Etes-vous sur de ne plus vouloir etre proprietaire du calendrier '" + $(this).parent().siblings().first().text()+"' ?", function() {
+							me.calendrierGestion.queryNePlusEtreProprietaire(id, function(resultCode) {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Vous n'êtes plus propriétaire du calendrier.");
 									me.afficheListeMesCalendriers();
@@ -681,7 +684,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 									window.showToast("La modification du calendrier a échoué ; vérifiez votre connexion.");
 								}
 							});
-						}
+						}, null);
 					});
 					
 					// Listeners pour les boutons "modifier"
@@ -701,8 +704,9 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 	
 					// Listeners pour les boutons "supprimer"
 					$(".tbl_mes_calendriers_boutons_supprimer").click(function() {
-						if(confirm("Etes-vous sur de vouloir supprimer le calendrier '" + $(this).parent().siblings().first().text()+"' ?")) {
-							me.calendrierGestion.supprimerCalendrier($(this).parent().parent().attr("data-id"), function (resultCode) {
+						var id = $(this).parent().parent().attr("data-id");
+						confirm("Etes-vous sur de vouloir supprimer le calendrier '" + $(this).parent().siblings().first().text()+"' ?", function() {
+							me.calendrierGestion.supprimerCalendrier(id, function (resultCode) {
 								if (resultCode == RestManager.resultCode_Success) {
 									window.showToast("Le calendrier a été supprimé avec succès.");
 									me.afficheListeMesCalendriers();
@@ -710,7 +714,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 									window.showToast("La suppression du calendrier a échoué ; vérifiez votre connexion.");
 								}
 							});
-						}	
+						}, null);
 					});
 	
 				}

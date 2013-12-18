@@ -342,48 +342,61 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		var formData = this.getDonneesFormulaire(false);
 		var me = this;
 		
-		if(formData.valide && (formData.salles.length > 0 || confirm("Ajouter un évènement sans salle ?"))) {
-			
-			// Message d'attente
-			this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
-			this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
-			
-			var callbackFunction = function(resultCode) {
-				
-				// Masquage du message d'attente
-				me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
-				
-				if(resultCode === RestManager.resultCode_Success) {
-					window.showToast("Evènement enregistré avec succès");
-					me.jqDialog.dialog("close");
-					
-					// Mise à jour du calendrier
-					me.callbackRafraichirCalendrier();
-					
-				}
-				else if(resultCode == RestManager.resultCode_NetworkError) {
-					window.showToast("Erreur d'enregistrement de l'événement ; vérifiez votre connexion");
-				}
-				else if(resultCode == RestManager.resultCode_QuotaExceeded) {
-					window.showToast("Vous ne pouvez pas ajouter plus de 20 événements par calendrier et par semaine glissante");
-				}
-				else if(resultCode == RestManager.resultCode_SalleOccupee) {
-					window.showToast("Erreur d'enregistrement de l'événement ; salle(s) occupée(s) pendant ce créneau");
-				}
-				else {
-					window.showToast("Erreur d'enregistrement de l'événement ; code retour " + resultCode);
-				}
-			};
-			
-			if(this.evenementEdit) {
-				this.evenementGestion.modifierEvenement(this.evenementEdit.id, callbackFunction, formData.dateDebut, formData.dateFin, formData.nom, 
-						formData.calendriers, formData.salles, formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer);
-			}
-			else {
-				this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
-						formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer, callbackFunction);
+		if (formData.valide) {
+			if (formData.salles.length > 0) {
+				me.ajoutEvenement(formData);
+			} else {
+				confirm("Ajouter un évènement sans salle ?", function() {
+					me.ajoutEvenement(formData);
+				}, null);
 			}
 		}
+	};
+	
+	
+	DialogAjoutEvenement.prototype.ajoutEvenement = function(formData) {
+		var me = this;
+
+		// Message d'attente
+		this.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "block");
+		this.jqDialog.find("#dialog_ajout_evenement_message_chargement").html("Ajout de l'évènement...");
+		
+		var callbackFunction = function(resultCode) {
+			
+			// Masquage du message d'attente
+			me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
+			
+			if(resultCode === RestManager.resultCode_Success) {
+				window.showToast("Evènement enregistré avec succès");
+				me.jqDialog.dialog("close");
+				
+				// Mise à jour du calendrier
+				me.callbackRafraichirCalendrier();
+				
+			}
+			else if(resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur d'enregistrement de l'événement ; vérifiez votre connexion");
+			}
+			else if(resultCode == RestManager.resultCode_QuotaExceeded) {
+				window.showToast("Vous ne pouvez pas ajouter plus de 20 événements par calendrier et par semaine glissante");
+			}
+			else if(resultCode == RestManager.resultCode_SalleOccupee) {
+				window.showToast("Erreur d'enregistrement de l'événement ; salle(s) occupée(s) pendant ce créneau");
+			}
+			else {
+				window.showToast("Erreur d'enregistrement de l'événement ; code retour " + resultCode);
+			}
+		};
+		
+		if(this.evenementEdit) {
+			this.evenementGestion.modifierEvenement(this.evenementEdit.id, callbackFunction, formData.dateDebut, formData.dateFin, formData.nom, 
+					formData.calendriers, formData.salles, formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer);
+		}
+		else {
+			this.evenementGestion.ajouterEvenement(formData.nom, formData.dateDebut, formData.dateFin, formData.calendriers, formData.salles, 
+					formData.intervenants, formData.responsables, formData.idEvenementsSallesALiberer, callbackFunction);
+		}
+		
 	};
 	
 	/**

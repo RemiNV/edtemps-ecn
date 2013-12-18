@@ -53,22 +53,21 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 		
 		jqDialogDetailsEvenement.find("#btnSupprimerEvenement").click(function() {
 			
-			if(!confirm("Etes-vous sûr(e) de vouloir supprimer l'événement : " + evenementDialogDetailsOuverte.title + " ?")) {
-				return;
-			}
-			
-			evenementGestion.supprimerEvenement(evenementDialogDetailsOuverte, function(resultCode) {
-				if(resultCode == RestManager.resultCode_Success) {
-					jqDialogDetailsEvenement.dialog("close");
-					me.refetchEvents();
-				}
-				else if(resultCode == RestManager.resultCode_NetworkError) {
-					window.showToast("Echec de la suppression de cet événement : vérifiez votre connexion");
-				}
-				else {
-					window.showToast("Echec de la suppression de cet événement");
-				}
-			});
+			confirm("Etes-vous sûr(e) de vouloir supprimer l'événement : " + evenementDialogDetailsOuverte.title + " ?", function() {
+				evenementGestion.supprimerEvenement(evenementDialogDetailsOuverte, function(resultCode) {
+					if(resultCode == RestManager.resultCode_Success) {
+						jqDialogDetailsEvenement.dialog("close");
+						me.refetchEvents();
+					}
+					else if(resultCode == RestManager.resultCode_NetworkError) {
+						window.showToast("Echec de la suppression de cet événement : vérifiez votre connexion");
+					}
+					else {
+						window.showToast("Echec de la suppression de cet événement");
+					}
+				});
+			}, null);
+
 		});		
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
