@@ -76,8 +76,31 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 		.animate({ bottom: -40 }, 500);
 	};
 	
-	// TODO : ajouter une dialog permettant de faire un window.confirm plus joli
-	
+	/**
+	 * Dialogue personnalisée pour les confirmations
+	 */
+	window.confirm = function(mess) {
+		var res = false;
+		$("#confirm_text").html(mess);
+		$("#confirm").dialog({
+			autoOpen: true,
+			width: 400,
+			height: 150,
+			modal: true,
+			show: { effect: "fade", duration: 100 },
+			hide: { effect: "fade", duration: 100 },
+			close: function( event, ui ) { return res; }
+		});
+		$("#confirm_oui").click(function() {
+			res = true;
+			$("#confirm").dialog("close");
+		});
+		$("#confirm_non").click(function() {
+			$("#confirm").dialog("close");
+		});
+    };
+    
+    
 	function init() {
 		
 		/**
