@@ -261,7 +261,10 @@
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('THERE CM Promo B', false, true, 5);
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('Réunions d''information EI1', false, true, 5);
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('PGROU projet emploi du temps', false, true, 2);
-
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('testEvenementGestion1', false, true, 5);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('testEvenementGestion2', false, true, 5);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('testEvenementGestionPereCalUnique', false, true, 5);
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_estCalendrierUnique, groupeparticipant_createur) VALUES('testEvenementGestionFilsCalUnique', false, true, 5);
 
 
 /* proprietairegroupeparticipant */
@@ -277,7 +280,10 @@
 			OR groupeparticipant.groupeparticipant_nom='EI1 Groupe K'
 			OR groupeparticipant.groupeparticipant_nom='EI1 Groupe L'
 			OR groupeparticipant.groupeparticipant_nom='EI3'
-			OR groupeparticipant.groupeparticipant_nom='EI3 Info');
+			OR groupeparticipant.groupeparticipant_nom='EI3 Info'
+			OR groupeparticipant.groupeparticipant_nom='testEvenementGestion'
+			OR groupeparticipant.groupeparticipant_nom='testEvenementGestionPere'
+			OR groupeparticipant.groupeparticipant_nom='testEvenementGestionFils');
 
 	/* Pas de propriétaire pour les groupes de calendrier unique : pas d'administration directe du groupe sans passer par son calendrier */
 
@@ -330,25 +336,25 @@
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'testEvenementGestion1'
-		AND groupeparticipant.groupeparticipant_nom='testEvenementGestion' LIMIT 1;
+		AND (groupeparticipant.groupeparticipant_nom='testEvenementGestion' OR groupeparticipant.groupeparticipant_nom='testEvenementGestion1')  LIMIT 2;
 		
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'testEvenementGestion2'
-		AND groupeparticipant.groupeparticipant_nom='testEvenementGestion' LIMIT 1;
+		AND (groupeparticipant.groupeparticipant_nom='testEvenementGestion' OR groupeparticipant.groupeparticipant_nom='testEvenementGestion2') LIMIT 2;
 
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'testEvenementGestionPere'
-		AND groupeparticipant.groupeparticipant_nom='testEvenementGestionPere' LIMIT 1;
+		AND (groupeparticipant.groupeparticipant_nom='testEvenementGestionPere' OR groupeparticipant.groupeparticipant_nom='testEvenementGestionPereCalUnique') LIMIT 2;
 		
 	INSERT INTO edt.calendrierappartientgroupe(groupeparticipant_id, cal_id)
 		SELECT groupeparticipant.groupeparticipant_id, calendrier.cal_id
 		FROM edt.groupeparticipant CROSS JOIN edt.calendrier
 		WHERE calendrier.cal_nom = 'testEvenementGestionFils'
-		AND groupeparticipant.groupeparticipant_nom='testEvenementGestionFils' LIMIT 1;
+		AND (groupeparticipant.groupeparticipant_nom='testEvenementGestionFils' OR groupeparticipant.groupeparticipant_nom='testEvenementGestionFilsCalUnique') LIMIT 2;
 
 
 
