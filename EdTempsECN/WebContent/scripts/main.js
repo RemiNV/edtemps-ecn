@@ -9,8 +9,6 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 	 * jquery est accessible de manière globale par $ (mais il faut tout de même préciser la dépendance
 	 * dans les arguments de require() !), pour ne pas avoir de problème de dépendances (avec jQuery UI notamment) */
 
-	
-	
 	// Gestion d'erreurs signalées au serveur
 	window.onerror = function(message, url, lineNb, colNb, e) {
 		// Chrome supporte le passage de l'exception javascript
@@ -78,55 +76,7 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 		.animate({ bottom: -40 }, 500);
 	};
 	
-
-	/**
-	 * Dialogue personnalisée pour les confirmations
-	 */
-	window.alert = function(native) {
-        return function(message) {
-    		$("#confirm_text").html(mess);
-    		/*$("#confirm").dialog({
-    			autoOpen: true,
-    			width: 400,
-    			height: 150,
-    			modal: true,
-    			show: { effect: "fade", duration: 100 },
-    			hide: { effect: "fade", duration: 100 }
-    		});
-    		$("#confirm_oui").click(function() {
-    			$("#confirm").dialog("close");
-    			return true;
-    		});
-    		$("#confirm_non").click(function() {
-    			$("#confirm").dialog("close");
-    			return false;
-    		});*/
-    		$("#confirm").dialog({
-    			resizable: false,
-    			height:180,
-    			width:300,
-    			modal: true,
-    			title: 'Supprimé cette page ?',
-    			buttons: {
-    				'Confirm': function() {
-    					$(this).dialog('close');
-    					return false;
-    				},
-    				Cancel: function() {
-    					$(this).dialog('close');
-    				}
-    			}
-    		});
-        }
-    }(window.alert);
-	
-	
-	
-	
-	
-
-
-	
+	// TODO : ajouter une dialog permettant de faire un window.confirm plus joli
 	
 	function init() {
 		

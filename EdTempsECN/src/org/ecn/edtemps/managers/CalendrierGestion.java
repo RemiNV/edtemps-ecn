@@ -34,6 +34,9 @@ public class CalendrierGestion {
 
 	/** Nombre maximum de calendriers qu'un utilisateur peut créer avec un droit étendu */
 	public static final int LIMITE_CALENDRIERS_PAR_UTILISATEUR_ETENDUE = 100;
+	
+	/** Nombre de caractères maximum pour le nom d'un calendrier */
+	public static final int TAILLE_MAX_NOM_CALENDRIER = 50;
 
 	
 	/**
@@ -77,8 +80,8 @@ public class CalendrierGestion {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un calendrier doit avoir un créateur");
 		}
 		
-		if(!StringUtils.isAlphanumericSpace(nom)) {
-			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique");
+		if(nom.length() > TAILLE_MAX_NOM_CALENDRIER || !StringUtils.isAlphanumericSpace(nom)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique et de moins de " + TAILLE_MAX_NOM_CALENDRIER + " caractères");
 		}
 		
 		try {
@@ -277,8 +280,8 @@ public class CalendrierGestion {
 	 */
 	public void modifierCalendrier(CalendrierIdentifie calId, List<Integer> idGroupesParents) throws EdtempsException {
 		
-		if(!StringUtils.isAlphanumericSpace(calId.getNom())) {
-			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique");
+		if(calId.getNom().length() > TAILLE_MAX_NOM_CALENDRIER || !StringUtils.isAlphanumericSpace(calId.getNom())) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un calendrier doit être alphanumérique et de moins de " + TAILLE_MAX_NOM_CALENDRIER + " caractères");
 		}
 		
 		try {
