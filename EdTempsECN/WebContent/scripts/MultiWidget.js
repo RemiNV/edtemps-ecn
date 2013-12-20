@@ -216,7 +216,13 @@ define([ "jquery", "jqueryui" ], function() {
 						return false;
 					},
 					change: function(event, ui) {
-						jqElem.val(jqElem.attr("data-label"));
+						if(jqElem.val() === "") {
+							jqElem.attr("data-val", "");
+							jqElem.attr("data-label", "");
+						}
+						else {
+							jqElem.val(jqElem.attr("data-label"));
+						}
 					},
 					close: function(event, ui) {
 						inputAutocompletion.val("");
