@@ -8,7 +8,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement, viewRender) {
+	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement, jqDatepicker) {
 		var me = this;
 		
 		// Dialog de détails des événements
@@ -181,7 +181,12 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 			eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
 				updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
 			},
-			viewRender: viewRender
+			viewRender: function() {
+				if(jqDatepicker) {
+					var date = me.getDate();
+					jqDatepicker.DatePickerSetDate(date, date);
+				}
+			}
 			
 		});
 		

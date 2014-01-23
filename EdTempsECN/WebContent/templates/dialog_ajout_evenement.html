@@ -1,0 +1,72 @@
+<table>
+	<tr>
+		<td><label for="txt_nom_evenement">Nom de l'événement : </label></td>
+		<td><input type="text" id="txt_nom_evenement" maxlength="50"/><div id="span_alert_nom_evenement_alphanumerique" class="message_alerte" style="display: none">Cette valeur doit être alphanumérique</div></td>
+	</tr>
+	<!-- Elements à masquer selon les droits de l'utilisateur -->
+	<tr id="choix_proprietaire">
+		<td>Propriétaires <img alt="aide" class="help_icon" title="Donne les droits d'administration (modification/suppression)<br/>sur cet événement" src="img/help.png" /></td>
+		<td><input type="text" id="input_proprietaires_evenement" /></td>
+	</tr>
+	<tr id="choix_intervenants">
+		<td>Intervenants <img alt="aide" class="help_icon" title="L'événement s'affichera dans la page &quot;&Eacute;vénements dans lesquels j'interviens&quot;<br/>de ces utilisateurs" src="img/help.png" /></td>
+		<td><input type="text" id="input_intervenants_evenement" /></td>
+	</tr>
+	<tr>
+		<td>Calendriers : </td>
+		<td id="calendriers_evenement">
+			<select class="select_calendriers"></select>
+		</td>
+	</tr>
+	<tr>
+		<td><label for="date_evenement">Date : </label></td>
+		<td><input type="text" id="date_evenement" /></td>
+	</tr>
+	<tr>
+		<td><label for="heure_debut">Heure de début : </label></td>
+		<td><input type="text" id="heure_debut" /></td>
+	</tr>
+	<tr>
+		<td><label for="heure_fin">Heure de fin : </label></td>
+		<td><input type="text" id="heure_fin" /></td>
+	</tr>
+	<tr>
+		<td>Matériel <em>par salle</em> : <br/>(pour la recherche)</td>
+		<td>
+			<table id="tbl_materiel">
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>Salles : </td>
+		<td>
+			<span id="salles_evenement">(Recherchez une ou plusieurs salle(s))</span><br/>
+			<input type="submit" id="btn_rechercher_salle_evenement" class="button" value="Rechercher"/> pour <input type="number" class='input_small' id="nb_personnes_evenement" value="5" /> personnes
+		</td>
+	</tr>
+</table>
+
+<div id="notes_salles_occupees_non_cours" class="salle_occupee_noncours" style="display: none">
+	Vous allez prendre les salles des événements :<br/> 
+	<ul id="lst_evenements_salles_occupees_non_cours">
+	</ul>
+</div>
+
+<div id="notes_salles_occupees" class="salle_occupee" style="display: none">
+	Les salles sélectionnées sont occupées par :<br/> 
+	<ul id="lst_evenements_salles_occupees">
+	</ul>
+</div>
+
+<div id="notes_pas_proprietaire_calendrier" class="message_alerte" style="display: none">
+	Vous n'êtes pas propriétaire de tous les calendriers : ils ne seront pas modifiés.
+</div>
+
+<div class="boutons_valider">
+	<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Valider" />
+</div>
+
+<div id="dialog_ajout_evenement_chargement" style="display: none">
+	<img src="img/spinner_chargement_outer_small.gif" class="spinner_chargement" alt="chargement" />
+	<span id="dialog_ajout_evenement_message_chargement"></span>
+</div>

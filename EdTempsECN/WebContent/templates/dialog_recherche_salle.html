@@ -1,0 +1,50 @@
+<div id="form_chercher_salle" title="Formulaire de recherche d'une salle libre">
+	<form>
+		<table id="form_chercher_salle_table">
+			<tr>
+				<td><label for="form_recherche_salle_date">Date de réservation</label></td>
+				<td><input type="text" name="form_recherche_salle_date" id="form_recherche_salle_date" /></td>
+			</tr>
+			<tr>
+				<td><label for="form_recherche_salle_debut">Heure de début (ex: 14:00)</label></td>
+				<td><input type="text" name="form_recherche_salle_debut" id="form_recherche_salle_debut" /></td>
+			</tr>
+			<tr>
+				<td><label for="form_recherche_salle_fin">Heure de fin (ex: 17:00)</label></td>
+				<td><input type="text" name="form_recherche_salle_fin" id="form_recherche_salle_fin" /></td>
+			</tr>
+			<tr>
+				<td><label for="form_recherche_salle_capacite">Capacité</label></td>
+				<td><input type="text" name="form_recherche_salle_capacite" id="form_recherche_salle_capacite" value="20" /></td>
+			</tr>
+			<tr>
+				<td><label for="form_recherche_salle_inclure_salles_occupees">Inclure les salles occupées <img alt="Aide" title="Si vous cochez la case, les salles occupées par des événements autres que des cours seront inclues dans la recherche." src="img/help.png" class="help_icon" /></label></td>
+				<td><input type="checkbox" name="form_recherche_salle_inclure_salles_occupees" id="form_recherche_salle_inclure_salles_occupees" /></td>
+			</tr>
+		</table>
+
+		<div id="form_chercher_salle_liste_materiel">
+			<table>
+				<!-- Table remplie par JS -->
+			</table>
+			
+			<div id="form_chercher_salle_chargement" style="display: none">
+				<img src="img/spinner_chargement_outer_small.gif" class="spinner_chargement" alt="chargement" />
+				<span id="form_chercher_salle_message_chargement"></span>
+			</div>
+		</div>
+
+		<div id="form_chercher_salle_boutons" class="boutons_valider">
+			<input type="button" id="form_chercher_salle_fermer" class="button" value="Fermer" />
+			<input type="button" id="form_chercher_salle_valid" class="button" value="Rechercher" />
+		</div>
+	</form>
+</div>
+<div id="resultat_chercher_salle" title="Résultat de la recherche">
+	<select multiple="multiple" id="resultat_chercher_salle_select"></select>
+	<div id="resultat_chercher_salle_message"></div>
+	<div id="resultat_chercher_salle_boutons" class="boutons_valider">
+		<input type="button" id="resultat_chercher_salle_fermer" class="button" value="Fermer" />
+		<input type="button" id="resultat_chercher_salle_creer" class="button" value="Créer un événement" />
+	</div>
+</div>

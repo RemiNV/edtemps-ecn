@@ -4,8 +4,9 @@
  * @module EcranAccueil
  */
 define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "GroupeGestion", 
-        "DialogAjoutEvenement", "RestManager", "underscore", "jquery", "jqueryui", "jquerycombobox", "datepicker"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
-        		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager, _) {
+        "DialogAjoutEvenement", "RestManager", "underscore", "text!../templates/dialog_ajout_evenement.html", "text!../templates/dialog_recherche_salle.html",
+        "jquery", "jqueryui", "jquerycombobox", "datepicker"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
+        		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager, _, dialogAjoutEvenementHtml, dialogRechercheSalleHtml) {
 	
 	/**
 	 * @constructor
@@ -17,14 +18,19 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.abonnementsRecuperes = false;
 		this.evenementGestion = new EvenementGestion(this.restManager);
 		this.groupeGestion = new GroupeGestion(this.restManager);
-		this.rechercheSalle = new RechercheSalle(this.restManager, $("#recherche_salle_libre"));
+		
+		var jqDialogRechercheSalle = $("#recherche_salle_libre").append(dialogRechercheSalleHtml);
+		
+		this.rechercheSalle = new RechercheSalle(this.restManager, jqDialogRechercheSalle);
 		this.initListeGroupesFait = false;
 		this.initListeSallesFait = false;
 		
 		this.idGroupeSelectionne = 0;
 		this.idSalleSelectionee = 0;
 		
-		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, $("#dialog_ajout_evenement"), this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
+		var jqDialogAjoutEvenement = $("#dialog_ajout_evenement").append(dialogAjoutEvenementHtml);
+		
+		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, jqDialogAjoutEvenement, this.rechercheSalle, this.evenementGestion, function() { me.rafraichirCalendrier(); });
 		
 		this.calendrier = null;
 		this.listeGroupesParticipants = null;
@@ -79,12 +85,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		}
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, 
-				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), function() {
-			if(me.calendrier) {
-				var date = me.calendrier.getDate();
-				$("#accueil_datepicker").DatePickerSetDate(date, date);
-			}
-		});
+				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), $("#accueil_datepicker"));
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 		
