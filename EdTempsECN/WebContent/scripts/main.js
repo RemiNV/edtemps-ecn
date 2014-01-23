@@ -167,6 +167,18 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 				}
 			});
 			
+			// Page de planning des cours (pour les professeurs)
+			this.get("planning_cours", function(req) {
+				if(restManager.isConnected()) {
+					if(currentPage.nom != "planning_cours") {
+						chargerInterfacePlanningCours();
+					}
+				}
+				else {
+					req.redirect("connexion/planning_cours");
+				}
+			});
+			
 			// Page de connexion
 			this.get("connexion/*target", function(req) {
 				// Déjà connecté ?
@@ -282,6 +294,17 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 			currentPage.nom="parametres";
 			currentPage.manager = new EcranParametres(restManager);
 			currentPage.manager.init(tab);
+		});
+	};
+	
+	function chargerInterfacePlanningCours() {
+		transitionInterface(["planning_cours/EcranPlanningCours", "text!../templates/page_planning_cours.html"], function(EcranPlanningCours, pagePlanningCoursHtml) {
+			$("#main_interface_hook").empty().append($(pagePlanningCoursHtml));
+			
+			currentPage.nom = "planning_cours";
+			currentPage.manager = new EcranPlanningCours(restManager);
+			
+			// TODO : recharger la vue (normale ou groupes) depuis l'URL comme avec la page principale
 		});
 	};
 	
