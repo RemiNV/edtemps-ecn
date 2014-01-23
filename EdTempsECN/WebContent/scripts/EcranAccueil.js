@@ -34,6 +34,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		
 		this.calendrier = null;
 		this.listeGroupesParticipants = null;
+		
+		// TODO : cacher le lien "mode planning cours" pour les utilisateurs non autorisés
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
