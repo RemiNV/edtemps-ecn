@@ -184,6 +184,19 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 				}
 			});
 			
+			// Page de gestion des jours bloqués
+			this.get("jours_bloques", function(req) {
+				
+				if(restManager.isConnected()) {
+					if(currentPage.nom != "jours_bloques") {
+						chargerInterfaceJoursBloques();
+					}
+				}
+				else {
+					req.redirect("connexion/jours_bloques");
+				}
+			});
+
 			// Page de connexion
 			this.get("connexion/*target", function(req) {
 				// Déjà connecté ?
@@ -310,6 +323,15 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 			currentPage.manager = new EcranPlanningCours(restManager);
 			currentPage.manager.setVue(vue);
 			// TODO : recharger la vue (normale ou groupes) depuis l'URL comme avec la page principale
+		});
+	};
+	
+	function chargerInterfaceJoursBloques() {
+		transitionInterface(["planning_cours/EcranJoursBloques", "text!../templates/page_jours_bloques.html"], function(EcranJoursBloques, pageJoursBloquesHtml) {
+			$("#main_interface_hook").empty().append($(pageJoursBloquesHtml));
+			
+			currentPage.nom = "jours_bloques";
+			currentPage.manager = new EcranJoursBloques(restManager);
 		});
 	};
 	
