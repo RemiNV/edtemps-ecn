@@ -816,3 +816,32 @@ input.valide {
 	top: -2px;
 	left: 5px;
 }
+
+
+
+/* Page de gestion des jours bloqués */
+
+#jours_bloques #commandes {
+	margin-top: 40px;
+	margin-bottom: 30px;
+	text-align: center;
+	font-size: 1.1em;
+	font-weight: bold;
+	vertical-align: middle;
+}
+
+#jours_bloques #commandes img {
+	cursor: pointer;
+	margin: 0px 20px -8px 20px;
+}
+	
+#jours_bloques #jours_bloques_liens_connexion {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+}
+
+#jours_bloques #calendar_jours_boques {
+	margin: auto;
+	width: 1080px; 
+}
