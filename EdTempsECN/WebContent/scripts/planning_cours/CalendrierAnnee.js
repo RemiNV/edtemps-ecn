@@ -8,7 +8,7 @@ define([ "RestManager" ], function(RestManager) {
 	 * @constructor
 	 * @alias CalendrierAnnee
 	 */
-	var CalendrierAnnee = function(restManager, jqEcran, jqCalendar, annee, events, callback) {
+	var CalendrierAnnee = function(restManager, jqEcran, jqCalendar, annee, joursFeries, joursBloques, callback) {
 		this.restManager = restManager;
 		this.jqEcran = jqEcran;			// Objet jQuery qui pointe sur le contenu global de la page
 		this.jqCalendar = jqCalendar;	// Objet jQuery qui pointe sur la div qui contiendra le calendrier
@@ -21,7 +21,7 @@ define([ "RestManager" ], function(RestManager) {
 	    this.listeMoisNumero = new Array(9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8);
 	    this.listeNbJours = new Array(30, 31, 30, 31, 31, 28, 31, 30, 31, 30, 31, 31);
 	    
-	    this.chargerAnnee(annee, events);
+	    this.chargerAnnee(annee, joursFeries, joursBloques);
 	};
 	
 	
@@ -66,7 +66,7 @@ define([ "RestManager" ], function(RestManager) {
 		
 		// Affiche les jours spéciaux
 		var me = this;
-		afficherJoursSpeciaux(this.jqCalendar, this.events, function() {
+		afficherJoursSpeciaux(this.jqCalendar, this.joursFeries, this.joursBloques, function() {
 			me.jqCalendar.fadeIn(700);
 		});
 		
@@ -86,9 +86,10 @@ define([ "RestManager" ], function(RestManager) {
 	 * @param {int} annee Numéro de l'année
 	 * @param {event} events Liste des événements à afficher
 	 */
-	CalendrierAnnee.prototype.chargerAnnee = function(annee, events) {
+	CalendrierAnnee.prototype.chargerAnnee = function(annee, joursFeries, joursBloques) {
 		this.annee = annee;
-		this.events = events; // Les événements à afficher (jours bloqués)
+		this.joursFeries = joursFeries;
+		this.joursBloques = joursBloques;
 
 		if (this.premierAffichage) {
 			this.premierAffichage = false;
@@ -112,16 +113,39 @@ define([ "RestManager" ], function(RestManager) {
 
 	
 	/**
-	 * Afficher les jours spéciaux dans le calendrier qui vient d'être écrit
+	 * Afficher les jours spéciaux dans le calendrier
+	 * 
+	 * @param {jQueryObject} jqCalendar Numéro de l'année
+	 * @param {Array} joursFeries Liste des jours fériés
+	 * @param {Array} joursBloques Liste des jours bloqués
+	 * @param {function} callback Méthode exécutée en retour
 	 */
-	function afficherJoursSpeciaux(jqCalendar, events, callback) {
+	function afficherJoursSpeciaux(jqCalendar, joursFeries, joursBloques, callback) {
 		
-		for (var i=0, maxI=events.length; i<maxI; i++) {
-			var date = new Date(events[i].date);
+		// Jours fériés
+		for (var i=0, maxI=joursFeries.length; i<maxI; i++) {
+			var date = new Date(joursFeries[i].date);
 			var dateFormatee = date.getDate() + "-" + (date.getMonth()+1) + "-" + date.getFullYear();
 			jqCalendar.find("#"+dateFormatee).addClass("ferie");
 		}
 		
+		// Jours bloqués
+		for (var i=0, maxI=joursBloques.length; i<maxI; i++) {
+			var dateDebut = new Date(joursBloques[i].dateDebut);
+			var dateFin = new Date(joursBloques[i].dateFin);
+			
+			if (joursBloques[i].vacances) {
+				var date = dateDebut;
+				while (date.getTime() < dateFin.getTime()) {
+					jqCalendar.find("#"+formaterDate(date)).addClass("vacances");
+					date.setTime(date.getTime()+(24*60*60*1000));
+				}
+			} else {
+				jqCalendar.find("#"+formaterDate(dateDebut)).addClass("bloque");
+			}
+		}
+		
+		// Appelle la méthode de retour
 		callback();
 	};
 
@@ -132,6 +156,10 @@ define([ "RestManager" ], function(RestManager) {
 	CalendrierAnnee.prototype.getAnnee = function() {
 		return this.annee;
 	};
+	
+	function formaterDate(date) {
+		return date.getDate() + "-" + (date.getMonth()+1) + "-" + date.getFullYear();
+	}
 	
 	
 	return CalendrierAnnee;
