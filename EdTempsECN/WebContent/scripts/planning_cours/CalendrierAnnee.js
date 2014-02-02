@@ -10,14 +10,14 @@ define([ "RestManager" ], function(RestManager) {
 	 */
 	var CalendrierAnnee = function(restManager, jqEcran, jqCalendar, events, callback) {
 		this.restManager = restManager;
-		this.jqEcran = jqEcran;
-		this.jqCalendar = jqCalendar;
-		this.premierAffichage = true;
-		this.callback = callback;
+		this.jqEcran = jqEcran;			// Objet jQuery qui pointe sur le contenu global de la page
+		this.jqCalendar = jqCalendar;	// Objet jQuery qui pointe sur la div qui contiendra le calendrier
+		this.premierAffichage = true;	// Vrai si c'est la première fois que le calendrier est affiché
+		this.callback = callback;		// Action sur le clique sur un objet. Elle reçoit en paramètre la div qui a été cliquée
 		
 		// Récupère l'année scolaire à afficher en fonction de la date du jour
 		var today = new Date();
-		this.annee = today.getFullYear();
+		this.annee = today.getFullYear();	// C'est l'année de départ de l'année scolaire. Par exemple, pour l'année scolaire 2013-2014, this.annee vaut 2013.
 		if (today.getMonth() >= 0 && today.getMonth() <= 7) this.annee = today.getFullYear()-1;
 
 		// Initialise les noms des mois, des jours et les nombres de jours par mois
@@ -29,65 +29,48 @@ define([ "RestManager" ], function(RestManager) {
 	
 	
 	/**
-	 * Getter de l'année
-	 */
-	CalendrierAnnee.prototype.getAnnee = function() {
-		return this.annee;
-	};
-	
-	
-	/**
-	 * Initialisation du calendrier
+	 * Afficher le calendrier avec l'année et les événements actuels
 	 */
 	CalendrierAnnee.prototype.afficherCalendrier = function() {
 		var me = this;
 		
-		// Met à jour le nomrbre de jour du mois de février en fonction de l'année
+		// Mets à jour le nomrbre de jour du mois de février en fonction de l'année
 		this.listeNbJours[5] = this.nbJoursFevrier();
 		
-		// Prépare le contenu du calendrier à afficher
-		var content = "<table id='calendrierAnnee'>";
-
-	    // Ligne de titre
-	    content += "<tr>";
+	    // Prépare la ligne de titre avec les noms des mois
+		var ligneMois = "<tr>";
 		for (var i=0; i<12; i++) {
-			if (i<4) {
-				content += "<th title='"+this.listeMois[i]+"'>"+this.listeMoisCourts[i]+"</th>";
+			if (this.listeMoisNumero[i] < 9) {
+				ligneMois += "<th title='"+this.listeMois[i]+" "+(this.annee+1)+"'>"+this.listeMoisCourts[i]+"</th>";
 			} else {
-				content += "<th title='"+this.listeMois[i]+"'>"+this.listeMoisCourts[i]+"</th>";
+				ligneMois += "<th title='"+this.listeMois[i]+" "+this.annee+"'>"+this.listeMoisCourts[i]+"</th>";
 			}
 		}
-		content += "</tr>";
+		ligneMois += "</tr>";
 
 		// Parcours les jours
+		var tabJours = "";
 		for (var i=0; i<31; i++) {
 			
 			// Parcours les mois
-			content += "<tr>";
+			tabJours += "<tr>";
 			for (var j=0; j<12; j++) {
 				if (this.listeNbJours[j] >= (i+1)) {
 					var an = this.annee;
-					if (this.listeMoisNumero[j] >= 1 && this.listeMoisNumero[j] <= 8) { an = this.annee+1; }
-					content += "<td class='jour_bloque_clic' date='"+an+"-"+this.listeMoisNumero[j]+"-"+(i+1)+"'>"+(i+1)+"</td>";
+					if (this.listeMoisNumero[i] < 9) { an = this.annee+1; }
+					tabJours += "<td><div class='jour_bloque_clic' date='"+an+"-"+this.listeMoisNumero[j]+"-"+(i+1)+"'>"+(i+1)+"</div></td>";
 				} else {
-					content += "<td></td>";
+					tabJours += "<td></td>";
 				}
 			}
-			content += "</tr>";
-			
+			tabJours += "</tr>";
 		}
-
-		content += "</table>";
 		
+		// Affiche le calendrier
+		this.jqCalendar.html("<table id='calendrierAnnee'>" + ligneMois + tabJours + "</table>").fadeIn(700);
 		
-		
-		// Affichage du calendrier
-		this.jqCalendar.html(content).fadeIn(700);
-		
-		
-		// Affichage de l'année scolaire
+		// Affiche le numéro de l'année scolaire
 		this.jqEcran.find("#numero_annee_scolaire").html(this.annee + " - " + (this.annee + 1));
-		
 		
 	    // Affecte la fonction de callback sur les jours cliquables
 	    this.jqEcran.find(".jour_bloque_clic").click(function() {
@@ -98,9 +81,9 @@ define([ "RestManager" ], function(RestManager) {
 
 	
 	/**
-	 * Charger une année particulière
+	 * Charger une année dans le calendrier
 	 * @param {int} annee Numéro de l'année
-	 * @param {events} events Liste des événements à afficher
+	 * @param {event} events Liste des événements à afficher
 	 */
 	CalendrierAnnee.prototype.chargerAnnee = function(annee, events) {
 		this.annee = annee;
@@ -120,7 +103,7 @@ define([ "RestManager" ], function(RestManager) {
 
 
 	/**
-	 * Récupère le nombre de jours du mois de février en fonction de l'année
+	 * Récupère le nombre de jours du mois de février en fonction de l'année (bissexsile ou non)
 	 */
 	CalendrierAnnee.prototype.nbJoursFevrier = function() {
 		if ((new Date(this.annee + 1, 1, 29, 0, 0, 0, 0)).getDate() == 29) {
@@ -129,7 +112,15 @@ define([ "RestManager" ], function(RestManager) {
 			return 28;
 		}
 	};
-
+	
+	
+	/**
+	 * Getter de l'année
+	 */
+	CalendrierAnnee.prototype.getAnnee = function() {
+		return this.annee;
+	};
+	
 	
 	return CalendrierAnnee;
 

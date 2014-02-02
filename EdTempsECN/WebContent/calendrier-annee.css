@@ -18,10 +18,14 @@
 	border-right: solid 1px black;
 }
 
-#calendrierAnnee td.jour_bloque_clic {
+#calendrierAnnee td div.jour_bloque_clic {
 	cursor: pointer;
+	margin: auto;
+	width: 50px;
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
 
-#calendrierAnnee td.jour_bloque_clic:hover {
+#calendrierAnnee td div.jour_bloque_clic:hover {
 	background-color: #C8C8C8;
 }
