@@ -761,4 +761,45 @@
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 2);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 4);
 
+
+/* jours fériés */
+	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Jour de l''an', '2013-01-01 00:00:00');
+	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Fête du travail', '2013-06-01 00:00:00');
+
+/* jours bloqué */
+	/* Vacances */
+	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+		VALUES ('Vacances de Noël', '2013-12-23 00:00:00', '2014-01-05 00:00:00', true);
+		
+	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+		VALUES ('Vacances d''hiver', '2014-03-03 00:00:00', '2014-03-09 00:00:00', true);
+		
+	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+		VALUES ('Vacances d''été', '2014-07-01 00:00:00', '2014-08-31 00:00:00', true);
+
+	/* Journées particulières */
+	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+		VALUES ('Forum Atlantique', '2013-11-13 08:00:00', '2013-11-13 00:18:00', false);
+		
+/* liaisons des jours bloqués aux groupes */
+	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
+		SELECT groupeparticipant_id, jourbloque_id
+		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances de Noël';
+
+	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
+		SELECT groupeparticipant_id, jourbloque_id
+		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances d''hiver';
+		
+	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
+		SELECT groupeparticipant_id, jourbloque_id
+		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances d''été';
+		
+	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
+		SELECT groupeparticipant_id, jourbloque_id
+		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
+		WHERE groupeparticipant_nom='EI1' AND jourbloque_libelle = 'Forum Atlantique';
+		
 COMMIT;

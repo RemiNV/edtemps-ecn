@@ -264,6 +264,37 @@ CREATE TABLE edt.administrateurs (
 );
 ALTER SEQUENCE edt.administrateurs_admin_id_seq OWNER TO "edtemps-ecn";
 
+
+CREATE SEQUENCE edt.joursferies_jourferie_id_seq;
+CREATE TABLE edt.joursferies (
+				jourferie_id INTEGER NOT NULL DEFAULT nextval('edt.joursferies_jourferie_id_seq'),
+                jourferie_libelle VARCHAR NOT NULL,
+				jourferie_date TIMESTAMP NOT NULL,
+                CONSTRAINT jourferie_id PRIMARY KEY (jourferie_id)
+);
+ALTER SEQUENCE edt.joursferies_jourferie_id_seq OWNER TO "edtemps-ecn";
+
+CREATE SEQUENCE edt.joursbloques_jourbloque_id_seq;
+CREATE TABLE edt.joursbloques (
+				jourbloque_id INTEGER NOT NULL DEFAULT nextval('edt.joursbloques_jourbloque_id_seq'),
+                jourbloque_libelle VARCHAR NOT NULL,
+                jourbloque_date_debut TIMESTAMP NOT NULL,
+                jourbloque_date_fin TIMESTAMP NOT NULL,
+				jourbloque_vacances BOOLEAN NOT NULL,
+                CONSTRAINT jourbloque_id PRIMARY KEY (jourbloque_id)
+);
+ALTER SEQUENCE edt.joursbloques_jourbloque_id_seq OWNER TO "edtemps-ecn";
+
+CREATE SEQUENCE edt.joursbloquesappartientgroupe_id_seq;
+CREATE TABLE edt.JoursBloquesAppartientGroupe (
+				joursbloquesappartientgroupe_id INTEGER NOT NULL DEFAULT nextval('edt.joursbloquesappartientgroupe_id_seq'),
+				groupeParticipant_id INTEGER NOT NULL,
+                jourbloque_id INTEGER NOT NULL,
+                CONSTRAINT joursbloquesappartientgroupe_id PRIMARY KEY (joursbloquesappartientgroupe_id)
+);
+ALTER SEQUENCE edt.joursbloquesappartientgroupe_id_seq OWNER TO "edtemps-ecn";
+
+
 ALTER TABLE edt.ALieuenSalle ADD CONSTRAINT salle_alieuensalle_fk
 FOREIGN KEY (salle_id)
 REFERENCES edt.Salle (salle_id)
@@ -470,6 +501,20 @@ NOT DEFERRABLE;
 ALTER TABLE edt.ALeDroitDe ADD CONSTRAINT droits_aledroitde_fk
 FOREIGN KEY (droits_id)
 REFERENCES edt.Droits (droits_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE edt.JoursBloquesAppartientGroupe ADD CONSTRAINT groupeparticipant_joursbloquesappartientgroupe_fk
+FOREIGN KEY (groupeParticipant_id)
+REFERENCES edt.GroupeParticipant (groupeParticipant_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE edt.JoursBloquesAppartientGroupe ADD CONSTRAINT joursbloques_joursbloquesappartientgroupe_fk
+FOREIGN KEY (jourbloque_id)
+REFERENCES edt.JoursBloques (jourbloque_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
