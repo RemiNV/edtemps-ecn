@@ -64,9 +64,6 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "jquery"], function(Ca
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback(data.data.listeJoursFeries);
-			} else if(data.resultCode == RestManager.resultCode_AuthorizationError) {
-				window.showToast("Vous n'êtes pas autorisé à récupérer la liste des jours fériés.");
-				callback(null);
 			} else {
 				window.showToast("Erreur lors de la récupération de la liste des jours fériés ; vérifiez votre connexion.");
 				callback(null);
