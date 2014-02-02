@@ -745,16 +745,20 @@
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (6, 'GERER_JOURS_BLOQUES');
 
 /* aledroitde */
-	/* L'enseignant et l'administration peuvent tout faire */
+	/* L'administration peut tout faire */
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 1);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 2);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 3);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 4);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 5);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 6);
 
+	/* L'enseignant peut faire un peu moins de choses */
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 1);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 2);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 3);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 4);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 6);
 
 	/* L'étudiant peut tout faire sauf créer un groupe de cours */
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 1);
