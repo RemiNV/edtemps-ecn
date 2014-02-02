@@ -16,9 +16,12 @@
 #calendrierAnnee td {
 	border-left: solid 1px black;
 	border-right: solid 1px black;
+}
+
+#calendrierAnnee td.jour_bloque_clic {
 	cursor: pointer;
 }
 
-#calendrierAnnee td:hover {
+#calendrierAnnee td.jour_bloque_clic:hover {
 	background-color: #C8C8C8;
 }

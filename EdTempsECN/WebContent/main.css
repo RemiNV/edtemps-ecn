@@ -843,5 +843,6 @@ input.valide {
 
 #jours_bloques #calendar_jours_boques {
 	margin: auto;
-	width: 1080px; 
+	width: 1080px;
+	display: none;
 }
