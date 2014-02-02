@@ -18,18 +18,35 @@
 	border-right: solid 1px black;
 }
 
-#calendrierAnnee td div.jour_bloque_clic {
+#calendrierAnnee td div.jour {
 	cursor: pointer;
 	margin: auto;
 	width: 50px;
 	padding-top: 2px;
 	padding-bottom: 2px;
+	border: solid 1px white;
 }
 
-#calendrierAnnee td div.jour_bloque_clic:hover {
-	background-color: #C8C8C8;
+#calendrierAnnee td div.jour:hover {
+	border: solid 1px gray;
 }
 
-#calendrierAnnee td div.jours_bloque_dimanche {
+#calendrierAnnee td div.dimanche {
 	background-color: #F3F3F3;
+	color: white;
+}
+
+#calendrierAnnee td div.vacances {
+	background-color: #028400;
+	color: white;
+}
+
+#calendrierAnnee td div.bloque {
+	background-color: #004058;
+	color: white;
+}
+
+#calendrierAnnee td div.ferie {
+	background-color: #B30202;
+	color: white;
 }
