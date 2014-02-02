@@ -20,7 +20,7 @@ import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
  */
 public class JourFerieGestion {
 
-	protected BddGestion _bdd;
+	protected BddGestion bdd;
 	private static Logger logger = LogManager.getLogger(JourFerieGestion.class.getName());
 
 	
@@ -29,7 +29,7 @@ public class JourFerieGestion {
 	 * @param bdd Gestionnaire de base de données à utiliser
 	 */
 	public JourFerieGestion(BddGestion bdd) {
-		_bdd = bdd;
+		this.bdd = bdd;
 	}
 
 	
@@ -58,7 +58,7 @@ public class JourFerieGestion {
 	 * @return la liste des jours fériés
 	 * @throws EdtempsException 
 	 */
-	public List<JourFerieIdentifie> getJoursFeriesPeriode(Date debut, Date fin) throws EdtempsException {
+	public List<JourFerieIdentifie> getJoursFeries(Date debut, Date fin) throws EdtempsException {
 
 		// Quelques vérifications sur les dates
 		if (debut==null || fin==null || debut.after(fin)) {
@@ -69,10 +69,10 @@ public class JourFerieGestion {
 
 			String requeteString = "SELECT jourferie_id, jourferie_libelle, jourferie_date" +
 					" FROM edt.joursferies" +
-					" WHERE jourferie_date > ? AND jourferie_date < ?" +
+					" WHERE jourferie_date >= ? AND jourferie_date <= ?" +
 					" ORDER BY jourferie_date";
 			
-			PreparedStatement requetePreparee = _bdd.getConnection().prepareStatement(requeteString);
+			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(requeteString);
 			requetePreparee.setTimestamp(1, new java.sql.Timestamp(debut.getTime()));
 			requetePreparee.setTimestamp(2, new java.sql.Timestamp(fin.getTime()));
 			

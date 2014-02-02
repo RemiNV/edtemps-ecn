@@ -17,27 +17,27 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
-import org.ecn.edtemps.managers.JourFerieGestion;
-import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
+import org.ecn.edtemps.managers.JourBloqueGestion;
+import org.ecn.edtemps.models.identifie.JourBloqueIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet de gestion des jours fériés
+ * Servlet de gestion des jours bloqués
  * 
  * @author Joffrey
  */
-public class JoursFeriesServlet extends RequiresConnectionServlet {
+public class JoursBloquesServlet extends RequiresConnectionServlet {
 
-	private static final long serialVersionUID = 2647012858867960542L;
-	private static Logger logger = LogManager.getLogger(JoursFeriesServlet.class.getName());
+	private static final long serialVersionUID = -7109999235327735066L;
+	private static Logger logger = LogManager.getLogger(JoursBloquesServlet.class.getName());
 	
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String pathInfo = req.getPathInfo();
 		
 		try {
 			switch(pathInfo) {
-			case "/getJoursFeries":
-				doGetJoursFeries(userId, bdd, req, resp);
+			case "/getJoursBloques":
+				doGetJoursBloques(userId, bdd, req, resp);
 				break;
 			default:
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -46,26 +46,27 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 			}
 		}
 		catch(EdtempsException e) {
-			logger.error("Erreur lors de gestion des jours fériés ; requête " + pathInfo, e);
+			logger.error("Erreur lors de gestion des jours bloqués ; requête " + pathInfo, e);
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 			bdd.close();
 		}
 	}
 	
-	protected void doGetJoursFeries(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
+	protected void doGetJoursBloques(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
 
 		// Récupère les paramètres
 		Date debut = this.getDateInRequest(req, "debut");
 		Date fin = this.getDateInRequest(req, "fin");
+		Boolean vacances = req.getParameter("vacances")=="" ? null : Boolean.valueOf(req.getParameter("vacances"));
 
 		// Exécute la requête de récupération avec le gestionnaire
-		JourFerieGestion gestionnaireJoursFeries = new JourFerieGestion(bdd);
-		List<JourFerieIdentifie> resultat = gestionnaireJoursFeries.getJoursFeries(debut, fin);
+		JourBloqueGestion gestionnaireJoursBloques = new JourBloqueGestion(bdd);
+		List<JourBloqueIdentifie> resultat = gestionnaireJoursBloques.getJoursBloques(debut, fin, vacances);
 		bdd.close();
 		
 		// Création de la réponse
 		JsonValue data = Json.createObjectBuilder()
-				.add("listeJoursFeries", JSONUtils.getJsonArray(resultat))
+				.add("listeJoursBloques", JSONUtils.getJsonArray(resultat))
 				.build();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "", data));
 	}

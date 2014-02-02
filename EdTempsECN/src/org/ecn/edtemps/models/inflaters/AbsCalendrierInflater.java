@@ -2,7 +2,6 @@ package org.ecn.edtemps.models.inflaters;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.ecn.edtemps.exceptions.DatabaseException;
