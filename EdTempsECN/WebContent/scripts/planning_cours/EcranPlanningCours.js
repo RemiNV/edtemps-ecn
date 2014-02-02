@@ -25,6 +25,11 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, 
 				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker);
+		
+		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
+		if (this.restManager.aDroit(6)) {
+			$("#bouton_jours_bloques").html('<a href="#jours_bloques" class="button">Jours bloqués</a>');
+		}
 	};
 	
 	EcranPlanningCours.VUE_NORMALE = "vue_normale";

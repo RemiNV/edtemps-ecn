@@ -742,6 +742,7 @@
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (3, 'CREER_GROUPE_COURS');
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (4, 'CHOISIR_PROPRIETAIRES_EVENEMENT');
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (5, 'LIMITE_CALENDRIERS_ETENDUE');
+	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (6, 'GERER_JOURS_BLOQUES');
 
 /* aledroitde */
 	/* L'enseignant et l'administration peuvent tout faire */

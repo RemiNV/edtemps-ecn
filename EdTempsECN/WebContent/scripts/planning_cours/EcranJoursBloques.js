@@ -10,9 +10,14 @@ define([ "planning_cours/CalendrierAnnee", "jquery"], function(CalendrierAnnee) 
 	 * @alias EcranJoursBloques 
 	 */
 	var EcranJoursBloques = function(restManager) {
-		this.RestManager = restManager;
+		this.restManager = restManager;
 		this.jqEcran = $("#jours_bloques");
 		var me = this;
+
+		// Si l'utilisateur n'a pas droit à gérer les jours bloqués, on le redirige
+		if (!this.restManager.aDroit(6)) {
+			document.location.href = "#agenda";
+		}
 
 		// Initialise le calendrier
 		this.calendrierAnnee = new CalendrierAnnee(restManager, this.jqEcran, $("#calendar_jours_boques"), null, function(jour) {
