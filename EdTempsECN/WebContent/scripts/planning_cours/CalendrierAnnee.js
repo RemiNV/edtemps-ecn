@@ -40,11 +40,7 @@ define([ "RestManager" ], function(RestManager) {
 	    // Prépare la ligne de titre avec les noms des mois
 		var ligneMois = "<tr>";
 		for (var i=0; i<12; i++) {
-			if (this.listeMoisNumero[i] < 9) {
-				ligneMois += "<th title='"+this.listeMois[i]+" "+(this.annee+1)+"'>"+this.listeMoisCourts[i]+"</th>";
-			} else {
-				ligneMois += "<th title='"+this.listeMois[i]+" "+this.annee+"'>"+this.listeMoisCourts[i]+"</th>";
-			}
+			ligneMois += "<th title='"+this.listeMois[i]+" "+((this.listeMoisNumero[i] < 9) ? (this.annee+1) : this.annee)+"'>"+this.listeMoisCourts[i]+"</th>";
 		}
 		ligneMois += "</tr>";
 
@@ -54,11 +50,14 @@ define([ "RestManager" ], function(RestManager) {
 			
 			// Parcours les mois
 			tabJours += "<tr>";
+			var an, dimanche, classes;
 			for (var j=0; j<12; j++) {
 				if (this.listeNbJours[j] >= (i+1)) {
-					var an = this.annee;
-					if (this.listeMoisNumero[i] < 9) { an = this.annee+1; }
-					tabJours += "<td><div class='jour_bloque_clic' date='"+an+"-"+this.listeMoisNumero[j]+"-"+(i+1)+"'>"+(i+1)+"</div></td>";
+					an = (this.listeMoisNumero[j] < 9) ? (this.annee+1) : this.annee;
+					dimanche = (new Date(an, this.listeMoisNumero[j]-1, i+1, 0,0,0,0).getDay()==0) ? " jours_bloque_dimanche" : "";
+					classes = "jour_bloque_clic" + dimanche;
+					
+					tabJours += "<td><div class='"+classes+"' date='"+an+"-"+this.listeMoisNumero[j]+"-"+(i+1)+"'>"+(i+1)+"</div></td>";
 				} else {
 					tabJours += "<td></td>";
 				}
@@ -106,11 +105,7 @@ define([ "RestManager" ], function(RestManager) {
 	 * Récupère le nombre de jours du mois de février en fonction de l'année (bissexsile ou non)
 	 */
 	CalendrierAnnee.prototype.nbJoursFevrier = function() {
-		if ((new Date(this.annee + 1, 1, 29, 0, 0, 0, 0)).getDate() == 29) {
-			return 29;
-		} else {
-			return 28;
-		}
+		return ((new Date(this.annee + 1, 1, 29, 0, 0, 0, 0)).getDate() == 29) ? 29 : 28;
 	};
 	
 	

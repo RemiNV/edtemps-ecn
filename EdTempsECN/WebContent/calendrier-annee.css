@@ -29,3 +29,7 @@
 #calendrierAnnee td div.jour_bloque_clic:hover {
 	background-color: #C8C8C8;
 }
+
+#calendrierAnnee td div.jours_bloque_dimanche {
+	background-color: #F3F3F3;
+}
