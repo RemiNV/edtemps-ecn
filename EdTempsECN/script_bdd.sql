@@ -542,3 +542,6 @@ ALTER TABLE edt.estdetype OWNER TO "edtemps-ecn";
 ALTER TABLE edt.droits OWNER TO "edtemps-ecn";
 ALTER TABLE edt.aledroitde OWNER TO "edtemps-ecn";
 ALTER TABLE edt.administrateurs OWNER TO "edtemps-ecn";
+ALTER TABLE edt.joursbloques OWNER TO "edtemps-ecn";
+ALTER TABLE edt.joursferies OWNER TO "edtemps-ecn";
+ALTER TABLE edt.joursbloquesappartientgroupe OWNER TO "edtemps-ecn";
