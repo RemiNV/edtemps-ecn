@@ -25,8 +25,8 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "jquery"], function(Ca
 		if (today.getMonth() >= 0 && today.getMonth() <= 7) annee = today.getFullYear()-1;
 
 		// Initialise le calendrier
-		this.recupererJoursSpeciauxAnnee(annee, function() {
-			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_boques"), annee, me.joursFeries, me.joursBloques, function(jour) {
+		this.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
+			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_boques"), annee, joursSpeciaux, function(jour) {
 				alert(jour.attr("id"));
 			});
 		});
@@ -34,14 +34,14 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "jquery"], function(Ca
 	    // Affecte les fonctions aux flêches
 	    this.jqEcran.find("#annee_precedente").click(function() {
 	    	var annee = me.calendrierAnnee.getAnnee() - 1;
-	    	me.recupererJoursSpeciauxAnnee(annee, function(joursFeries, joursBloques) {
-		    	me.calendrierAnnee.chargerAnnee(annee, events);
+	    	me.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
+		    	me.calendrierAnnee.chargerAnnee(annee, joursSpeciaux);
 	    	});
 	    });
 	    this.jqEcran.find("#annee_suivante").click(function() {
 	    	var annee = me.calendrierAnnee.getAnnee() + 1;
-	    	me.recupererJoursSpeciauxAnnee(annee, function() {
-		    	me.calendrierAnnee.chargerAnnee(annee, me.joursFeries, me.joursBloques);
+	    	me.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
+		    	me.calendrierAnnee.chargerAnnee(annee, joursSpeciaux);
 	    	});
 	    });
 
@@ -54,17 +54,22 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "jquery"], function(Ca
 	 * @param {function} callback Méthode exécutée en retour
 	 */
 	EcranJoursBloques.prototype.recupererJoursSpeciauxAnnee = function(annee, callback) {
+		var me = this;
 
 		var dateDebut = new Date(annee, 8, 1).getTime();	// Premier septembre
 		var dateFin = new Date(annee+1, 7, 31).getTime();	// Dernier jour du mois d'aout
 		
-		this.joursFeries = null;
-		this.joursBloques = null;
-		var me = this;
-		
-		this.getJoursFeries(annee, dateDebut, dateFin, function() {
-			me.getJoursBloques(annee, dateDebut, dateFin, function() {
-				callback();
+		// Recherche les jours fériés puis les jours bloqués
+		this.getJoursFeries(annee, dateDebut, dateFin, function(joursFeries) {
+			var joursSpeciaux = new Array();
+			for (var i=0, maxI=joursFeries.length; i<maxI; i++) {
+				joursSpeciaux.push(joursFeries[i]);
+			}
+			me.getJoursBloques(annee, dateDebut, dateFin, function(joursBloques) {
+				for (var i=0, maxI=joursBloques.length; i<maxI; i++) {
+					joursSpeciaux.push(joursBloques[i]);
+				}
+				callback(joursSpeciaux);
 			});
 		});
 
@@ -77,20 +82,18 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "jquery"], function(Ca
 	 * @param {int} annee Numéro de l'année
 	 * @param {date} dateDebut Date de début pour la recherche
 	 * @param {date} dateFin Date de fin pour la recherche
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en retour : elle reçoit les jours fériés
 	 */
 	EcranJoursBloques.prototype.getJoursFeries = function(annee, dateDebut, dateFin, callback) {
-		var me = this;
 
 		this.restManager.effectuerRequete("GET", "joursferies/getJoursFeries", {
 			token: this.restManager.getToken(), debut: dateDebut, fin: dateFin
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
-				me.joursFeries = data.data.listeJoursFeries;
-				callback();
+				callback(data.data.listeJoursFeries);
 			} else {
 				window.showToast("Erreur lors de la récupération de la liste des jours fériés ; vérifiez votre connexion.");
-				me.joursFeries = null;
+				callback(null);
 			}
 		});
 		
@@ -103,20 +106,18 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "jquery"], function(Ca
 	 * @param {int} annee Numéro de l'année
 	 * @param {date} dateDebut Date de début pour la recherche
 	 * @param {date} dateFin Date de fin pour la recherche
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en retour : elle reçoit les jours bloqués
 	 */
 	EcranJoursBloques.prototype.getJoursBloques = function(annee, dateDebut, dateFin, callback) {
-		var me = this;
 		
 		this.restManager.effectuerRequete("GET", "joursbloques/getJoursBloques", {
 			token: this.restManager.getToken(), debut: dateDebut, fin: dateFin, vacances: null
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
-				me.joursBloques = data.data.listeJoursBloques;
-				callback();
+				callback(data.data.listeJoursBloques);
 			} else {
 				window.showToast("Erreur lors de la récupération de la liste des jours bloqués et des vacances ; vérifiez votre connexion.");
-				me.joursBloques = null;
+				callback(null);
 			}
 		});
 		

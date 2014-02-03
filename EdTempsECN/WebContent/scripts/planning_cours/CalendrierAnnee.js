@@ -8,12 +8,13 @@ define([ "RestManager" ], function(RestManager) {
 	 * @constructor
 	 * @alias CalendrierAnnee
 	 */
-	var CalendrierAnnee = function(restManager, jqEcran, jqCalendar, annee, joursFeries, joursBloques, callback) {
+	var CalendrierAnnee = function(restManager, jqEcran, jqCalendar, annee, joursSpeciaux, callback) {
 		this.restManager = restManager;
 		this.jqEcran = jqEcran;			// Objet jQuery qui pointe sur le contenu global de la page
 		this.jqCalendar = jqCalendar;	// Objet jQuery qui pointe sur la div qui contiendra le calendrier
 		this.premierAffichage = true;	// Vrai si c'est la première fois que le calendrier est affiché
 		this.callback = callback;		// Action sur le clique sur un objet. Elle reçoit en paramètre la div qui a été cliquée
+		this.joursSpeciaux = null;
 		
 		// Initialise les noms des mois, des jours et les nombres de jours par mois
 	    this.listeMois = new Array('Septembre', 'Octobre', 'Novembre', 'Décembre', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août');
@@ -21,7 +22,7 @@ define([ "RestManager" ], function(RestManager) {
 	    this.listeMoisNumero = new Array(9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8);
 	    this.listeNbJours = new Array(30, 31, 30, 31, 31, 28, 31, 30, 31, 30, 31, 31);
 	    
-	    this.chargerAnnee(annee, joursFeries, joursBloques);
+	    this.chargerAnnee(annee, joursSpeciaux);
 	};
 	
 	
@@ -66,7 +67,7 @@ define([ "RestManager" ], function(RestManager) {
 		
 		// Affiche les jours spéciaux
 		var me = this;
-		afficherJoursSpeciaux(this.jqCalendar, this.joursFeries, this.joursBloques, function() {
+		afficherJoursSpeciaux(this.jqCalendar, this.joursSpeciaux, function() {
 			me.jqCalendar.fadeIn(700);
 		});
 		
@@ -84,12 +85,11 @@ define([ "RestManager" ], function(RestManager) {
 	/**
 	 * Charger une année dans le calendrier
 	 * @param {int} annee Numéro de l'année
-	 * @param {event} events Liste des événements à afficher
+	 * @param {event} joursSpeciaux Liste des événements à afficher
 	 */
-	CalendrierAnnee.prototype.chargerAnnee = function(annee, joursFeries, joursBloques) {
+	CalendrierAnnee.prototype.chargerAnnee = function(annee, joursSpeciaux) {
 		this.annee = annee;
-		this.joursFeries = joursFeries;
-		this.joursBloques = joursBloques;
+		this.joursSpeciaux = joursSpeciaux;
 
 		if (this.premierAffichage) {
 			this.premierAffichage = false;
@@ -116,32 +116,31 @@ define([ "RestManager" ], function(RestManager) {
 	 * Afficher les jours spéciaux dans le calendrier
 	 * 
 	 * @param {jQueryObject} jqCalendar Numéro de l'année
-	 * @param {Array} joursFeries Liste des jours fériés
-	 * @param {Array} joursBloques Liste des jours bloqués
+	 * @param {Array} joursSpeciaux Liste des jours fériés et bloqués
 	 * @param {function} callback Méthode exécutée en retour
 	 */
-	function afficherJoursSpeciaux(jqCalendar, joursFeries, joursBloques, callback) {
-		
-		// Jours fériés
-		for (var i=0, maxI=joursFeries.length; i<maxI; i++) {
-			var date = new Date(joursFeries[i].date);
-			var dateFormatee = date.getDate() + "-" + (date.getMonth()+1) + "-" + date.getFullYear();
-			jqCalendar.find("#"+dateFormatee).addClass("ferie");
-		}
-		
-		// Jours bloqués
-		for (var i=0, maxI=joursBloques.length; i<maxI; i++) {
-			var dateDebut = new Date(joursBloques[i].dateDebut);
-			var dateFin = new Date(joursBloques[i].dateFin);
+	function afficherJoursSpeciaux(jqCalendar, joursSpeciaux, callback) {
+
+		// Parcours la liste des jours spéciaux
+		for (var i=0, maxI=joursSpeciaux.length; i<maxI; i++) {
 			
-			if (joursBloques[i].vacances) {
-				var date = dateDebut;
-				while (date.getTime() < dateFin.getTime()) {
-					jqCalendar.find("#"+formaterDate(date)).addClass("vacances");
-					date.setTime(date.getTime()+(24*60*60*1000));
+			if (joursSpeciaux[i].date) {		// Jours fériés
+				var date = new Date(joursSpeciaux[i].date);
+				jqCalendar.find("#"+formaterDate(date)).addClass("ferie");
+			}
+			else {		// Jours bloqués
+				var dateDebut = new Date(joursSpeciaux[i].dateDebut);
+				var dateFin = new Date(joursSpeciaux[i].dateFin);
+				
+				if (joursSpeciaux[i].vacances) {		// Vacances
+					var date = dateDebut;
+					while (date.getTime() <= dateFin.getTime()) {
+						jqCalendar.find("#"+formaterDate(date)).addClass("vacances");
+						date.setDate(date.getDate()+1);
+					}
+				} else {		// Journée bloquée
+					jqCalendar.find("#"+formaterDate(dateDebut)).addClass("bloque");
 				}
-			} else {
-				jqCalendar.find("#"+formaterDate(dateDebut)).addClass("bloque");
 			}
 		}
 		
