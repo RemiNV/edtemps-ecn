@@ -821,18 +821,23 @@ input.valide {
 
 /* Page de gestion des jours bloqués */
 
+#jours_bloques {
+	width: 860px;
+	margin: auto;
+}
+
 #jours_bloques #commandes {
 	margin-top: 20px;
 	margin-bottom: 20px;
 	text-align: center;
-	font-size: 1.1em;
 	font-weight: bold;
 	vertical-align: middle;
 }
 
 #jours_bloques #commandes img {
 	cursor: pointer;
-	margin: 0px 20px -8px 20px;
+	margin: 0px 10px -5px 10px;
+	width: 20px;
 }
 	
 #jours_bloques #jours_bloques_liens_connexion {
@@ -845,4 +850,39 @@ input.valide {
 	margin: auto;
 	width: 1080px;
 	display: none;
+}
+
+#jours_bloques #bt_gestion_vacances, #bt_ajouter_jour_ferie {
+	margin-top: 10px;
+}
+
+#jours_bloques #partie_jours_feries p {
+	border-bottom: solid 1px gray;
+	padding-bottom: 5px;
+}
+
+#jours_bloques #partie_jours_feries #bt_ajout_auto {
+	float: right;
+	margin-top: -15px;
+}
+
+#jours_bloques #partie_jours_feries #liste_jours_feries {
+	display: none;
+	border-collapse: collapse;
+	width: 865px;
+	text-align: center;
+}
+
+#liste_jours_feries th {
+	border: solid 1px black;
+	background-color: #717171;
+	color: white;
+}
+
+#liste_jours_feries td {
+	border: solid 1px black;
+}
+
+#liste_jours_feries tr:nth-child(odd) {
+	background-color: #E6E6E6;
 }
