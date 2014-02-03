@@ -26,8 +26,12 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "jquery"], function(Ca
 
 		// Initialise le calendrier
 		this.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
-			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_boques"), annee, joursSpeciaux, function(jour) {
-				alert(jour.attr("id"));
+			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_boques"), annee, joursSpeciaux, function(date, data, object) {
+				if (data==null) {
+					alert("le " + date);
+				} else {
+					alert("le " + date + " c'est : " + data.libelle);
+				}
 			});
 		});
 		

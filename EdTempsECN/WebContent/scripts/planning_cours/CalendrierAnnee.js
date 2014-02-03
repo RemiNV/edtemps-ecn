@@ -7,6 +7,15 @@ define([ "RestManager" ], function(RestManager) {
 	/**
 	 * @constructor
 	 * @alias CalendrierAnnee
+	 * 
+	 * La méthode de callback recevra trois paramètres :
+	 * 		- un objet date à la date du jour cliqué
+	 * 		- un objet javascript qui contient l'évnément du jour s'il y en a un (peut être null)
+	 * 		- l'objet jquery cliqué (une div)
+	 * 
+	 * La liste des jours spéciaux contient tous les jours fériés et les jours bloqués (donc les vacances)
+	 * Pour détecter la différence entre jour férié et jour bloqué, on regarde si l'attribut Date est présent.
+	 * Seul les jours fériés ont l'attribut Date.
 	 */
 	var CalendrierAnnee = function(restManager, jqEcran, jqCalendar, annee, joursSpeciaux, callback) {
 		this.restManager = restManager;
@@ -32,7 +41,7 @@ define([ "RestManager" ], function(RestManager) {
 	CalendrierAnnee.prototype.afficherCalendrier = function() {
 		
 		// Mets à jour le nomrbre de jour du mois de février en fonction de l'année
-		this.listeNbJours[5] = this.nbJoursFevrier();
+		this.listeNbJours[5] = nbJoursFevrier(this.annee);
 		
 	    // Prépare la ligne de titre avec les noms des mois
 		var ligneMois = "<tr>";
@@ -54,7 +63,7 @@ define([ "RestManager" ], function(RestManager) {
 					dimanche = (new Date(an, this.listeMoisNumero[j]-1, i+1).getDay()==0) ? " dimanche" : "";
 					classes = "jour" + dimanche;
 					
-					tabJours += "<td><div class='"+classes+"' id='"+(i+1)+"-"+this.listeMoisNumero[j]+"-"+an+"'>"+(i+1)+"</div></td>";
+					tabJours += "<td><div class='"+classes+"' id='"+an+"-"+this.listeMoisNumero[j]+"-"+(i+1)+"'>"+(i+1)+"</div></td>";
 				} else {
 					tabJours += "<td></td>";
 				}
@@ -76,7 +85,7 @@ define([ "RestManager" ], function(RestManager) {
 		
 	    // Affecte la fonction de callback sur les jours cliquables
 	    this.jqEcran.find(".jour").click(function() {
-	    	me.callback($(this));
+	    	me.callback(stringToDate($(this).attr("id")), me.joursSpeciaux[$(this).attr("data")], $(this));
 	    });
 	    
 	};
@@ -104,13 +113,6 @@ define([ "RestManager" ], function(RestManager) {
 	};
 
 
-	/**
-	 * Récupère le nombre de jours du mois de février en fonction de l'année (bissexsile ou non)
-	 */
-	CalendrierAnnee.prototype.nbJoursFevrier = function() {
-		return ((new Date(this.annee + 1, 1, 29)).getDate() == 29) ? 29 : 28;
-	};
-
 	
 	/**
 	 * Afficher les jours spéciaux dans le calendrier
@@ -126,7 +128,7 @@ define([ "RestManager" ], function(RestManager) {
 			
 			if (joursSpeciaux[i].date) {		// Jours fériés
 				var date = new Date(joursSpeciaux[i].date);
-				jqCalendar.find("#"+formaterDate(date)).addClass("ferie");
+				jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i);
 			}
 			else {		// Jours bloqués
 				var dateDebut = new Date(joursSpeciaux[i].dateDebut);
@@ -135,11 +137,11 @@ define([ "RestManager" ], function(RestManager) {
 				if (joursSpeciaux[i].vacances) {		// Vacances
 					var date = dateDebut;
 					while (date.getTime() <= dateFin.getTime()) {
-						jqCalendar.find("#"+formaterDate(date)).addClass("vacances");
+						jqCalendar.find("#"+dateToString(date)).addClass("vacances").attr("data", i);
 						date.setDate(date.getDate()+1);
 					}
 				} else {		// Journée bloquée
-					jqCalendar.find("#"+formaterDate(dateDebut)).addClass("bloque");
+					jqCalendar.find("#"+dateToString(dateDebut)).addClass("bloque").attr("data", i);
 				}
 			}
 		}
@@ -156,9 +158,29 @@ define([ "RestManager" ], function(RestManager) {
 		return this.annee;
 	};
 	
-	function formaterDate(date) {
-		return date.getDate() + "-" + (date.getMonth()+1) + "-" + date.getFullYear();
+	
+	/**
+	 * Formatter une date (en JJ-MM-AAAA) à partir d'un objet Date javascript 
+	 */
+	function dateToString(date) {
+		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
 	}
+
+	
+	/**
+	 * Récupérer un objet date à partir d'une date au format : JJ-MM-AAAA 
+	 */
+	function stringToDate(date) {
+		return new Date(date);
+	}
+
+
+	/**
+	 * Récupère le nombre de jours du mois de février en fonction de l'année (bissexsile ou non)
+	 */
+	function nbJoursFevrier(annee) {
+		return ((new Date(annee + 1, 1, 29)).getDate() == 29) ? 29 : 28;
+	};
 	
 	
 	return CalendrierAnnee;
