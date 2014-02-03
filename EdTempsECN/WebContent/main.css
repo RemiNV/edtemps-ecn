@@ -824,6 +824,7 @@ input.valide {
 #jours_bloques {
 	width: 860px;
 	margin: auto;
+	display: none;
 }
 
 #jours_bloques #commandes {
@@ -846,9 +847,16 @@ input.valide {
 	top: 10px;
 }
 
-#jours_bloques #calendar_jours_boques {
+#jours_bloques #calendar_jours_bloques {
 	margin: auto;
 	width: 1080px;
+	display: none;
+}
+
+#jours_bloques #chargement_en_cours {
+	position: fixed;
+	top: 0px;
+	left: 0px;
 	display: none;
 }
 
@@ -856,17 +864,17 @@ input.valide {
 	margin-top: 10px;
 }
 
-#jours_bloques #partie_jours_feries p {
+#partie_jours_feries p {
 	border-bottom: solid 1px gray;
 	padding-bottom: 5px;
 }
 
-#jours_bloques #partie_jours_feries #bt_ajout_auto {
+#partie_jours_feries #bt_ajout_auto {
 	float: right;
 	margin-top: -15px;
 }
 
-#jours_bloques #partie_jours_feries #liste_jours_feries {
+#liste_jours_feries {
 	display: none;
 	border-collapse: collapse;
 	width: 865px;
@@ -881,6 +889,17 @@ input.valide {
 
 #liste_jours_feries td {
 	border: solid 1px black;
+	vertical-align: middle;
+}
+
+#liste_jours_feries td img {
+	width: 18px;
+	margin: 0px;
+}
+
+#liste_jours_feries td .button {
+	margin: 0px 5px 0px 5px;
+	padding: 5px 10px 5px 10px;
 }
 
 #liste_jours_feries tr:nth-child(odd) {

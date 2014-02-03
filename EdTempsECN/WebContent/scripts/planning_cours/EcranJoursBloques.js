@@ -25,7 +25,7 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "underscore", "jquery"
 		var today = new Date();
 		var annee = today.getFullYear();	// C'est l'année de départ de l'année scolaire. Par exemple, pour l'année scolaire 2013-2014, this.annee vaut 2013.
 		if (today.getMonth() >= 0 && today.getMonth() <= 7) annee = today.getFullYear()-1;
-
+		
 		// Initialise le calendrier
 		this.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
 
@@ -33,13 +33,17 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "underscore", "jquery"
 		    me.afficherTableauJoursFeries();
 
 		    // Affiche le calendrier
-			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_boques"), annee, joursSpeciaux, function(date, data, object) {
+			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_bloques"), annee, joursSpeciaux, function(date, data, object) {
 				if (data==null) {
 					alert("le " + date);
 				} else {
 					alert("le " + date + " c'est : " + data.libelle);
 				}
 			});
+						
+			// Affiche l'écran
+			me.jqEcran.fadeIn(200);
+
 		});
 		
 	    // Affecte les fonctions aux flêches de navigation entre années
@@ -74,6 +78,9 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "underscore", "jquery"
 
 		var dateDebut = new Date(annee, 8, 1).getTime();	// Premier septembre
 		var dateFin = new Date(annee+1, 7, 31).getTime();	// Dernier jour du mois d'aout
+
+		// Affiche le message de chargement en cours
+		this.jqEcran.find("#chargement_en_cours").show();
 		
 		// Recherche les jours fériés puis les jours bloqués
 		this.getJoursFeries(annee, dateDebut, dateFin, function() {
@@ -92,6 +99,9 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "underscore", "jquery"
 					joursSpeciaux.push(me.joursBloques[i]);
 				}
 
+				// Cache le message de chargement en cours
+				me.jqEcran.find("#chargement_en_cours").hide();
+				
 				// On a tout récupéré, on appelle la méthode de retour
 				callback(joursSpeciaux);
 			});
@@ -170,10 +180,10 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "underscore", "jquery"
 			"<% _.each(jours, function(jour) { %> <tr>" +
 				"<td><%= jour.libelle %></td>" +
 				"<td><%= jour.dateString %></td>" +
-				"<td></td>" +
+				"<td><span class='button'><img src='./img/modifier.png' /> Modifier</span><span class='button'><img src='./img/supprimer.png' /> Supprimer</span></td>" +
 			"</tr> <% }); %>";
 
-		var titre = "<tr><th>Libellé</th><th>Date</th><th>Suppression</th></tr>";
+		var titre = "<tr><th>Libellé</th><th>Date</th><th width='250'>Actions</th></tr>";
 		
 		// Affichage du tableau
 		this.jqEcran.find("#liste_jours_feries").html(titre + _.template(template, {jours: this.joursFeries})).fadeIn(500);
