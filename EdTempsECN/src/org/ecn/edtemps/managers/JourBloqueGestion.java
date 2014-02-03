@@ -95,13 +95,16 @@ public class JourBloqueGestion {
 
 			String requeteString = "SELECT jourbloque_id, jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances" +
 					" FROM edt.joursbloques" +
-					" WHERE jourbloque_date_debut >= ? AND jourbloque_date_fin <= ?" +
+					" WHERE jourbloque_date_debut >= ? AND jourbloque_date_debut <= ?" +
+					" OR jourbloque_date_fin >= ? AND jourbloque_date_fin <= ?" +
 					(vacances==null ? "" : " AND jourbloque_vacances = "+vacances) + 
 					" ORDER BY jourbloque_date_debut";
 			
 			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(requeteString);
 			requetePreparee.setTimestamp(1, new java.sql.Timestamp(debut.getTime()));
 			requetePreparee.setTimestamp(2, new java.sql.Timestamp(fin.getTime()));
+			requetePreparee.setTimestamp(3, new java.sql.Timestamp(debut.getTime()));
+			requetePreparee.setTimestamp(4, new java.sql.Timestamp(fin.getTime()));
 			
 			// Récupère les jours en base
 			ResultSet requete = requetePreparee.executeQuery();
