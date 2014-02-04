@@ -23,6 +23,22 @@
 		<li class="selected" id="tab_vue_normale"><a href="#planning_cours/vue_normale">Vue normale</a></li>
 		<li id="tab_vue_groupes"><a href="#planning_cours/vue_groupes">Vue groupes</a></li>
 	</ul>
+	
+	<div id="choix_matiere_calendrier">
+		<table>
+			<tr>
+				<td><label for='select_matiere'>Matière : </label></td><td><select id='select_matiere'></select></td>
+			</tr>
+			<tr id='ligne_select_calendrier'>
+				<td><label for='select_calendrier'>Calendrier : </label></td><td><select id='select_calendrier'></select></td>
+			</tr>
+			<tr>
+				<td>Groupes associés : </td>
+				<td id='lst_groupes_associes'></td>
+			</tr>
+		</table>
+	</div>
+	
 
 	<div id="div_chargement_evenements" style="display: none">
 		<img src="img/spinner_chargement_small.gif" alt="chargement" class="spinner_chargement"/>

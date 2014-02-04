@@ -769,7 +769,10 @@ input.valide {
 	top: 5px;
 	height: 0px;
 }
-
+#choix_matiere_calendrier {
+	clear: left;
+	margin: 45px 0px 25px 0px;
+}
 /** Combobox */
 .custom-combobox {
 	background-color: #f5f5f5;

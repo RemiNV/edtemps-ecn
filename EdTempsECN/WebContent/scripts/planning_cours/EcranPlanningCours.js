@@ -35,10 +35,12 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		$("#nav_vue_agenda li").removeClass("selected");
 		if(vue === EcranPlanningCours.VUE_GROUPES) {
 			$("#nav_vue_agenda #tab_vue_groupes").addClass("selected");
+			$("#ligne_select_calendrier").hide();
 			// TODO : changer le contenu
 		}
 		else {
 			$("#nav_vue_agenda #tab_vue_normale").addClass("selected");
+			$("#ligne_select_calendrier").show();
 			// TODO : changer le contenu
 		}
 	};
