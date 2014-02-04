@@ -322,7 +322,6 @@ require(["lib/stacktrace", "davis", "RestManager", "DialogConnexion",
 			currentPage.nom = "planning_cours";
 			currentPage.manager = new EcranPlanningCours(restManager);
 			currentPage.manager.setVue(vue);
-			// TODO : recharger la vue (normale ou groupes) depuis l'URL comme avec la page principale
 		});
 	};
 	

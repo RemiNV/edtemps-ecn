@@ -19,6 +19,7 @@ define([ "planning_cours/CalendrierAnnee", "RestManager", "underscore", "jquery"
 		// Si l'utilisateur n'a pas droit à gérer les jours bloqués, on le redirige
 		if (!this.restManager.aDroit(RestManager.actionsEdtemps_CreerGroupeCours)) {
 			document.location.href = "#agenda";
+			return;
 		}
 
 		// Récupère l'année scolaire à afficher en fonction de la date du jour
