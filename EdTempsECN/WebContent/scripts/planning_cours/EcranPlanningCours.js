@@ -16,6 +16,8 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.restManager = restManager;
 		this.evenementGestion = new EvenementGestion(restManager);
 		this.calendrierGestion = new CalendrierGestion(restManager);
+		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
+		this.idCalendrierSelectionne = 0;
 		
 		var jqDialogRechercheSalle = $("#recherche_salle_libre").append(dialogRechercheSalleHtml);
 		this.rechercheSalle = new RechercheSalle(restManager, jqDialogRechercheSalle);
@@ -33,10 +35,24 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			$("#bouton_jours_bloques").html('<a href="#jours_bloques" class="button">Jours bloqués</a>');
 		}
 		
+		var selectMatiere = $("#select_matiere");
+		
 		// Récupération des calendriers de l'utilisateur pour remplir les select
 		this.calendrierGestion.listerMesCalendriers(function(resultCode, data) {
 			if(resultCode == RestManager.resultCode_Success) {
-				console.log(data);
+				var objMatieres = new Object();
+				me.mesCalendriers = new Object();
+				for(var i=0, max=data.length; i<max; i++) {
+					objMatieres[data[i].matiere] = true;
+					me.mesCalendriers[data[i].id] = data[i];
+				}
+				
+				selectMatiere.append("<option value=''>---</option>");
+				for(var matiere in objMatieres) {
+					selectMatiere.append("<option value='" + matiere + "'>" + matiere + "</option>");
+				}
+				
+				me.remplirSelectCalendriers();
 			}
 			else if(resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de vos calendriers ; vérifiez votre connexion");
@@ -45,6 +61,52 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 				window.showToast("Erreur de récupération de vos calendriers.");
 			}
 		});
+		
+		// Listeners
+		selectMatiere.change(function() {
+			me.remplirSelectCalendriers();
+		});
+		
+		$("#select_calendrier").change(function() {
+			me.callbackSelectCalendrier();
+		});
+	};
+	
+	/**
+	 * Remplissage du select des calendriers en fonction du select des matières (qui sert de filtre)
+	 */
+	EcranPlanningCours.prototype.remplirSelectCalendriers = function() {
+		var matiere = $("#select_matiere").val();
+		var cals;
+		
+		cals = new Array();
+		for(var id in this.mesCalendriers) {
+			if(matiere === '' || this.mesCalendriers[id].matiere == matiere) {
+				cals.push(this.mesCalendriers[id]);	
+			}
+		}
+		
+		var selectCalendrier = $("#select_calendrier").empty().append("<option value=''>---</option>");
+		for(var i=0, max=cals.length; i<max; i++) {
+			selectCalendrier.append("<option value='" + cals[i].id + "'>" + cals[i].nom + "</option>");
+		}
+	};
+	
+	/**
+	 * Callback appelé à la sélection d'un calendrier dans le select
+	 */
+	EcranPlanningCours.prototype.callbackSelectCalendrier = function() {
+		var calId = $("#select_calendrier").val();
+		if(calId === "") {
+			this.idCalendrierSelectionne = 0;
+		}
+		else {
+			this.idCalendrierSelectionne = parseInt(calId);
+			var calendrier = this.mesCalendriers[this.idCalendrierSelectionne];
+			$("#select_matiere").val(calendrier.matiere);
+		}
+		
+		this.calendrier.refetchEvents();
 	};
 	
 	EcranPlanningCours.VUE_NORMALE = "vue_normale";
@@ -67,7 +129,14 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
 		// TODO : compléter
-		callback(new Array()); // doit fournir les événements à affiche dans le calendrier
+		
+		if(this.idCalendrierSelectionne != 0) {
+			// TODO : faire le listing d'événements (vérifier EvenementGesiton)
+			this.evenementGestion.getEvenementsGroupesCalendrier(start, end, this.idCalendrierSelectionne, false, function(resultCode, evenements) {
+				console.log(evenements);
+				callback(new Array());
+			});
+		}
 	};
 	
 	return EcranPlanningCours;

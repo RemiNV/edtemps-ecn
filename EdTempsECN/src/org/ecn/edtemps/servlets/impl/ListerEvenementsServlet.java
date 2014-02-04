@@ -31,6 +31,9 @@ public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 		case "/salle":
 			int idSalle = getIntParam(req, "idSalle");
 			return JSONUtils.getJsonArray(evenementGestion.listerEvenementCompletsSalle(idSalle, dateDebut, dateFin, true));
+		case "/groupescalendrier":
+			int idCalendrier = getIntParam(req, "idCalendrier");
+			return JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupesCalendrier(idCalendrier, dateDebut, dateFin, true));
 		default:
 			return null;
 		}

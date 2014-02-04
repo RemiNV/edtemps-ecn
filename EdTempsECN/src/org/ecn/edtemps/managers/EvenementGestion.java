@@ -586,8 +586,29 @@ public class EvenementGestion {
 				"WHERE evenementappartient.cal_id = " + idCalendrier + " "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ?";
-		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, new EvenementIdentifieInflater(), createTransaction);
-		return res;
+		return listerEvenements(request, dateDebut, dateFin, new EvenementIdentifieInflater(), createTransaction);
+	}
+	
+	/**
+	 * Liste les événements de l'ensemble des groupes auxquels est rattaché le calendrier demandé
+	 * @param idCalendrier ID du calendrier en question
+ 	 * @param dateDebut Date de début de la fenêtre de recherche
+	 * @param dateFin Date de fin de la fenêtre de recherche
+	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode ; sinon la méthode <b>doit</b> être appelée dans une transaction
+	 * @return Liste d'événements récupérés
+	 * @throws DatabaseException 
+	 */
+	public ArrayList<EvenementComplet> listerEvenementsGroupesCalendrier(int idCalendrier, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
+				"FROM edt.evenement " +
+				"INNER JOIN edt.evenementappartient ON evenement.eve_id=evenementappartient.eve_id " +
+				"INNER JOIN edt.calendrierappartientgroupe cap ON cap.cal_id=evenementappartient.cal_id " +
+				"INNER JOIN edt.calendrierappartientgroupe groupescalendrier ON groupescalendrier.groupeparticipant_id=cap.groupeparticipant_id " +
+				"AND groupescalendrier.cal_id=" + idCalendrier + 
+				" WHERE evenement.eve_datefin >= ? "
+				+ "AND evenement.eve_datedebut <= ?";
+		
+		return listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
 	}
 	
 	/**
