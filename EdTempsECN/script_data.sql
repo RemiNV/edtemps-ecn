@@ -742,22 +742,68 @@
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (3, 'CREER_GROUPE_COURS');
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (4, 'CHOISIR_PROPRIETAIRES_EVENEMENT');
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (5, 'LIMITE_CALENDRIERS_ETENDUE');
+	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (6, 'GERER_JOURS_BLOQUES');
 
 /* aledroitde */
-	/* L'enseignant et l'administration peuvent tout faire */
+	/* L'administration peut tout faire */
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 1);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 2);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 3);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 4);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 5);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (1, 6);
 
+	/* L'enseignant peut faire un peu moins de choses */
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 1);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 2);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 3);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 4);
+	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (3, 6);
 
 	/* L'étudiant peut tout faire sauf créer un groupe de cours */
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 1);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 2);
 	INSERT INTO edt.aledroitde(type_id, droits_id) VALUES (2, 4);
 
+
+/* jours fériés */
+	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Jour de l''an', '2014-01-01 00:00:00');
+	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Fête du travail', '2014-05-01 00:00:00');
+
+/* jours bloqué */
+	/* Vacances */
+	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+		VALUES ('Vacances de Noël', '2013-12-23 00:00:00', '2014-01-05 00:00:00', true);
+		
+	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+		VALUES ('Vacances d''hiver', '2014-03-03 00:00:00', '2014-03-09 00:00:00', true);
+		
+	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+		VALUES ('Vacances d''été', '2014-07-01 00:00:00', '2014-08-31 00:00:00', true);
+
+	/* Journées particulières */
+	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+		VALUES ('Forum Atlantique', '2013-11-13 08:00:00', '2013-11-13 00:18:00', false);
+		
+/* liaisons des jours bloqués aux groupes */
+	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
+		SELECT groupeparticipant_id, jourbloque_id
+		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances de Noël';
+
+	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
+		SELECT groupeparticipant_id, jourbloque_id
+		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances d''hiver';
+		
+	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
+		SELECT groupeparticipant_id, jourbloque_id
+		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances d''été';
+		
+	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
+		SELECT groupeparticipant_id, jourbloque_id
+		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
+		WHERE groupeparticipant_nom='EI1' AND jourbloque_libelle = 'Forum Atlantique';
+		
 COMMIT;

@@ -64,7 +64,9 @@ define(["jquery"], function() {
 	 * - RestManager.actionsEdtemps_CreerGroupe<br>
 	 * - RestManager.actionsEdtemps_RattacherCalendrierGroupe<br>
 	 * - RestManager.actionsEdtemps_CreerGroupeCours<br>
-	 * - RestManager.actionsEdtemps_ChoisirProprietairesEvenement
+	 * - RestManager.actionsEdtemps_ChoisirProprietairesEvenement<br>
+	 * - RestManager.actionsEdtemps_LimiteCalendriersEtendue<br>
+	 * - RestManager.actionsEdtemps_GererJoursBloques
 	 * @typedef actionsEdtemps
 	 * @type {number}
 	 */
@@ -72,6 +74,8 @@ define(["jquery"], function() {
 	RestManager.actionsEdtemps_RattacherCalendrierGroupe = 2;
 	RestManager.actionsEdtemps_CreerGroupeCours = 3;
 	RestManager.actionsEdtemps_ChoisirProprietairesEvenement = 4;
+	RestManager.actionsEdtemps_LimiteCalendriersEtendue = 5;
+	RestManager.actionsEdtemps_GererJoursBloques = 6;
 	
 	RestManager.prototype.setToken = function(token) {
 		this._token = token;

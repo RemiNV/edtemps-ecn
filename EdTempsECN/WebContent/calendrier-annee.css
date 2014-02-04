@@ -1,0 +1,50 @@
+/**
+ * Calendrier annuel pour la gestions des jours spéciaux
+ */
+
+#calendrierAnnee {
+	border-collapse: collapse;
+	border: solid 1px black;
+	text-align: center;
+}
+
+#calendrierAnnee th {
+	border-bottom: solid 1px black;
+	width: 70px;
+}
+
+#calendrierAnnee td {
+	border-left: solid 1px black;
+	border-right: solid 1px black;
+	font-size: 0.9em;
+}
+
+#calendrierAnnee td div.jour {
+	cursor: pointer;
+	margin: auto;
+	width: 40px;
+	border: solid 1px white;
+}
+
+#calendrierAnnee td div.jour:hover {
+	border: solid 1px gray;
+}
+
+#calendrierAnnee td div.dimanche {
+	background-color: #F3F3F3;
+}
+
+#calendrierAnnee td div.vacances {
+	background-color: #028400;
+	color: white;
+}
+
+#calendrierAnnee td div.bloque {
+	background-color: #004058;
+	color: white;
+}
+
+#calendrierAnnee td div.ferie {
+	background-color: #B30202;
+	color: white;
+}

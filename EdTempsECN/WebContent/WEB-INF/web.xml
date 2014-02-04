@@ -156,6 +156,16 @@
       <servlet-class>org.ecn.edtemps.servlets.impl.SallesServlet</servlet-class>
   </servlet>
 
+  <servlet>
+      <servlet-name>JoursFeries</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.JoursFeriesServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+      <servlet-name>JoursBloques</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.JoursBloquesServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
       <url-pattern>/identification/connection</url-pattern>
@@ -271,7 +281,6 @@
       <url-pattern>/logging</url-pattern>
   </servlet-mapping>
   
-  
   <servlet-mapping>
       <servlet-name>AdministrateurReparer</servlet-name>
       <url-pattern>/administrateur/reparer</url-pattern>
@@ -305,6 +314,16 @@
   <servlet-mapping>
       <servlet-name>ListingSalles</servlet-name>
       <url-pattern>/salles</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>JoursFeries</servlet-name>
+      <url-pattern>/joursferies/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>JoursBloques</servlet-name>
+      <url-pattern>/joursbloques/*</url-pattern>
   </servlet-mapping>
   
 </web-app>

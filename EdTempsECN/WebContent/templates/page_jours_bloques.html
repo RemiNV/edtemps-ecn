@@ -1,0 +1,29 @@
+<div id="jours_bloques">
+
+	<div id="jours_bloques_liens_connexion">
+		<a id="lien_retour_planning_cours" href="#planning_cours/mode_normal">Planning</a>
+		<a id="lien_deconnexion" href="#deconnexion">Déconnexion</a>
+	</div>
+	
+	<div id="commandes">
+		<img alt="Précédent" src="img/precedent.png" title="Année précédente" id="annee_precedente" />
+		<span id="numero_annee_scolaire"></span>
+		<img alt="Suivant" src="img/suivant.png" title="Année suivante" id="annee_suivante" />
+	</div>
+	
+	<div id="chargement_en_cours"><img src="./img/spinner_chargement_small.gif" /> Chargement en cours ...</div>
+	<div id="calendar_jours_bloques"></div>
+	
+	<div class="button" id="bt_gestion_vacances">Gestion des vacances</div>
+	
+	<div id="partie_jours_feries">
+		<p>Jours fériés :<span id="bt_ajout_auto" class="button" title="Ajouter automatiquement les jours fériés de l'année scolaire en cours">Ajout automatique</span></p>
+		
+		<table id="liste_jours_feries"><!-- Tableau rempli en JS avec un template --></table>
+	
+		<div class="button" id="bt_ajouter_jour_ferie">Ajouter une ligne</div>
+	</div>
+	
+
+</div>
+
