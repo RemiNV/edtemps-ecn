@@ -3,18 +3,24 @@
  * Associé au HTML templates/page_jours_bloques.html
  * @module EcranJoursBloques
  */
-define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "RestManager", "underscore", "jquery" ], function(CalendrierAnnee, JourBloqueGestion, RestManager, _) {
+define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "planning_cours/DialogAjoutJourFerie",
+         "text!../../templates/dialog_ajout_jour_ferie.html", "RestManager", "underscore", "jquery" ],
+         function(CalendrierAnnee, JourBloqueGestion, DialogAjoutJourFerie, dialogAjoutJourFerieHtml, RestManager, _) {
 	
 	/**
 	 * @constructor
 	 * @alias EcranJoursBloques
 	 */
 	var EcranJoursBloques = function(restManager) {
+		var me = this;
 		this.restManager = restManager;
 		this.jqEcran = $("#jours_bloques");
 		this.jourBloqueGestion = new JourBloqueGestion(this.restManager, this.jqEcran);
-		var me = this;
 		
+		// Préparation de la boite de dialogue d'ajout de jours fériés
+		var jqDialogAjoutJourFerie = $("#dialog_ajout_jour_ferie").html(dialogAjoutJourFerieHtml);
+		this.dialogAjoutJourFerie = new DialogAjoutJourFerie(restManager, jqDialogAjoutJourFerie);
+
 		// Si l'utilisateur n'a pas droit à gérer les jours bloqués, on le redirige
 		if (!this.restManager.aDroit(RestManager.actionsEdtemps_CreerGroupeCours)) {
 			document.location.href = "#agenda";
@@ -48,22 +54,24 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		
 	    // Affecte les fonctions aux flêches de navigation entre années
 	    this.jqEcran.find("#annee_precedente").click(function() {
-	    	var annee = me.calendrierAnnee.getAnnee() - 1;
-	    	me.jourBloqueGestion.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
-		    	me.calendrierAnnee.chargerAnnee(annee, joursSpeciaux);
-	    	});
+	    	me.actualiserPage(-1);
 	    });
 	    this.jqEcran.find("#annee_suivante").click(function() {
-	    	var annee = me.calendrierAnnee.getAnnee() + 1;
-	    	me.jourBloqueGestion.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
-		    	me.calendrierAnnee.chargerAnnee(annee, joursSpeciaux);
-	    	});
+	    	me.actualiserPage(1);
 	    });
 
 	    // Affecte les fonctions aux boutons de gestion et d'ajout
 	    this.jqEcran.find("#bt_gestion_vacances").click(function() {  });
 	    this.jqEcran.find("#bt_ajout_auto").click(function() {  });
-	    this.jqEcran.find("#bt_ajouter_jour_ferie").click(function() {  });
+	    
+	    // Affecte une action au bouton d'ajout
+	    this.jqEcran.find("#bt_ajouter_jour_ferie").click(function() { 
+	    	me.dialogAjoutJourFerie.show(null, function (libelle, date) {
+	    		me.jourBloqueGestion.ajouterJourFerie(libelle, date, function() {
+	    			me.actualiserPage(0);	
+	    		});
+	    	});
+	    });
 	    
 	};
 	
@@ -90,25 +98,57 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 
 		var titre = "<tr><th>Libellé</th><th>Date</th><th width='250'>Actions</th></tr>";
 		
-		// Affichage du tableau
-		this.jqEcran.find("#liste_jours_feries").html(titre + _.template(template, {jours: this.jourBloqueGestion.joursFeries})).fadeIn(500);
-		
-	    // Affecte une action au bouton de modification
-	    this.jqEcran.find(".modifier_jour_ferie").click(function() { 
-	    	
-	    });
+		// Cache le tableau des jours fériés
+		this.jqEcran.find("#liste_jours_feries").fadeOut(200, function () {
 
-	    // Affecte une action au bouton de suppression
-	    this.jqEcran.find(".supprimer_jour_ferie").click(function() {
-	    	me.jourBloqueGestion.supprimerJourFerie($(this).parents("tr").attr("data-id"), function() {
-		    	var annee = me.calendrierAnnee.getAnnee();
-		    	me.jourBloqueGestion.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
-		    		me.calendrierAnnee.chargerAnnee(annee, joursSpeciaux);
-		    		me.afficherTableauJoursFeries();
+			// Affichage du tableau
+			$(this).html(titre + _.template(template, {jours: me.jourBloqueGestion.joursFeries})).fadeIn(500);
+			
+		    // Affecte une action aux boutons de modification
+		    me.jqEcran.find(".modifier_jour_ferie").click(function() {
+		    	var id = $(this).parents("tr").attr("data-id");
+
+		    	me.dialogAjoutJourFerie.show(me.jourBloqueGestion.joursFeriesTries[id], function (libelle, date, id) {
+		    		me.jourBloqueGestion.modifierJourFerie(id, libelle, date, function () {
+			    		me.actualiserPage(0);
+		    		});
 		    	});
-	    	});
-	    });
+		    });
+
+		    // Affecte une action aux boutons de suppression
+		    me.jqEcran.find(".supprimer_jour_ferie").click(function() {
+		    	var id = $(this).parents("tr").attr("data-id");
+		    	
+		    	confirm("Etes-vous sûr(e) de vouloir supprimer ce jour férié ?", function () {
+			    	me.jourBloqueGestion.supprimerJourFerie(id, function() {
+			    		me.actualiserPage(0);
+			    	});
+		    	});
+		    });
+
+		});
+		
 	};
+	
+	
+	/**
+	 * Actualiser la page
+	 * 
+	 * @param {int} i Nombre d'année de décalage par rapport à l'actuelle
+	 * 				  -1 : année précédente ; 0 : année en cours ; 1 : année suivante
+	 */
+	EcranJoursBloques.prototype.actualiserPage = function(i) {
+		
+		var me = this;
+    	var annee = this.calendrierAnnee.getAnnee() + i;
+    	
+    	this.jourBloqueGestion.recupererJoursSpeciauxAnnee(annee, function(joursSpeciaux) {
+	    	me.calendrierAnnee.chargerAnnee(annee, joursSpeciaux);
+	    	me.afficherTableauJoursFeries();
+    	});
+    	
+	};
+
 	
 		
 	return EcranJoursBloques;

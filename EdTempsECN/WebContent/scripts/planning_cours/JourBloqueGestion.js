@@ -12,8 +12,13 @@ define([ "RestManager" ], function(RestManager) {
 		this.restManager = restManager;
 		this.jqEcran = jqEcran;
 		
-		this.joursFeries = null;
-		this.joursBloques = null;
+		// Listes non ordonnées
+		this.joursFeries = new Array();
+		this.joursBloques = new Array();
+
+		// Listes indexées par les identifiants des jours
+		this.joursFeriesTries = new Object();
+		this.joursBloquesTries = new Object();
 	};
 	
 
@@ -38,7 +43,6 @@ define([ "RestManager" ], function(RestManager) {
 			// Ajoute les jours fériés dans la liste des jours spéciaux
 			var joursSpeciaux = new Array();
 			for (var i=0, maxI=me.joursFeries.length; i<maxI; i++) {
-				me.joursFeries[i].dateString = dateToString(me.joursFeries[i].date);
 				joursSpeciaux.push(me.joursFeries[i]);
 			}
 			
@@ -76,8 +80,14 @@ define([ "RestManager" ], function(RestManager) {
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				
-				// Stocke la liste des jours fériés dans une variable de module
+				// Stocke la liste des jours fériés dans la variable de module
 				me.joursFeries = data.data.listeJoursFeries;
+
+				// Trie les jours dans un objet
+				for (var i=0, maxI=me.joursFeries.length; i<maxI; i++) {
+					me.joursFeries[i].dateString = dateToString(me.joursFeries[i].date);
+					me.joursFeriesTries[me.joursFeries[i].id] = me.joursFeries[i];
+				}
 
 				// Appelle la méthode de retour
 				callback();
@@ -106,8 +116,13 @@ define([ "RestManager" ], function(RestManager) {
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 
-				// Stocke la liste des jours fériés dans une variable de module
+				// Stocke la liste des jours fériés dans la variable de module
 				me.joursBloques = data.data.listeJoursBloques;
+
+				// Trie les jours dans un objet
+				for (var i=0, maxI=me.joursBloques.length; i<maxI; i++) {
+					me.joursBloquesTries[me.joursBloques[i].id] = me.joursBloques[i];
+				}
 
 				// Appelle la méthode de retour
 				callback();
@@ -133,6 +148,7 @@ define([ "RestManager" ], function(RestManager) {
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
+				window.showToast("Jour férié supprimé");
 			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
 				window.showToast("Vous n'êtes pas autorisé à supprimer un jour férié.");
 			} else {
@@ -144,7 +160,66 @@ define([ "RestManager" ], function(RestManager) {
 	
 	
 	/**
-	 * Formatter une date (en JJ/MM/AAAA) à partir d'un getTime de date 
+	 * Ajouter un jour férié
+	 * 
+	 * @param {string} libelle Libellé du jour férié à ajouter
+	 * @param {date} date Date du jour férié
+	 * @param {function} callback Méthode exécutée en retour
+	 */
+	JourBloqueGestion.prototype.ajouterJourFerie = function(libelle, date, callback) {
+		
+		this.restManager.effectuerRequete("POST", "joursferies/ajouter", {
+			token: this.restManager.getToken(), libelle: libelle, date: date.getTime()
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback();
+				window.showToast("Jour férié ajouté");
+			} else if (data.resultCode == RestManager.resultCode_AlphanumericRequired) {
+				window.showToast("Le libellé du jour doit être alphanumérique.");
+			} else if (data.resultCode == RestManager.resultCode_DayTaken) {
+				window.showToast("Un jour férié est déjà défini à cette date.");
+			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé à ajouter un jour férié.");
+			} else {
+				window.showToast("Erreur lors de l'ajout du jour férié ; vérifiez votre connexion.");
+			}
+		});
+		
+	};
+	
+	
+	/**
+	 * Modifier un jour férié
+	 * 
+	 * @param {int} id Identifiant du jour férié à modifier
+	 * @param {string} libelle Libellé du jour férié
+	 * @param {date} date Date du jour férié
+	 * @param {function} callback Méthode exécutée en retour
+	 */
+	JourBloqueGestion.prototype.modifierJourFerie = function(id, libelle, date, callback) {
+		
+		this.restManager.effectuerRequete("POST", "joursferies/modifier", {
+			token: this.restManager.getToken(), idJourFerie: id, libelle: libelle, date: date.getTime()
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback();
+				window.showToast("Jour férié modifié");
+			} else if (data.resultCode == RestManager.resultCode_AlphanumericRequired) {
+				window.showToast("Le libellé du jour doit être alphanumérique.");
+			} else if (data.resultCode == RestManager.resultCode_DayTaken) {
+				window.showToast("Un jour férié est déjà défini à cette date.");
+			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé à modifier un jour férié.");
+			} else {
+				window.showToast("Erreur lors de la modification du jour férié ; vérifiez votre connexion.");
+			}
+		});
+		
+	};
+	
+	
+	/**
+	 * Formatter une date (en JJ/MM/AAAA) à partir d'un getTime de date
 	 */
 	function dateToString(getTime) {
 		var date = new Date(getTime);
