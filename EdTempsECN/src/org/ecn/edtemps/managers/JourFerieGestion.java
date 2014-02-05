@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -245,30 +244,12 @@ public class JourFerieGestion {
 		}
 		
 		try {
-			// On regarde s'il existe un jour férié dont l'heure est comprise entre 00:00:00 et 23:59:59
-			// Pour le jour donné en paramètre
-			
-			// Prépare un objet date à 00:00:00 du jour
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(date);
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			java.sql.Timestamp debut = new java.sql.Timestamp(cal.getTime().getTime());
-			
-			// Prépare un objet date à 23:59:59 du jour
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
-			java.sql.Timestamp fin = new java.sql.Timestamp(date.getTime());
 			
 			// Préparation de la requête
 			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement("SELECT jourferie_id" +
-					" FROM edt.joursferies" +
-					" WHERE jourferie_date >= ? AND jourferie_date <= ?" + 
+					" FROM edt.joursferies WHERE jourferie_date = ?" + 
 					(ignoreId==null ? "" : " AND jourferie_id<>"+ignoreId) );
-			requetePreparee.setTimestamp(1, new java.sql.Timestamp(debut.getTime()));
-			requetePreparee.setTimestamp(2, new java.sql.Timestamp(fin.getTime()));
+			requetePreparee.setTimestamp(1, new java.sql.Timestamp(date.getTime()));
 			
 			// Tente de récupérer le jour en base
 			ResultSet requete = requetePreparee.executeQuery();
