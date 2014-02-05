@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
 
 /**
@@ -104,11 +105,19 @@ public class JourFerieGestion {
 	/**
 	 * Sauver un jour férié dans la base de données
 	 * 
-	 * @param jour Objet de type JourFerie à enregistrer en base de donnée
+	 * @param libelle Libellé du jour férié
+	 * @param date Date du jour férié
+	 * @param userId Identifiant de l'utilisateur qui fait la requête
 	 * @return l'identifiant de la ligne ajoutée
 	 * @throws EdtempsException 
 	 */
-	public int sauverJourFerie(String libelle, Date date) throws EdtempsException {
+	public int sauverJourFerie(String libelle, Date date, int userId) throws EdtempsException {
+
+		// Vérifie que l'utilisateur est autoriser à gérer les jours fériés
+		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+		if (userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
+		}
 
 		// Quelques vérifications sur l'objet à enregistrer
 		if (date==null || StringUtils.isEmpty(libelle)) {
@@ -118,8 +127,8 @@ public class JourFerieGestion {
 		// Vérfie si un jour identique est déjà présent en base
 		if (verifierPresenceJourFerie(date, null)) {
 			throw new EdtempsException(ResultCode.DAY_TAKEN, "Il y a déjà un jour férié à cette date dans la base de données");
-		}		
-		
+		}
+				
 		try {
 						
 			// Prépare la requête
@@ -153,9 +162,16 @@ public class JourFerieGestion {
 	 * Supprimer un jour férié dans la base de données
 	 * 
 	 * @param id Identifiant (bdd) du jour férié à supprimer
+	 * @param userId Identifiant de l'utilisateur qui fait la requête
 	 * @throws EdtempsException 
 	 */
-	public void supprimerJourFerie(int id) throws EdtempsException {
+	public void supprimerJourFerie(int id, int userId) throws EdtempsException {
+
+		// Vérifie que l'utilisateur est autoriser à gérer les jours fériés
+		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+		if (userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
+		}
 
 		// Supprime le jour férié de la base de données à partir de l'identifiant
 		bdd.executeUpdate("DELETE FROM edt.joursferies WHERE jourferie_id = " + id);
@@ -168,9 +184,16 @@ public class JourFerieGestion {
 	 * Modifier un jour férié dans la base de données
 	 * 
 	 * @param jour Objet de type JourFerieIdentifie à modifier en base de donnée
+	 * @param userId Identifiant de l'utilisateur qui fait la requête
 	 * @throws EdtempsException 
 	 */
-	public void modifierJourFerie(JourFerieIdentifie jour) throws EdtempsException {
+	public void modifierJourFerie(JourFerieIdentifie jour, int userId) throws EdtempsException {
+
+		// Vérifie que l'utilisateur est autoriser à gérer les jours fériés
+		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+		if (userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
+		}
 
 		// Quelques vérifications sur l'objet à modifier
 		if (jour==null) {

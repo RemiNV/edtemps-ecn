@@ -131,7 +131,7 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 
 		// Exécute la requête de suppression avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
-		jourFerieGestion.supprimerJourFerie(idJourFerie);
+		jourFerieGestion.supprimerJourFerie(idJourFerie, userId);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié supprimé", null));
 	}
@@ -155,7 +155,7 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		
 		// Exécute la requête d'ajout avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
-		jourFerieGestion.sauverJourFerie(libelle, date);
+		jourFerieGestion.sauverJourFerie(libelle, date, userId);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié ajouté", null));
 
@@ -187,7 +187,7 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		
 		// Exécute la requête de modification avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
-		jourFerieGestion.modifierJourFerie(jour);
+		jourFerieGestion.modifierJourFerie(jour, userId);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié ajouté", null));
 

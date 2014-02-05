@@ -94,7 +94,8 @@ public class UtilisateurGestion {
 		
 		// Actions possibles à compléter
 		CREER_GROUPE_COURS(3),
-		LIMITE_CALENDRIERS_ETENDUE(5);
+		LIMITE_CALENDRIERS_ETENDUE(5),
+		GERER_JOURS_BLOQUES(6);
 		
 		private int id;
 		
