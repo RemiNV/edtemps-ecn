@@ -2,7 +2,7 @@
  * Module calendrier annuel pour la gestion des jours spéciaux
  * @module CalendrierAnnee
  */
-define([ "RestManager" ], function(RestManager) {
+define([  ], function() {
 
 	/**
 	 * @constructor

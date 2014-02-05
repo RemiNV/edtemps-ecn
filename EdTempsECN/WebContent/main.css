@@ -904,7 +904,3 @@ input.valide {
 	margin: 0px 5px 0px 5px;
 	padding: 5px 10px 5px 10px;
 }
-
-#liste_jours_feries tr:nth-child(odd) {
-	background-color: #E6E6E6;
-}
