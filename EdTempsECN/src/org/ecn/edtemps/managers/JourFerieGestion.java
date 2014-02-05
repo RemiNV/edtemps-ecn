@@ -115,7 +115,7 @@ public class JourFerieGestion {
 
 		// Vérifie que l'utilisateur est autoriser à gérer les jours fériés
 		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
-		if (userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
 			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
 		}
 
@@ -169,7 +169,7 @@ public class JourFerieGestion {
 
 		// Vérifie que l'utilisateur est autoriser à gérer les jours fériés
 		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
-		if (userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
 			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
 		}
 
@@ -191,7 +191,7 @@ public class JourFerieGestion {
 
 		// Vérifie que l'utilisateur est autoriser à gérer les jours fériés
 		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
-		if (userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
 			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
 		}
 

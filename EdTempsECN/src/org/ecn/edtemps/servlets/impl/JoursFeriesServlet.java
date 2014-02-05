@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
@@ -124,7 +125,7 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		
 		// Récupère les paramètres
 		String strIdJourFerie = req.getParameter("idJourFerie");
-		if(strIdJourFerie == null) {
+		if(StringUtils.isBlank(strIdJourFerie)) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idJourFerie non fourni pour une suppression de jour férié");
 		}
 		int idJourFerie = Integer.parseInt(strIdJourFerie);
