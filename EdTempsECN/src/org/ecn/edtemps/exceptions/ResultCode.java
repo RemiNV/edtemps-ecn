@@ -39,7 +39,10 @@ public enum ResultCode {
 	MAX_ROW_COUNT_EXCEEDED(12),
 	
 	/** L'utilisateur a dépassé son quota d'ajout */
-	QUOTA_EXCEEDED(13);
+	QUOTA_EXCEEDED(13),
+
+	/** Jour déjà existant en base (pour les jours fériés) */
+	DAY_TAKEN(14);
 
 	private int code;
 	
