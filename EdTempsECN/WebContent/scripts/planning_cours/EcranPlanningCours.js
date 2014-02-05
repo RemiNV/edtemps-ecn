@@ -128,10 +128,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	};
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
-		// TODO : compléter
-		
 		if(this.idCalendrierSelectionne != 0) {
-			// TODO : faire le listing d'événements (vérifier EvenementGesiton)
 			this.evenementGestion.getEvenementsGroupesCalendrier(start, end, this.idCalendrierSelectionne, false, function(resultCode, evenements) {
 				if(resultCode === RestManager.resultCode_Success) {
 					callback(evenements);
