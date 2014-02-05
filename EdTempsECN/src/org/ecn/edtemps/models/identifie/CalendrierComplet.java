@@ -25,6 +25,9 @@ public class CalendrierComplet extends CalendrierIdentifie {
 	/** Liste contenant les id des groupes auxquels le calendrier est en attente de rattachement (hormis le groupe unique) */
 	protected List<Integer> idGroupesParentsTmp;
 	
+	/** Liste des noms des groupes parents du calendrier (dans le même ordre que la liste des ID) */
+	protected List<String> nomsGroupesParents;
+	
 	/** Le créateur complet : uniquement récupéré quand nécessaire : pas présent dans le constructeur*/
 	protected UtilisateurIdentifie createur;
 
@@ -34,32 +37,36 @@ public class CalendrierComplet extends CalendrierIdentifie {
 	 * @param calendrier Calendrier identifié
 	 * @param estCours VRAI si le calendrier est rattaché à un groupe qui est un cours
 	 * @param idGroupesParents Liste des id des groupes auxquels est rattaché le calendrier (hormis le groupe unique)
+	 * @param nomsGroupesParents Liste des noms des groupes auxquels est rattaché le calendrier (hormis le groupe unique), dans le même ordre que les ID
 	 */
-	public CalendrierComplet(CalendrierIdentifie calendrier, boolean estCours, List<Integer> idGroupesParents) {
+	public CalendrierComplet(CalendrierIdentifie calendrier, boolean estCours, List<Integer> idGroupesParents, List<String> nomsGroupesParents) {
 		super(calendrier.getNom(), calendrier.getType(), calendrier.getMatiere(), calendrier.getIdProprietaires(), calendrier.getId(), calendrier.getIdCreateur());
 		this.estCours = estCours;
 		this.idGroupesParents = idGroupesParents;
+		this.nomsGroupesParents = nomsGroupesParents;
 	}
 	
 	@Override
 	public JsonObjectBuilder makeObjectBuilder() {
 		JsonObjectBuilder builder = super.makeObjectBuilder();
 		
-		if (this.createur==null) {
-			return builder.add("estCours", this.estCours)
-					.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents))
-					.add("groupesParentsTmp", JSONUtils.getJsonIntArray(this.idGroupesParentsTmp));
-		} else {
-			return builder.add("estCours", this.estCours)
-					.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents))
-					.add("groupesParentsTmp", JSONUtils.getJsonIntArray(this.idGroupesParentsTmp))
-					.add("createurComplet", this.createur.toJson());
+		if (this.createur!=null) {
+			builder.add("createurComplet", this.createur.toJson());
 		}
+	
+		return builder.add("estCours", this.estCours)
+				.add("groupesParents", JSONUtils.getJsonIntArray(this.idGroupesParents))
+				.add("groupesParentsTmp", JSONUtils.getJsonIntArray(this.idGroupesParentsTmp))
+				.add("nomsGroupesParents", JSONUtils.getJsonStringArray(nomsGroupesParents));
 		
 	}
 
 	public List<Integer> getIdGroupesParents() {
 		return idGroupesParents;
+	}
+	
+	public List<String> getNomsGroupesParents() {
+		return nomsGroupesParents;
 	}
 
 	public void setIdGroupesParents(List<Integer> idGroupesParents) {

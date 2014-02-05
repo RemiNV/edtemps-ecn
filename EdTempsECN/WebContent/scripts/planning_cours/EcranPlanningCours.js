@@ -4,8 +4,8 @@
  * @module EcranPlanningCours
  */
 define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrier", "text!../../templates/dialog_ajout_evenement.html", "text!../../templates/dialog_recherche_salle.html",
-        "RestManager", "CalendrierGestion", "jquery"], function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
-        		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion) {
+        "RestManager", "CalendrierGestion", "planning_cours/BlocStatistiques", "jquery"], function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
+        		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion, BlocStatistiques) {
 	
 	/**
 	 * @constructor
@@ -16,6 +16,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.restManager = restManager;
 		this.evenementGestion = new EvenementGestion(restManager);
 		this.calendrierGestion = new CalendrierGestion(restManager);
+		this.blocStatistiques = new BlocStatistiques(restManager, $("#bloc_statistiques"));
 		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
 		this.idCalendrierSelectionne = 0;
 		
@@ -104,6 +105,14 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			this.idCalendrierSelectionne = parseInt(calId);
 			var calendrier = this.mesCalendriers[this.idCalendrierSelectionne];
 			$("#select_matiere").val(calendrier.matiere);
+			
+			// Remplissage de la liste des groupes sélectionnés
+			$("#lst_groupes_associes").text(calendrier.nomsGroupesParents.join(", "));
+			
+			// Mise à jour du bloc de statistiques
+			this.blocStatistiques.setGroupes(calendrier.groupesParents, calendrier.nomsGroupesParents);
+			// TODO : mettre de vraies dates
+			this.blocStatistiques.refreshStatistiques(calendrier.matiere, new Date(2013, 3, 1), new Date(2014, 3, 1));
 		}
 		
 		this.calendrier.refetchEvents();
@@ -128,9 +137,25 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	};
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
+		var me = this;
 		if(this.idCalendrierSelectionne != 0) {
 			this.evenementGestion.getEvenementsGroupesCalendrier(start, end, this.idCalendrierSelectionne, false, function(resultCode, evenements) {
 				if(resultCode === RestManager.resultCode_Success) {
+					
+					// Evénements des autres calendriers en gris
+					for(var i=0,maxI=evenements.length; i<maxI; i++) {
+						var hasCalendrier = false;
+						for(var j=0,maxJ=evenements[i].calendriers.length; j<maxJ; j++) {
+							if(evenements[i].calendriers[j] === me.idCalendrierSelectionne) {
+								hasCalendrier = true;
+								break;
+							}
+						}
+						
+						if(!hasCalendrier) {
+							evenements[i].color = "#999";
+						}
+					}
 					callback(evenements);
 				}
 				else if(resultCode === RestManager.resultCode_NetworkError) {

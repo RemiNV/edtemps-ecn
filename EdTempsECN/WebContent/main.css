@@ -281,17 +281,17 @@ table.liste_materiel th {
 	width: 145px;
 }
 
-#bloc_vos_agendas, #boutons_colonne_gauche, #accueil_datepicker {
+.bloc_sidebar, #boutons_colonne_gauche, #accueil_datepicker {
 	margin-top: 15px;
 }
 
-#bloc_vos_agendas {
+.bloc_sidebar {
 	border: 1px solid #bfc2bf;
 	border-top-right-radius: 5px;
 	border-top-left-radius: 5px;
 }
 
-#bloc_vos_agendas .header {
+.bloc_sidebar .header {
 	background-color: #f6f6f6;
 	border-bottom: 1px solid #bfc2bf;
 	padding: 5px 10px;
@@ -299,7 +299,7 @@ table.liste_materiel th {
 	border-top-left-radius: 5px;
 }
 
-#liste_groupes {
+#liste_groupes, #contenu_statistiques {
 	height: 300px;
 	width: 250px;
 	overflow: auto;
@@ -911,4 +911,21 @@ input.valide {
 
 #dialog_ajout_jour_ferie .boutons_valider {
 	margin-top: 20px;
+}
+
+/* Bloc statistiques (page planning calendrier) */
+#contenu_statistiques {
+	padding: 5px;
+}
+table.tbl_statistiques {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+table.tbl_statistiques th {
+	background-color: #ddd;
+}
+
+table.tbl_statistiques td, table.tbl_statistiques th {
+	border: 1px solid grey;
 }
