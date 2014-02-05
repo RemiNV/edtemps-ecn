@@ -4,8 +4,8 @@
  * @module EcranPlanningCours
  */
 define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrier", "text!../../templates/dialog_ajout_evenement.html", "text!../../templates/dialog_recherche_salle.html",
-        "RestManager", "CalendrierGestion", "jquery"], function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
-        		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion) {
+        "RestManager", "CalendrierGestion", "planning_cours/BlocStatistiques", "jquery"], function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
+        		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion, BlocStatistiques) {
 	
 	/**
 	 * @constructor
@@ -16,6 +16,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.restManager = restManager;
 		this.evenementGestion = new EvenementGestion(restManager);
 		this.calendrierGestion = new CalendrierGestion(restManager);
+		this.blocStatistiques = new BlocStatistiques($("#bloc_statistiques"));
 		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
 		this.idCalendrierSelectionne = 0;
 		
@@ -65,6 +66,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		// Listeners
 		selectMatiere.change(function() {
 			me.remplirSelectCalendriers();
+			// TODO : mise à jour des statistiques
 		});
 		
 		$("#select_calendrier").change(function() {
@@ -104,6 +106,15 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			this.idCalendrierSelectionne = parseInt(calId);
 			var calendrier = this.mesCalendriers[this.idCalendrierSelectionne];
 			$("#select_matiere").val(calendrier.matiere);
+			
+			// Remplissage de la liste des groupes sélectionnés
+			$("#lst_groupes_associes").text(calendrier.nomsGroupesParents.join(", "));
+			
+			// Mise à jour du bloc de statistiques
+			this.blocStatistiques.setGroupes(calendrier.groupesParents, calendrier.nomsGroupesParents);
+			
+			// TODO : ici temporaire
+			this.blocStatistiques.draw();
 		}
 		
 		this.calendrier.refetchEvents();

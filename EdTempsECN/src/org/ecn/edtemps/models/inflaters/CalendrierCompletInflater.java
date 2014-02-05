@@ -25,7 +25,7 @@ public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierC
 		boolean estCours = reponse.getBoolean("estcours");
 		
 		// Récupération des parents du calendrier (temporaires ou validés)
-		ResultSet rs_idGroupesParents = bdd.executeRequest("SELECT cag.groupeparticipant_id, cag.groupeparticipant_id_tmp"
+		ResultSet rs_idGroupesParents = bdd.executeRequest("SELECT cag.groupeparticipant_id, cag.groupeparticipant_id_tmp, gp.groupeparticipant_nom"
 				+ " FROM edt.calendrierappartientgroupe cag"
 				+ " LEFT JOIN edt.groupeparticipant gp ON gp.groupeparticipant_id = cag.groupeparticipant_id"
 				+ " WHERE cal_id=" + calendrier.getId()
@@ -33,6 +33,7 @@ public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierC
 		);
 		List<Integer> idGroupesParents = new ArrayList<Integer>();
 		List<Integer> idGroupesParentsTmp = new ArrayList<Integer>();
+		List<String> nomsGroupesParents = new ArrayList<String>();
 	    while (rs_idGroupesParents.next()) {
 	    	int idGroupe = rs_idGroupesParents.getInt("groupeparticipant_id");
 	    	// Si la case groupeparticipant_id est vide 
@@ -43,12 +44,13 @@ public class CalendrierCompletInflater extends AbsCalendrierInflater<CalendrierC
 			// Si la case groupeparticipant_id_tmp est vide
 			else {
 				idGroupesParents.add(idGroupe);
+				nomsGroupesParents.add(rs_idGroupesParents.getString("groupeparticipant_nom"));
 			}
 	    }
 	    rs_idGroupesParents.close();
 
 	    // Création du calendrier complet
-		CalendrierComplet res = new CalendrierComplet(calendrier, estCours, idGroupesParents);
+		CalendrierComplet res = new CalendrierComplet(calendrier, estCours, idGroupesParents, nomsGroupesParents);
 		res.setIdGroupesParentsTmp(idGroupesParentsTmp);
 		
 		return res;
