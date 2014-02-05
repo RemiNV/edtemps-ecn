@@ -11,7 +11,7 @@
 			<% for(var typeCours in statistiques) { %>
 				<td>
 				<% if(statistiques[typeCours][idGroupe]) { %>
-					<%= statistiques[typeCours][idGroupe].actuel %>/<%= statistiques[typeCours][idGroupe].prevu %>
+					<%= Math.round(statistiques[typeCours][idGroupe].actuel/360)/10 %>/<%= Math.round(statistiques[typeCours][idGroupe].prevu/360)/10 %>
 				<% } %>
 				</td>
 			<% } %>

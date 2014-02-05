@@ -30,14 +30,17 @@ public class StatistiquesGestion {
 	public Statistiques getStatistiques(int idUtilisateur, Date dateDebut, Date dateFin, String matiere) throws DatabaseException {
 		Statistiques res = new Statistiques(matiere);
 		
-		String request = "SELECT SUM(evenement.eve_datefin - evenement.eve_datedebut) AS intervalle_cours, typecalendrier.typecal_id, typecalendrier.typecal_nom, cap.groupeparticipant_id from edt.evenement " +
+		// On convertit l'intervalle datefin-datedebut en secondes
+		String request = "SELECT extract('epoch' from SUM(evenement.eve_datefin - evenement.eve_datedebut)) AS intervalle_cours, typecalendrier.typecal_id, " +
+				"typecalendrier.typecal_libelle, cap.groupeparticipant_id from edt.evenement " +
 				"INNER JOIN edt.evenementappartient ON evenementappartient.eve_id=evenement.eve_id " +
 				"INNER JOIN edt.calendrier ON calendrier.cal_id=evenementappartient.cal_id " +
 				"INNER JOIN edt.typecalendrier ON calendrier.typecal_id=typecalendrier.typecal_id " +
 				"INNER JOIN edt.calendrierappartientgroupe cap ON calendrier.cal_id=cap.cal_id " +
 				"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id AND matiere.matiere_nom = ? " +
-				"WHERE evenement.eve_datefin > ? AND evenement.eve_datedebut <= ? " +
-				"GROUP BY typecalendrier.typecal_id, typecalendrier.typecal_nom, cap.groupeparticipant_id " +
+				"INNER JOIN edt.proprietairecalendrier ON proprietairecalendrier.cal_id=calendrier.cal_id AND proprietairecalendrier.utilisateur_id=" + idUtilisateur +
+				" WHERE evenement.eve_datefin > ? AND evenement.eve_datedebut <= ? " +
+				"GROUP BY typecalendrier.typecal_id, typecalendrier.typecal_libelle, cap.groupeparticipant_id " +
 				"ORDER BY typecalendrier.typecal_id";
 		
 		try {
@@ -55,18 +58,21 @@ public class StatistiquesGestion {
 			while(resultSet.next()) {
 				
 				int typeCours = resultSet.getInt("typecal_id");
+				if(strTypeCoursCourant == null) {
+					strTypeCoursCourant = resultSet.getString("typecal_libelle");
+				}
 
 				// Les typecours identiques doivent être à la suite : nouveau type de cours
 				if(typeCours != typeCoursCourant && typeCoursCourant != -1) {
 					res.setStatistiquesTypeCours(strTypeCoursCourant, nextMap);
 					
 					typeCoursCourant = typeCours;
-					strTypeCoursCourant = resultSet.getString("typecal_nom");
+					strTypeCoursCourant = resultSet.getString("typecal_libelle");
 					nextMap = new HashMap<Integer, StatistiquesGroupe>();
 				}
 				
 				// TODO : remplir le champ "prevu" (autre chose que 0) depuis les données AGAP
-				nextMap.put(typeCours, new StatistiquesGroupe(resultSet.getInt("intervalle_cours"), 0));
+				nextMap.put(resultSet.getInt("groupeparticipant_id"), new StatistiquesGroupe(resultSet.getInt("intervalle_cours"), 0));
 			}
 			
 			resultSet.close();

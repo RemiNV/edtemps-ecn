@@ -54,7 +54,9 @@ public class Statistiques implements JSONAble {
 	 * @author Remi
 	 */
 	public static class StatistiquesGroupe {
+		/** Temps de cours déjà prévu (en secondes) */
 		protected int actuel;
+		/** Temps de cours prévu (en secondes) */
 		protected int prevu;
 		
 		public StatistiquesGroupe(int actuel, int prevu) {

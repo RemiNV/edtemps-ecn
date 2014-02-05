@@ -16,7 +16,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.restManager = restManager;
 		this.evenementGestion = new EvenementGestion(restManager);
 		this.calendrierGestion = new CalendrierGestion(restManager);
-		this.blocStatistiques = new BlocStatistiques($("#bloc_statistiques"));
+		this.blocStatistiques = new BlocStatistiques(restManager, $("#bloc_statistiques"));
 		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
 		this.idCalendrierSelectionne = 0;
 		
@@ -66,7 +66,6 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		// Listeners
 		selectMatiere.change(function() {
 			me.remplirSelectCalendriers();
-			// TODO : mise à jour des statistiques
 		});
 		
 		$("#select_calendrier").change(function() {
@@ -112,9 +111,8 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			
 			// Mise à jour du bloc de statistiques
 			this.blocStatistiques.setGroupes(calendrier.groupesParents, calendrier.nomsGroupesParents);
-			
-			// TODO : ici temporaire
-			this.blocStatistiques.draw();
+			// TODO : mettre de vraies dates
+			this.blocStatistiques.refreshStatistiques(calendrier.matiere, new Date(2013, 3, 1), new Date(2014, 3, 1));
 		}
 		
 		this.calendrier.refetchEvents();
