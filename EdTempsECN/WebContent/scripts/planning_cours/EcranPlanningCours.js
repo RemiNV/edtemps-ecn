@@ -128,9 +128,25 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	};
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
+		var me = this;
 		if(this.idCalendrierSelectionne != 0) {
 			this.evenementGestion.getEvenementsGroupesCalendrier(start, end, this.idCalendrierSelectionne, false, function(resultCode, evenements) {
 				if(resultCode === RestManager.resultCode_Success) {
+					
+					// Evénements des autres calendriers en gris
+					for(var i=0,maxI=evenements.length; i<maxI; i++) {
+						var hasCalendrier = false;
+						for(var j=0,maxJ=evenements[i].calendriers.length; j<maxJ; j++) {
+							if(evenements[i].calendriers[j] === me.idCalendrierSelectionne) {
+								hasCalendrier = true;
+								break;
+							}
+						}
+						
+						if(!hasCalendrier) {
+							evenements[i].color = "#999";
+						}
+					}
 					callback(evenements);
 				}
 				else if(resultCode === RestManager.resultCode_NetworkError) {
