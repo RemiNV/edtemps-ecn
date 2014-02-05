@@ -549,14 +549,25 @@ public class GroupeGestion {
 	 * @throws DatabaseException
 	 */
 	protected static void ajouterGroupeTempTableListeGroupes(BddGestion bdd, int idGroupe, String nomTable) throws DatabaseException {
-		bdd.executeUpdate("INSERT INTO " + nomTable + "(groupeparticipant_id," +
-			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
-			"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
-			"SELECT groupeparticipant.groupeparticipant_id," +
+		ajouterGroupesTempTableListeGroupes(bdd, "SELECT groupeparticipant.groupeparticipant_id," +
 			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
 			"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique " +
 			"FROM edt.groupeparticipant " +
-			"WHERE groupeparticipant.groupeparticipant_id = " + idGroupe);
+			"WHERE groupeparticipant.groupeparticipant_id = " + idGroupe, nomTable);
+	}
+	
+	/**
+	 * Ajoute des groupes dans la table temporaire des groupes
+	 * @param bdd Gestionnaire de base de données
+	 * @param selectRequest Requête SELECT permettant d'obtenir les groupes
+	 * @param nomTable Nom de la table temporaire à affecter
+	 * @throws DatabaseException
+	 */
+	protected static void ajouterGroupesTempTableListeGroupes(BddGestion bdd, String selectRequest, String nomTable) throws DatabaseException {
+		bdd.executeUpdate("INSERT INTO " + nomTable + "(groupeparticipant_id," +
+			"groupeparticipant_nom, groupeparticipant_rattachementautorise," +
+			"groupeparticipant_id_parent, groupeparticipant_id_parent_tmp, groupeparticipant_estcours, groupeparticipant_estcalendrierunique) " +
+			selectRequest);
 	}
 	
 	/**
@@ -574,6 +585,25 @@ public class GroupeGestion {
 		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
 		
 		ajouterGroupeTempTableListeGroupes(bdd, idGroupe, NOM_TEMPTABLE_PARENTSENFANTS);
+		
+		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+		completerParentsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+	}
+	
+	/**
+	 * Créé une table temporaire de groupes d'utilisateur étant <b>parents ou enfants</b> des groupes récupérés par une requête SELECT. 
+	 * Les groupes récupérés sont aussi listés.
+	 * La table temporaire contient les mêmes colonnes que la table groupeparticipant.
+	 * Elle est supprimée automatiquement lors d'un commit. Cette méthode doit donc être appelée à l'intérieur d'une transaction.
+	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
+	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_PARENTSENFANTS}
+	 * @param bdd Gestionnaire de base de données
+	 * @param idGroupe ID du groupe pour lequel les parents et enfants sont à lister.
+	 * @throws DatabaseException
+	 */
+	public static void makeTempTableListeParentsEnfants(BddGestion bdd, String selectRequest) throws DatabaseException {
+		makeTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+		ajouterGroupesTempTableListeGroupes(bdd, selectRequest, NOM_TEMPTABLE_PARENTSENFANTS);
 		
 		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
 		completerParentsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);

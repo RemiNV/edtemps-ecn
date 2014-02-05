@@ -133,8 +133,15 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		if(this.idCalendrierSelectionne != 0) {
 			// TODO : faire le listing d'événements (vérifier EvenementGesiton)
 			this.evenementGestion.getEvenementsGroupesCalendrier(start, end, this.idCalendrierSelectionne, false, function(resultCode, evenements) {
-				console.log(evenements);
-				callback(new Array());
+				if(resultCode === RestManager.resultCode_Success) {
+					callback(evenements);
+				}
+				else if(resultCode === RestManager.resultCode_NetworkError) {
+					window.showToast("Erreur de récupération des événements ; vérifiez votre connection");
+				}
+				else {
+					window.showToast("Erreur de récupération des événements");
+				}
 			});
 		}
 	};

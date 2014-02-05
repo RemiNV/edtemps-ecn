@@ -448,21 +448,35 @@ public class EvenementGestion {
 		}
 		
 		GroupeGestion.makeTempTableListeParentsEnfants(_bdd, idGroupe);
-		
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
-				"FROM edt.evenement " +
-				"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
-				"INNER JOIN edt.calendrierappartientgroupe cap ON cap.cal_id = evenementappartient.cal_id " +
-				"INNER JOIN " + GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS + " tmpParentsEnfants ON tmpParentsEnfants.groupeparticipant_id = cap.groupeparticipant_id "
-				+ "WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?";
 
-		ArrayList<EvenementComplet> res = listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), false, MAX_ROWS_QUERY_EVENEMENTS);
+		ArrayList<EvenementComplet> res = listerEvenementsGroupesTempTable(GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS, dateDebut, dateFin);
 		
 		if(createTransaction) {
 			_bdd.commit();
 		}
 		
 		return res;
+	}
+	
+	/**
+	 * Liste les événements liés aux groupes présents dans une table temporaire.
+	 * Cette méthode doit être appelée dans une transaction déjà ouverte, puisqu'une table temporaire doit être présente.
+	 * @param nomTempTable Nom de la table temporaire contenant les groupes
+	 * @param dateDebut Date de début de la fenêtre de recherche
+	 * @param dateFin Date de fin de la fenêtre de recherche
+	 * @return Liste d'événements récupérés
+	 * @throws MaxRowCountExceededException Nombre d'événements supérieur à MAX_ROWS_QUERY_EVENEMENTS
+	 * @throws DatabaseException 
+	 */
+	public ArrayList<EvenementComplet> listerEvenementsGroupesTempTable(String nomTempTable, Date dateDebut, Date dateFin) throws DatabaseException, MaxRowCountExceededException {
+		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
+			"FROM edt.evenement " +
+			"INNER JOIN edt.evenementappartient ON evenement.eve_id = evenementappartient.eve_id " +
+			"INNER JOIN edt.calendrierappartientgroupe cap ON cap.cal_id = evenementappartient.cal_id " +
+			"INNER JOIN " + nomTempTable + " tmpParentsEnfants ON tmpParentsEnfants.groupeparticipant_id = cap.groupeparticipant_id "
+			+ "WHERE evenement.eve_datefin >= ? AND evenement.eve_datedebut <= ?";
+
+		return listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), false, MAX_ROWS_QUERY_EVENEMENTS);
 	}
 	
 	
@@ -597,18 +611,30 @@ public class EvenementGestion {
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode ; sinon la méthode <b>doit</b> être appelée dans une transaction
 	 * @return Liste d'événements récupérés
 	 * @throws DatabaseException 
+	 * @throws MaxRowCountExceededException 
 	 */
-	public ArrayList<EvenementComplet> listerEvenementsGroupesCalendrier(int idCalendrier, Date dateDebut, Date dateFin, boolean createTransaction) throws DatabaseException {
-		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
-				"FROM edt.evenement " +
-				"INNER JOIN edt.evenementappartient ON evenement.eve_id=evenementappartient.eve_id " +
-				"INNER JOIN edt.calendrierappartientgroupe cap ON cap.cal_id=evenementappartient.cal_id " +
-				"INNER JOIN edt.calendrierappartientgroupe groupescalendrier ON groupescalendrier.groupeparticipant_id=cap.groupeparticipant_id " +
-				"AND groupescalendrier.cal_id=" + idCalendrier + 
-				" WHERE evenement.eve_datefin >= ? "
-				+ "AND evenement.eve_datedebut <= ?";
+	public ArrayList<EvenementComplet> listerEvenementsGroupesCalendrier(int idCalendrier, Date dateDebut, Date dateFin, boolean createTransaction) 
+			throws DatabaseException, MaxRowCountExceededException {
 		
-		return listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), createTransaction);
+		if(createTransaction) {
+			_bdd.startTransaction();
+		}
+		
+		// Création de la table temporaire des parents/enfants des groupes du calendrier
+		GroupeGestion.makeTempTableListeParentsEnfants(_bdd, "SELECT grp.groupeparticipant_id," +
+			"grp.groupeparticipant_nom, grp.groupeparticipant_rattachementautorise," +
+			"grp.groupeparticipant_id_parent, grp.groupeparticipant_id_parent_tmp, grp.groupeparticipant_estcours, grp.groupeparticipant_estcalendrierunique " +
+			"FROM edt.groupeparticipant grp " +
+			"INNER JOIN edt.calendrierappartientgroupe cap ON cap.groupeparticipant_id=grp.groupeparticipant_id " +
+			"AND cap.cal_id=" + idCalendrier);
+				
+		ArrayList<EvenementComplet> res = listerEvenementsGroupesTempTable(GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS, dateDebut, dateFin);
+		
+		if(createTransaction) {
+			_bdd.commit();
+		}
+		
+		return res;
 	}
 	
 	/**
