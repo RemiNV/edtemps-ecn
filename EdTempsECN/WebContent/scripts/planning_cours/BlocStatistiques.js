@@ -12,7 +12,7 @@ define(["underscore", "text!../../templates/bloc_statistiques.tpl", "jquery"], f
 		this.jqBloc = jqBloc;
 		this.groupes = null;
 		
-		/** ID : type de cours, valeur : objet indexé par idGroupe, dont les valeurs sont "actuel" et "prevu".
+		/** Clé : type de cours, valeur : objet indexé par idGroupe, dont les valeurs sont "actuel" et "prevu".
 		 * Ex : statistiques[typeCours][idGroupe].actuel, statistiques[typeCours][idGroupe].prevu */
 		this.statistiques = {
 				'TD': {},

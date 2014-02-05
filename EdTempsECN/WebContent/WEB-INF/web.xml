@@ -165,6 +165,11 @@
       <servlet-name>JoursBloques</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.JoursBloquesServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+      <servlet-name>Statistiques</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.StatistiquesServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
       <servlet-name>Connection</servlet-name>
@@ -324,6 +329,11 @@
   <servlet-mapping>
       <servlet-name>JoursBloques</servlet-name>
       <url-pattern>/joursbloques/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+      <servlet-name>Statistiques</servlet-name>
+      <url-pattern>/statistiques</url-pattern>
   </servlet-mapping>
   
 </web-app>
