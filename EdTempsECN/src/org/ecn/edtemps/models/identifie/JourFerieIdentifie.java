@@ -2,6 +2,10 @@ package org.ecn.edtemps.models.identifie;
 
 import java.util.Date;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+
 import org.ecn.edtemps.json.JSONAble;
 import org.ecn.edtemps.models.JourFerie;
 
@@ -25,6 +29,16 @@ public class JourFerieIdentifie extends JourFerie implements JSONAble {
 	public JourFerieIdentifie(int id, String libelle, Date date) {
 		super(libelle, date);
 		this.id = id;
+	}
+	
+	
+	@Override
+	public JsonValue toJson() {
+		JsonObjectBuilder builder =  Json.createObjectBuilder()
+				.add("id", this.id)
+				.add("libelle", this.libelle)
+				.add("date", this.date.getTime());
+		return builder.build();
 	}
 	
 	public int getId() {

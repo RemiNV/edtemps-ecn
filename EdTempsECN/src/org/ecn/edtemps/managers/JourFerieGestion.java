@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
 
 /**
@@ -22,7 +24,9 @@ public class JourFerieGestion {
 
 	protected BddGestion bdd;
 	private static Logger logger = LogManager.getLogger(JourFerieGestion.class.getName());
-
+	
+	/** Nombre de caractères maximum pour le libellé d'un jour férié */
+	public static final int TAILLE_MAX_LIBELLE = 50;
 	
 	/**
 	 * Initialise un gestionnaire de jours fériés
@@ -64,7 +68,7 @@ public class JourFerieGestion {
 		if (debut==null || fin==null || debut.after(fin)) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
 		}
-				
+		
 		try {
 
 			String requeteString = "SELECT jourferie_id, jourferie_libelle, jourferie_date" +
@@ -98,4 +102,181 @@ public class JourFerieGestion {
 
 	}
 	
+
+	/**
+	 * Sauver un jour férié dans la base de données
+	 * 
+	 * @param libelle Libellé du jour férié
+	 * @param date Date du jour férié
+	 * @param userId Identifiant de l'utilisateur qui fait la requête
+	 * @return l'identifiant de la ligne ajoutée
+	 * @throws EdtempsException 
+	 */
+	public int sauverJourFerie(String libelle, Date date, int userId) throws EdtempsException {
+
+		// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
+		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
+		}
+
+		// Quelques vérifications sur l'objet à enregistrer
+		if (date==null || StringUtils.isEmpty(libelle)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un jour férié doit avoir un libellé et une date");
+		}
+		
+		// Vérifie que le libellé est bien alphanumérique
+		if(libelle.length() > TAILLE_MAX_LIBELLE || !StringUtils.isAlphanumericSpace(libelle)) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libelle d'un jour férié doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
+		}
+
+		// Vérfie si un jour identique est déjà présent en base
+		if (verifierPresenceJourFerie(date, null)) {
+			throw new EdtempsException(ResultCode.DAY_TAKEN, "Il y a déjà un jour férié à cette date dans la base de données");
+		}
+				
+		try {
+						
+			// Prépare la requête
+			PreparedStatement requete = bdd.getConnection().prepareStatement("INSERT INTO edt.joursferies" +
+					" (jourferie_libelle, jourferie_date) " +
+					" VALUES (?, ?) " +
+				    " RETURNING jourferie_id");
+			requete.setString(1, libelle);
+			requete.setTimestamp(2, new java.sql.Timestamp(date.getTime()));
+			
+			// Exécute la requête
+			ResultSet ligneCreee = requete.executeQuery();
+			logger.info("Sauvegarde d'un jour férié");
+			 
+			// On récupère l'id de l'événement créé
+			ligneCreee.next();
+			int idLigneCree = ligneCreee.getInt("jourferie_id");
+			ligneCreee.close();
+			requete.close();
+			
+			return idLigneCree;
+
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+
+	}
+	
+	
+	/**
+	 * Supprimer un jour férié dans la base de données
+	 * 
+	 * @param id Identifiant (bdd) du jour férié à supprimer
+	 * @param userId Identifiant de l'utilisateur qui fait la requête
+	 * @throws EdtempsException 
+	 */
+	public void supprimerJourFerie(int id, int userId) throws EdtempsException {
+
+		// Vérifie que l'utilisateur est autoriser à gérer les jours fériés
+		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
+		}
+
+		// Supprime le jour férié de la base de données à partir de l'identifiant
+		bdd.executeUpdate("DELETE FROM edt.joursferies WHERE jourferie_id = " + id);
+		logger.info("Suppression d'un jour férié");
+
+	}
+	
+	
+	/**
+	 * Modifier un jour férié dans la base de données
+	 * 
+	 * @param jour Objet de type JourFerieIdentifie à modifier en base de donnée
+	 * @param userId Identifiant de l'utilisateur qui fait la requête
+	 * @throws EdtempsException 
+	 */
+	public void modifierJourFerie(JourFerieIdentifie jour, int userId) throws EdtempsException {
+
+		// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
+		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
+		}
+
+		// Quelques vérifications sur l'objet à modifier
+		if (jour==null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "La méthode pour sauver un jour férié doit recevoir un jour non null en paramètre");
+		} else if (jour.getDate()==null || StringUtils.isEmpty(jour.getLibelle())) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un jour férié doit avoir un nom et une date");
+		}
+		
+		// Vérifie que le libellé est bien alphanumérique
+		if(jour.getLibelle().length() > TAILLE_MAX_LIBELLE || !StringUtils.isAlphanumericSpace(jour.getLibelle())) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libelle d'un jour férié doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
+		}
+
+		// Vérfie si un jour identique est déjà présent en base
+		if (verifierPresenceJourFerie(jour.getDate(), jour.getId())) {
+			throw new EdtempsException(ResultCode.DAY_TAKEN, "Il y a déjà un jour férié à cette date dans la base de données");
+		}		
+		
+		try {
+			
+			// Prépare la requête
+			PreparedStatement requete = bdd.getConnection().prepareStatement("UPDATE edt.joursferies" +
+					" SET jourferie_libelle = ?, " +
+					" jourferie_date = ?" +
+					" WHERE jourferie_id = " + jour.getId());
+			requete.setString(1, jour.getLibelle());
+			requete.setTimestamp(2, new java.sql.Timestamp(jour.getDate().getTime()));
+
+			// Exécute la requête
+			requete.execute();
+			requete.close();
+			logger.info("Modification d'un jour férié");
+			
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+
+	}
+	
+	
+	/**
+	 * Vérifier si un jour férié est présent à une date
+	 * Possibilité d'ignorer un jour férié dans la recherche
+	 * 
+	 * @param date Date du jour à vérifier
+	 * @param ignoreId Identifiant du jour à ignorer dans la recherche
+	 * @result VRAI s'il existe déjà un jour férié à cette date en base de données
+	 * @throws EdtempsException 
+	 */
+	public boolean verifierPresenceJourFerie(Date date, Integer ignoreId) throws EdtempsException {
+		
+		if (date==null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "La date ne doit pas être nulle");
+		}
+		
+		try {
+			
+			// Préparation de la requête
+			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement("SELECT jourferie_id" +
+					" FROM edt.joursferies WHERE jourferie_date = ?" + 
+					(ignoreId==null ? "" : " AND jourferie_id<>"+ignoreId) );
+			requetePreparee.setTimestamp(1, new java.sql.Timestamp(date.getTime()));
+			
+			// Tente de récupérer le jour en base
+			ResultSet requete = requetePreparee.executeQuery();
+
+			// Vérifie si il existe un résultat
+			boolean resultat = requete.next();
+
+			// Ferme la requete
+			requete.close();
+
+			return resultat;
+			
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+
+	}
 }

@@ -886,27 +886,31 @@ input.valide {
 
 #liste_jours_feries th {
 	border: solid 1px black;
-	background-color: #717171;
-	color: white;
+	background-color: #E0E0E0;
 }
 
 #liste_jours_feries td {
 	border: solid 1px black;
 	vertical-align: middle;
+	height: 30px;
 }
 
 #liste_jours_feries td img {
-	width: 18px;
+	width: 15px;
 	margin: 0px;
 }
 
 #liste_jours_feries td .button {
 	margin: 0px 5px 0px 5px;
-	padding: 5px 10px 5px 10px;
+	padding: 3px 5px 3px 5px;
 }
 
-#liste_jours_feries tr:nth-child(odd) {
-	background-color: #E6E6E6;
+#dialog_ajout_jour_ferie {
+	display: none;
+}
+
+#dialog_ajout_jour_ferie .boutons_valider {
+	margin-top: 20px;
 }
 
 /* Bloc statistiques (page planning calendrier) */
@@ -925,4 +929,3 @@ table.tbl_statistiques th {
 table.tbl_statistiques td, table.tbl_statistiques th {
 	border: 1px solid grey;
 }
-

@@ -767,8 +767,8 @@
 
 
 /* jours fériés */
-	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Jour de l''an', '2014-01-01 00:00:00');
-	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Fête du travail', '2014-05-01 00:00:00');
+	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Jour de l''an', '2014-01-01');
+	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Fête du travail', '2014-05-01');
 
 /* jours bloqué */
 	/* Vacances */

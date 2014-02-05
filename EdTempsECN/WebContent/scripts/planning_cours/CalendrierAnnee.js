@@ -2,7 +2,7 @@
  * Module calendrier annuel pour la gestion des jours spéciaux
  * @module CalendrierAnnee
  */
-define([ "RestManager" ], function(RestManager) {
+define([  ], function() {
 
 	/**
 	 * @constructor
@@ -160,7 +160,7 @@ define([ "RestManager" ], function(RestManager) {
 	
 	
 	/**
-	 * Formatter une date (en JJ-MM-AAAA) à partir d'un objet Date javascript 
+	 * Formatter une date (en AAAA-MM-JJ) à partir d'un objet Date javascript 
 	 */
 	function dateToString(date) {
 		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
@@ -168,7 +168,7 @@ define([ "RestManager" ], function(RestManager) {
 
 	
 	/**
-	 * Récupérer un objet date à partir d'une date au format : JJ-MM-AAAA 
+	 * Récupérer un objet date à partir d'une date au format : AAAA-MM-JJ
 	 */
 	function stringToDate(date) {
 		return new Date(date);
