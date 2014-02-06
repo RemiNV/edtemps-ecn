@@ -219,6 +219,40 @@ define([ "RestManager" ], function(RestManager) {
 	
 	
 	/**
+	 * Ajouter automatiquement les jours fériés
+	 * 
+	 * @param {int} annee Annee de création, pour l'année scolaire annee<>annee+1
+	 * @param {function} callback Méthode exécutée en retour
+	 */
+	JourBloqueGestion.prototype.ajouterAutoJourFerie = function(annee, callback) {
+		
+		this.restManager.effectuerRequete("POST", "joursferies/ajoutautomatique", {
+			token: this.restManager.getToken(), annee: annee
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback();
+				
+				var message = "";
+				
+				if (data.data.listeAjoutes.length!=0) {
+					message += data.data.listeAjoutes.length + " jours ont été ajoutés";
+				} else {
+					message = "Aucun jour férié ajouté";
+				}
+				
+				window.showToast(message);
+				
+			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé à ajouter des jours fériés.");
+			} else {
+				window.showToast("Erreur lors de la création des jours fériés ; vérifiez votre connexion.");
+			}
+		});
+		
+	};
+	
+	
+	/**
 	 * Formatter une date (en JJ/MM/AAAA) à partir d'un getTime de date
 	 */
 	function dateToString(getTime) {

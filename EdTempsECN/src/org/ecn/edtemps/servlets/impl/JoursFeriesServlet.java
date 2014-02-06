@@ -1,8 +1,11 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.json.Json;
 import javax.json.JsonValue;
@@ -67,6 +70,9 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 				break;
 			case "/supprimer":
 				doSupprimer(userId, bdd, req, resp);
+				break;
+			case "/ajoutautomatique":
+				doAjouterAuto(userId, bdd, req, resp);
 				break;
 			default:
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -180,7 +186,7 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		Date date = this.getDateInRequest(req, "date");
 		String strIdJourFerie = req.getParameter("idJourFerie");
 		if(strIdJourFerie == null) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idJourFerie non fourni pour une suppression de jour férié");
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idJourFerie non fourni pour une modification de jour férié");
 		}
 		int idJourFerie = Integer.parseInt(strIdJourFerie);
 		
@@ -190,7 +196,53 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
 		jourFerieGestion.modifierJourFerie(jour, userId);
 		bdd.close();
-		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié ajouté", null));
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié modifié", null));
+
+	}
+	
+	
+	/**
+	 * Ajouter automatiquement tous les jours fériés
+	 * @param userId
+	 * @param bdd
+	 * @param req
+	 * @param resp
+	 * @throws ServletException
+	 * @throws IOException
+	 * @throws EdtempsException
+	 */
+	protected void doAjouterAuto(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
+		
+		// Récupère les paramètres
+		String strAnnee = req.getParameter("annee");
+		if(strAnnee == null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre annee non fourni pour un ajout automatique des jours fériés");
+		}
+		int annee = Integer.parseInt(strAnnee);
+		
+		// Exécute la requête d'ajout automatique avec le gestionnaire
+		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
+		Map<String, Boolean> resultat = jourFerieGestion.ajoutAutomatiqueJoursFeries(annee, userId);
+		bdd.close();
+		
+		// Découpe le résultat en deux listes : les jours ajoutés, et ceux qui sont déjà présents en base
+		List<String> listeAjoutes = new ArrayList<String>();
+		List<String> listeNonAjoutes = new ArrayList<String>();
+		
+		for (Entry<String, Boolean> jour : resultat.entrySet()) {
+			if (jour.getValue()) {
+				listeAjoutes.add(jour.getKey());
+			} else {
+				listeNonAjoutes.add(jour.getKey());
+			}
+		}
+		
+		// Création de la réponse
+		JsonValue data = Json.createObjectBuilder()
+				.add("listeAjoutes", JSONUtils.getJsonStringArray(listeAjoutes))
+				.add("listeNonAjoutes", JSONUtils.getJsonStringArray(listeNonAjoutes))
+				.build();
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "", data));
 
 	}
 
