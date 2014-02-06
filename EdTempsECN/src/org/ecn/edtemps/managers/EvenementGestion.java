@@ -8,12 +8,17 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.MaxRowCountExceededException;
 import org.ecn.edtemps.exceptions.ResultCode;
+import org.ecn.edtemps.models.TestRepetitionEvenement;
+import org.ecn.edtemps.models.TestRepetitionEvenement.Probleme;
+import org.ecn.edtemps.models.TestRepetitionEvenement.ProblemeStatus;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
+import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.inflaters.AbsEvenementInflater;
 import org.ecn.edtemps.models.inflaters.EvenementCompletInflater;
 import org.ecn.edtemps.models.inflaters.EvenementIdentifieInflater;
@@ -33,6 +38,12 @@ public class EvenementGestion {
 	
 	/** Nombre de caractères maximum pour le nom d'un événement */
 	public static final int TAILLE_MAX_NOM_EVENEMENT = 50;
+	
+	/** Nombre de maximum de répétition d'un événement pour une demande */
+	public static final int MAX_REPETITIONS = 50;
+	
+	/** Maximum de créneaux examinés pour mettre en place une répétition d'événement */
+	public static final int MAX_RECHERCHE_REPETITIONS = 75;
 	
 	/**
 	 * Initialise un gestionnaire d'evenements
@@ -479,7 +490,6 @@ public class EvenementGestion {
 		return listerEvenements(request, dateDebut, dateFin, new EvenementCompletInflater(), false, MAX_ROWS_QUERY_EVENEMENTS);
 	}
 	
-	
 	/**
 	 * Méthode de listing des évènements de cours ou pas de cours (exclusivement l'un ou l'autre) d'une salle
 	 * @param idSalle ID de la salle en question
@@ -491,6 +501,26 @@ public class EvenementGestion {
 	 * @throws EdtempsException 
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementsSalleCoursOuPas(int idSalle, Date dateDebut, Date dateFin, boolean estCours, boolean createTransaction) throws EdtempsException {
+		ArrayList<Integer> idsSalles = new ArrayList<Integer>(1);
+		idsSalles.add(idSalle);
+		return listerEvenementsSalleCoursOuPas(idsSalles, dateDebut, dateFin, estCours, createTransaction);
+	}
+	
+	
+	/**
+	 * Méthode de listing des évènements de cours ou pas de cours (exclusivement l'un ou l'autre) d'un ensemble de salles
+	 * @param idSalle ID des salles en question
+	 * @param dateDebut Date de début de la fenêtre de recherche d'évènements
+	 * @param dateFin Date de fin de la fenêtre de recherche d'évènements
+	 * @param estCours Lister uniquement les évènements qui sont des cours (true) ou uniquement ceux qui n'en sont pas (false)
+	 * @param createTransaction Indique si il faut créer une transaction dans cette méthode, ou si elle sera déjà appelée dans une transaction
+	 * @return Liste des évènements trouvés
+	 * @throws EdtempsException 
+	 */
+	public ArrayList<EvenementIdentifie> listerEvenementsSalleCoursOuPas(ArrayList<Integer> idSalles, Date dateDebut, Date dateFin, boolean estCours, boolean createTransaction) 
+			throws DatabaseException {
+		String strIdsSalles = StringUtils.join(idSalles, ",");
+		
 		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
 				"FROM edt.evenement " +
 				"INNER JOIN edt.alieuensalle ON evenement.eve_id = alieuensalle.eve_id " +
@@ -498,7 +528,7 @@ public class EvenementGestion {
 				"LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
 				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
 					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours)" +
-				"WHERE alieuensalle.salle_id = " + idSalle +" "
+				"WHERE alieuensalle.salle_id IN (" + strIdsSalles + ") "
 				+ "AND evenement.eve_datefin >= ? "
 				+ "AND evenement.eve_datedebut <= ? " +
 				"GROUP BY evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
@@ -616,9 +646,30 @@ public class EvenementGestion {
 	public ArrayList<EvenementComplet> listerEvenementsGroupesCalendrier(int idCalendrier, Date dateDebut, Date dateFin, boolean createTransaction) 
 			throws DatabaseException, MaxRowCountExceededException {
 		
+		ArrayList<Integer> ids = new ArrayList<Integer>(1);
+		ids.add(idCalendrier);
+		
+		return listerEvenementsGroupesCalendrier(ids, dateDebut, dateFin, createTransaction);
+	}
+	
+	/**
+	 * Liste les événements de l'ensemble des groupes auxquels sont rattachés les calendriers demandés
+	 * @param idCalendriers ID des calendriers en question
+ 	 * @param dateDebut Date de début de la fenêtre de recherche
+	 * @param dateFin Date de fin de la fenêtre de recherche
+	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode ; sinon la méthode <b>doit</b> être appelée dans une transaction
+	 * @return Liste d'événements récupérés
+	 * @throws DatabaseException 
+	 * @throws MaxRowCountExceededException 
+	 */
+	public ArrayList<EvenementComplet> listerEvenementsGroupesCalendrier(List<Integer> idCalendriers, Date dateDebut, Date dateFin, boolean createTransaction) 
+			throws DatabaseException, MaxRowCountExceededException {
+		
 		if(createTransaction) {
 			_bdd.startTransaction();
 		}
+		
+		String strIds = StringUtils.join(idCalendriers, ",");
 		
 		// Création de la table temporaire des parents/enfants des groupes du calendrier
 		GroupeGestion.makeTempTableListeParentsEnfants(_bdd, "SELECT grp.groupeparticipant_id," +
@@ -626,7 +677,7 @@ public class EvenementGestion {
 			"grp.groupeparticipant_id_parent, grp.groupeparticipant_id_parent_tmp, grp.groupeparticipant_estcours, grp.groupeparticipant_estcalendrierunique " +
 			"FROM edt.groupeparticipant grp " +
 			"INNER JOIN edt.calendrierappartientgroupe cap ON cap.groupeparticipant_id=grp.groupeparticipant_id " +
-			"AND cap.cal_id=" + idCalendrier);
+			"AND cap.cal_id IN (" + strIds + ")");
 				
 		ArrayList<EvenementComplet> res = listerEvenementsGroupesTempTable(GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS, dateDebut, dateFin);
 		
@@ -785,4 +836,91 @@ public class EvenementGestion {
 		}
 	}
 	
+	/**
+	 * Test de la répétition d'un événement : vérification qu'il n'y a pas de conflits
+	 * @param idEvenement ID de l'événement à répéter
+	 * @param nb Nombre de répétitions
+	 * @param periode Période de répétition
+	 * @return Tableau résumant l'ensemble de tentatives de répétition
+	 * @throws DatabaseException
+	 */
+	public ArrayList<TestRepetitionEvenement> testRepetitionEvenement(int idEvenement, int nb, int periode, boolean createTransaction) throws DatabaseException {
+		
+		if(createTransaction) {
+			_bdd.startTransaction();
+		}
+		
+		// Récupération de l'événement à répéter
+		EvenementIdentifie evenement = getEvenement(idEvenement);
+		
+		int repetitionsCourantes = 0;
+		int nbRecherchesRepetition = 0;
+		
+		Date newDateDebut = DateUtils.addDays(evenement.getDateDebut(), periode);
+		Date newDateFin = DateUtils.addDays(evenement.getDateDebut(), periode);
+		
+		ArrayList<Integer> idSalles = new ArrayList<Integer>(evenement.getSalles().size());
+		for(SalleIdentifie s : evenement.getSalles()) {
+			idSalles.add(s.getId());
+		}
+		
+		ArrayList<TestRepetitionEvenement> res = new ArrayList<TestRepetitionEvenement>();
+		
+		while(repetitionsCourantes < nb && nbRecherchesRepetition < MAX_RECHERCHE_REPETITIONS) {
+			
+			ArrayList<Probleme> problemes = new ArrayList<Probleme>();
+			
+			// Vérification de l'occupation de la salle
+			List<EvenementIdentifie> evenementsCours = listerEvenementsSalleCoursOuPas(idSalles, newDateDebut, newDateFin, true, false);
+			
+			if(evenementsCours.size() > 0) {
+				// Le toString des Evenement utilise leur attribut nom
+				problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_COURS, StringUtils.join(evenementsCours, ", ")));
+			}
+			else { // Inutile d'examiner les non-cours s'il y a déjà un cours
+				List<EvenementIdentifie> evenementsNonCours = listerEvenementsSalleCoursOuPas(idSalles, newDateDebut, newDateFin, false, false);
+				if(evenementsNonCours.size() > 0) {
+					problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_NON_COURS, StringUtils.join(evenementsNonCours, ", ")));
+				}
+			}
+				
+			// Vérification de la disponibilité du public
+			try {
+				ArrayList<EvenementComplet> evenementsPublic = this.listerEvenementsGroupesCalendrier(evenement.getIdCalendriers(), newDateDebut, newDateFin, false);
+				if(evenementsPublic.size() > 0) {
+					problemes.add(new Probleme(ProblemeStatus.PUBLIC_OCCUPE, StringUtils.join(evenementsPublic, ", ")));
+				}
+			} catch (MaxRowCountExceededException e) {
+				problemes.add(new Probleme(ProblemeStatus.PUBLIC_OCCUPE, "Public super-ultra-oversurbooké"));
+			}
+			
+			// Vérification de la présence d'un jour bloqué
+			
+			// TODO : vérifier ceci
+			
+			
+			
+			// Ajout au résultat
+			String num;
+			if(problemes.size() > 0) {
+				num = "(" + repetitionsCourantes + ")";
+			}
+			else {
+				repetitionsCourantes++;
+				num = String.valueOf(repetitionsCourantes);
+			}
+			
+			res.add(new TestRepetitionEvenement(num, newDateDebut, newDateFin, problemes));
+			
+			newDateDebut = DateUtils.addDays(evenement.getDateDebut(), periode);
+			newDateFin = DateUtils.addDays(evenement.getDateDebut(), periode);
+			nbRecherchesRepetition++;
+		}
+		
+		if(createTransaction) {
+			_bdd.commit();
+		}
+		
+		return res;
+	}
 }
