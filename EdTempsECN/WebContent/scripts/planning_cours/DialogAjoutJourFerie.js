@@ -2,14 +2,15 @@
  * Module de contrôle de la boîte de dialogue d'ajout/modification d'un jour férié
  * @module DialogAjoutJourFerie
  */
-define([ "text!../../templates/dialog_ajout_evenement.html" ], function(dialogAjoutJourFerieHtml) {
+define([ "text!../../templates/dialog_ajout_evenement.html", "planning_cours/EcranJoursBloques" ], function(dialogAjoutJourFerieHtml, EcranJoursBloques) {
 
 	/**
 	 * @constructor
 	 * @alias DialogAjoutJourFerie
 	 */
-	var DialogAjoutJourFerie = function(restManager, jqDialog) {
+	var DialogAjoutJourFerie = function(restManager, jqDialog, ecranJoursBloques) {
 		this.restManager = restManager;
+		this.ecranJoursBloques = ecranJoursBloques;
 		this.jqDialog = jqDialog;
 		this.jqLibelle = jqDialog.find("#txt_libelle");
 		this.jqDate = jqDialog.find("#date_jour_ferie");
@@ -103,12 +104,18 @@ define([ "text!../../templates/dialog_ajout_evenement.html" ], function(dialogAj
 
 		// Listener du bouton "Valider"
 		this.jqDialog.find("#btn_valider_ajout_jour_ferie").click(function() {
-			if (me.isCorrect()) {
-				var date = $.datepicker.parseDate("dd/mm/yy", me.jqDate.val());
-				var id = me.jour==null ? null : me.jour.id;
-				me.callback(me.jqLibelle.val(), date, id);
-				me.jqDialog.dialog("close");
+			
+			var date = $.datepicker.parseDate("dd/mm/yy", me.jqDate.val());
+			var debutAnnneeScolaire = new Date(me.ecranJoursBloques.calendrierAnnee.getAnnee(), 8, 1);
+			var finAnnneeScolaire = new Date(me.ecranJoursBloques.calendrierAnnee.getAnnee()+1, 7, 31);
+			
+			// Indiquer à l'utilisateur qu'il essaye de rentrer un jour férié pour une autre année que celle en cours...
+			if (date.getTime() < debutAnnneeScolaire.getTime() || date.getTime() > finAnnneeScolaire.getTime()) {
+				confirm("Etes vous sûr de vouloir ajouter un jour férié pour une autre année scolaire que celle en cours de modification ?", function () { me.valider(date); });
+			} else {
+				me.valider(date);
 			}
+
 		});
 
 		// Retourne à la méthode show()
@@ -117,6 +124,24 @@ define([ "text!../../templates/dialog_ajout_evenement.html" ], function(dialogAj
 	};
 	
 
+
+	/**
+	 * Valider le formulaire (exécute la méthode de callback)
+	 * 
+	 * @param {date} date La date formatée
+	 */
+	DialogAjoutJourFerie.prototype.valider = function(date) {
+		
+		// Continue si tout va bien
+		if (this.isCorrect()) {
+			var id = this.jour==null ? null : this.jour.id;
+			this.callback(this.jqLibelle.val(), date, id);
+			this.jqDialog.dialog("close");
+		}
+		
+	};
+
+	
 	/**
 	 * Vérifie que les champs saisis sont corrects et retourne vrai ou faux
 	 */
