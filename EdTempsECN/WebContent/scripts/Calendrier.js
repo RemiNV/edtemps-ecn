@@ -8,8 +8,9 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement, jqDatepicker) {
+	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement, jqDatepicker, dialogRepeter) {
 		var me = this;
+		this.dialogRepeter = dialogRepeter;
 		
 		// Dialog de détails des événements
 		var templateDialogDetails = _.template(tplDialogDetailsEvenement);
@@ -68,7 +69,11 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 				});
 			}, null);
 
-		});		
+		});	
+		
+		jqDialogDetailsEvenement.find("#btnRepeterEvenement").click(function(e) {
+			dialogRepeter.show(evenementDialogDetailsOuverte);
+		});
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();

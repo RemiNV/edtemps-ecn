@@ -150,6 +150,24 @@ ul.button_nav li:last-child {
 	border-bottom-right-radius: 4px;
 }
 
+table.tbl_standard {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9em;
+}
+
+table.tbl_standard th{
+	background-color: #ddd;
+	border: solid 1px gray;
+	padding: 2px 5px 2px 5px;
+}
+
+table.tbl_standard td {
+	background-color: white;
+	border: solid 1px gray;
+	padding: 2px 2px 2px 5px;
+}
+
 #liens_connexion {
 	float: right;
 }
@@ -194,11 +212,6 @@ ul.button_nav li:last-child {
 	vertical-align: bottom;
 }
 
-table.liste_materiel {
-	border-collapse: collapse;
-	font-size: 0.9em;
-}
-
 table.liste_materiel tr .libelle {
 	width: 340px;
 }
@@ -213,16 +226,8 @@ input[type=number].input_small {
 	text-align: center;
 }
 
-table.liste_materiel td {
-	background-color: white;
-	border: solid 1px gray;
-	padding: 0px 0px 0px 5px;
-}
-
 table.liste_materiel th {
 	text-align: left;
-	border: solid 1px gray;
-	padding: 2px 5px 2px 5px;
 }
 
 #ms-resultat_chercher_salle_select {
@@ -820,8 +825,6 @@ input.valide {
 	left: 5px;
 }
 
-
-
 /* Page de gestion des jours bloqués */
 
 #jours_bloques {
@@ -917,15 +920,17 @@ input.valide {
 #contenu_statistiques {
 	padding: 5px;
 }
-table.tbl_statistiques {
-	border-collapse: collapse;
-	width: 100%;
+
+/* Dialog répéter événement */
+#dialog_repeter h3 {
+	border-bottom: 1px solid #0187AA;
+	color: #0187AA;
+	margin: 10px 0px;
+	font-weight: normal;
 }
 
-table.tbl_statistiques th {
-	background-color: #ddd;
-}
-
-table.tbl_statistiques td, table.tbl_statistiques th {
-	border: 1px solid grey;
+#div_synthese {
+	margin-bottom: 10px;
+	max-height: 250px;
+	overflow: auto;
 }
