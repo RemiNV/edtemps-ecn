@@ -52,6 +52,17 @@ public class JoursBloquesServlet extends RequiresConnectionServlet {
 		}
 	}
 	
+	
+	/**
+	 * Récupérer tous les jours bloqués sur une période donnée
+	 * @param userId
+	 * @param bdd
+	 * @param req
+	 * @param resp
+	 * @throws ServletException
+	 * @throws IOException
+	 * @throws EdtempsException
+	 */
 	protected void doGetJoursBloques(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
 
 		// Récupère les paramètres
