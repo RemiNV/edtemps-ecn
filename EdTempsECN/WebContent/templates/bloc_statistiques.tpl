@@ -1,4 +1,4 @@
-<table class='tbl_statistiques'>
+<table class='tbl_statistiques tbl_standard'>
 	<tr>
 		<th></th>
 		<% for(var typeCours in statistiques) { %>

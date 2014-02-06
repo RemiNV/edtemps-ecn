@@ -292,7 +292,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 					
 					// Ajout du code html dans la liste de matériels
 					jqTableMateriel.append(str);
-					jqTableMateriel.addClass("liste_materiel");
+					jqTableMateriel.addClass("liste_materiel tbl_standard");
 			
 					// Ajout des masques sur les quantités de matériel
 					jqTableMateriel.find(".quantite input").each(function() {
