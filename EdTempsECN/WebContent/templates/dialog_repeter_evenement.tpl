@@ -51,6 +51,7 @@
 	</div>
 	<div class="boutons_valider">
 		<span id="btn_annuler" class="button">Annuler</span>
+		<span id="btn_previsualiser" class="button">Prévisualiser</span>
 		<span id="btn_executer" class="button">Exécuter</span> 
 	</div>
 </div>

@@ -131,4 +131,8 @@ public class Evenement {
 		this.responsables = responsables;
 	}
 	
+	@Override
+	public String toString() {
+		return nom;
+	}
 }
