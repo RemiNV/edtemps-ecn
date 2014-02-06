@@ -772,38 +772,38 @@
 
 /* jours bloqué */
 	/* Vacances */
-	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
 		VALUES ('Vacances de Noël', '2013-12-23 00:00:00', '2014-01-05 00:00:00', true);
 		
-	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
 		VALUES ('Vacances d''hiver', '2014-03-03 00:00:00', '2014-03-09 00:00:00', true);
 		
-	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
 		VALUES ('Vacances d''été', '2014-07-01 00:00:00', '2014-08-31 00:00:00', true);
 
 	/* Journées particulières */
-	INSERT INTO edt.joursbloques(jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances)
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
 		VALUES ('Forum Atlantique', '2013-11-13 08:00:00', '2013-11-13 00:18:00', false);
 		
 /* liaisons des jours bloqués aux groupes */
-	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
-		SELECT groupeparticipant_id, jourbloque_id
-		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
-		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances de Noël';
+	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
+		SELECT groupeparticipant_id, periodebloquee_id
+		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND periodebloquee_libelle = 'Vacances de Noël';
 
-	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
-		SELECT groupeparticipant_id, jourbloque_id
-		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
-		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances d''hiver';
+	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
+		SELECT groupeparticipant_id, periodebloquee_id
+		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND periodebloquee_libelle = 'Vacances d''hiver';
 		
-	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
-		SELECT groupeparticipant_id, jourbloque_id
-		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
-		WHERE groupeparticipant_nom='Elèves ingénieur' AND jourbloque_libelle = 'Vacances d''été';
+	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
+		SELECT groupeparticipant_id, periodebloquee_id
+		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
+		WHERE groupeparticipant_nom='Elèves ingénieur' AND periodebloquee_libelle = 'Vacances d''été';
 		
-	INSERT INTO edt.JoursBloquesAppartientGroupe(groupeparticipant_id, jourbloque_id)
-		SELECT groupeparticipant_id, jourbloque_id
-		FROM edt.groupeparticipant CROSS JOIN edt.joursbloques
-		WHERE groupeparticipant_nom='EI1' AND jourbloque_libelle = 'Forum Atlantique';
+	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
+		SELECT groupeparticipant_id, periodebloquee_id
+		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
+		WHERE groupeparticipant_nom='EI1' AND periodebloquee_libelle = 'Forum Atlantique';
 		
 COMMIT;

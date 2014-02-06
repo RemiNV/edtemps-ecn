@@ -12,11 +12,11 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
 /**
- * Classe modèle d'un jour bloqué
+ * Classe modèle d'une période bloquée : jours bloqués ou vacances
  * 
  * @author Joffrey
  */
-public class JourBloque implements JSONAble {
+public class PeriodeBloquee implements JSONAble {
 
 	/** Libellé */
 	protected String libelle;
@@ -27,7 +27,7 @@ public class JourBloque implements JSONAble {
 	/** Date de fin */
 	protected Date dateFin;
 	
-	/** Liste des groupes rattachés à ce jour bloqué */
+	/** Liste des groupes rattachés à cette période bloquée */
 	protected List<GroupeIdentifie> listeGroupes;
 	
 	/** VRAI si la période bloquée correspond à des vacances */
@@ -37,13 +37,13 @@ public class JourBloque implements JSONAble {
 	/** 
 	 * Constructeur avec les paramètres obligatoires
 	 * 
-	 * @param libelle Libellé du jour bloqué
-	 * @param dateDebut Date de début du jour bloqué
-	 * @param dateFin Date de fin du jour bloqué
-	 * @param listeGroupes Liste des groupes rattachés à ce jour bloqué
+	 * @param libelle Libellé de la période
+	 * @param dateDebut Date de début de la période
+	 * @param dateFin Date de fin de la période
+	 * @param listeGroupes Liste des groupes rattachés à la période
 	 * @param vacances VRAI si la période bloquée correspond à des vacances
 	 */
-	public JourBloque (String libelle, Date dateDebut, Date dateFin, List<GroupeIdentifie> listeGroupes, boolean vacances) {
+	public PeriodeBloquee (String libelle, Date dateDebut, Date dateFin, List<GroupeIdentifie> listeGroupes, boolean vacances) {
 		this.libelle = libelle;
 		this.dateDebut = dateDebut;
 		this.dateFin = dateFin;

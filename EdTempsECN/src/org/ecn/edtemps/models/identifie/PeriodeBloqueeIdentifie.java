@@ -9,29 +9,29 @@ import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
 import org.ecn.edtemps.json.JSONUtils;
-import org.ecn.edtemps.models.JourBloque;
+import org.ecn.edtemps.models.PeriodeBloquee;
 
 /**
- * Classe modèle identifiée d'un jour bloqué
+ * Classe modèle identifiée d'une période bloquée : jours bloqués ou vacances
  * 
  * @author Joffrey
  */
-public class JourBloqueIdentifie extends JourBloque implements JSONAble {
+public class PeriodeBloqueeIdentifie extends PeriodeBloquee implements JSONAble {
 
-	/** Identifiant du jour bloqué */
+	/** Identifiant de la période bloquée */
 	protected int id;
 
 	/** 
 	 * Constructeur avec les paramètres obligatoires
 	 * 
-	 * @param id Identifiant du jour bloqué
-	 * @param libelle Libellé du jour bloqué
-	 * @param dateDebut Date de début du jour bloqué
-	 * @param dateFin Date de fin du jour bloqué
-	 * @param listeGroupes Liste des groupes rattachés à ce jour bloqué
+	 * @param id Identifiant de la période
+	 * @param libelle Libellé de la période
+	 * @param dateDebut Date de début de la période
+	 * @param dateFin Date de fin de la période
+	 * @param listeGroupes Liste des groupes rattachés à la période
 	 * @param vacances VRAI si la période bloquée correspond à des vacances
 	 */
-	public JourBloqueIdentifie(int id, String libelle, Date dateDebut, Date dateFin, List<GroupeIdentifie> listeGroupes, boolean vacances) {
+	public PeriodeBloqueeIdentifie(int id, String libelle, Date dateDebut, Date dateFin, List<GroupeIdentifie> listeGroupes, boolean vacances) {
 		super(libelle, dateDebut, dateFin, listeGroupes, vacances);
 		this.id = id;
 	}
