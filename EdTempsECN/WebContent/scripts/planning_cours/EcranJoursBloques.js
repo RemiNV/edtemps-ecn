@@ -60,9 +60,15 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 	    	me.actualiserPage(1);
 	    });
 
-	    // Affecte les fonctions aux boutons de gestion et d'ajout
+	    // Affecte une action au bouton de gestion des vacances
 	    this.jqEcran.find("#bt_gestion_vacances").click(function() {  });
-	    this.jqEcran.find("#bt_ajout_auto").click(function() {  });
+	    
+	    // Affecte une action au bouton d'ajout automatique
+	    this.jqEcran.find("#bt_ajout_auto").click(function() {
+	    	me.jourBloqueGestion.ajouterAutoJourFerie(me.calendrierAnnee.getAnnee(), function() {
+	    		me.actualiserPage(0);
+	    	});
+	    });
 	    
 	    // Affecte une action au bouton d'ajout
 	    this.jqEcran.find("#bt_ajouter_jour_ferie").click(function() { 

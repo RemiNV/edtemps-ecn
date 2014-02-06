@@ -5,7 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
+import org.ecn.edtemps.models.JourFerie;
 import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
 
 /**
@@ -126,7 +130,7 @@ public class JourFerieGestion {
 		}
 		
 		// Vérifie que le libellé est bien alphanumérique
-		if(libelle.length() > TAILLE_MAX_LIBELLE || !StringUtils.isAlphanumericSpace(libelle)) {
+		if(libelle.length() > TAILLE_MAX_LIBELLE || !libelle.matches("^['a-zA-Z \u00C0-\u00FF0-9]+$")) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libelle d'un jour férié doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
 		}
 
@@ -173,7 +177,7 @@ public class JourFerieGestion {
 	 */
 	public void supprimerJourFerie(int id, int userId) throws EdtempsException {
 
-		// Vérifie que l'utilisateur est autoriser à gérer les jours fériés
+		// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
 		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
 		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
 			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
@@ -209,7 +213,7 @@ public class JourFerieGestion {
 		}
 		
 		// Vérifie que le libellé est bien alphanumérique
-		if(jour.getLibelle().length() > TAILLE_MAX_LIBELLE || !StringUtils.isAlphanumericSpace(jour.getLibelle())) {
+		if(jour.getLibelle().length() > TAILLE_MAX_LIBELLE || !jour.getLibelle().matches("^['a-zA-Z \u00C0-\u00FF0-9]+$")) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libelle d'un jour férié doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
 		}
 
@@ -279,4 +283,115 @@ public class JourFerieGestion {
 		}
 
 	}
+	
+	
+
+	/**
+	 * Ajouter automatiquement tous les jours de l'année
+	 * 
+	 * @param annee Numéro de l'année de départ (par exemple, ce serait 2013 pour l'année scolaire 2013-2014)
+	 * @param userId Identifiant de l'utilisateur qui fait la requête
+	 * @result une map dont la clé vaut le libellé du jour férié et la valeur vaux true si il y a eu ajout, false sinon 
+	 * @throws EdtempsException 
+	 */
+	public Map<String, Boolean> ajoutAutomatiqueJoursFeries(int annee, int userId) throws EdtempsException {
+
+		// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
+		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à gérer les jours fériés");
+		}
+
+		// Récupère la liste des jours fériés pour l'année scolaire en cours
+		List<JourFerie> listeJours = getJourFeries(annee);
+
+		// Prépare une map pour stocker les résultats d'ajout
+		Map<String, Boolean> mapJours = new HashMap<String, Boolean>(); 
+		
+		for (JourFerie jour : listeJours) {
+			try {
+				this.sauverJourFerie(jour.getLibelle(), jour.getDate(), userId);
+				mapJours.put(jour.getLibelle(), true);
+			} catch(EdtempsException e) {
+				if (e.getResultCode()==ResultCode.DAY_TAKEN) {
+					mapJours.put(jour.getLibelle(), false);
+				} else {
+					throw e;
+				}
+			}
+		}
+		
+		return mapJours;
+
+	}
+	
+	
+	/**
+	 * Recherche de la liste des jours fériés d'une année scolaire
+	 * 
+	 * @param annee Numéro de l'année de départ (par exemple, ce serait 2013 pour l'année scolaire 2013-2014)
+	 * @return la liste des jours fériés de l'année scolaire annee<>annee+1
+	 */
+	public List<JourFerie> getJourFeries(int annee) {
+		List<JourFerie> datesFeries = new ArrayList<JourFerie>();
+
+		datesFeries.add(new JourFerie("Jour de l'an", new GregorianCalendar(annee+1, 0, 1).getTime()));
+		datesFeries.add(new JourFerie("Fête du travail", new GregorianCalendar(annee+1, 4, 1).getTime()));
+		datesFeries.add(new JourFerie("8 mai", new GregorianCalendar(annee+1, 4, 8).getTime()));
+		datesFeries.add(new JourFerie("Armistice", new GregorianCalendar(annee, 10, 11).getTime()));
+		datesFeries.add(new JourFerie("Noël", new GregorianCalendar(annee, 11, 25).getTime()));
+		datesFeries.add(new JourFerie("Fête Nationale", new GregorianCalendar(annee+1, 6, 14).getTime()));
+		datesFeries.add(new JourFerie("Assomption", new GregorianCalendar(annee+1, 7, 15).getTime()));
+		datesFeries.add(new JourFerie("Toussaint", new GregorianCalendar(annee, 10, 1).getTime()));
+
+		// Lundi de pacques
+		GregorianCalendar pacques = calculLundiPacques(annee+1);
+		datesFeries.add(new JourFerie("Lundi de Pâcques", pacques.getTime()));
+
+		// Ascension (= pâques + 38 jours)
+		GregorianCalendar ascension = new GregorianCalendar(annee+1,
+				pacques.get(GregorianCalendar.MONTH),
+				pacques.get(GregorianCalendar.DAY_OF_MONTH));
+		ascension.add(GregorianCalendar.DAY_OF_MONTH, 38);
+		datesFeries.add(new JourFerie("Ascension", ascension.getTime()));
+
+		// Pentecôte (= pâques + 49 jours)
+		GregorianCalendar pentecote = new GregorianCalendar(annee+1,
+				pacques.get(GregorianCalendar.MONTH),
+				pacques.get(GregorianCalendar.DAY_OF_MONTH));
+		pentecote.add(GregorianCalendar.DAY_OF_MONTH, 49);
+		datesFeries.add(new JourFerie("Pentecôte", pentecote.getTime()));
+
+		return datesFeries;
+	}
+	
+	
+	/**
+	 * Calcule la date du lundi de Pacques de l'année
+	 * 
+	 * @param annee Année de calcul
+	 * @return la date du lundi de Pacques
+	 */
+	public GregorianCalendar calculLundiPacques(int annee) {
+		int a = annee / 100;
+		int b = annee % 100;
+		int c = (3 * (a + 25)) / 4;
+		int d = (3 * (a + 25)) % 4;
+		int e = (8 * (a + 11)) / 25;
+		int f = (5 * a + b) % 19;
+		int g = (19 * f + c - e) % 30;
+		int h = (f + 11 * g) / 319;
+		int j = (60 * (5 - d) + b) / 4;
+		int k = (60 * (5 - d) + b) % 4;
+		int m = (2 * j - k - g + h) % 7;
+		int n = (g - h + m + 114) / 31;
+		int p = (g - h + m + 114) % 31;
+		int jour = p + 1;
+		int mois = n;
+
+		GregorianCalendar date = new GregorianCalendar(annee, mois - 1, jour);
+		date.add(GregorianCalendar.DAY_OF_MONTH, 1);
+		return date;
+	}
+	
 }
