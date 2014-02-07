@@ -80,31 +80,23 @@ public class JourBloqueGestion {
 	 * 
 	 * @param debut Début de la période de recherche
 	 * @param fin Fin de la période de recherche
-	 * @param vacances
+	 * @param vacances Si non null, inclus uniquement les vacances (true) ou les non-vacances (false)
 	 * @return la liste des jours bloqués
 	 * @throws EdtempsException 
 	 */
-	public List<JourBloqueIdentifie> getJoursBloques(Date debut, Date fin, Boolean vacances) throws EdtempsException {
-
-		// Quelques vérifications sur les dates
-		if (debut==null || fin==null || debut.after(fin)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
-		}
+	public List<JourBloqueIdentifie> getJoursBloques(Date debut, Date fin, Boolean vacances) throws DatabaseException {
 
 		try {
 
 			String requeteString = "SELECT jourbloque_id, jourbloque_libelle, jourbloque_date_debut, jourbloque_date_fin, jourbloque_vacances" +
 					" FROM edt.joursbloques" +
-					" WHERE jourbloque_date_debut >= ? AND jourbloque_date_debut <= ?" +
-					" OR jourbloque_date_fin >= ? AND jourbloque_date_fin <= ?" +
+					" WHERE jourbloque_date_debut <= ? AND jourbloque_date_fin >= ?" +
 					(vacances==null ? "" : " AND jourbloque_vacances = "+vacances) + 
 					" ORDER BY jourbloque_date_debut";
 			
 			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(requeteString);
-			requetePreparee.setTimestamp(1, new java.sql.Timestamp(debut.getTime()));
-			requetePreparee.setTimestamp(2, new java.sql.Timestamp(fin.getTime()));
-			requetePreparee.setTimestamp(3, new java.sql.Timestamp(debut.getTime()));
-			requetePreparee.setTimestamp(4, new java.sql.Timestamp(fin.getTime()));
+			requetePreparee.setTimestamp(1, new java.sql.Timestamp(fin.getTime()));
+			requetePreparee.setTimestamp(2, new java.sql.Timestamp(debut.getTime()));
 			
 			// Récupère les jours en base
 			ResultSet requete = requetePreparee.executeQuery();
@@ -122,7 +114,7 @@ public class JourBloqueGestion {
 			return listeJours;
 
 		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 
 	}

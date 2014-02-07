@@ -59,6 +59,11 @@ public class JoursBloquesServlet extends RequiresConnectionServlet {
 		Date fin = this.getDateInRequest(req, "fin");
 		Boolean vacances = req.getParameter("vacances")=="" ? null : Boolean.valueOf(req.getParameter("vacances"));
 
+		// Quelques vérifications sur les dates
+		if (debut==null || fin==null || debut.after(fin)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
+		}
+		
 		// Exécute la requête de récupération avec le gestionnaire
 		JourBloqueGestion gestionnaireJoursBloques = new JourBloqueGestion(bdd);
 		List<JourBloqueIdentifie> resultat = gestionnaireJoursBloques.getJoursBloques(debut, fin, vacances);

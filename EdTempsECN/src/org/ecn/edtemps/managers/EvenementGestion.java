@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +19,8 @@ import org.ecn.edtemps.models.TestRepetitionEvenement.Probleme;
 import org.ecn.edtemps.models.TestRepetitionEvenement.ProblemeStatus;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
+import org.ecn.edtemps.models.identifie.JourBloqueIdentifie;
+import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.inflaters.AbsEvenementInflater;
 import org.ecn.edtemps.models.inflaters.EvenementCompletInflater;
@@ -850,6 +853,9 @@ public class EvenementGestion {
 			_bdd.startTransaction();
 		}
 		
+		JourFerieGestion jourFerieGestion = new JourFerieGestion(_bdd);
+		JourBloqueGestion jourBloqueGestion = new JourBloqueGestion(_bdd);
+		
 		// Récupération de l'événement à répéter
 		EvenementIdentifie evenement = getEvenement(idEvenement);
 		
@@ -894,11 +900,21 @@ public class EvenementGestion {
 				problemes.add(new Probleme(ProblemeStatus.PUBLIC_OCCUPE, "Public super-ultra-oversurbooké"));
 			}
 			
+			// Vérification de la présence d'un jour férié
+			Date debutJournee = DateUtils.ceiling(evenement.getDateDebut(), Calendar.DAY_OF_MONTH);
+			Date finJournee = DateUtils.addSeconds(debutJournee, 3600*23 + 60*59 + 59);
+			List<JourFerieIdentifie> joursFeries = jourFerieGestion.getJoursFeries(debutJournee, finJournee);
+			
+			if(joursFeries.size() > 0) {
+				problemes.add(new Probleme(ProblemeStatus.JOUR_BLOQUE, joursFeries.get(0).getLibelle()));
+			}
+			
 			// Vérification de la présence d'un jour bloqué
+			List<JourBloqueIdentifie> joursBloques = jourBloqueGestion.getJoursBloques(newDateDebut, newDateFin, null);
 			
-			// TODO : vérifier ceci
-			
-			
+			if(joursBloques.size() > 0) {
+				problemes.add(new Probleme(ProblemeStatus.JOUR_BLOQUE, joursBloques.get(0).getLibelle()));
+			}
 			
 			// Ajout au résultat
 			String num;

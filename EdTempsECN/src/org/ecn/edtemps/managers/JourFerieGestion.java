@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
@@ -66,12 +67,7 @@ public class JourFerieGestion {
 	 * @return la liste des jours fériés
 	 * @throws EdtempsException 
 	 */
-	public List<JourFerieIdentifie> getJoursFeries(Date debut, Date fin) throws EdtempsException {
-
-		// Quelques vérifications sur les dates
-		if (debut==null || fin==null || debut.after(fin)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
-		}
+	public ArrayList<JourFerieIdentifie> getJoursFeries(Date debut, Date fin) throws DatabaseException {
 		
 		try {
 
@@ -90,7 +86,7 @@ public class JourFerieGestion {
 			logger.info("Récupération de la liste des jours fériés dans la base de données, pour la période du "+debut+" au "+fin);
 
 			// Parcours le résultat de la requête
-			List<JourFerieIdentifie> listeJours = new ArrayList<JourFerieIdentifie>();
+			ArrayList<JourFerieIdentifie> listeJours = new ArrayList<JourFerieIdentifie>();
 			while (requete.next()) {
 				listeJours.add(this.inflateJourFerieFromRow(requete));
 			}
@@ -101,7 +97,7 @@ public class JourFerieGestion {
 			return listeJours;
 
 		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 
 	}

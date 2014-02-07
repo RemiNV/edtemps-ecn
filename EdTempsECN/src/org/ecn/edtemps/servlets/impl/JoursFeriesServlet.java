@@ -103,6 +103,11 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		// Récupère les paramètres
 		Date debut = this.getDateInRequest(req, "debut");
 		Date fin = this.getDateInRequest(req, "fin");
+		
+		// Quelques vérifications sur les dates
+		if (debut==null || fin==null || debut.after(fin)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
+		}
 
 		// Exécute la requête de récupération avec le gestionnaire
 		JourFerieGestion gestionnaireJoursFeries = new JourFerieGestion(bdd);
