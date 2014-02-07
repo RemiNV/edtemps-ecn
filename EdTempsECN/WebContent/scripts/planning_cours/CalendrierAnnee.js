@@ -85,7 +85,7 @@ define([  ], function() {
 		
 	    // Affecte la fonction de callback sur les jours cliquables
 	    this.jqEcran.find(".jour").click(function() {
-	    	me.callback(stringToDate($(this).attr("id")));
+	    	me.callback(stringToDate($(this).attr("id")), $(this));
 	    });
 	    
 	};

@@ -2,7 +2,7 @@
  * Module de gestion des jours bloqués
  * @module JourBloqueGestion
  */
-define([ "RestManager" ], function(RestManager) {
+define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManager) {
 
 	/**
 	 * @constructor
@@ -280,8 +280,9 @@ define([ "RestManager" ], function(RestManager) {
 			var debut = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
 			var fin = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
 			
-			if ((jour.dateDebut >= debut.getTime() && jour.dateDebut <= fin.getTime()) &&
-					(jour.dateFin >= debut.getTime() && jour.dateFin <= fin.getTime())) {
+			if (jour.dateDebut >= debut.getTime() && jour.dateDebut <= fin.getTime()) {
+				jour.strHeureDebut = $.fullCalendar.formatDate(new Date(jour.dateDebut), "HH:mm");
+				jour.strHeureFin = $.fullCalendar.formatDate(new Date(jour.dateFin), "HH:mm");
 				liste.push(jour);
 			}
 		}

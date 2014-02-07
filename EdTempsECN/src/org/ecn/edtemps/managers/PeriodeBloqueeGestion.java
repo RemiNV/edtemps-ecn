@@ -48,8 +48,8 @@ public class PeriodeBloqueeGestion {
 	private PeriodeBloqueeIdentifie inflatePeriodeBloqueeFromRow(ResultSet row) throws SQLException, DatabaseException {
 		int id = row.getInt("periodebloquee_id");
 		String libelle = row.getString("periodebloquee_libelle");
-		Date dateDebut = row.getDate("periodebloquee_date_debut");
-		Date dateFin = row.getDate("periodebloquee_date_fin");
+		Date dateDebut = row.getTimestamp("periodebloquee_date_debut");
+		Date dateFin = row.getTimestamp("periodebloquee_date_fin");
 		boolean vacances = row.getBoolean("periodebloquee_vacances");
 		
 		// Récupération des groupes associés
