@@ -82,7 +82,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 
 				// Trie les jours dans un objet indexé par identifiant
 				for (var i=0, maxI=me.joursFeries.length; i<maxI; i++) {
-					me.joursFeries[i].dateString = dateToString(me.joursFeries[i].date);
+					me.joursFeries[i].dateString = $.fullCalendar.formatDate(new Date(me.joursFeries[i].date), "dd/MM/yyyy");
 					me.joursFeriesTries[me.joursFeries[i].id] = me.joursFeries[i];
 				}
 
@@ -283,6 +283,15 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 			if (jour.dateDebut >= debut.getTime() && jour.dateDebut <= fin.getTime()) {
 				jour.strHeureDebut = $.fullCalendar.formatDate(new Date(jour.dateDebut), "HH:mm");
 				jour.strHeureFin = $.fullCalendar.formatDate(new Date(jour.dateFin), "HH:mm");
+
+				// Créer une chaîne de caractère des noms de groupes associés à ce jour
+				var str = "";
+				for (var j=0, maxJ=jour.listeGroupes.length; j<maxJ; j++) {
+					if (str!="") str += ", ";
+					str += jour.listeGroupes[j].nom;
+				}
+				jour.strGroupesAssocies = str;
+
 				liste.push(jour);
 			}
 		}
@@ -290,18 +299,6 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		return liste;
 		
 	};
-	
-	
-	/**
-	 * Formatter une date (en JJ/MM/AAAA) à partir d'un getTime de date
-	 */
-	function dateToString(getTime) {
-		var date = new Date(getTime);
-		
-		return (date.getDate() >= 10 ? "" : "0") + date.getDate() + "/" +
-			   (date.getMonth()+1 >= 10 ? "" : "0") + (date.getMonth()+1) + "/" +
-			   date.getFullYear();
-	}
 
 	
 	return JourBloqueGestion;

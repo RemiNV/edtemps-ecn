@@ -962,4 +962,5 @@ input.valide {
 
 .details_jourbloque table img {
 	margin: 5px;
+	cursor: pointer;
 }

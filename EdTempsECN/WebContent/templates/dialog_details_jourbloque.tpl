@@ -3,10 +3,9 @@
 	<%
 		_.each(elements, function(e) {
 			%>
-			<tr>
+			<tr title="<%= e.strGroupesAssocies %>">
 				<td width="300"><%= e.libelle %></td>
-				<td width="60"><%= e.strHeureDebut %></td>
-				<td width="60"><%= e.strHeureFin %></td>
+				<td width="120"><%= e.strHeureDebut %> - <%= e.strHeureFin %></td>
 				<td width="40"><img src='./img/modifier.png' title='Modifier' /></td>
 				<td width="40"><img src='./img/supprimer.png' title='Supprimer' /></td>
 			</tr>

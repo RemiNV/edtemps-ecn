@@ -58,6 +58,7 @@ public class PeriodeBloqueeGestion {
 					"groupeparticipant.groupeparticipant_estcours, groupeparticipant.groupeparticipant_estcalendrierunique, groupeparticipant.groupeparticipant_createur" +
 					" FROM edt.groupeparticipant" +
 					" INNER JOIN edt.periodesbloqueesappartientgroupe ON periodesbloqueesappartientgroupe.groupeparticipant_id = groupeparticipant.groupeparticipant_id" +
+					" WHERE periodesbloqueesappartientgroupe.periodebloquee_id=" + id +
 					" ORDER BY groupeparticipant.groupeparticipant_nom");
 		
 		List<GroupeIdentifie> listeGroupes = new ArrayList<GroupeIdentifie>();
