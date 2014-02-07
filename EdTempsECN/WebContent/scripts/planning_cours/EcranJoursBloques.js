@@ -39,12 +39,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		    me.afficherTableauJoursFeries();
 
 		    // Affiche le calendrier
-			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_bloques"), annee, joursSpeciaux, function(date, data, object) {
-				if (data==null) {
-					alert("le " + date);
-				} else {
-					alert("le " + date + " c'est : " + data.libelle);
-				}
+			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_bloques"), annee, joursSpeciaux, function(date) {
+				me.clickSurUnJour(date);
 			});
 						
 			// Affiche l'écran
@@ -155,7 +151,35 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
     	
 	};
 
+
+	/**
+	 * L'utiliateur a cliqué sur un jour
+	 * 
+	 * @param {date} date Date du jour cliqué
+	 */
+	EcranJoursBloques.prototype.clickSurUnJour = function(date) {
+		
+		// Récupère la liste des événemnts bloquants sur cette journée
+		var listeEvenementsBloquants = this.jourBloqueGestion.getJoursBloquesParJour(date);
+		
+		if (listeEvenementsBloquants.length == 0) {
+			// TODO afficher la boite de dialogue de création de périodes bloquées
+			alert("Rien aujourd'hui");
+		} else {
+			this.afficherDialogDetailJoursBloques(listeEvenementsBloquants);
+		}
+    	
+	};
+
 	
+	/**
+	 * Affiche la bulle de détail d'un jour bloqué
+	 * 
+	 * @param {Array} listeEvenementsBloquants liste des événemnts bloquants sur cette journée
+	 */
+	EcranJoursBloques.prototype.afficherDialogDetailJourBloque = function(listeEvenementsBloquants) {
+		
+	};
 		
 	return EcranJoursBloques;
 });
