@@ -783,7 +783,9 @@
 
 	/* Journées particulières */
 	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
-		VALUES ('Forum Atlantique', '2013-11-13 08:00:00', '2013-11-13 00:18:00', false);
+		VALUES ('Forum Atlantique Promo A', '2013-11-13 08:00:00', '2013-11-13 12:00:00', false);
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
+		VALUES ('Forum Atlantique Promo B', '2013-11-13 14:00:00', '2013-11-13 18:00:00', false);
 		
 /* liaisons des jours bloqués aux groupes */
 	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
@@ -804,6 +806,11 @@
 	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
 		SELECT groupeparticipant_id, periodebloquee_id
 		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
-		WHERE groupeparticipant_nom='EI1' AND periodebloquee_libelle = 'Forum Atlantique';
+		WHERE groupeparticipant_nom='EI1' AND periodebloquee_libelle = 'Forum Atlantique Promo A';
 		
+	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
+		SELECT groupeparticipant_id, periodebloquee_id
+		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
+		WHERE groupeparticipant_nom='EI1' AND periodebloquee_libelle = 'Forum Atlantique Promo B';
+
 COMMIT;
