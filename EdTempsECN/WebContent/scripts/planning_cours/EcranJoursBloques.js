@@ -21,6 +21,22 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		// Template pour la dialogue de détails des jours bloqués
 		this.templateDialogDetails = _.template(tplDialogDetailsJourBloque);
 		
+		// Action lors du clic dans la page, lorsque la dialogue de détail est ouverte
+		var closeDialogDetailsCallback = function(event) {
+			if(!me.jqDialogDetailsJourBloque.dialog("isOpen")) {
+				return;
+			}
+			
+			// On n'est pas à l'intérieur d'une dialog
+			var jqTarget = $(event.target);
+			if(!jqTarget.is(".ui_dialog")
+					&& jqTarget.closest(".ui-dialog").length == 0
+					&& jqTarget.closest(".jour").length == 0) {
+				me.jqDialogDetailsJourBloque.dialog("close");
+				return false;
+			}
+		};
+		
 		// Préparation de la dialogue de détails des jours bloqués
 		this.jqDialogDetailsJourBloque.dialog({
 			autoOpen: false,
