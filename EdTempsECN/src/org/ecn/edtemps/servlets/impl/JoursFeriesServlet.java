@@ -89,7 +89,7 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 	
 	
 	/**
-	 * Récupération de tous les jours fériés sur une période donnée
+	 * Récupérer tous les jours fériés sur une période donnée
 	 * @param userId
 	 * @param bdd
 	 * @param req

@@ -274,25 +274,25 @@ CREATE TABLE edt.joursferies (
 );
 ALTER SEQUENCE edt.joursferies_jourferie_id_seq OWNER TO "edtemps-ecn";
 
-CREATE SEQUENCE edt.joursbloques_jourbloque_id_seq;
-CREATE TABLE edt.joursbloques (
-				jourbloque_id INTEGER NOT NULL DEFAULT nextval('edt.joursbloques_jourbloque_id_seq'),
-                jourbloque_libelle VARCHAR NOT NULL,
-                jourbloque_date_debut TIMESTAMP NOT NULL,
-                jourbloque_date_fin TIMESTAMP NOT NULL,
-				jourbloque_vacances BOOLEAN NOT NULL,
-                CONSTRAINT jourbloque_id PRIMARY KEY (jourbloque_id)
+CREATE SEQUENCE edt.periodesbloquees_periodebloquee_id_seq;
+CREATE TABLE edt.periodesbloquees (
+				periodebloquee_id INTEGER NOT NULL DEFAULT nextval('edt.periodesbloquees_periodebloquee_id_seq'),
+                periodebloquee_libelle VARCHAR NOT NULL,
+                periodebloquee_date_debut TIMESTAMP NOT NULL,
+                periodebloquee_date_fin TIMESTAMP NOT NULL,
+				periodebloquee_vacances BOOLEAN NOT NULL,
+                CONSTRAINT periodebloquee_id PRIMARY KEY (periodebloquee_id)
 );
-ALTER SEQUENCE edt.joursbloques_jourbloque_id_seq OWNER TO "edtemps-ecn";
+ALTER SEQUENCE edt.periodesbloquees_periodebloquee_id_seq OWNER TO "edtemps-ecn";
 
-CREATE SEQUENCE edt.joursbloquesappartientgroupe_id_seq;
-CREATE TABLE edt.JoursBloquesAppartientGroupe (
-				joursbloquesappartientgroupe_id INTEGER NOT NULL DEFAULT nextval('edt.joursbloquesappartientgroupe_id_seq'),
+CREATE SEQUENCE edt.periodesbloqueesappartientgroupe_id_seq;
+CREATE TABLE edt.PeriodesBloqueesAppartientGroupe (
+				periodesbloqueesappartientgroupe_id INTEGER NOT NULL DEFAULT nextval('edt.periodesbloqueesappartientgroupe_id_seq'),
 				groupeParticipant_id INTEGER NOT NULL,
-                jourbloque_id INTEGER NOT NULL,
-                CONSTRAINT joursbloquesappartientgroupe_id PRIMARY KEY (joursbloquesappartientgroupe_id)
+                periodebloquee_id INTEGER NOT NULL,
+                CONSTRAINT periodesbloqueesappartientgroupe_id PRIMARY KEY (periodesbloqueesappartientgroupe_id)
 );
-ALTER SEQUENCE edt.joursbloquesappartientgroupe_id_seq OWNER TO "edtemps-ecn";
+ALTER SEQUENCE edt.periodesbloqueesappartientgroupe_id_seq OWNER TO "edtemps-ecn";
 
 
 ALTER TABLE edt.ALieuenSalle ADD CONSTRAINT salle_alieuensalle_fk
@@ -505,16 +505,16 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE edt.JoursBloquesAppartientGroupe ADD CONSTRAINT groupeparticipant_joursbloquesappartientgroupe_fk
+ALTER TABLE edt.PeriodesBloqueesAppartientGroupe ADD CONSTRAINT groupeparticipant_periodesbloqueesappartientgroupe_fk
 FOREIGN KEY (groupeParticipant_id)
 REFERENCES edt.GroupeParticipant (groupeParticipant_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE edt.JoursBloquesAppartientGroupe ADD CONSTRAINT joursbloques_joursbloquesappartientgroupe_fk
-FOREIGN KEY (jourbloque_id)
-REFERENCES edt.JoursBloques (jourbloque_id)
+ALTER TABLE edt.PeriodesBloqueesAppartientGroupe ADD CONSTRAINT periodebloquee_periodesbloqueesappartientgroupe_fk
+FOREIGN KEY (periodebloquee_id)
+REFERENCES edt.periodesbloquees (periodebloquee_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
@@ -542,6 +542,6 @@ ALTER TABLE edt.estdetype OWNER TO "edtemps-ecn";
 ALTER TABLE edt.droits OWNER TO "edtemps-ecn";
 ALTER TABLE edt.aledroitde OWNER TO "edtemps-ecn";
 ALTER TABLE edt.administrateurs OWNER TO "edtemps-ecn";
-ALTER TABLE edt.joursbloques OWNER TO "edtemps-ecn";
+ALTER TABLE edt.periodesbloquees OWNER TO "edtemps-ecn";
 ALTER TABLE edt.joursferies OWNER TO "edtemps-ecn";
-ALTER TABLE edt.joursbloquesappartientgroupe OWNER TO "edtemps-ecn";
+ALTER TABLE edt.periodesbloqueesappartientgroupe OWNER TO "edtemps-ecn";

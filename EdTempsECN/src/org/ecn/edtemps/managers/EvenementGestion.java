@@ -19,8 +19,8 @@ import org.ecn.edtemps.models.TestRepetitionEvenement.Probleme;
 import org.ecn.edtemps.models.TestRepetitionEvenement.ProblemeStatus;
 import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
-import org.ecn.edtemps.models.identifie.JourBloqueIdentifie;
 import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
+import org.ecn.edtemps.models.identifie.PeriodeBloqueeIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.inflaters.AbsEvenementInflater;
 import org.ecn.edtemps.models.inflaters.EvenementCompletInflater;
@@ -854,7 +854,7 @@ public class EvenementGestion {
 		}
 		
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(_bdd);
-		JourBloqueGestion jourBloqueGestion = new JourBloqueGestion(_bdd);
+		PeriodeBloqueeGestion periodeBloqueeGestion = new PeriodeBloqueeGestion(_bdd);
 		
 		// Récupération de l'événement à répéter
 		EvenementIdentifie evenement = getEvenement(idEvenement);
@@ -909,11 +909,11 @@ public class EvenementGestion {
 				problemes.add(new Probleme(ProblemeStatus.JOUR_BLOQUE, joursFeries.get(0).getLibelle()));
 			}
 			
-			// Vérification de la présence d'un jour bloqué
-			List<JourBloqueIdentifie> joursBloques = jourBloqueGestion.getJoursBloques(newDateDebut, newDateFin, null);
+			// Vérification de la présence d'une période bloquée
+			List<PeriodeBloqueeIdentifie> periodesBloquees = periodeBloqueeGestion.getPeriodesBloquees(newDateDebut, newDateFin, null);
 			
-			if(joursBloques.size() > 0) {
-				problemes.add(new Probleme(ProblemeStatus.JOUR_BLOQUE, joursBloques.get(0).getLibelle()));
+			if(periodesBloquees.size() > 0) {
+				problemes.add(new Probleme(ProblemeStatus.JOUR_BLOQUE, periodesBloquees.get(0).getLibelle()));
 			}
 			
 			// Ajout au résultat

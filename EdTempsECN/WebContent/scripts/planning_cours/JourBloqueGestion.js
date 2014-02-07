@@ -14,18 +14,18 @@ define([ "RestManager" ], function(RestManager) {
 		
 		// Listes non ordonnées
 		this.joursFeries = new Array();
-		this.joursBloques = new Array();
+		this.periodesBloquees = new Array();
 
 		// Listes indexées par les identifiants des jours
 		this.joursFeriesTries = new Object();
-		this.joursBloquesTries = new Object();
+		this.periodesBloqueesTries = new Object();
 	};
 	
 
 	/**
-	 * Récupérer les jours bloqués et fériés d'une année
+	 * Récupérer les périodes bloquées et jours fériés d'une année scolaire
 	 * 
-	 * @param {int} annee Numéro de l'année
+	 * @param {int} annee Numéro de l'année de début
 	 * @param {function} callback Méthode exécutée en retour
 	 */
 	JourBloqueGestion.prototype.recupererJoursSpeciauxAnnee = function(annee, callback) {
@@ -37,7 +37,6 @@ define([ "RestManager" ], function(RestManager) {
 		// Affiche le message de chargement en cours
 		this.jqEcran.find("#chargement_en_cours").show();
 		
-		// Recherche les jours fériés puis les jours bloqués
 		this.getJoursFeries(annee, dateDebut, dateFin, function() {
 			
 			// Ajoute les jours fériés dans la liste des jours spéciaux
@@ -46,11 +45,11 @@ define([ "RestManager" ], function(RestManager) {
 				joursSpeciaux.push(me.joursFeries[i]);
 			}
 			
-			me.getJoursBloques(annee, dateDebut, dateFin, function() {
+			me.getPeriodesBloquees(annee, dateDebut, dateFin, function() {
 				
-				// Ajoute les jours bloqués dans la liste des jours spéciaux
-				for (var i=0, maxI=me.joursBloques.length; i<maxI; i++) {
-					joursSpeciaux.push(me.joursBloques[i]);
+				// Ajoute les périodes bloquées dans la liste des jours spéciaux
+				for (var i=0, maxI=me.periodesBloquees.length; i<maxI; i++) {
+					joursSpeciaux.push(me.periodesBloquees[i]);
 				}
 
 				// Cache le message de chargement en cours
@@ -65,9 +64,9 @@ define([ "RestManager" ], function(RestManager) {
 	
 	
 	/**
-	 * Récupérer les jours fériés d'une année
+	 * Récupérer les jours fériés d'une année scolaire
 	 * 
-	 * @param {int} annee Numéro de l'année
+	 * @param {int} annee Numéro de l'année de début
 	 * @param {date} dateDebut Date de début pour la recherche
 	 * @param {date} dateFin Date de fin pour la recherche
 	 * @param {function} callback Méthode exécutée en retour : elle reçoit les jours fériés
@@ -101,34 +100,34 @@ define([ "RestManager" ], function(RestManager) {
 	
 	
 	/**
-	 * Récupérer les jours bloqués et vacances d'une année
+	 * Récupérer les périodes bloquées d'une année scolaire
 	 * 
-	 * @param {int} annee Numéro de l'année
+	 * @param {int} annee Numéro de l'année de début
 	 * @param {date} dateDebut Date de début pour la recherche
 	 * @param {date} dateFin Date de fin pour la recherche
-	 * @param {function} callback Méthode exécutée en retour : elle reçoit les jours bloqués
+	 * @param {function} callback Méthode exécutée en retour : elle reçoit les périodes bloquées
 	 */
-	JourBloqueGestion.prototype.getJoursBloques = function(annee, dateDebut, dateFin, callback) {
+	JourBloqueGestion.prototype.getPeriodesBloquees = function(annee, dateDebut, dateFin, callback) {
 		var me = this;
 		
-		this.restManager.effectuerRequete("GET", "joursbloques/getJoursBloques", {
+		this.restManager.effectuerRequete("GET", "periodesbloquees/getperiodesbloquees", {
 			token: this.restManager.getToken(), debut: dateDebut, fin: dateFin, vacances: null
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 
-				// Stocke la liste des jours fériés dans la variable de module
-				me.joursBloques = data.data.listeJoursBloques;
+				// Stocke la liste des périodes bloquées dans la variable de module
+				me.periodesBloquees = data.data.listePeriodesBloquees;
 
 				// Trie les jours dans un objet
-				for (var i=0, maxI=me.joursBloques.length; i<maxI; i++) {
-					me.joursBloquesTries[me.joursBloques[i].id] = me.joursBloques[i];
+				for (var i=0, maxI=me.periodesBloquees.length; i<maxI; i++) {
+					me.periodesBloqueesTries[me.periodesBloquees[i].id] = me.periodesBloquees[i];
 				}
 
 				// Appelle la méthode de retour
 				callback();
 				
 			} else {
-				window.showToast("Erreur lors de la récupération de la liste des jours bloqués et des vacances ; vérifiez votre connexion.");
+				window.showToast("Erreur lors de la récupération de la liste des périodes bloquées ; vérifiez votre connexion.");
 			}
 		});
 		

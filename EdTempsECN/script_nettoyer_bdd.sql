@@ -10,9 +10,9 @@ DROP SEQUENCE IF EXISTS edt.typeutilisateur_type_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.droits_droits_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.administrateurs_admin_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.calendrierappartientgroupe_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS edt.joursbloques_jourbloque_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS edt.periodesbloquees_periodebloquee_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.joursferies_jourferie_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS edt.joursbloquesappartientgroupe_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS edt.periodesbloqueesappartientgroupe_id_seq CASCADE;
 
 DROP TABLE IF EXISTS edt.salle CASCADE;
 DROP TABLE IF EXISTS edt.materiel CASCADE;
@@ -39,8 +39,8 @@ DROP TABLE IF EXISTS edt.droits CASCADE;
 DROP TABLE IF EXISTS edt.aledroitde CASCADE;
 DROP TABLE IF EXISTS edt.administrateurs CASCADE;
 DROP TABLE IF EXISTS edt.joursferies CASCADE;
-DROP TABLE IF EXISTS edt.joursbloques CASCADE;
-DROP TABLE IF EXISTS edt.joursbloquesappartientgroupe CASCADE;
+DROP TABLE IF EXISTS edt.periodesbloquees CASCADE;
+DROP TABLE IF EXISTS edt.periodesbloqueesappartientgroupe CASCADE;
 
 DROP FUNCTION IF EXISTS edt.update_groupeparticipant_aparentcours();
 DROP FUNCTION IF EXISTS edt.set_groupeparticipant_aparentcours();

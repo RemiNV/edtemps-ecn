@@ -162,8 +162,8 @@
   </servlet>
 
   <servlet>
-      <servlet-name>JoursBloques</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.impl.JoursBloquesServlet</servlet-class>
+      <servlet-name>PeriodesBloquees</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.PeriodesBloqueesServlet</servlet-class>
   </servlet>
   
   <servlet>
@@ -332,8 +332,8 @@
   </servlet-mapping>
 
   <servlet-mapping>
-      <servlet-name>JoursBloques</servlet-name>
-      <url-pattern>/joursbloques/*</url-pattern>
+      <servlet-name>PeriodesBloquees</servlet-name>
+      <url-pattern>/periodesbloquees/*</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
