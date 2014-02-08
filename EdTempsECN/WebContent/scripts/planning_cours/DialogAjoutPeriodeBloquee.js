@@ -1,20 +1,21 @@
 /**
- * Module de contrôle de la boîte de dialogue d'ajout/modification d'un jour férié
- * @module DialogAjoutJourFerie
+ * Module de contrôle de la boîte de dialogue d'ajout/modification d'une période bloquée
+ * @module DialogAjoutPeriodeBloquee
  */
 define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 
 	/**
 	 * @constructor
-	 * @alias DialogAjoutJourFerie
+	 * @alias DialogAjoutPeriodeBloquee
 	 */
-	var DialogAjoutJourFerie = function(restManager, jqDialog, ecranJoursBloques) {
+	var DialogAjoutPeriodeBloquee = function(restManager, jqDialog, ecranJoursBloques) {
 		this.restManager = restManager;
 		this.ecranJoursBloques = ecranJoursBloques;
 		this.jqDialog = jqDialog;
 		this.jqLibelle = jqDialog.find("#txt_libelle");
-		this.jqDate = jqDialog.find("#date_jour_ferie");
-		this.jour = null; // Est rempli dans le cas d'une modification
+		this.jqDateDebut = jqDialog.find("#date_debut");
+		this.jqDateFin = jqDialog.find("#date_fin");
+		this.periode = null; // Est rempli dans le cas d'une modification
 		
 		this.initAppele = false;
 	};
@@ -23,12 +24,11 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	/**
 	 * Affiche la boîte de dialogue
 	 * 
-	 * @param {object} jour Objet jour qui peut être null dans le cas d'ajout.
-	 * 		  sinon, il doit contenir les attributs suivants: id, libelle, date et dateStr
+	 * @param {object} periode Objet periode qui peut être null dans le cas d'ajout.
 	 * @param {function} callback Méthode appellée au clic sur Valider
-	 * 
+	 * @param {boolean} vacances Vaut vrai si on est dans l'édition de vacances
 	 */
-	DialogAjoutJourFerie.prototype.show = function(jour, callback) {
+	DialogAjoutPeriodeBloquee.prototype.show = function(periode, callback, vacances) {
 		if(!this.initAppele) {
 			this.init(jour, callback);
 			return;
@@ -36,15 +36,17 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 		
 		// Récupère les paramètres
 		this.callback = callback;
-		this.jour = jour;
+		this.periode = periode;
+		this.vacances = vacances;
 		
 		// Rempli les champs dans le cas de la modification
 		if (this.jour != null) {
-			this.jqDialog.dialog({ title: "Modification d'un jour férié" });
-			this.jqLibelle.val(jour.libelle);
-			this.jqDate.val(jour.dateString);
+			this.jqDialog.dialog({ title: "Modification " + (vacances ? "d'une période de vacances" : "d'un jour bloqué") });
+			this.jqLibelle.val(periode.libelle);
+			this.jqDateDebut.val(periode.dateDebutString);
+			this.jqDateFin.val(periode.dateFinString);
 		} else {
-			this.jqDialog.dialog({ title: "Ajout d'un jour férié" });
+			this.jqDialog.dialog({ title: "Ajout " + (vacances ? "d'une période de vacances" : "d'un jour bloqué") });
 		}
 
 		// Ouvre la boîte de dialogue
@@ -58,7 +60,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	 * @param {object} jour Objet jour qui peut être null dans le cas d'ajout
 	 * @param {function} callback Méthode appellée au clic sur Valider
 	 */
-	DialogAjoutJourFerie.prototype.init = function(jour, callback) {
+	DialogAjoutPeriodeBloquee.prototype.init = function(jour, callback) {
 		var me=this;
 		
 		// Créer la boîte de dialogue
@@ -71,16 +73,17 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 			hide: { effect: "explode", duration: 200 },
 			close: function() {
 				me.jqLibelle.val("");
-				me.jqDate.val("");
-				me.jour = null;
+				me.jqDateDebut.val("");
+				me.jqDateFin.val("");
+				me.periode = null;
 				me.jqDialog.find(".message_alerte").hide();
 			}
 		});
 		
-        // Ajout du datepicker sur le champ date
-        this.jqDate.datepicker({
+        // Ajout du datepicker sur le champ date début
+        var optionsDatepicker = {
             showAnim : 'slideDown',
-            showOn: 'button', // "both" pourrait être utilisé mais le datepicker serait ouvert à l'ouverture de la dialog (focus sur le champ)
+            showOn: 'both',
             buttonText: "Calendrier",
             dateFormat: "dd/mm/yy",
             buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
@@ -94,10 +97,12 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
             nextText: "Suivant",
             constrainInput: true,
             firstDay: 1
-        });
+        };
+        this.jqDateDebut.datepicker(optionsDatepicker);
+        this.jqDateFin.datepicker(optionsDatepicker);
 		
 		// Listener du bouton "Fermer"
-		this.jqDialog.find("#btn_annuler_ajout_jour_ferie").click(function() {
+		this.jqDialog.find("#btn_annuler_ajout_jour_bloque").click(function() {
 			me.jqDialog.dialog("close");
 		});
 
@@ -129,7 +134,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	 * 
 	 * @param {date} date La date formatée
 	 */
-	DialogAjoutJourFerie.prototype.valider = function(date) {
+	DialogAjoutPeriodeBloquee.prototype.valider = function(date) {
 		
 		// Continue si tout va bien
 		if (this.isCorrect()) {
@@ -144,7 +149,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	/**
 	 * Vérifie que les champs saisis sont corrects et retourne vrai ou faux
 	 */
-	DialogAjoutJourFerie.prototype.isCorrect = function() {
+	DialogAjoutPeriodeBloquee.prototype.isCorrect = function() {
 		var correct = true;
 
 		// Cache tous les messages d'alerte
@@ -168,6 +173,6 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 		return correct;
 	};
 	
-	return DialogAjoutJourFerie;
+	return DialogAjoutPeriodeBloquee;
 
 });
