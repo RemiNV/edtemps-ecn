@@ -30,6 +30,10 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		jqBloc.find("#btn_previsualiser").click(function(e) {
 			me.lancerPrevisualisation();
 		});
+		
+		jqBloc.find("#btn_annuler").click(function(e) {
+			jqBloc.dialog("close");
+		});
 	};
 
 	/**

@@ -18,7 +18,7 @@
 				<th>Num.</th><th>Date</th><th>Statut</th><th>Action</th>
 			</tr>
 			<% _.each(synthese, function(element, index) { %>
-				<tr class='<%= element.problemes.length > 0 ? (element.resteProblemes ? 'invalide' : 'warning') : '' %>'>
+				<tr class='<%= element.problemes.length > 0 ? (element.resteProblemes ? 'ignorer' : 'warning') : '' %>'>
 					<td><%= (element.resteProblemes ? '(' + element.num + ')' : element.num) %></td>
 					<td><%= element.strDate %></td>
 					<td><%= element.strProblemes %></td>
