@@ -70,6 +70,11 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 		Date fin = this.getDateInRequest(req, "fin");
 		Boolean vacances = req.getParameter("vacances")=="" ? null : Boolean.valueOf(req.getParameter("vacances"));
 
+		// Quelques vérifications sur les dates
+		if (debut==null || fin==null || debut.after(fin)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
+		}
+		
 		// Exécute la requête de récupération avec le gestionnaire
 		PeriodeBloqueeGestion gestionnaire = new PeriodeBloqueeGestion(bdd);
 		List<PeriodeBloqueeIdentifie> resultat = gestionnaire.getPeriodesBloquees(debut, fin, vacances);

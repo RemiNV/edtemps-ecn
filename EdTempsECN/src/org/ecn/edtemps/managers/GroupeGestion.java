@@ -444,6 +444,10 @@ public class GroupeGestion {
 			"groupeparticipant_estcalendrierunique BOOLEAN NOT NULL, groupeparticipant_createur INTEGER) ON COMMIT DROP");
 	}
 	
+	protected static void dropTempTableListeGroupes(BddGestion bdd, String nomTable) throws DatabaseException {
+		bdd.executeUpdate("DROP TABLE " + nomTable);
+	}
+	
 	/**
 	 * Itère sur les parents des lignes d'une temporaire de groupes pour les ajouter à cette même table
 	 * @param bdd Gestionnaire de base de données
@@ -588,6 +592,10 @@ public class GroupeGestion {
 		
 		completerEnfantsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
 		completerParentsTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
+	}
+	
+	public static void dropTempTableListeParentsEnfants(BddGestion bdd) throws DatabaseException {
+		dropTempTableListeGroupes(bdd, NOM_TEMPTABLE_PARENTSENFANTS);
 	}
 	
 	/**

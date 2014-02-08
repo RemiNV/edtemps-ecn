@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
-import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.PeriodeBloqueeIdentifie;
 import org.ecn.edtemps.models.inflaters.GroupeIdentifieInflater;
@@ -81,31 +80,23 @@ public class PeriodeBloqueeGestion {
 	 * 
 	 * @param debut Début de la période de recherche
 	 * @param fin Fin de la période de recherche
-	 * @param vacances
-	 * @return la liste des périodes bloquées
+	 * @param vacances Si non null, inclus uniquement les vacances (true) ou les non-vacances (false)
+	 * @return la liste des jours bloqués
 	 * @throws EdtempsException 
 	 */
-	public List<PeriodeBloqueeIdentifie> getPeriodesBloquees(Date debut, Date fin, Boolean vacances) throws EdtempsException {
-
-		// Quelques vérifications sur les dates
-		if (debut==null || fin==null || debut.after(fin)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
-		}
+	public List<PeriodeBloqueeIdentifie> getPeriodesBloquees(Date debut, Date fin, Boolean vacances) throws DatabaseException {
 
 		try {
 
 			String requeteString = "SELECT periodebloquee_id, periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances" +
 					" FROM edt.periodesbloquees" +
-					" WHERE periodebloquee_date_debut >= ? AND periodebloquee_date_debut <= ?" +
-					" OR periodebloquee_date_fin >= ? AND periodebloquee_date_fin <= ?" +
+					" WHERE periodebloquee_date_debut <= ? AND periodebloquee_date_fin >= ?" +
 					(vacances==null ? "" : " AND periodebloquee_vacances = "+vacances) + 
 					" ORDER BY periodebloquee_date_debut";
 			
 			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(requeteString);
-			requetePreparee.setTimestamp(1, new java.sql.Timestamp(debut.getTime()));
-			requetePreparee.setTimestamp(2, new java.sql.Timestamp(fin.getTime()));
-			requetePreparee.setTimestamp(3, new java.sql.Timestamp(debut.getTime()));
-			requetePreparee.setTimestamp(4, new java.sql.Timestamp(fin.getTime()));
+			requetePreparee.setTimestamp(1, new java.sql.Timestamp(fin.getTime()));
+			requetePreparee.setTimestamp(2, new java.sql.Timestamp(debut.getTime()));
 			
 			// Récupère les périodes en base
 			ResultSet requete = requetePreparee.executeQuery();
@@ -123,7 +114,7 @@ public class PeriodeBloqueeGestion {
 			return listeJours;
 
 		} catch (SQLException e) {
-			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+			throw new DatabaseException(e);
 		}
 
 	}

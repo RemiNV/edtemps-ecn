@@ -3,7 +3,7 @@
 	<table>
 		<tr>
 			<td><label for="input_frequence">Fréquence : </label></td>
-			<td>Tous les <input type="number" id="input_frequence" class="input_small" /> jours</td>
+			<td>Tous les <input type="number" id="input_frequence" class="input_small" value="7" /> jours</td>
 		</tr>
 		<tr>
 			<td><label for="input_nb_evenements">Nombre d'événements : </label></td>
@@ -13,35 +13,42 @@
 	
 	<h3>Synthèse de l'action : </h3>
 	<div id="div_synthese" data-template="
-		<table class='tbl_standard'>
+		<table class='tbl_standard centrer'>
 			<tr>
 				<th>Num.</th><th>Date</th><th>Statut</th><th>Action</th>
 			</tr>
 			<% _.each(synthese, function(element, index) { %>
-				<tr>
-					<td><%= element.num %></td>
-					<td><%= element.date %></td>
-					<td><%= element.statut %></td>
+				<tr class='<%= element.problemes.length > 0 ? (element.resteProblemes ? 'ignorer' : 'warning') : '' %>'>
+					<td><%= (element.resteProblemes ? '(' + element.num + ')' : element.num) %></td>
+					<td><%= element.strDate %></td>
+					<td><%= element.strProblemes %></td>
 					<td>
 						<%
-						switch(element.statusCode) {
-							
-							case 1: // Salle occupée par cours
+						if(element.afficherBoutonRechercheSalle) {
+							if(element.nouvellesSalles) {
 								%>
-								<span class='button btn_rechercher_salle'>Rech. salle</span>
+								<span>(<%= element.nouvellesSalles.join(', ') %>)</span>
 								%>
-								break;
-							case 2: // Salle occupée par non cours
+							}
+							else {
 								%>
-								<span class='button btn_rechercher_salle'>Rech. salle</span>
+								<span class='button btn_rechercher_salle' data-id='<%= element.id %>'>Rech. salle</span>
 								<%
-							case 3: // Public occupé
-							case 4: // Jour bloqué
+							}
+						}
+						
+						if(element.afficherBoutonForcer) {
+							if(element.forcerAjout) {
 								%>
-								<span class='button btn_forcer_ajout'>Forcer ajout</span>
+								<span>(Ajout forcé)</span>
 								<%
-								break;
-						}	
+							}
+							else {
+								%>
+								<span class='button btn_forcer_ajout' data-id='<%= element.id %>'>Forcer ajout</span>
+								<%
+							}
+						}
 						%>
 					</td>
 				</tr>
