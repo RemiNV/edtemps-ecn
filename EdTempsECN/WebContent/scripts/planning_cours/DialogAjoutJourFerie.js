@@ -43,6 +43,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 			this.jqDialog.dialog({ title: "Modification d'un jour férié" });
 			this.jqLibelle.val(jour.libelle);
 			this.jqDate.val(jour.dateString);
+			this.jqDialog.find("input:radio[name=type_jour_ferie][value="+jour.fermeture+"]").prop('checked', true);
 		} else {
 			this.jqDialog.dialog({ title: "Ajout d'un jour férié" });
 		}
@@ -73,6 +74,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 				me.jqLibelle.val("");
 				me.jqDate.val("");
 				me.jour = null;
+				me.jqDialog.find("input:radio[name=type_jour_ferie][value=false]").prop('checked', true);
 				me.jqDialog.find(".message_alerte").hide();
 			}
 		});
@@ -104,15 +106,17 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 		// Listener du bouton "Valider"
 		this.jqDialog.find("#btn_valider_ajout_jour_ferie").click(function() {
 			
-			var date = $.datepicker.parseDate("dd/mm/yy", me.jqDate.val());
-			var debutAnnneeScolaire = new Date(me.ecranJoursBloques.calendrierAnnee.getAnnee(), 8, 1);
-			var finAnnneeScolaire = new Date(me.ecranJoursBloques.calendrierAnnee.getAnnee()+1, 7, 31);
-			
-			// Indiquer à l'utilisateur qu'il essaye de rentrer un jour férié pour une autre année que celle en cours...
-			if (date.getTime() < debutAnnneeScolaire.getTime() || date.getTime() > finAnnneeScolaire.getTime()) {
-				confirm("Etes vous sûr de vouloir ajouter un jour férié pour une autre année scolaire que celle en cours de modification ?", function () { me.valider(date); });
-			} else {
-				me.valider(date);
+			if (me.isCorrect()) {
+				var date = $.datepicker.parseDate("dd/mm/yy", me.jqDate.val());
+				var debutAnnneeScolaire = new Date(me.ecranJoursBloques.calendrierAnnee.getAnnee(), 8, 1);
+				var finAnnneeScolaire = new Date(me.ecranJoursBloques.calendrierAnnee.getAnnee()+1, 7, 31);
+				
+				// Indiquer à l'utilisateur qu'il essaye de rentrer un jour férié pour une autre année que celle en cours...
+				if (date.getTime() < debutAnnneeScolaire.getTime() || date.getTime() > finAnnneeScolaire.getTime()) {
+					confirm("Etes vous sûr de vouloir ajouter un jour férié/fermeture pour une autre année scolaire que celle en cours de modification ?", function () { me.valider(date); });
+				} else {
+					me.valider(date);
+				}
 			}
 
 		});
@@ -131,12 +135,11 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	 */
 	DialogAjoutJourFerie.prototype.valider = function(date) {
 		
-		// Continue si tout va bien
-		if (this.isCorrect()) {
-			var id = this.jour==null ? null : this.jour.id;
-			this.callback(this.jqLibelle.val(), date, id);
-			this.jqDialog.dialog("close");
-		}
+		var type = this.jqDialog.find("input:radio[name=type_jour_ferie]:checked").val();
+		
+		var id = this.jour==null ? null : this.jour.id;
+		this.callback(this.jqLibelle.val(), date, type, id);
+		this.jqDialog.dialog("close");
 		
 	};
 
@@ -164,7 +167,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 			this.jqDialog.find("#span_alert_date_absent").show();
 			correct = false;
 		}
-		
+
 		return correct;
 	};
 	

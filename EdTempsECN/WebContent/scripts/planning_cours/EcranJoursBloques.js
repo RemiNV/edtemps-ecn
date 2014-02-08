@@ -102,8 +102,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 	    
 	    // Affecte une action au bouton d'ajout
 	    this.jqEcran.find("#bt_ajouter_jour_ferie").click(function() { 
-	    	me.dialogAjoutJourFerie.show(null, function (libelle, date) {
-	    		me.jourBloqueGestion.ajouterJourFerie(libelle, date, function() {
+	    	me.dialogAjoutJourFerie.show(null, function (libelle, date, type) {
+	    		me.jourBloqueGestion.ajouterJourFerie(libelle, date, type, function() {
 	    			me.actualiserPage(0);	
 	    		});
 	    	});
@@ -127,12 +127,13 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		// Préparation du template pour un affichage uniforme
 		var template = 
 			"<% _.each(jours, function(jour) { %> <tr data-id='<%= jour.id %>'>" +
+				"<td><div <% if (jour.fermeture>0) { %>class='item fermeture' title='Jour de fermeture'<% } else { %>class='item ferie' title='Jour férié'<% } %>>&nbsp;</div></td>" +
 				"<td><%= jour.libelle %></td>" +
 				"<td><%= jour.dateString %></td>" +
 				"<td><span class='button modifier_jour_ferie'><img src='./img/modifier.png' /> Modifier</span><span class='button supprimer_jour_ferie'><img src='./img/supprimer.png' /> Supprimer</span></td>" +
 			"</tr> <% }); %>";
 
-		var titre = "<tr><th>Libellé</th><th>Date</th><th width='250'>Actions</th></tr>";
+		var titre = "<tr><th width='20'>Type</th><th>Libellé</th><th>Date</th><th width='250'>Actions</th></tr>";
 		
 		// Cache le tableau des jours fériés
 		this.jqEcran.find("#liste_jours_feries").fadeOut(200, function () {
@@ -144,8 +145,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		    me.jqEcran.find(".modifier_jour_ferie").click(function() {
 		    	var id = $(this).parents("tr").attr("data-id");
 
-		    	me.dialogAjoutJourFerie.show(me.jourBloqueGestion.joursFeriesTries[id], function (libelle, date, id) {
-		    		me.jourBloqueGestion.modifierJourFerie(id, libelle, date, function () {
+		    	me.dialogAjoutJourFerie.show(me.jourBloqueGestion.joursFeriesTries[id], function (libelle, date, type, id) {
+		    		me.jourBloqueGestion.modifierJourFerie(id, libelle, date, type, function () {
 			    		me.actualiserPage(0);
 		    		});
 		    	});

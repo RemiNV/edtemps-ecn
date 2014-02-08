@@ -176,12 +176,14 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * 
 	 * @param {string} libelle Libellé du jour férié à ajouter
 	 * @param {date} date Date du jour férié
+	 * @param {boolean} fermeture Vrai si c'est un jour de fermeture, Faux sinon
 	 * @param {function} callback Méthode exécutée en retour
 	 */
-	JourBloqueGestion.prototype.ajouterJourFerie = function(libelle, date, callback) {
+	JourBloqueGestion.prototype.ajouterJourFerie = function(libelle, date, fermeture, callback) {
 		
 		this.restManager.effectuerRequete("POST", "joursferies/ajouter", {
-			token: this.restManager.getToken(), libelle: libelle, date: date.getTime()
+			token: this.restManager.getToken(), libelle: libelle,
+			date: date.getTime(), fermeture: fermeture
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
@@ -206,12 +208,14 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {int} id Identifiant du jour férié à modifier
 	 * @param {string} libelle Libellé du jour férié
 	 * @param {date} date Date du jour férié
+	 * @param {boolean} fermeture Vrai si c'est un jour de fermeture, Faux sinon
 	 * @param {function} callback Méthode exécutée en retour
 	 */
-	JourBloqueGestion.prototype.modifierJourFerie = function(id, libelle, date, callback) {
+	JourBloqueGestion.prototype.modifierJourFerie = function(id, libelle, date, fermeture, callback) {
 		
 		this.restManager.effectuerRequete("POST", "joursferies/modifier", {
-			token: this.restManager.getToken(), idJourFerie: id, libelle: libelle, date: date.getTime()
+			token: this.restManager.getToken(), idJourFerie: id,
+			libelle: libelle, date: date.getTime(), fermeture: fermeture
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();

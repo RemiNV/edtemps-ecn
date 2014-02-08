@@ -128,22 +128,28 @@ define([  ], function() {
 
 		// Parcours la liste des jours spéciaux
 		for (var i=0, maxI=this.joursSpeciaux.length; i<maxI; i++) {
+			var jour = this.joursSpeciaux[i];
 			
-			if (this.joursSpeciaux[i].date) {		// Jours fériés
-				var date = new Date(this.joursSpeciaux[i].date);
-				this.jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i).attr("title", this.dateEnTouteLettres(date));
+			if (jour.date) {
+				var date = new Date(jour.date);
+				
+				if (jour.fermeture) {		// Jour de fermeture
+					this.jqCalendar.find("#"+dateToString(date)).addClass("fermeture").attr("data", i).attr("title", this.dateEnTouteLettres(date));
+				} else {		// Jour férié
+					this.jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i).attr("title", this.dateEnTouteLettres(date));
+				}
 			}
 			else {		// Jours bloqués
-				var dateDebut = new Date(this.joursSpeciaux[i].dateDebut);
-				var dateFin = new Date(this.joursSpeciaux[i].dateFin);
+				var dateDebut = new Date(jour.dateDebut);
+				var dateFin = new Date(jour.dateFin);
 				
-				if (this.joursSpeciaux[i].vacances) {		// Vacances
+				if (jour.vacances) {		// Vacances
 					var date = dateDebut;
 					while (date.getTime() <= dateFin.getTime()) {
 						this.jqCalendar.find("#"+dateToString(date)).addClass("vacances");
 						date.setDate(date.getDate()+1);
 					}
-				} else {		// Journée bloquée
+				} else {		// Période bloquée
 					this.jqCalendar.find("#"+dateToString(dateDebut)).addClass("bloque").attr("title", this.dateEnTouteLettres(dateDebut));
 				}
 			}

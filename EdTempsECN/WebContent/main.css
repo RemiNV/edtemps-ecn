@@ -6,7 +6,33 @@ h1, h2, h3, h4, h5, h6 {
 	margin: 0px;
 }
 
-#logoAppli {
+tr.invalide {
+	color: #FF0000;
+}
+
+tr.valide {
+	color: #60C003;
+}
+
+tr.warning {
+	color: #fb863a;
+}
+
+tr.ignorer {
+	color: #888;
+}
+
+input.invalide {
+	box-shadow: #FF0000 0 0 10px;
+	border: 1px solid #FF0000 !important;
+}
+
+input.valide {
+	box-shadow: #60C003 0 0 10px;
+	border: 1px solid #60C003 !important;
+}
+
+.centrer, #logoAppli, #boutons_colonne_gauche {
 	text-align: center;
 }
 
@@ -18,10 +44,6 @@ h1, h2, h3, h4, h5, h6 {
 #colonne_gauche {
 	float: left;
 	margin-right: 10px;
-}
-
-#boutons_colonne_gauche {
-	text-align: center;
 }
 
 #main_content {
@@ -557,17 +579,6 @@ table.liste_materiel th {
 	margin-left: 10px;
 }
 
-
-input.invalide {
-	box-shadow: #FF0000 0 0 10px;
-	border: 1px solid #FF0000 !important;
-}
-
-input.valide {
-	box-shadow: #60C003 0 0 10px;
-	border: 1px solid #60C003 !important;
-}
-
 .spinner_evenement_loading {
 	position: absolute;
 	top: 3px;
@@ -824,6 +835,7 @@ input.valide {
 	top: -2px;
 	left: 5px;
 }
+
 
 /* Page de gestion des jours bloqués */
 
