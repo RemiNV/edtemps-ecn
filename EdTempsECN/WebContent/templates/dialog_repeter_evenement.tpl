@@ -18,22 +18,36 @@
 				<th>Num.</th><th>Date</th><th>Statut</th><th>Action</th>
 			</tr>
 			<% _.each(synthese, function(element, index) { %>
-				<tr>
-					<td><%= (element.problemes.length > 0 ? '(' + element.num + ')' : element.num) %></td>
+				<tr class='<%= element.problemes.length > 0 ? (element.resteProblemes ? 'invalide' : 'valide') : '' %>'>
+					<td><%= (element.resteProblemes ? '(' + element.num + ')' : element.num) %></td>
 					<td><%= element.strDate %></td>
 					<td><%= element.strProblemes %></td>
 					<td>
 						<%
 						if(element.afficherBoutonRechercheSalle) {
-							%>
-							<span class='button btn_rechercher_salle'>Rech. salle</span>
-							<%
+							if(element.nouvellesSalles) {
+								%>
+								<span>(<%= element.nouvellesSalles.join(', ') %>)</span>
+								%>
+							}
+							else {
+								%>
+								<span class='button btn_rechercher_salle' data-id='<%= element.id %>'>Rech. salle</span>
+								<%
+							}
 						}
 						
 						if(element.afficherBoutonForcer) {
-							%>
-							<span class='button btn_forcer_ajout'>Forcer ajout</span>
-							<%
+							if(element.forcerAjout) {
+								%>
+								<span>(Ajout forcé)</span>
+								<%
+							}
+							else {
+								%>
+								<span class='button btn_forcer_ajout' data-id='<%= element.id %>'>Forcer ajout</span>
+								<%
+							}
 						}
 						%>
 					</td>

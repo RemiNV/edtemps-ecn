@@ -14,6 +14,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.restManager = restManager;
 		this.jqBloc = jqBloc;
 		this.evenement = null;
+		this.synthese = null;
 		
 		var contenuDialog = $(dialogRepeterEvenementTpl);
 		this.divSynthese = contenuDialog.find("#div_synthese");
@@ -31,6 +32,9 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		});
 	};
 
+	/**
+	 * Effectue la requête de prévisualisation de la répétition et affiche le résultat
+	 */
 	DialogRepeter.prototype.lancerPrevisualisation = function() {
 		var me = this;
 		var jqNbEvenements = this.jqBloc.find("#input_nb_evenements");
@@ -60,12 +64,18 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			periode: periode
 		}, function(response) {
 			if(response.resultCode == RestManager.resultCode_Success) {
-				for(var i=0; i<response.data.length; i++) {
-					me.parseTest(response.data[i]);
+				me.synthese = response.data;
+				for(var i=0; i<me.synthese.length; i++) {
+					me.synthese[i].id = i;
+					me.parseTest(me.synthese[i]);
 				}
 				
-				// Remplissage du template
-				me.divSynthese.empty().append(me.templateSynthese({ synthese: response.data }));
+				me.updateSynthese();
+				
+				// Ajout des listeners
+				me.divSynthese.find(".btn_forcer_ajout").click(function(e) {
+					me.callbackForcerAjout($(this));
+				});
 			}
 			else if(response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de la prévisualisation ; vérifiez votre connexion");
@@ -76,7 +86,71 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		});
 	};
 	
+	/**
+	 * Callback appelé lors du clic sur un bouton "forcer l'ajout"
+	 * @param jqButton Le bouton cliqué
+	 */
+	DialogRepeter.prototype.callbackForcerAjout = function(jqButton) {
+		var id = parseInt(jqButton.attr("data-id"));
+		this.synthese[id].forcerAjout = true;
+		this.updateProblemes(this.synthese[id]);
+		
+		if(!this.synthese[id].resteProblemes) { // L'événement précédemment invalide sera ajouté
+			// Suppression derniers tests inutiles et renumérotation
+			var numMax = this.synthese[this.synthese.length-1].num;
+			for(var i=this.synthese.length-1; i>id && this.synthese[i].num == numMax; i--) {
+				this.synthese.pop();
+			}
+			
+			for(i=id+1,max=this.synthese.length; i<max; i++) {
+				this.synthese[i].num++;
+			}
+		}
+		
+		this.updateSynthese();
+	};
+	
+	/**
+	 * Mise à jour du tableau de synthèse
+	 */
+	DialogRepeter.prototype.updateSynthese = function() {
+		// Remplissage du template
+		this.divSynthese.empty().append(this.templateSynthese({ synthese: this.synthese }));
+	};
+	
+	/**
+	 * Mise à jour de test.resteProblemes en prenant en compte test.forcerAjout et test.nouvellesSalles
+	 * @param test
+	 */
+	DialogRepeter.prototype.updateProblemes = function(test) {
+		test.resteProblemes = false;
+		for(var i=0,max=test.problemes.length; i<max; i++) {
+			switch(test.problemes[i].status) {
+			case 1:
+			case 2:
+				if(!test.nouvellesSalles) {
+					test.resteProblemes = true;
+				}
+				break;
+				
+			case 3:
+			case 4:
+				if(!test.forcerAjout) {
+					test.resteProblemes = true;
+				}
+				break;
+			}
+		}
+	};
+	
+	/**
+	 * Parsing d'une entrée de prévisualisation de la répétition. Ajoute les attributs nécessaires.
+	 * @param test L'entrée à parser
+	 */
 	DialogRepeter.prototype.parseTest = function(test) {
+		test.forcerAjout = false;
+		test.nouvellesSalles = null;
+		test.resteProblemes = (test.problemes.length > 0);
 		test.strDate = $.fullCalendar.formatDate(new Date(test.debut), "dd/MM/yyyy");
 		test.strProblemes = test.problemes.length > 0 ? "" : "OK";
 		test.afficherBoutonForcer = (test.problemes.length > 0);
@@ -107,6 +181,10 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		}
 	};
 	
+	/**
+	 * Affichage de la boîte de dialogue
+	 * @param evenement L'événement à répéter
+	 */
 	DialogRepeter.prototype.show = function(evenement) {
 		this.evenement = evenement;
 		this.divSynthese.empty();

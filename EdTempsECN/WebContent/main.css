@@ -553,6 +553,13 @@ table.liste_materiel th {
 	margin-left: 10px;
 }
 
+tr.invalide {
+	color: #FF0000;
+}
+
+tr.valide {
+	color: #60C003;
+}
 
 input.invalide {
 	box-shadow: #FF0000 0 0 10px;
