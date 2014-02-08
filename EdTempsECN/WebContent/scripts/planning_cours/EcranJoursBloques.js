@@ -4,8 +4,8 @@
  * @module EcranJoursBloques
  */
 define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "planning_cours/DialogAjoutJourFerie",
-         "text!../../templates/dialog_ajout_jour_ferie.html", "RestManager", "underscore", "jquery" ],
-         function(CalendrierAnnee, JourBloqueGestion, DialogAjoutJourFerie, dialogAjoutJourFerieHtml, RestManager, _) {
+         "text!../../templates/dialog_ajout_jour_ferie.html", "text!../../templates/dialog_details_jourbloque.tpl", "RestManager", "underscore", "lib/fullcalendar.translated.min", "jquery" ],
+         function(CalendrierAnnee, JourBloqueGestion, DialogAjoutJourFerie, dialogAjoutJourFerieHtml, tplDialogDetailsJourBloque, RestManager, _) {
 	
 	/**
 	 * @constructor
@@ -15,7 +15,41 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		var me = this;
 		this.restManager = restManager;
 		this.jqEcran = $("#jours_bloques");
+		this.jqDialogDetailsJourBloque = $("#dialog_detail_jourbloque");
 		this.jourBloqueGestion = new JourBloqueGestion(this.restManager, this.jqEcran);
+		
+		// Template pour la dialogue de détails des jours bloqués
+		this.templateDialogDetails = _.template(tplDialogDetailsJourBloque);
+		
+		// Action lors du clic dans la page, lorsque la dialogue de détail est ouverte
+		var closeDialogDetailsCallback = function(event) {
+			if(!me.jqDialogDetailsJourBloque.dialog("isOpen")) {
+				return;
+			}
+			
+			// On n'est pas à l'intérieur d'une dialog
+			var jqTarget = $(event.target);
+			if(!jqTarget.is(".ui_dialog")
+					&& jqTarget.closest(".ui-dialog").length == 0
+					&& jqTarget.closest(".jour").length == 0) {
+				me.jqDialogDetailsJourBloque.dialog("close");
+				return false;
+			}
+		};
+		
+		// Préparation de la dialogue de détails des jours bloqués
+		this.jqDialogDetailsJourBloque.dialog({
+			autoOpen: false,
+			draggable: false,
+			width: 500,
+			open: function(){
+				$(document).bind("click", closeDialogDetailsCallback);
+			},
+			close: function() {
+				$(document).unbind("click", closeDialogDetailsCallback);
+			}
+		});
+		this.jqDialogDetailsJourBloque.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_detail_jourbloque_header");
 		
 		// Préparation de la boite de dialogue d'ajout de jours fériés
 		var jqDialogAjoutJourFerie = $("#dialog_ajout_jour_ferie").html(dialogAjoutJourFerieHtml);
@@ -39,12 +73,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		    me.afficherTableauJoursFeries();
 
 		    // Affiche le calendrier
-			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_bloques"), annee, joursSpeciaux, function(date, data, object) {
-				if (data==null) {
-					alert("le " + date);
-				} else {
-					alert("le " + date + " c'est : " + data.libelle);
-				}
+			me.calendrierAnnee = new CalendrierAnnee(restManager, me.jqEcran, $("#calendar_jours_bloques"), annee, joursSpeciaux, function(date, jqElement) {
+				me.clickSurUnJour(date, jqElement);
 			});
 						
 			// Affiche l'écran
@@ -155,7 +185,52 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
     	
 	};
 
+
+	/**
+	 * L'utiliateur a cliqué sur un jour
+	 * 
+	 * @param {date} date Date du jour cliqué
+	 * @param {object} jqElement objet jquery de l'élément cliqué
+	 */
+	EcranJoursBloques.prototype.clickSurUnJour = function(date, jqElement) {
+		
+		// Récupère la liste des événemnts bloquants sur cette journée
+		var listeEvenementsBloquants = this.jourBloqueGestion.getJoursBloquesParJour(date);
+		
+		if (listeEvenementsBloquants.length == 0) {
+			// TODO afficher la boite de dialogue de création de périodes bloquées
+		} else {
+			this.afficherDialogDetailJourBloque(listeEvenementsBloquants, date, jqElement);
+		}
+    	
+	};
+
 	
+	/**
+	 * Affiche la bulle de détail d'un jour bloqué
+	 * 
+	 * @param {Array} listeEvenementsBloquants liste des événemnts bloquants sur cette journée
+	 * @param {date} date Date du jour cliqué
+	 * @param {object} jqElement objet jquery de l'élément cliqué
+	 */
+	EcranJoursBloques.prototype.afficherDialogDetailJourBloque = function(listeEvenementsBloquants, date, jqElement) {
+
+		// Remplissage du template
+		this.jqDialogDetailsJourBloque.find("#dialog_details_jourbloque_hook").html(this.templateDialogDetails({elements: listeEvenementsBloquants}));
+
+		// Positionnement de la dialogue
+		this.jqDialogDetailsJourBloque.dialog("option", {
+			position: {
+				my: "center bottom",
+				at: "top-10",
+				of: jqElement
+			},
+			title: $.fullCalendar.formatDate(date, "dd/MM/yyyy")
+		});
+		
+		// Ouverture de la dialogue
+		this.jqDialogDetailsJourBloque.dialog("open");
+	};
 		
 	return EcranJoursBloques;
 });

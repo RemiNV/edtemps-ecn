@@ -2,7 +2,7 @@
  * Module de gestion des jours bloqués
  * @module JourBloqueGestion
  */
-define([ "RestManager" ], function(RestManager) {
+define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManager) {
 
 	/**
 	 * @constructor
@@ -14,16 +14,18 @@ define([ "RestManager" ], function(RestManager) {
 		
 		// Listes non ordonnées
 		this.joursFeries = new Array();
-		this.periodesBloquees = new Array();
+		this.joursBloques = new Array();
+		this.vacances = new Array();
 
 		// Listes indexées par les identifiants des jours
 		this.joursFeriesTries = new Object();
-		this.periodesBloqueesTries = new Object();
+		this.joursBloquesTries = new Object();
+		this.vacancesTriees = new Object();
 	};
 	
 
 	/**
-	 * Récupérer les périodes bloquées et jours fériés d'une année scolaire
+	 * Récupérer les vacances, jours bloqués et jours fériés d'une année scolaire
 	 * 
 	 * @param {int} annee Numéro de l'année de début
 	 * @param {function} callback Méthode exécutée en retour
@@ -32,26 +34,22 @@ define([ "RestManager" ], function(RestManager) {
 		var me = this;
 
 		var dateDebut = new Date(annee, 8, 1).getTime();	// Premier septembre
-		var dateFin = new Date(annee+1, 7, 31).getTime();	// Dernier jour du mois d'aout
+		var dateFin = new Date(annee+1, 7, 31).getTime();	// Dernier jour du mois d'août
 
 		// Affiche le message de chargement en cours
 		this.jqEcran.find("#chargement_en_cours").show();
-		
+
+		// Récupère les jours fériés
 		this.getJoursFeries(annee, dateDebut, dateFin, function() {
 			
-			// Ajoute les jours fériés dans la liste des jours spéciaux
-			var joursSpeciaux = new Array();
-			for (var i=0, maxI=me.joursFeries.length; i<maxI; i++) {
-				joursSpeciaux.push(me.joursFeries[i]);
-			}
+			var joursSpeciaux = me.joursFeries;
 			
+			// Récupère les vacances et jours bloqués
 			me.getPeriodesBloquees(annee, dateDebut, dateFin, function() {
 				
-				// Ajoute les périodes bloquées dans la liste des jours spéciaux
-				for (var i=0, maxI=me.periodesBloquees.length; i<maxI; i++) {
-					joursSpeciaux.push(me.periodesBloquees[i]);
-				}
-
+				joursSpeciaux = joursSpeciaux.concat(me.joursBloques);
+				joursSpeciaux = joursSpeciaux.concat(me.vacances);
+				
 				// Cache le message de chargement en cours
 				me.jqEcran.find("#chargement_en_cours").hide();
 				
@@ -69,7 +67,7 @@ define([ "RestManager" ], function(RestManager) {
 	 * @param {int} annee Numéro de l'année de début
 	 * @param {date} dateDebut Date de début pour la recherche
 	 * @param {date} dateFin Date de fin pour la recherche
-	 * @param {function} callback Méthode exécutée en retour : elle reçoit les jours fériés
+	 * @param {function} callback Méthode exécutée en retour
 	 */
 	JourBloqueGestion.prototype.getJoursFeries = function(annee, dateDebut, dateFin, callback) {
 		var me = this;
@@ -82,9 +80,9 @@ define([ "RestManager" ], function(RestManager) {
 				// Stocke la liste des jours fériés dans la variable de module
 				me.joursFeries = data.data.listeJoursFeries;
 
-				// Trie les jours dans un objet
+				// Trie les jours dans un objet indexé par identifiant
 				for (var i=0, maxI=me.joursFeries.length; i<maxI; i++) {
-					me.joursFeries[i].dateString = dateToString(me.joursFeries[i].date);
+					me.joursFeries[i].dateString = $.fullCalendar.formatDate(new Date(me.joursFeries[i].date), "dd/MM/yyyy");
 					me.joursFeriesTries[me.joursFeries[i].id] = me.joursFeries[i];
 				}
 
@@ -105,7 +103,7 @@ define([ "RestManager" ], function(RestManager) {
 	 * @param {int} annee Numéro de l'année de début
 	 * @param {date} dateDebut Date de début pour la recherche
 	 * @param {date} dateFin Date de fin pour la recherche
-	 * @param {function} callback Méthode exécutée en retour : elle reçoit les périodes bloquées
+	 * @param {function} callback Méthode exécutée en retour
 	 */
 	JourBloqueGestion.prototype.getPeriodesBloquees = function(annee, dateDebut, dateFin, callback) {
 		var me = this;
@@ -115,14 +113,29 @@ define([ "RestManager" ], function(RestManager) {
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 
-				// Stocke la liste des périodes bloquées dans la variable de module
-				me.periodesBloquees = data.data.listePeriodesBloquees;
+				// Sépare les vacances et les jours bloqués
+				for (var i=0, maxI=data.data.listePeriodesBloquees.length; i<maxI; i++) {
+					var jour = data.data.listePeriodesBloquees[i];
+					
+					if (jour.vacances) {
+						
+						// Ajoute les vacances dans la liste non triée
+						me.vacances.push(jour);
+						
+						// Trie les jours dans un objet indexé par identifiant
+						me.vacancesTriees[jour.id] = jour;
+						
+					} else {
 
-				// Trie les jours dans un objet
-				for (var i=0, maxI=me.periodesBloquees.length; i<maxI; i++) {
-					me.periodesBloqueesTries[me.periodesBloquees[i].id] = me.periodesBloquees[i];
+						// Ajoute les vacances dans la liste non triée
+						me.joursBloques.push(jour);
+
+						// Trie les jours dans un objet indexé par identifiant
+						me.joursBloquesTries[jour.id] = jour;
+						
+					}
 				}
-
+				
 				// Appelle la méthode de retour
 				callback();
 				
@@ -252,15 +265,40 @@ define([ "RestManager" ], function(RestManager) {
 	
 	
 	/**
-	 * Formatter une date (en JJ/MM/AAAA) à partir d'un getTime de date
+	 * Rechercher les jours bloqués à une date donnée dans la liste des jours bloqués du module
+	 * 
+	 * @param {date} date Date à laquelle il faut chercher
+	 * @param {function} callback Méthode exécutée en retour avec les jours bloqués en paramètre
 	 */
-	function dateToString(getTime) {
-		var date = new Date(getTime);
+	JourBloqueGestion.prototype.getJoursBloquesParJour = function(date) {
 		
-		return (date.getDate() >= 10 ? "" : "0") + date.getDate() + "/" +
-			   (date.getMonth()+1 >= 10 ? "" : "0") + (date.getMonth()+1) + "/" +
-			   date.getFullYear();
-	}
+		var liste = new Array();
+		
+		for (var i=0, maxI=this.joursBloques.length; i<maxI; i++) {
+			var jour = this.joursBloques[i];
+
+			var debut = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+			var fin = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+			
+			if (jour.dateDebut >= debut.getTime() && jour.dateDebut <= fin.getTime()) {
+				jour.strHeureDebut = $.fullCalendar.formatDate(new Date(jour.dateDebut), "HH:mm");
+				jour.strHeureFin = $.fullCalendar.formatDate(new Date(jour.dateFin), "HH:mm");
+
+				// Créer une chaîne de caractère des noms de groupes associés à ce jour
+				var str = "";
+				for (var j=0, maxJ=jour.listeGroupes.length; j<maxJ; j++) {
+					if (str!="") str += ", ";
+					str += jour.listeGroupes[j].nom;
+				}
+				jour.strGroupesAssocies = str;
+
+				liste.push(jour);
+			}
+		}
+		
+		return liste;
+		
+	};
 
 	
 	return JourBloqueGestion;

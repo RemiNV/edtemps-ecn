@@ -85,7 +85,7 @@ define([  ], function() {
 		
 	    // Affecte la fonction de callback sur les jours cliquables
 	    this.jqEcran.find(".jour").click(function() {
-	    	me.callback(stringToDate($(this).attr("id")), me.joursSpeciaux[$(this).attr("data")], $(this));
+	    	me.callback(stringToDate($(this).attr("id")), $(this));
 	    });
 	    
 	};
@@ -137,11 +137,11 @@ define([  ], function() {
 				if (joursSpeciaux[i].vacances) {		// Vacances
 					var date = dateDebut;
 					while (date.getTime() <= dateFin.getTime()) {
-						jqCalendar.find("#"+dateToString(date)).addClass("vacances").attr("data", i);
+						jqCalendar.find("#"+dateToString(date)).addClass("vacances");
 						date.setDate(date.getDate()+1);
 					}
 				} else {		// Journée bloquée
-					jqCalendar.find("#"+dateToString(dateDebut)).addClass("bloque").attr("data", i);
+					jqCalendar.find("#"+dateToString(dateDebut)).addClass("bloque");
 				}
 			}
 		}

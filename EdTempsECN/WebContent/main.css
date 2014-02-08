@@ -937,3 +937,33 @@ input.valide {
 	max-height: 250px;
 	overflow: auto;
 }
+
+
+/** Dialog de détails d'un jour bloque */
+.ui-dialog-titlebar.dialog_detail_jourbloque_header, #dialog_detail_jourbloque.ui-dialog-content {
+	padding: 15px;
+	background-color: white;
+}
+
+.ui-dialog-titlebar.dialog_detail_jourbloque_header { 
+	background-image: none;
+	color: black;
+	border-radius: 2px 2px 0px 0px;
+	cursor: default;
+}
+
+#dialog_detail_jourbloque.ui-dialog-content {
+	border-radius: 0px 0px 2px 2px;
+}
+.details_jourbloque table {
+	border-collapse: collapse;
+	margin-bottom: 20px;
+}
+.details_jourbloque table tr td {
+	border-bottom: solid 1px gray;
+}
+
+.details_jourbloque table img {
+	margin: 5px;
+	cursor: pointer;
+}
