@@ -246,18 +246,19 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 			token: this.restManager.getToken(), annee: annee
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
-				callback();
+				var nbJourAjoutes = data.data.listeAjoutes.length;
+				callback(nbJourAjoutes);
 				
-				var message = "";
-				
-				if (data.data.listeAjoutes.length!=0) {
-					message += data.data.listeAjoutes.length + " jours ont été ajoutés";
-				} else {
+				var message;
+				if (nbJourAjoutes==0) {
 					message = "Aucun jour férié ajouté";
+				} else if (nbJourAjoutes==1) {
+					message = "1 jour férié a été ajouté";
+				} else {
+					message = nbJourAjoutes + " jours fériés ont été ajoutés";
 				}
 				
 				window.showToast(message);
-				
 			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
 				window.showToast("Vous n'êtes pas autorisé à ajouter des jours fériés.");
 			} else {

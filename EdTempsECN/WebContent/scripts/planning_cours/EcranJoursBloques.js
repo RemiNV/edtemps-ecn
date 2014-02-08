@@ -95,8 +95,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 	    
 	    // Affecte une action au bouton d'ajout automatique
 	    this.jqEcran.find("#bt_ajout_auto").click(function() {
-	    	me.jourBloqueGestion.ajouterAutoJourFerie(me.calendrierAnnee.getAnnee(), function() {
-	    		me.actualiserPage(0);
+	    	me.jourBloqueGestion.ajouterAutoJourFerie(me.calendrierAnnee.getAnnee(), function(nbJourAjoutes) {
+	    		if (nbJourAjoutes!=0) me.actualiserPage(0);
 	    	});
 	    });
 	    
