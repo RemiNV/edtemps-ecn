@@ -31,6 +31,7 @@ define([  ], function() {
 	    this.listeMoisNumero = new Array(9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8);
 	    this.listeNbJours = new Array(30, 31, 30, 31, 31, 28, 31, 30, 31, 30, 31, 31);
 	    this.initialesJours = new Array('D', 'L', 'M', 'M', 'J', 'V', 'S');
+	    this.listeJours = new Array('Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi');
 	    
 	    this.chargerAnnee(annee, joursSpeciaux);
 	};
@@ -61,10 +62,11 @@ define([  ], function() {
 			for (var j=0; j<12; j++) {
 				if (this.listeNbJours[j] >= (i+1)) {
 					an = (this.listeMoisNumero[j] < 9) ? (this.annee+1) : this.annee;
-					date = new Date(an, this.listeMoisNumero[j]-1, i+1).getDay();
-					dimanche = (date==0) ? " dimanche" : "";
+					date = new Date(an, this.listeMoisNumero[j]-1, i+1);
+					dimanche = (date.getDay()==0) ? " dimanche" : "";
 					classes = "jour" + dimanche;
-					initiale = this.initialesJours[date];
+					initiale = this.initialesJours[date.getDay()];
+					
 					
 					tabJours += "<td><div class='"+classes+"' id='"+an+"-"+this.listeMoisNumero[j]+"-"+(i+1)+"'><span class='initiale_jour'>"+initiale+"</span>"+(i+1)+"</div></td>";
 				} else {
@@ -79,7 +81,7 @@ define([  ], function() {
 		
 		// Affiche les jours spéciaux
 		var me = this;
-		afficherJoursSpeciaux(this.jqCalendar, this.joursSpeciaux, function() {
+		this.afficherJoursSpeciaux(function() {
 			me.jqCalendar.fadeIn(700);
 		});
 		
@@ -120,31 +122,29 @@ define([  ], function() {
 	/**
 	 * Afficher les jours spéciaux dans le calendrier
 	 * 
-	 * @param {jQueryObject} jqCalendar Numéro de l'année
-	 * @param {Array} joursSpeciaux Liste des jours fériés et bloqués
 	 * @param {function} callback Méthode exécutée en retour
 	 */
-	function afficherJoursSpeciaux(jqCalendar, joursSpeciaux, callback) {
+	CalendrierAnnee.prototype.afficherJoursSpeciaux = function (callback) {
 
 		// Parcours la liste des jours spéciaux
-		for (var i=0, maxI=joursSpeciaux.length; i<maxI; i++) {
+		for (var i=0, maxI=this.joursSpeciaux.length; i<maxI; i++) {
 			
-			if (joursSpeciaux[i].date) {		// Jours fériés
-				var date = new Date(joursSpeciaux[i].date);
-				jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i);
+			if (this.joursSpeciaux[i].date) {		// Jours fériés
+				var date = new Date(this.joursSpeciaux[i].date);
+				this.jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i).attr("title", this.dateEnTouteLettres(date));
 			}
 			else {		// Jours bloqués
-				var dateDebut = new Date(joursSpeciaux[i].dateDebut);
-				var dateFin = new Date(joursSpeciaux[i].dateFin);
+				var dateDebut = new Date(this.joursSpeciaux[i].dateDebut);
+				var dateFin = new Date(this.joursSpeciaux[i].dateFin);
 				
-				if (joursSpeciaux[i].vacances) {		// Vacances
+				if (this.joursSpeciaux[i].vacances) {		// Vacances
 					var date = dateDebut;
 					while (date.getTime() <= dateFin.getTime()) {
-						jqCalendar.find("#"+dateToString(date)).addClass("vacances");
+						this.jqCalendar.find("#"+dateToString(date)).addClass("vacances");
 						date.setDate(date.getDate()+1);
 					}
 				} else {		// Journée bloquée
-					jqCalendar.find("#"+dateToString(dateDebut)).addClass("bloque");
+					this.jqCalendar.find("#"+dateToString(dateDebut)).addClass("bloque").attr("title", this.dateEnTouteLettres(dateDebut));
 				}
 			}
 		}
@@ -169,6 +169,18 @@ define([  ], function() {
 		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
 	}
 
+	
+	/**
+	 * Formatter une date (en AAAA-MM-JJ) à partir d'un objet Date javascript 
+	 */
+	CalendrierAnnee.prototype.dateEnTouteLettres = function(date) {
+		var nomJour = this.listeJours[date.getDay()];
+		var numJour = date.getDate();
+		var mois = this.listeMois[(date.getMonth()+4)%12];
+		var annee = date.getFullYear();
+		
+		return nomJour + " " + numJour + " " + mois + " " + annee;
+	};
 	
 	/**
 	 * Récupérer un objet date à partir d'une date au format : AAAA-MM-JJ
