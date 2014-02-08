@@ -6,6 +6,28 @@ h1, h2, h3, h4, h5, h6 {
 	margin: 0px;
 }
 
+tr.invalide {
+	color: #FF0000;
+}
+
+tr.valide {
+	color: #60C003;
+}
+
+tr.warning {
+	color: #fb863a;
+}
+
+input.invalide {
+	box-shadow: #FF0000 0 0 10px;
+	border: 1px solid #FF0000 !important;
+}
+
+input.valide {
+	box-shadow: #60C003 0 0 10px;
+	border: 1px solid #60C003 !important;
+}
+
 .centrer, #logoAppli, #boutons_colonne_gauche {
 	text-align: center;
 }
@@ -551,24 +573,6 @@ table.liste_materiel th {
 
 #btn_rechercher_salle_evenement {
 	margin-left: 10px;
-}
-
-tr.invalide {
-	color: #FF0000;
-}
-
-tr.valide {
-	color: #60C003;
-}
-
-input.invalide {
-	box-shadow: #FF0000 0 0 10px;
-	border: 1px solid #FF0000 !important;
-}
-
-input.valide {
-	box-shadow: #60C003 0 0 10px;
-	border: 1px solid #60C003 !important;
 }
 
 .spinner_evenement_loading {
