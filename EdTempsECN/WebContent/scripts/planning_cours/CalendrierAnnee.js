@@ -30,6 +30,7 @@ define([  ], function() {
 	    this.listeMoisCourts = new Array('Sep.', 'Oct.', 'Nov.', 'Déc.', 'Jan.', 'Fév.', 'Mar.', 'Avr.', 'Mai', 'Juin', 'Juil.', 'Août');
 	    this.listeMoisNumero = new Array(9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8);
 	    this.listeNbJours = new Array(30, 31, 30, 31, 31, 28, 31, 30, 31, 30, 31, 31);
+	    this.initialesJours = new Array('D', 'L', 'M', 'M', 'J', 'V', 'S');
 	    
 	    this.chargerAnnee(annee, joursSpeciaux);
 	};
@@ -56,14 +57,16 @@ define([  ], function() {
 			
 			// Parcours les mois
 			tabJours += "<tr>";
-			var an, dimanche, classes;
+			var an, dimanche, classes, initiale, date;
 			for (var j=0; j<12; j++) {
 				if (this.listeNbJours[j] >= (i+1)) {
 					an = (this.listeMoisNumero[j] < 9) ? (this.annee+1) : this.annee;
-					dimanche = (new Date(an, this.listeMoisNumero[j]-1, i+1).getDay()==0) ? " dimanche" : "";
+					date = new Date(an, this.listeMoisNumero[j]-1, i+1).getDay();
+					dimanche = (date==0) ? " dimanche" : "";
 					classes = "jour" + dimanche;
+					initiale = this.initialesJours[date];
 					
-					tabJours += "<td><div class='"+classes+"' id='"+an+"-"+this.listeMoisNumero[j]+"-"+(i+1)+"'>"+(i+1)+"</div></td>";
+					tabJours += "<td><div class='"+classes+"' id='"+an+"-"+this.listeMoisNumero[j]+"-"+(i+1)+"'><span class='initiale_jour'>"+initiale+"</span>"+(i+1)+"</div></td>";
 				} else {
 					tabJours += "<td></td>";
 				}

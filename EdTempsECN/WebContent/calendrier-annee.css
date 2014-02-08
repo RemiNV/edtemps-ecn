@@ -21,8 +21,6 @@
 
 #calendrierAnnee td div.jour {
 	cursor: pointer;
-	margin: auto;
-	width: 40px;
 	border: solid 1px white;
 }
 
@@ -31,7 +29,7 @@
 }
 
 #calendrierAnnee td div.dimanche {
-	background-color: #F3F3F3;
+	background-color: #D6D6D6;
 }
 
 #calendrierAnnee td div.vacances {
@@ -47,4 +45,11 @@
 #calendrierAnnee td div.ferie {
 	background-color: #B30202;
 	color: white;
+}
+
+#calendrierAnnee td span.initiale_jour {
+	float: left;
+	width: 20px;
+	padding-left: 5px;
+	text-align: left;
 }
