@@ -77,7 +77,9 @@ public class StatistiquesGestion {
 			
 			resultSet.close();
 			
-			res.setStatistiquesTypeCours(strTypeCoursCourant, nextMap);
+			if(strTypeCoursCourant != null) {
+				res.setStatistiquesTypeCours(strTypeCoursCourant, nextMap);
+			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}

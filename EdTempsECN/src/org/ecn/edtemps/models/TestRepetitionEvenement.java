@@ -11,12 +11,13 @@ import org.ecn.edtemps.json.JSONUtils;
 
 public class TestRepetitionEvenement implements JSONAble {
 	
-	protected String num;
+	/** Numéro de l'événement. Plusieurs événements peuvent avoir le même numéro (mais un seul de ceux-ci n'aura pas de problème) */
+	protected int num;
 	protected Date dateDebut;
 	protected Date dateFin;
 	
-	/** Liste des résultats : peut contenir plusieurs éléments (problèmes) si n'est pas "OK" */
-	protected ArrayList<Probleme> resultats;
+	/** Liste des problèmes : est vide si "OK" */
+	protected ArrayList<Probleme> problemes;
 	
 	public static class Probleme implements JSONAble {
 		protected ProblemeStatus status;
@@ -61,11 +62,11 @@ public class TestRepetitionEvenement implements JSONAble {
 		}
 	}
 	
-	public TestRepetitionEvenement(String num, Date dateDebut, Date dateFin, ArrayList<Probleme> resultats) {
+	public TestRepetitionEvenement(int num, Date dateDebut, Date dateFin, ArrayList<Probleme> problemes) {
 		this.num = num;
 		this.dateDebut = dateDebut;
 		this.dateFin = dateFin;
-		this.resultats = resultats;
+		this.problemes = problemes;
 	}
 	
 	
@@ -75,7 +76,7 @@ public class TestRepetitionEvenement implements JSONAble {
 				.add("num", num)
 				.add("debut", dateDebut.getTime())
 				.add("fin", dateFin.getTime())
-				.add("resultats", JSONUtils.getJsonArray(resultats))
+				.add("problemes", JSONUtils.getJsonArray(problemes))
 				.build();
 	}
 

@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
@@ -17,6 +19,8 @@ import org.ecn.edtemps.models.TestRepetitionEvenement;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 public class RepeterEvenementServlet extends RequiresConnectionServlet {
+	
+	private static Logger logger = LogManager.getLogger(RepeterEvenementServlet.class.getName());
 
 	private static final long serialVersionUID = -3058678054940040170L;
 
@@ -41,11 +45,10 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 			
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Répétition calculée", 
 					JSONUtils.getJsonArray(res)));
-			
-		
 		}
 		catch(EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			logger.error("Erreur lors de la prévisualisation de répétition d'événement", e);
 		}
 		
 		

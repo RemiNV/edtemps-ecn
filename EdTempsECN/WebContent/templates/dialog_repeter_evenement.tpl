@@ -3,7 +3,7 @@
 	<table>
 		<tr>
 			<td><label for="input_frequence">Fréquence : </label></td>
-			<td>Tous les <input type="number" id="input_frequence" class="input_small" /> jours</td>
+			<td>Tous les <input type="number" id="input_frequence" class="input_small" value="7" /> jours</td>
 		</tr>
 		<tr>
 			<td><label for="input_nb_evenements">Nombre d'événements : </label></td>
@@ -13,35 +13,28 @@
 	
 	<h3>Synthèse de l'action : </h3>
 	<div id="div_synthese" data-template="
-		<table class='tbl_standard'>
+		<table class='tbl_standard centrer'>
 			<tr>
 				<th>Num.</th><th>Date</th><th>Statut</th><th>Action</th>
 			</tr>
 			<% _.each(synthese, function(element, index) { %>
 				<tr>
-					<td><%= element.num %></td>
-					<td><%= element.date %></td>
-					<td><%= element.statut %></td>
+					<td><%= (element.problemes.length > 0 ? '(' + element.num + ')' : element.num) %></td>
+					<td><%= element.strDate %></td>
+					<td><%= element.strProblemes %></td>
 					<td>
 						<%
-						switch(element.statusCode) {
-							
-							case 1: // Salle occupée par cours
-								%>
-								<span class='button btn_rechercher_salle'>Rech. salle</span>
-								%>
-								break;
-							case 2: // Salle occupée par non cours
-								%>
-								<span class='button btn_rechercher_salle'>Rech. salle</span>
-								<%
-							case 3: // Public occupé
-							case 4: // Jour bloqué
-								%>
-								<span class='button btn_forcer_ajout'>Forcer ajout</span>
-								<%
-								break;
-						}	
+						if(element.afficherBoutonRechercheSalle) {
+							%>
+							<span class='button btn_rechercher_salle'>Rech. salle</span>
+							<%
+						}
+						
+						if(element.afficherBoutonForcer) {
+							%>
+							<span class='button btn_forcer_ajout'>Forcer ajout</span>
+							<%
+						}
 						%>
 					</td>
 				</tr>

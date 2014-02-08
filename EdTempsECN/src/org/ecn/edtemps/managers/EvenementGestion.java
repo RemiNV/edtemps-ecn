@@ -465,6 +465,8 @@ public class EvenementGestion {
 
 		ArrayList<EvenementComplet> res = listerEvenementsGroupesTempTable(GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS, dateDebut, dateFin);
 		
+		GroupeGestion.dropTempTableListeParentsEnfants(_bdd);
+		
 		if(createTransaction) {
 			_bdd.commit();
 		}
@@ -522,6 +524,11 @@ public class EvenementGestion {
 	 */
 	public ArrayList<EvenementIdentifie> listerEvenementsSalleCoursOuPas(ArrayList<Integer> idSalles, Date dateDebut, Date dateFin, boolean estCours, boolean createTransaction) 
 			throws DatabaseException {
+		
+		if(idSalles.size() == 0) { // Aucune salle, donc aucun événement
+			return new ArrayList<EvenementIdentifie>(0);
+		}
+		
 		String strIdsSalles = StringUtils.join(idSalles, ",");
 		
 		String request = "SELECT DISTINCT evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin, evenement.eve_createur " +
@@ -530,11 +537,11 @@ public class EvenementGestion {
 				"LEFT JOIN edt.evenementappartient ON evenementappartient.eve_id = evenement.eve_id " +
 				"LEFT JOIN edt.calendrierappartientgroupe ON calendrierappartientgroupe.cal_id = evenementappartient.cal_id " +
 				"LEFT JOIN edt.groupeparticipant groupecours ON groupecours.groupeparticipant_id = calendrierappartientgroupe.groupeparticipant_id " +
-					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours)" +
-				"WHERE alieuensalle.salle_id IN (" + strIdsSalles + ") "
-				+ "AND evenement.eve_datefin >= ? "
-				+ "AND evenement.eve_datedebut <= ? " +
-				"GROUP BY evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
+					"AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours) " +
+				"WHERE evenement.eve_datefin >= ? "
+				+ "AND evenement.eve_datedebut <= ? "
+				+ "AND alieuensalle.salle_id IN (" + strIdsSalles + ") "
+				+ "GROUP BY evenement.eve_id, evenement.eve_nom, evenement.eve_datedebut, evenement.eve_datefin " +
 				"HAVING COUNT(groupecours.groupeparticipant_id)" + (estCours ? " > 0" : " = 0");
 		ArrayList<EvenementIdentifie> res = listerEvenements(request, dateDebut, dateFin, new EvenementIdentifieInflater(), createTransaction);
 		return res;
@@ -683,6 +690,8 @@ public class EvenementGestion {
 			"AND cap.cal_id IN (" + strIds + ")");
 				
 		ArrayList<EvenementComplet> res = listerEvenementsGroupesTempTable(GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS, dateDebut, dateFin);
+		
+		GroupeGestion.dropTempTableListeParentsEnfants(_bdd);
 		
 		if(createTransaction) {
 			_bdd.commit();
@@ -863,7 +872,7 @@ public class EvenementGestion {
 		int nbRecherchesRepetition = 0;
 		
 		Date newDateDebut = DateUtils.addDays(evenement.getDateDebut(), periode);
-		Date newDateFin = DateUtils.addDays(evenement.getDateDebut(), periode);
+		Date newDateFin = DateUtils.addDays(evenement.getDateFin(), periode);
 		
 		ArrayList<Integer> idSalles = new ArrayList<Integer>(evenement.getSalles().size());
 		for(SalleIdentifie s : evenement.getSalles()) {
@@ -877,16 +886,18 @@ public class EvenementGestion {
 			ArrayList<Probleme> problemes = new ArrayList<Probleme>();
 			
 			// Vérification de l'occupation de la salle
-			List<EvenementIdentifie> evenementsCours = listerEvenementsSalleCoursOuPas(idSalles, newDateDebut, newDateFin, true, false);
-			
-			if(evenementsCours.size() > 0) {
-				// Le toString des Evenement utilise leur attribut nom
-				problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_COURS, StringUtils.join(evenementsCours, ", ")));
-			}
-			else { // Inutile d'examiner les non-cours s'il y a déjà un cours
-				List<EvenementIdentifie> evenementsNonCours = listerEvenementsSalleCoursOuPas(idSalles, newDateDebut, newDateFin, false, false);
-				if(evenementsNonCours.size() > 0) {
-					problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_NON_COURS, StringUtils.join(evenementsNonCours, ", ")));
+			if(idSalles.size() > 0) {
+				List<EvenementIdentifie> evenementsCours = listerEvenementsSalleCoursOuPas(idSalles, newDateDebut, newDateFin, true, false);
+				
+				if(evenementsCours.size() > 0) {
+					// Le toString des Evenement utilise leur attribut nom
+					problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_COURS, StringUtils.join(evenementsCours, ", ")));
+				}
+				else { // Inutile d'examiner les non-cours s'il y a déjà un cours
+					List<EvenementIdentifie> evenementsNonCours = listerEvenementsSalleCoursOuPas(idSalles, newDateDebut, newDateFin, false, false);
+					if(evenementsNonCours.size() > 0) {
+						problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_NON_COURS, StringUtils.join(evenementsNonCours, ", ")));
+					}
 				}
 			}
 				
@@ -915,21 +926,17 @@ public class EvenementGestion {
 			if(periodesBloquees.size() > 0) {
 				problemes.add(new Probleme(ProblemeStatus.JOUR_BLOQUE, periodesBloquees.get(0).getLibelle()));
 			}
-			
-			// Ajout au résultat
-			String num;
-			if(problemes.size() > 0) {
-				num = "(" + repetitionsCourantes + ")";
-			}
-			else {
-				repetitionsCourantes++;
-				num = String.valueOf(repetitionsCourantes);
+
+			// On affiche le numéro de la répétition qu'on essaie d'effectuer (et pas le nombre déjà effectué)
+			int numAffiche = repetitionsCourantes + 1;
+			if(problemes.size() == 0) {
+				repetitionsCourantes = numAffiche;
 			}
 			
-			res.add(new TestRepetitionEvenement(num, newDateDebut, newDateFin, problemes));
+			res.add(new TestRepetitionEvenement(numAffiche, newDateDebut, newDateFin, problemes));
 			
-			newDateDebut = DateUtils.addDays(evenement.getDateDebut(), periode);
-			newDateFin = DateUtils.addDays(evenement.getDateDebut(), periode);
+			newDateDebut = DateUtils.addDays(newDateDebut, periode);
+			newDateFin = DateUtils.addDays(newDateFin, periode);
 			nbRecherchesRepetition++;
 		}
 		

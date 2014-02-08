@@ -172,8 +172,8 @@
   </servlet>
   
    <servlet>
-      <servlet-name>RepeterEvenementServlet</servlet-name>
-      <servlet-class>org.ecn.edtemps.servlets.impl.RepeterEvenement</servlet-class>
+      <servlet-name>RepeterEvenement</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.RepeterEvenementServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -343,7 +343,7 @@
   
   <servlet-mapping>
       <servlet-name>RepeterEvenement</servlet-name>
-      <url-pattern>/repeterevenement</url-pattern>
+      <url-pattern>/repeterevenement/*</url-pattern>
   </servlet-mapping>
   
 </web-app>
