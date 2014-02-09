@@ -840,6 +840,7 @@ table.liste_materiel th {
 	left: 5px;
 }
 
+
 /* Page de gestion des jours bloqués */
 
 #jours_bloques {
@@ -854,6 +855,17 @@ table.liste_materiel th {
 	text-align: center;
 	font-weight: bold;
 	vertical-align: middle;
+}
+
+#jours_bloques_legende {
+	float: right;
+	margin-top: 10px;
+}
+
+#jours_bloques_legende div.item {
+	width: 15px;
+	height: 15px;
+	display: inline-block;
 }
 
 #jours_bloques #commandes img {
@@ -881,25 +893,21 @@ table.liste_materiel th {
 	display: none;
 }
 
-#jours_bloques #bt_gestion_vacances, #bt_ajouter_jour_ferie {
+#jours_bloques #bt_gestion_vacances, #bt_ajouter_jour_ferie, #bt_ajout_auto {
 	margin-top: 10px;
 }
 
 #partie_jours_feries p {
 	border-bottom: solid 1px gray;
 	padding-bottom: 5px;
-}
-
-#partie_jours_feries #bt_ajout_auto {
-	float: right;
-	margin-top: -15px;
+	margin-top: 30px;
 }
 
 #liste_jours_feries {
 	display: none;
 	border-collapse: collapse;
 	width: 865px;
-	text-align: center;
+	text-align: center; 
 }
 
 #liste_jours_feries th {
@@ -923,13 +931,21 @@ table.liste_materiel th {
 	padding: 3px 5px 3px 5px;
 }
 
-#dialog_ajout_jour_ferie {
+
+/* Dialog ajouter/modifier jours spéciaux : fériés, bloqués et vacances */
+#dialog_ajout_jour_ferie, #dialog_ajout_periode_bloquee {
 	display: none;
 }
-
-#dialog_ajout_jour_ferie .boutons_valider {
-	margin-top: 20px;
+#dialog_ajout_periode_bloquee #date_jour_bloque {
+	text-align: center;
+	padding-bottom: 10px;
+	font-weight: bold;
 }
+
+#dialog_ajout_periode_bloquee #choix_groupes {
+	vertical-align: top;
+}
+
 
 /* Bloc statistiques (page planning calendrier) */
 #contenu_statistiques {

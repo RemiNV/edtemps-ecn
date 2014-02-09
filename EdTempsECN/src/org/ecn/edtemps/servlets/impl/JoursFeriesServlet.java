@@ -164,10 +164,15 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		// Récupère les paramètres
 		String libelle = req.getParameter("libelle");
 		Date date = this.getDateInRequest(req, "date");
-		
+		String strFermeture = req.getParameter("fermeture");
+		if(StringUtils.isBlank(strFermeture)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre fermeture non fourni pour un ajout de jour férié/fermeture");
+		}
+		boolean fermeture = Boolean.valueOf(strFermeture);
+
 		// Exécute la requête d'ajout avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
-		jourFerieGestion.sauverJourFerie(libelle, date, userId);
+		jourFerieGestion.sauverJourFerie(libelle, fermeture, date, userId);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié ajouté", null));
 
@@ -191,17 +196,23 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		Date date = this.getDateInRequest(req, "date");
 		String strIdJourFerie = req.getParameter("idJourFerie");
 		if(strIdJourFerie == null) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idJourFerie non fourni pour une modification de jour férié");
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idJourFerie non fourni pour une modification de jour férié/fermeture");
 		}
 		int idJourFerie = Integer.parseInt(strIdJourFerie);
+		String strFermeture = req.getParameter("fermeture");
+		if(StringUtils.isBlank(strFermeture)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre fermeture non fourni pour une modification de jour férié/fermeture");
+		}
+		boolean fermeture = Boolean.valueOf(strFermeture);
+
 		
-		JourFerieIdentifie jour = new JourFerieIdentifie(idJourFerie, libelle, date);
+		JourFerieIdentifie jour = new JourFerieIdentifie(idJourFerie, libelle, date, fermeture);
 		
 		// Exécute la requête de modification avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
 		jourFerieGestion.modifierJourFerie(jour, userId);
 		bdd.close();
-		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié modifié", null));
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, fermeture ? "Jour de fermeture modifié" : "Jour férié modifié", null));
 
 	}
 	

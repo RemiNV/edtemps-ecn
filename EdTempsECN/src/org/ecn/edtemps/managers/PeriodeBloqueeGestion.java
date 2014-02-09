@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.models.identifie.PeriodeBloqueeIdentifie;
 import org.ecn.edtemps.models.inflaters.GroupeIdentifieInflater;
@@ -25,6 +27,8 @@ public class PeriodeBloqueeGestion {
 	protected BddGestion bdd;
 	private static Logger logger = LogManager.getLogger(PeriodeBloqueeGestion.class.getName());
 
+	/** Nombre de caractères maximum pour le libellé */
+	public static final int TAILLE_MAX_LIBELLE = 50;
 	
 	/**
 	 * Initialise un gestionnaire d'une période bloquée
@@ -118,5 +122,150 @@ public class PeriodeBloqueeGestion {
 		}
 
 	}
+	
+	
+	/**
+	 * Ajouter une période bloquée
+	 * 
+	 * @param libelle Libellé de la période
+	 * @param dateDebut Date de début de la période
+	 * @param dateFin Date de fin de la période
+	 * @param vacances VRAI si c'est une période de vacances
+	 * @param listeIdGroupe Liste des identifiants des groupes liés à cette période
+	 * @throws EdtempsException
+	 */
+	public void sauverPeriodeBloquee(String libelle, Date dateDebut, Date dateFin, boolean vacances, ArrayList<Integer> listeIdGroupe) throws EdtempsException {
+
+		// Quelques vérifications sur l'objet à enregistrer
+		if (dateDebut==null || dateDebut==null || listeIdGroupe.isEmpty() || StringUtils.isEmpty(libelle)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Les informations sur la période bloquée ne sont pas complètes");
+		}
+		
+		// Vérifie que le libellé est bien alphanumérique
+		if(libelle.length() > TAILLE_MAX_LIBELLE || !libelle.matches("^['a-zA-Z \u00C0-\u00FF0-9]+$")) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libellé d'une période bloquée doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
+		}
+
+		try {
+			
+			// Démarre une transaction
+			bdd.startTransaction();
+			
+			// Prépare la requête d'insertion
+			PreparedStatement requete = bdd.getConnection().prepareStatement("INSERT INTO edt.periodesbloquees" +
+					" (periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)" +
+					" VALUES (?, ?, ?, ?)" +
+				    " RETURNING periodebloquee_id");
+			requete.setString(1, libelle);
+			requete.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
+			requete.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
+			requete.setBoolean(4, vacances);
+			
+			// Exécute la requête
+			ResultSet ligneCreee = requete.executeQuery();
+			logger.info("Sauvegarde d'une période bloquée");
+			 
+			// On récupère l'id de la ligne créée
+			ligneCreee.next();
+			int idLigneCree = ligneCreee.getInt("periodebloquee_id");
+			ligneCreee.close();
+			requete.close();
+			
+			// Requête d'ajout des liens avec les groupes de participants liés
+			String strReq = "INSERT INTO edt.periodesbloqueesappartientgroupe (groupeparticipant_id, periodebloquee_id) VALUES";
+			for (int i=0; i<listeIdGroupe.size() ; i++) {
+				if (i!=0) strReq += ", ";
+				strReq += " (" + listeIdGroupe.get(i) + ", " + idLigneCree + ")";
+			}
+			bdd.executeRequest(strReq);
+			
+			// Commit la transaction
+			bdd.commit();
+
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+	}
+	
+	
+	/**
+	 * Modifier une période bloquée
+	 * 
+	 * @param id Identifiant de la période à modifier
+	 * @param libelle Nouveau libellé
+	 * @param dateDebut Nouvelle date de début
+	 * @param dateFin Nouvelle date de fin
+	 * @param vacances Nouvelle valeur pour vacances
+	 * @param listeIdGroupe Nouvelle liste des identifiants des groupes liés à cette période
+	 * @throws EdtempsException
+	 */
+	public void modifierPeriodeBloquee(int id, String libelle, Date dateDebut, Date dateFin, boolean vacances, ArrayList<Integer> listeIdGroupe) throws EdtempsException {
+
+		// Quelques vérifications sur l'objet à enregistrer
+		if (dateDebut==null || dateDebut==null || listeIdGroupe.isEmpty() || StringUtils.isEmpty(libelle)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Les informations sur la période bloquée ne sont pas complètes");
+		}
+		
+		// Vérifie que le libellé est bien alphanumérique
+		if(libelle.length() > TAILLE_MAX_LIBELLE || !libelle.matches("^['a-zA-Z \u00C0-\u00FF0-9]+$")) {
+			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libellé d'une période bloquée doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
+		}
+
+		try {
+			
+			// Démarre une transaction
+			bdd.startTransaction();
+			
+			// Modifie les valeurs de base de la période
+			PreparedStatement requete = bdd.getConnection().prepareStatement("UPDATE edt.periodesbloquees" +
+					" SET periodebloquee_libelle=?, periodebloquee_date_debut=?, periodebloquee_date_fin=?, periodebloquee_vacances=?" +
+					" WHERE periodebloquee_id=?");
+			requete.setString(1, libelle);
+			requete.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
+			requete.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
+			requete.setBoolean(4, vacances);
+			requete.setInt(5, id);
+			requete.execute();
+			requete.close();
+			
+			// Supprime l'ancienne liste des groupes liés
+			bdd.executeUpdate("DELETE FROM edt.periodesbloqueesappartientgroupe WHERE periodebloquee_id=" + id);
+			
+			// Recréer la liste des groupes liés
+			String strReq = "INSERT INTO edt.periodesbloqueesappartientgroupe (groupeparticipant_id, periodebloquee_id) VALUES";
+			for (int i=0; i<listeIdGroupe.size() ; i++) {
+				if (i!=0) strReq += ", ";
+				strReq += " (" + listeIdGroupe.get(i) + ", " + id + ")";
+			}
+			bdd.executeRequest(strReq);
+
+			// Commit la transaction
+			bdd.commit();
+
+		} catch (SQLException e) {
+			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
+		}
+	}
+	
+
+	/**
+	 * Supprimer une période bloquée de la base de donnée
+	 * 
+	 * @param id Identifiant de la période
+	 * @throws EdtempsException
+	 */
+	public void supprimerPeriodeBloquee(int id) throws DatabaseException {
+
+		// Démarre une transaction
+		bdd.startTransaction();
+		
+		bdd.executeUpdate("DELETE FROM edt.periodesbloqueesappartientgroupe WHERE periodebloquee_id=" + id);
+		bdd.executeUpdate("DELETE FROM edt.periodesbloquees WHERE periodebloquee_id=" + id);
+		
+		// Commit la transaction
+		bdd.commit();
+
+	}
+	
 	
 }
