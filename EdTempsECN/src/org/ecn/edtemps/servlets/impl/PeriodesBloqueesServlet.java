@@ -1,11 +1,16 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.JsonValue;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +25,8 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.PeriodeBloqueeGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.models.identifie.PeriodeBloqueeIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
@@ -32,6 +39,16 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 
 	private static final long serialVersionUID = -7109999235327735066L;
 	private static Logger logger = LogManager.getLogger(PeriodesBloqueesServlet.class.getName());
+	
+	private static class PrePeriodeBloquee {
+		public String libelle;
+		public Date dateDebut;
+		public Date dateFin;
+		public ArrayList<Integer> listeIdGroupes;
+		public Integer idPeriodeBloquee;
+		public boolean vacances;
+	}
+
 	
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String pathInfo = req.getPathInfo();
@@ -59,15 +76,21 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 		String pathInfo = req.getPathInfo();
 		
 		try {
+			// Vérifie que l'utilisateur est autorisé à gérer les périodes bloquées
+			UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+			if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour bloqué");
+			}
+			
 			switch(pathInfo) {
 			case "/ajouter":
-				doAjouter(userId, bdd, req, resp);
+				doAjouter(bdd, req, resp);
 				break;
 			case "/modifier":
-				doModifier(userId, bdd, req, resp);
+				doModifier(bdd, req, resp);
 				break;
 			case "/supprimer":
-				doSupprimer(userId, bdd, req, resp);
+				doSupprimer(bdd, req, resp);
 				break;
 			default:
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -120,7 +143,6 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 
 	/**
 	 * Supprimer une période bloquée
-	 * @param userId
 	 * @param bdd
 	 * @param req
 	 * @param resp
@@ -128,18 +150,18 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 	 * @throws IOException
 	 * @throws EdtempsException
 	 */
-	protected void doSupprimer(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
+	protected void doSupprimer(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
 		
 		// Récupère les paramètres
 		String strId = req.getParameter("idPeriodeBloquee");
 		if(StringUtils.isBlank(strId)) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idPeriodeBloquee non fourni pour une suppression de période bloquée");
 		}
-		int id = Integer.parseInt(strId);
+		int idPeriodeBloquee = Integer.parseInt(strId);
 
 		// Exécute la requête de suppression avec le gestionnaire
 		PeriodeBloqueeGestion gestionnaire = new PeriodeBloqueeGestion(bdd);
-		gestionnaire.supprimerPeriodeBloquee(id, userId);
+		gestionnaire.supprimerPeriodeBloquee(idPeriodeBloquee);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Période bloquée supprimée", null));
 	}
@@ -147,7 +169,6 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 
 	/**
 	 * Ajouter une période bloquée
-	 * @param userId
 	 * @param bdd
 	 * @param req
 	 * @param resp
@@ -155,28 +176,14 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 	 * @throws IOException
 	 * @throws EdtempsException
 	 */
-	protected void doAjouter(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
+	protected void doAjouter(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
 		
-		// Récupère les paramètres
-		String libelle = req.getParameter("libelle");
-		Date dateDebut = this.getDateInRequest(req, "dateDebut");
-		Date dateFin = this.getDateInRequest(req, "dateFin");
-		String strVacances = req.getParameter("vacances");
-		if(StringUtils.isBlank(strVacances)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre vacances non fourni pour un ajout de période bloquée");
-		}
-		boolean vacances = Boolean.valueOf(strVacances);
+		// Récupère les paramètres dans la requête
+		PrePeriodeBloquee param = recupererInformation(req);
 
-		ArrayList<Integer> listeIdGroupe = new ArrayList<Integer>();
-		
-		// Quelques vérifications sur les dates
-		if (dateDebut==null || dateFin==null || dateDebut.after(dateFin)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
-		}
-		
 		// Exécute la requête d'ajout avec le gestionnaire
 		PeriodeBloqueeGestion gestionnaire = new PeriodeBloqueeGestion(bdd);
-		gestionnaire.sauverPeriodeBloquee(libelle, dateDebut, dateFin, vacances, listeIdGroupe, userId);
+		gestionnaire.sauverPeriodeBloquee(param.libelle, param.dateDebut, param.dateFin, param.vacances, param.listeIdGroupes);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Période bloquée ajoutée", null));
 
@@ -185,7 +192,6 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 
 	/**
 	 * Modifier un jour férié
-	 * @param userId
 	 * @param bdd
 	 * @param req
 	 * @param resp
@@ -193,35 +199,66 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 	 * @throws IOException
 	 * @throws EdtempsException
 	 */
-	protected void doModifier(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
-		
-		// Récupère les paramètres
-		String libelle = req.getParameter("libelle");
-		Date dateDebut = this.getDateInRequest(req, "dateDebut");
-		Date dateFin = this.getDateInRequest(req, "dateFin");
-		String strVacances = req.getParameter("vacances");
-		if(StringUtils.isBlank(strVacances)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre vacances non fourni pour un ajout de période bloquée");
-		}
-		boolean vacances = Boolean.valueOf(strVacances);
-		String strId = req.getParameter("idPeriodeBloquee");
-		if(strId == null) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idPeriodeBloquee non fourni pour une modification de période bloquée");
-		}
-		int id = Integer.parseInt(strId);
-		
-		ArrayList<Integer> listeIdGroupe = new ArrayList<Integer>();
+	protected void doModifier(BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
 
-		// Quelques vérifications sur les dates
-		if (dateDebut==null || dateFin==null || dateDebut.after(dateFin)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST);
-		}
-		
+		// Récupère les paramètres dans la requête
+		PrePeriodeBloquee param = recupererInformation(req);
+
 		// Exécute la requête de modification avec le gestionnaire
 		PeriodeBloqueeGestion gestionnaire = new PeriodeBloqueeGestion(bdd);
-		gestionnaire.modifierPeriodeBloquee(id, libelle, dateDebut, dateFin, vacances, listeIdGroupe, userId);
+		gestionnaire.modifierPeriodeBloquee(param.idPeriodeBloquee, param.libelle, param.dateDebut, param.dateFin, param.vacances, param.listeIdGroupes);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Période bloquée modifiée", null));
 
+	}
+	
+	
+	/**
+	 * Générer un objet de type PrePeriodeBloquee qui contient tous les champs intéressants à partir d'une requpete HTTP
+	 * 
+	 * @param req La requête à traiter
+	 * @return l'objet PrePeriodeBloquee
+	 * @throws EdtempsException
+	 */
+	protected PrePeriodeBloquee recupererInformation(HttpServletRequest req) throws EdtempsException {
+
+		PrePeriodeBloquee res = new PrePeriodeBloquee();
+		
+		String strPeriode = req.getParameter("periode");
+		if(StringUtils.isBlank(strPeriode)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet periode manquant");
+		}
+		
+		JsonReader reader = Json.createReader(new StringReader(strPeriode));
+		JsonObject jsonPeriode = reader.readObject();
+		
+		JsonNumber jsonId = getJsonNumberOrNull(jsonPeriode, "idPeriodeBloquee"); 
+		res.idPeriodeBloquee = jsonId == null ? null : new Integer(jsonId.intValue());
+
+		JsonNumber jsonDebut = getJsonNumberOrNull(jsonPeriode, "dateDebut"); 
+		res.dateDebut = jsonDebut == null ? null : new Date(jsonDebut.longValue());
+
+		JsonNumber jsonFin = getJsonNumberOrNull(jsonPeriode, "dateFin");
+		res.dateFin = jsonFin == null ? null : new Date(jsonFin.longValue());
+
+		JsonArray jsonIdGroupes = getJsonArrayOrNull(jsonPeriode, "listeGroupes");
+		res.listeIdGroupes = jsonIdGroupes == null ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdGroupes);
+
+		res.libelle = jsonPeriode.containsKey("libelle") && !jsonPeriode.isNull("libelle") ? jsonPeriode.getString("libelle") : null;
+		res.vacances = jsonPeriode.containsKey("vacances") && !jsonPeriode.isNull("vacances") ? jsonPeriode.getBoolean("vacances") : null;
+
+		if (res.dateDebut==null || res.dateFin==null || res.dateDebut.after(res.dateFin) || StringUtils.isBlank(res.libelle) || res.listeIdGroupes.isEmpty()) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet periode incomplet");
+		}
+		
+		return res;
+	}
+
+	protected JsonNumber getJsonNumberOrNull(JsonObject object, String key) {
+		return object.containsKey(key) && !object.isNull(key) ? object.getJsonNumber(key) : null;
+	}
+
+	protected JsonArray getJsonArrayOrNull(JsonObject object, String key) {
+		return object.containsKey(key) && !object.isNull(key) ? object.getJsonArray(key) : null;
 	}
 }

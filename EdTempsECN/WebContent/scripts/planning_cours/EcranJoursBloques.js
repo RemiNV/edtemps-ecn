@@ -198,13 +198,14 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 	 * @param {object} jqElement objet jquery de l'élément cliqué
 	 */
 	EcranJoursBloques.prototype.clickSurUnJour = function(date, jqElement) {
+		var me = this;
 		
 		// Récupère la liste des événemnts bloquants sur cette journée
 		var listeEvenementsBloquants = this.jourBloqueGestion.getJoursBloquesParJour(date);
 		
 		if (listeEvenementsBloquants.length == 0) {
-			this.dialogAjoutPeriodeBloquee.show(null, date, function (libelle, dateDebut, dateFin) {
-				me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, false, function () {
+			this.dialogAjoutPeriodeBloquee.show(null, date, function (libelle, dateDebut, dateFin, listeGroupes) {
+				me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, false, function () {
 		    		me.actualiserPage(0);
 	    		});
 			});
@@ -238,23 +239,42 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 			title: this.calendrierAnnee.dateEnTouteLettres(date)
 		});
 		
+		// Affecte une action aux boutons de modification
 		this.jqDialogDetailsJourBloque.find(".modifier").click(function() {
 			me.jqDialogDetailsJourBloque.dialog("close");
 	    	var id = $(this).parents("tr").attr("data-id");
 			
-			me.dialogAjoutPeriodeBloquee.show(me.jourBloqueGestion.joursBloquesTries[id], date, function (libelle, dateDebut, dateFin) {
-				me.jourBloqueGestion.modifierPeriodeBloquee(id, libelle, dateDebut, dateFin, false, function () {
+			me.dialogAjoutPeriodeBloquee.show(me.jourBloqueGestion.joursBloquesTries[id], date, function (libelle, dateDebut, dateFin, listeGroupes) {
+				me.jourBloqueGestion.modifierPeriodeBloquee(id, libelle, dateDebut, dateFin, listeGroupes, false, function () {
 		    		me.actualiserPage(0);
 	    		});
 			});
 		});
 		
+		// Affecte une action aux boutons de suppression
 		this.jqDialogDetailsJourBloque.find(".supprimer").click(function() {
 			me.jqDialogDetailsJourBloque.dialog("close");
-	    	//var id = $(this).parents("tr").attr("data-id");
 
-	    	alert("Suppression de la période bloquée puis rafraichissement");
+	    	var id = $(this).parents("tr").attr("data-id");
+	    	
+	    	confirm("Etes-vous sûr(e) de vouloir supprimer cette période bloquée ?", function () {
+		    	me.jourBloqueGestion.supprimerPeriodeBloquee(id, function() {
+		    		me.actualiserPage(0);
+		    	});
+	    	});
+
 		});
+		
+		// Affecte une action au bouton d'ajout
+		this.jqDialogDetailsJourBloque.find("#btnAjouterPeriodeBloquee").click(function() {
+			me.jqDialogDetailsJourBloque.dialog("close");
+			me.dialogAjoutPeriodeBloquee.show(null, date, function (libelle, dateDebut, dateFin, listeGroupes) {
+				me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, false, function () {
+		    		me.actualiserPage(0);
+	    		});
+			});
+		});
+
 		
 		// Ouverture de la dialogue
 		this.jqDialogDetailsJourBloque.dialog("open");

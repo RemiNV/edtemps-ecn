@@ -25,8 +25,8 @@
 	</tr>
 
 	<tr>
-		<td><label for="heure_debut_fin_bloquee">Fin : </label></td>
-		<td><input type="text" id="heure_debut_fin_bloquee" /></td>
+		<td><label for="heure_fin_periode_bloquee">Fin : </label></td>
+		<td><input type="text" id="heure_fin_periode_bloquee" /></td>
 	</tr>
 	<tr>
 		<td></td>
@@ -35,6 +35,15 @@
 	<tr>
 		<td></td>
 		<td><div id="span_alert_heure_fin_incoherent" class="message_alerte" style="display: none">Heures incohérentes</div></td>
+	</tr>
+	
+	<tr id="choix_groupes">
+		<td>Groupes : </td>
+		<td><input type="text" id="groupes_participants_periode_bloquee" /></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><div id="span_alert_choix_groupe_manquant" class="message_alerte" style="display: none">Vous devez sélectionner un groupe</div></td>
 	</tr>
 	
 </table>

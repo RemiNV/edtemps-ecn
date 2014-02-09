@@ -938,6 +938,10 @@ table.liste_materiel th {
 	font-weight: bold;
 }
 
+#dialog_ajout_periode_bloquee #choix_groupes {
+	vertical-align: top;
+}
+
 
 /* Bloc statistiques (page planning calendrier) */
 #contenu_statistiques {

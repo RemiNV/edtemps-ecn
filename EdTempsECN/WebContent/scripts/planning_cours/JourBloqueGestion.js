@@ -11,16 +11,6 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	var JourBloqueGestion = function(restManager, jqEcran) {
 		this.restManager = restManager;
 		this.jqEcran = jqEcran;
-		
-		// Listes non ordonnées
-		this.joursFeries = new Array();
-		this.joursBloques = new Array();
-		this.vacances = new Array();
-
-		// Listes indexées par les identifiants des jours
-		this.joursFeriesTries = new Object();
-		this.joursBloquesTries = new Object();
-		this.vacancesTriees = new Object();
 	};
 	
 
@@ -36,6 +26,16 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		var dateDebut = new Date(annee, 8, 1).getTime();	// Premier septembre
 		var dateFin = new Date(annee+1, 7, 31).getTime();	// Dernier jour du mois d'août
 
+		// Listes non ordonnées
+		this.joursFeries = new Array();
+		this.joursBloques = new Array();
+		this.vacances = new Array();
+
+		// Listes indexées par les identifiants des jours
+		this.joursFeriesTries = new Object();
+		this.joursBloquesTries = new Object();
+		this.vacancesTriees = new Object();
+		
 		// Affiche le message de chargement en cours
 		this.jqEcran.find("#chargement_en_cours").show();
 
@@ -314,11 +314,17 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {boolean} vacances Vrai si ce sont des vacances, Faux sinon
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
-	JourBloqueGestion.prototype.ajouterPeriodeBloquee = function(libelle, dateDebut, dateFin, vacances, callback) {
-		
+	JourBloqueGestion.prototype.ajouterPeriodeBloquee = function(libelle, dateDebut, dateFin, listeGroupes, vacances, callback) {
+
 		this.restManager.effectuerRequete("POST", "periodesbloquees/ajouter", {
-			token: this.restManager.getToken(), libelle: libelle,
-			dateDebut: dateDebut.getTime(), dateFin: dateFin.getTime(), vacances: vacances
+			token: this.restManager.getToken(),
+			periode: JSON.stringify({
+				libelle: libelle,
+				listeGroupes: listeGroupes,
+				dateDebut: dateDebut.getTime(),
+				dateFin: dateFin.getTime(),
+				vacances: vacances
+			})
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
@@ -347,11 +353,18 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {boolean} vacances Vrai si ce sont des vacances, Faux sinon
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
-	JourBloqueGestion.prototype.modifierPeriodeBloquee = function(id, libelle, dateDebut, dateFin, vacances, callback) {
-		
+	JourBloqueGestion.prototype.modifierPeriodeBloquee = function(id, libelle, dateDebut, dateFin, listeGroupes, vacances, callback) {
+
 		this.restManager.effectuerRequete("POST", "periodesbloquees/modifier", {
-			token: this.restManager.getToken(), idPeriodeBloquee: id, libelle: libelle,
-			dateDebut: dateDebut.getTime(), dateFin: dateFin.getTime(), vacances: vacances
+			token: this.restManager.getToken(),
+			periode: JSON.stringify({
+				idPeriodeBloquee: parseInt(id),
+				libelle: libelle,
+				listeGroupes: listeGroupes,
+				dateDebut: dateDebut.getTime(),
+				dateFin: dateFin.getTime(),
+				vacances: vacances
+			})
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
@@ -369,6 +382,29 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		
 	};
 	
+	
+	/**
+	 * Supprimer une période bloquée
+	 * 
+	 * @param {int} id Identifiant de la période à supprimer
+	 * @param {function} callback Méthode exécutée en cas de réussite
+	 */
+	JourBloqueGestion.prototype.supprimerPeriodeBloquee = function(id, callback) {
+		
+		this.restManager.effectuerRequete("POST", "periodesbloquees/supprimer", {
+			token: this.restManager.getToken(), idPeriodeBloquee: id
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback();
+				window.showToast("Période bloquée supprimée");
+			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé à supprimer une période bloquée.");
+			} else {
+				window.showToast("Erreur lors de la suppression de la période bloquée ; vérifiez votre connexion.");
+			}
+		});
+		
+	};
 	
 	return JourBloqueGestion;
 

@@ -2,7 +2,7 @@
  * Module de contrôle de la boîte de dialogue d'ajout/modification d'une période bloquée
  * @module DialogAjoutPeriodeBloquee
  */
-define([ "planning_cours/EcranJoursBloques", "jquerymaskedinput" ], function(EcranJoursBloques) {
+define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jquerymaskedinput" ], function(RestManager, EcranJoursBloques, MultiWidget) {
 
 	/**
 	 * @constructor
@@ -14,9 +14,11 @@ define([ "planning_cours/EcranJoursBloques", "jquerymaskedinput" ], function(Ecr
 		this.jqDialog = jqDialog;
 		this.jqLibelle = jqDialog.find("#txt_libelle");
 		this.jqHeureDebut = jqDialog.find("#heure_debut_periode_bloquee");
-		this.jqHeureFin = jqDialog.find("#heure_debut_fin_bloquee");
+		this.jqHeureFin = jqDialog.find("#heure_fin_periode_bloquee");
 		this.jqJourLettres = jqDialog.find("#date_jour_bloque");
+		this.jqGroupes = jqDialog.find("#groupes_participants_periode_bloquee");
 		this.periode = null; // Est rempli dans le cas d'une modification
+		this.multiWidgetGroupes = null;
 		
 		this.initAppele = false;
 	};
@@ -40,19 +42,29 @@ define([ "planning_cours/EcranJoursBloques", "jquerymaskedinput" ], function(Ecr
 		this.callback = callback;
 		this.periode = periode;
 		this.date = date;
-		
+		this.jqJourLettres.html(this.ecranJoursBloques.calendrierAnnee.dateEnTouteLettres(date));
+
 		// Rempli les champs dans le cas de la modification
 		if (this.periode != null) {
 			this.jqDialog.dialog({ title: "Modification d'une période bloquée" });
 			this.jqLibelle.val(periode.libelle);
 			this.jqHeureDebut.val(periode.strHeureDebut);
 			this.jqHeureFin.val(periode.strHeureFin);
-			this.jqJourLettres.html(this.ecranJoursBloques.calendrierAnnee.dateEnTouteLettres(date));
+			
+			// Affiche les groupes de participants avec le multiwidget
+			var liste = new Array();
+			for (var i=0, maxI=periode.listeGroupes.length; i<maxI; i++) {
+				liste.push({
+						label: periode.listeGroupes[i].nom,
+						value: periode.listeGroupes[i].id
+				});
+			}
+			this.multiWidgetGroupes.setValues(liste);
+			
 		} else {
 			this.jqDialog.dialog({ title: "Ajout d'une période bloquée" });
-			this.jqJourLettres.html(this.ecranJoursBloques.calendrierAnnee.dateEnTouteLettres(date));
 		}
-
+		
 		// Ouvre la boîte de dialogue
 		this.jqDialog.dialog("open");
 	};
@@ -72,7 +84,7 @@ define([ "planning_cours/EcranJoursBloques", "jquerymaskedinput" ], function(Ecr
 		// Créer la boîte de dialogue
 		this.jqDialog.dialog({
 			autoOpen: false,
-			width: 360,
+			width: 380,
 			modal: true,
 			show: { effect: "fade", duration: 200 },
 			hide: { effect: "explode", duration: 200 },
@@ -82,6 +94,7 @@ define([ "planning_cours/EcranJoursBloques", "jquerymaskedinput" ], function(Ecr
 				me.jqHeureFin.val("");
 				me.periode = null;
 				me.jqDialog.find(".message_alerte").hide();
+				me.multiWidgetGroupes.clear();
 			}
 		});
 		
@@ -97,14 +110,60 @@ define([ "planning_cours/EcranJoursBloques", "jquerymaskedinput" ], function(Ecr
 		// Listener du bouton "Valider"
 		this.jqDialog.find("#btn_valider_ajout_periode_bloquee").click(function() {
 			if (me.isCorrect()) {
-				me.callback(libelle, dateDebut, dateFin);
+
+				// Création des objets date
+				var year = me.date.getFullYear();
+				var month = me.date.getMonth();
+				var day = me.date.getDate();
+				
+				var strHeureDebut = me.jqHeureDebut.val();
+				var strHeureFin = me.jqHeureFin.val();
+				
+				var heureDebut = parseInt(strHeureDebut.substring(0, 2));
+				var minutesDebut = parseInt(strHeureDebut.substring(3));
+				
+				var heureFin = parseInt(strHeureFin.substring(0, 2));
+				var minutesFin = parseInt(strHeureFin.substring(3));
+				
+				var dateDebut = new Date(year, month, day, heureDebut, minutesDebut, 0);
+				var dateFin = new Date(year, month, day, heureFin, minutesFin, 0);
+
+				// Appelle la méthode de callback
+				me.callback(me.jqLibelle.val(), dateDebut, dateFin, me.multiWidgetGroupes.val());
+
+				// Ferme la boite de dialogue
 				me.jqDialog.dialog("close");
 			}
 		});
 
-		// Retourne à la méthode show()
-		this.initAppele = true;
-		this.show(periode, date, callback);
+		// Récupère la liste des groupes de participants
+		this.restManager.effectuerRequete("GET", "groupeparticipants/lister", {
+			token: this.restManager.getToken()
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+			
+				// Préparation du tableau de données pour le multiwidget
+				var liste = new Array();
+				for (var i=0, maxI=data.data.length; i<maxI; i++) {
+					liste.push({
+							label: data.data[i].nom,
+							value: data.data[i].id
+					});
+				}
+				
+				// Met en place le multi widget pour le choix des groupes de participants
+				me.multiWidgetGroupes = new MultiWidget(me.jqGroupes, 
+						MultiWidget.AUTOCOMPLETE_OPTIONS(liste, 3, 240));
+
+				// Retourne à la méthode show()
+				me.initAppele = true;
+				me.show(periode, date, callback);
+
+			} else {
+				window.showToast("Erreur lors de la récupération des groupes de participants ; vérifiez votre connexion.");
+			}
+		});
+
 	};
 
 	
@@ -148,6 +207,12 @@ define([ "planning_cours/EcranJoursBloques", "jquerymaskedinput" ], function(Ecr
 			correct = false;
 		}
 		
+		// Vérifie qu'il y a un groupe
+		if (this.multiWidgetGroupes.val()=="") {
+			this.jqDialog.find("#span_alert_choix_groupe_manquant").show();
+			correct = false;
+		}
+
 		return correct;
 	};
 	
