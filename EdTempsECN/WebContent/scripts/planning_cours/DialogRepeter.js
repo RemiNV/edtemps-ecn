@@ -124,6 +124,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			me.rechercheSalle.hide();
 			
 			synthese.nouvellesSalles = new Array();
+			console.log(data);
 			var nomsSalles = new Array();
 			for(var i=0,max=data.length; i<max; i++) {
 				synthese.nouvellesSalles.push(data[i].id);

@@ -123,6 +123,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			this.dialogRepeter.setCalendrier(this.calendrierSelectionne);
 		}
 		
+		this.evenementGestion.clearCache(EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER);
 		this.calendrier.refetchEvents();
 	};
 	
