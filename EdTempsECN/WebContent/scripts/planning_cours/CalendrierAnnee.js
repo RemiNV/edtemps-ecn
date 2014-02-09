@@ -135,11 +135,11 @@ define([  ], function() {
 				
 				if (jour.fermeture) {		// Jour de fermeture
 					this.jqCalendar.find("#"+dateToString(date)).addClass("fermeture").attr("data", i).attr("title", this.dateEnTouteLettres(date));
-				} else {		// Jour férié
+				} else {					// Jour férié
 					this.jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i).attr("title", this.dateEnTouteLettres(date));
 				}
 			}
-			else {		// Jours bloqués
+			else {
 				var dateDebut = new Date(jour.dateDebut);
 				var dateFin = new Date(jour.dateFin);
 				
@@ -149,7 +149,7 @@ define([  ], function() {
 						this.jqCalendar.find("#"+dateToString(date)).addClass("vacances");
 						date.setDate(date.getDate()+1);
 					}
-				} else {		// Période bloquée
+				} else {					// Période bloquée
 					this.jqCalendar.find("#"+dateToString(dateDebut)).addClass("bloque").attr("title", this.dateEnTouteLettres(dateDebut));
 				}
 			}
