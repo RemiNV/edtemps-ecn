@@ -42,33 +42,58 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 		this.callback = callback;
 		this.periode = periode;
 		this.date = date;
-		this.jqJourLettres.html(this.ecranJoursBloques.calendrierAnnee.dateEnTouteLettres(date));
+		var me = this;
 
-		// Rempli les champs dans le cas de la modification
-		if (this.periode != null) {
-			this.jqDialog.dialog({ title: "Modification d'une période bloquée" });
-			this.jqLibelle.val(periode.libelle);
-			this.jqHeureDebut.val(periode.strHeureDebut);
-			this.jqHeureFin.val(periode.strHeureFin);
-			
-			// Affiche les groupes de participants avec le multiwidget
-			var liste = new Array();
-			for (var i=0, maxI=periode.listeGroupes.length; i<maxI; i++) {
-				liste.push({
-						label: periode.listeGroupes[i].nom,
-						value: periode.listeGroupes[i].id
-				});
+		this.verifieSiDimancheOuFerie(date, function() {
+
+			// Affiche le nom du jour en toutes lettres
+			me.jqJourLettres.html(me.ecranJoursBloques.calendrierAnnee.dateEnTouteLettres(date));
+
+			// Rempli les champs dans le cas de la modification
+			if (me.periode != null) {
+				me.jqDialog.dialog({ title: "Modification d'une période bloquée" });
+				me.jqLibelle.val(periode.libelle);
+				me.jqHeureDebut.val(periode.strHeureDebut);
+				me.jqHeureFin.val(periode.strHeureFin);
+				
+				// Affiche les groupes de participants avec le multiwidget
+				var liste = new Array();
+				for (var i=0, maxI=periode.listeGroupes.length; i<maxI; i++) {
+					liste.push({
+							label: periode.listeGroupes[i].nom,
+							value: periode.listeGroupes[i].id
+					});
+				}
+				me.multiWidgetGroupes.setValues(liste);
+				
+			} else {
+				me.jqDialog.dialog({ title: "Ajout d'une période bloquée" });
 			}
-			this.multiWidgetGroupes.setValues(liste);
 			
-		} else {
-			this.jqDialog.dialog({ title: "Ajout d'une période bloquée" });
-		}
-		
-		// Ouvre la boîte de dialogue
-		this.jqDialog.dialog("open");
+			// Ouvre la boîte de dialogue
+			me.jqDialog.dialog("open");
+		});
+
 	};
 	
+
+	/**
+	 * Affiche la boîte de dialogue
+	 * 
+	 * @param {long} date Date du jour à éditer
+	 * @param {function} callback Méthode appellée si le jour est valide
+	 */
+	DialogAjoutPeriodeBloquee.prototype.verifieSiDimancheOuFerie = function(date, callback) {
+		
+		if (date.getDay()==0) {
+			confirm("Le jour séléctionné est un dimanche, êtes vous sûr de vouloir ajouter une période bloquée ?", function() {
+				callback();
+			});
+		} else if (!this.ecranJoursBloques.jourBloqueGestion.isFerie(date)) {
+			callback();
+		}
+		
+	};
 	
 	/**
 	 * Initialise la boîte de dialogue
