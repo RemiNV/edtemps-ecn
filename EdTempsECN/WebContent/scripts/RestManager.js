@@ -51,6 +51,7 @@ define(["jquery"], function() {
 	RestManager.resultCode_Success = 0;
 	RestManager.resultCode_IdentificationError = 1;
 	RestManager.resultCode_LdapError = 3;
+	RestManager.resultCode_InvalidObject = 7;
 	RestManager.resultCode_NameTaken = 8;
 	RestManager.resultCode_AuthorizationError = 9;
 	RestManager.resultCode_SalleOccupee = 10;

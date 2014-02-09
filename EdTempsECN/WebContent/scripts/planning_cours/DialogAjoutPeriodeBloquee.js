@@ -97,8 +97,7 @@ define([ "planning_cours/EcranJoursBloques", "jquerymaskedinput" ], function(Ecr
 		// Listener du bouton "Valider"
 		this.jqDialog.find("#btn_valider_ajout_periode_bloquee").click(function() {
 			if (me.isCorrect()) {
-				//var id = this.periode==null ? null : this.periode.id;
-				me.callback();
+				me.callback(libelle, dateDebut, dateFin);
 				me.jqDialog.dialog("close");
 			}
 		});

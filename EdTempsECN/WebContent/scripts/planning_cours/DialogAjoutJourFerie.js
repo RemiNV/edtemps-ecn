@@ -136,8 +136,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 		
 		var type = this.jqDialog.find("input:radio[name=type_jour_ferie]:checked").val();
 		
-		var id = this.jour==null ? null : this.jour.id;
-		this.callback(this.jqLibelle.val(), date, type, id);
+		this.callback(this.jqLibelle.val(), date, type);
 		this.jqDialog.dialog("close");
 		
 	};

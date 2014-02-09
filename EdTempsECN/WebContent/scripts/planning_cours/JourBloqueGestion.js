@@ -28,7 +28,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * Récupérer les vacances, jours bloqués et jours fériés d'une année scolaire
 	 * 
 	 * @param {int} annee Numéro de l'année de début
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.recupererJoursSpeciauxAnnee = function(annee, callback) {
 		var me = this;
@@ -67,7 +67,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {int} annee Numéro de l'année de début
 	 * @param {date} dateDebut Date de début pour la recherche
 	 * @param {date} dateFin Date de fin pour la recherche
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.getJoursFeries = function(annee, dateDebut, dateFin, callback) {
 		var me = this;
@@ -103,7 +103,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {int} annee Numéro de l'année de début
 	 * @param {date} dateDebut Date de début pour la recherche
 	 * @param {date} dateFin Date de fin pour la recherche
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.getPeriodesBloquees = function(annee, dateDebut, dateFin, callback) {
 		var me = this;
@@ -151,7 +151,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * Supprimer un jour férié
 	 * 
 	 * @param {int} id Identifiant du jour férié à supprimer
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.supprimerJourFerie = function(id, callback) {
 		
@@ -177,7 +177,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {string} libelle Libellé du jour férié à ajouter
 	 * @param {date} date Date du jour férié
 	 * @param {boolean} fermeture Vrai si c'est un jour de fermeture, Faux sinon
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.ajouterJourFerie = function(libelle, date, fermeture, callback) {
 		
@@ -209,7 +209,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {string} libelle Libellé du jour férié
 	 * @param {date} date Date du jour férié
 	 * @param {boolean} fermeture Vrai si c'est un jour de fermeture, Faux sinon
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.modifierJourFerie = function(id, libelle, date, fermeture, callback) {
 		
@@ -238,7 +238,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * Ajouter automatiquement les jours fériés
 	 * 
 	 * @param {int} annee Annee de création, pour l'année scolaire annee<>annee+1
-	 * @param {function} callback Méthode exécutée en retour
+	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.ajouterAutoJourFerie = function(annee, callback) {
 		
@@ -273,7 +273,6 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * Rechercher les jours bloqués à une date donnée dans la liste des jours bloqués du module
 	 * 
 	 * @param {date} date Date à laquelle il faut chercher
-	 * @param {function} callback Méthode exécutée en retour avec les jours bloqués en paramètre
 	 */
 	JourBloqueGestion.prototype.getJoursBloquesParJour = function(date) {
 		
@@ -305,6 +304,71 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		
 	};
 
+	
+	/**
+	 * Ajouter une période bloquée / vacances
+	 * 
+	 * @param {string} libelle Libellé de la période bloquée
+	 * @param {date} dateDebut Date de début de la période bloquée
+	 * @param {date} dateFin Date de fin de la période bloquée
+	 * @param {boolean} vacances Vrai si ce sont des vacances, Faux sinon
+	 * @param {function} callback Méthode exécutée en cas de réussite
+	 */
+	JourBloqueGestion.prototype.ajouterPeriodeBloquee = function(libelle, dateDebut, dateFin, vacances, callback) {
+		
+		this.restManager.effectuerRequete("POST", "periodesbloquees/ajouter", {
+			token: this.restManager.getToken(), libelle: libelle,
+			dateDebut: dateDebut.getTime(), dateFin: dateFin.getTime(), vacances: vacances
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback();
+				window.showToast("Période bloquée ajoutée");
+			} else if (data.resultCode == RestManager.resultCode_AlphanumericRequired) {
+				window.showToast("Le libellé de la période bloquée doit être alphanumérique.");
+			} else if (data.resultCode == RestManager.resultCode_InvalidObject) {
+				window.showToast("Les paramètres de la période sont erronés.");
+			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé à ajouter une période bloquée.");
+			} else {
+				window.showToast("Erreur lors de l'ajout de la période bloquée ; vérifiez votre connexion.");
+			}
+		});
+		
+	};
+	
+	
+	/**
+	 * Modifier une période bloquée / vacances
+	 * 
+	 * @param {int} id Identifiant de la période bloquée
+	 * @param {string} libelle Libellé de la période bloquée
+	 * @param {date} dateDebut Date de début de la période bloquée
+	 * @param {date} dateFin Date de fin de la période bloquée
+	 * @param {boolean} vacances Vrai si ce sont des vacances, Faux sinon
+	 * @param {function} callback Méthode exécutée en cas de réussite
+	 */
+	JourBloqueGestion.prototype.modifierPeriodeBloquee = function(id, libelle, dateDebut, dateFin, vacances, callback) {
+		
+		this.restManager.effectuerRequete("POST", "periodesbloquees/modifier", {
+			token: this.restManager.getToken(), idPeriodeBloquee: id, libelle: libelle,
+			dateDebut: dateDebut.getTime(), dateFin: dateFin.getTime(), vacances: vacances
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				callback();
+				window.showToast("Période bloquée modifiée");
+			} else if (data.resultCode == RestManager.resultCode_AlphanumericRequired) {
+				window.showToast("Le libellé de la période bloquée doit être alphanumérique.");
+			} else if (data.resultCode == RestManager.resultCode_InvalidObject) {
+				window.showToast("Les paramètres de la période sont erronés.");
+			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
+				window.showToast("Vous n'êtes pas autorisé à modifier une période bloquée.");
+			} else {
+				window.showToast("Erreur lors de la modification de la période bloquée ; vérifiez votre connexion.");
+			}
+		});
+		
+	};
+	
 	
 	return JourBloqueGestion;
 

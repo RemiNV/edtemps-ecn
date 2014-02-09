@@ -149,7 +149,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		    me.jqEcran.find(".modifier_jour_ferie").click(function() {
 		    	var id = $(this).parents("tr").attr("data-id");
 
-		    	me.dialogAjoutJourFerie.show(me.jourBloqueGestion.joursFeriesTries[id], function (libelle, date, type, id) {
+		    	me.dialogAjoutJourFerie.show(me.jourBloqueGestion.joursFeriesTries[id], function (libelle, date, type) {
 		    		me.jourBloqueGestion.modifierJourFerie(id, libelle, date, type, function () {
 			    		me.actualiserPage(0);
 		    		});
@@ -203,8 +203,10 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		var listeEvenementsBloquants = this.jourBloqueGestion.getJoursBloquesParJour(date);
 		
 		if (listeEvenementsBloquants.length == 0) {
-			this.dialogAjoutPeriodeBloquee.show(null, date, function () {
-				alert("Ajout de la période bloquée puis rafraichissement");
+			this.dialogAjoutPeriodeBloquee.show(null, date, function (libelle, dateDebut, dateFin) {
+				me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, false, function () {
+		    		me.actualiserPage(0);
+	    		});
 			});
 		} else {
 			this.afficherDialogDetailJourBloque(listeEvenementsBloquants, date, jqElement);
@@ -240,8 +242,10 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 			me.jqDialogDetailsJourBloque.dialog("close");
 	    	var id = $(this).parents("tr").attr("data-id");
 			
-			me.dialogAjoutPeriodeBloquee.show(me.jourBloqueGestion.joursBloquesTries[id], date, function () {
-				alert("Modification de la période bloquée puis rafraichissement");
+			me.dialogAjoutPeriodeBloquee.show(me.jourBloqueGestion.joursBloquesTries[id], date, function (libelle, dateDebut, dateFin) {
+				me.jourBloqueGestion.modifierPeriodeBloquee(id, libelle, dateDebut, dateFin, false, function () {
+		    		me.actualiserPage(0);
+	    		});
 			});
 		});
 		

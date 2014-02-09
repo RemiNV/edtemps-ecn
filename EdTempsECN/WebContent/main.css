@@ -927,13 +927,17 @@ table.liste_materiel th {
 	padding: 3px 5px 3px 5px;
 }
 
+
+/* Dialog ajouter/modifier jours spéciaux : fériés, bloqués et vacances */
 #dialog_ajout_jour_ferie, #dialog_ajout_periode_bloquee {
 	display: none;
 }
-
-#dialog_ajout_jour_ferie .boutons_valider {
-	margin-top: 20px;
+#dialog_ajout_periode_bloquee #date_jour_bloque {
+	text-align: center;
+	padding-bottom: 10px;
+	font-weight: bold;
 }
+
 
 /* Bloc statistiques (page planning calendrier) */
 #contenu_statistiques {

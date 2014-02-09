@@ -119,4 +119,20 @@ public class PeriodeBloqueeGestion {
 
 	}
 	
+	
+	public void sauverPeriodeBloquee(String libelle, Date dateDebut, Date dateFin, boolean vacances, ArrayList<Integer> listeIdGroupe, int userId) {
+		
+	}
+	
+	
+	public void modifierPeriodeBloquee(int id, String libelle, Date dateDebut, Date dateFin, boolean vacances, ArrayList<Integer> listeIdGroupe, int userId) {
+		
+	}
+	
+
+	public void supprimerPeriodeBloquee(int id, int userId) {
+		
+	}
+	
+	
 }
