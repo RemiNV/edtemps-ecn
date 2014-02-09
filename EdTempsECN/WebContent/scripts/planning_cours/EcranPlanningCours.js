@@ -14,15 +14,16 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	var EcranPlanningCours = function(restManager) {
 		var me = this;
 		this.restManager = restManager;
-		this.evenementGestion = new EvenementGestion(restManager);
-		this.calendrierGestion = new CalendrierGestion(restManager);
-		this.blocStatistiques = new BlocStatistiques(restManager, $("#bloc_statistiques"));
-		this.dialogRepeter = new DialogRepeter(restManager, $("#dialog_repeter"));
-		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
-		this.idCalendrierSelectionne = 0;
 		
 		var jqDialogRechercheSalle = $("#recherche_salle_libre").append(dialogRechercheSalleHtml);
 		this.rechercheSalle = new RechercheSalle(restManager, jqDialogRechercheSalle);
+		this.evenementGestion = new EvenementGestion(restManager);
+		this.calendrierGestion = new CalendrierGestion(restManager);
+		this.blocStatistiques = new BlocStatistiques(restManager, $("#bloc_statistiques"));
+		this.dialogRepeter = new DialogRepeter(restManager, $("#dialog_repeter"), this.rechercheSalle);
+		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
+		this.idCalendrierSelectionne = 0;
+
 		
 		var jqDialogAjoutEvenement = $("#dialog_ajout_evenement").append(dialogAjoutEvenementHtml);
 		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, jqDialogAjoutEvenement, this.rechercheSalle, this.evenementGestion, function() { me.calendrier.refetchEvents(); });
@@ -114,6 +115,9 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			this.blocStatistiques.setGroupes(calendrier.groupesParents, calendrier.nomsGroupesParents);
 			// TODO : mettre de vraies dates
 			this.blocStatistiques.refreshStatistiques(calendrier.matiere, new Date(2013, 3, 1), new Date(2014, 3, 1));
+			
+			// Renseignement du calendrier pour la répétition
+			this.dialogRepeter.setCalendrier(calendrier);
 		}
 		
 		this.calendrier.refetchEvents();

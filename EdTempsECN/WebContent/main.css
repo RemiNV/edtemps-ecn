@@ -22,6 +22,10 @@ tr.ignorer {
 	color: #888;
 }
 
+tr.ignorer .button {
+	color: black;
+}
+
 input.invalide {
 	box-shadow: #FF0000 0 0 10px;
 	border: 1px solid #FF0000 !important;
