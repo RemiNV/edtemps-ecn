@@ -226,7 +226,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 				at: "top-10",
 				of: jqElement
 			},
-			title: $.fullCalendar.formatDate(date, "dd/MM/yyyy")
+			title: this.calendrierAnnee.dateEnTouteLettres(date)
 		});
 		
 		// Ouverture de la dialogue
