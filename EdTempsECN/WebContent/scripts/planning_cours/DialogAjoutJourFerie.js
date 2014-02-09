@@ -67,7 +67,6 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 			autoOpen: false,
 			width: 360,
 			modal: true,
-			draggable: false,
 			show: { effect: "fade", duration: 200 },
 			hide: { effect: "explode", duration: 200 },
 			close: function() {

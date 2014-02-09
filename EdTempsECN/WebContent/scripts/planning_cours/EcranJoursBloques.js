@@ -3,9 +3,9 @@
  * Associé au HTML templates/page_jours_bloques.html
  * @module EcranJoursBloques
  */
-define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "planning_cours/DialogAjoutJourFerie",
-         "text!../../templates/dialog_ajout_jour_ferie.html", "text!../../templates/dialog_details_jourbloque.tpl", "RestManager", "underscore", "lib/fullcalendar.translated.min", "jquery" ],
-         function(CalendrierAnnee, JourBloqueGestion, DialogAjoutJourFerie, dialogAjoutJourFerieHtml, tplDialogDetailsJourBloque, RestManager, _) {
+define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "planning_cours/DialogAjoutJourFerie", "text!../../templates/dialog_ajout_jour_ferie.html",
+         "planning_cours/DialogAjoutPeriodeBloquee", "text!../../templates/dialog_ajout_periode_bloquee.html", "text!../../templates/dialog_details_jourbloque.tpl", "RestManager", "underscore", "lib/fullcalendar.translated.min", "jquery" ],
+         function(CalendrierAnnee, JourBloqueGestion, DialogAjoutJourFerie, dialogAjoutJourFerieHtml, DialogAjoutPeriodeBloquee, dialogAjoutPeriodeBloqueeHtml, tplDialogDetailsJourBloque, RestManager, _) {
 	
 	/**
 	 * @constructor
@@ -31,7 +31,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 			var jqTarget = $(event.target);
 			if(!jqTarget.is(".ui_dialog")
 					&& jqTarget.closest(".ui-dialog").length == 0
-					&& jqTarget.closest(".jour").length == 0) {
+					&& jqTarget.closest(".bloque").length == 0) {
 				me.jqDialogDetailsJourBloque.dialog("close");
 				return false;
 			}
@@ -54,6 +54,10 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		// Préparation de la boite de dialogue d'ajout de jours fériés
 		var jqDialogAjoutJourFerie = $("#dialog_ajout_jour_ferie").html(dialogAjoutJourFerieHtml);
 		this.dialogAjoutJourFerie = new DialogAjoutJourFerie(restManager, jqDialogAjoutJourFerie, this);
+
+		// Préparation de la boite de dialogue d'ajout de périodes bloquées/vacances
+		var jqDialogAjoutPeriodeBloquee = $("#dialog_ajout_periode_bloquee").html(dialogAjoutPeriodeBloqueeHtml);
+		this.dialogAjoutPeriodeBloquee = new DialogAjoutPeriodeBloquee(restManager, jqDialogAjoutPeriodeBloquee, this);
 
 		// Si l'utilisateur n'a pas droit à gérer les jours bloqués, on le redirige
 		if (!this.restManager.aDroit(RestManager.actionsEdtemps_CreerGroupeCours)) {
@@ -199,7 +203,9 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		var listeEvenementsBloquants = this.jourBloqueGestion.getJoursBloquesParJour(date);
 		
 		if (listeEvenementsBloquants.length == 0) {
-			// TODO afficher la boite de dialogue de création de périodes bloquées
+			this.dialogAjoutPeriodeBloquee.show(null, date, function () {
+				alert("Ajout de la période bloquée puis rafraichissement");
+			});
 		} else {
 			this.afficherDialogDetailJourBloque(listeEvenementsBloquants, date, jqElement);
 		}
@@ -215,7 +221,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 	 * @param {object} jqElement objet jquery de l'élément cliqué
 	 */
 	EcranJoursBloques.prototype.afficherDialogDetailJourBloque = function(listeEvenementsBloquants, date, jqElement) {
-
+		var me = this;
+		
 		// Remplissage du template
 		this.jqDialogDetailsJourBloque.find("#dialog_details_jourbloque_hook").html(this.templateDialogDetails({elements: listeEvenementsBloquants}));
 
@@ -227,6 +234,22 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 				of: jqElement
 			},
 			title: this.calendrierAnnee.dateEnTouteLettres(date)
+		});
+		
+		this.jqDialogDetailsJourBloque.find(".modifier").click(function() {
+			me.jqDialogDetailsJourBloque.dialog("close");
+	    	var id = $(this).parents("tr").attr("data-id");
+			
+			me.dialogAjoutPeriodeBloquee.show(me.jourBloqueGestion.joursBloquesTries[id], date, function () {
+				alert("Modification de la période bloquée puis rafraichissement");
+			});
+		});
+		
+		this.jqDialogDetailsJourBloque.find(".supprimer").click(function() {
+			me.jqDialogDetailsJourBloque.dialog("close");
+	    	//var id = $(this).parents("tr").attr("data-id");
+
+	    	alert("Suppression de la période bloquée puis rafraichissement");
 		});
 		
 		// Ouverture de la dialogue

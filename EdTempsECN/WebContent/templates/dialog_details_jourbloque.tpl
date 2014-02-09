@@ -3,11 +3,11 @@
 	<%
 		_.each(elements, function(e) {
 			%>
-			<tr title="<%= e.strGroupesAssocies %>">
+			<tr title="<%= e.strGroupesAssocies %>" data-id="<%= e.id %>">
 				<td width="300"><%= e.libelle %></td>
 				<td width="120"><%= e.strHeureDebut %> - <%= e.strHeureFin %></td>
-				<td width="40"><img src='./img/modifier.png' title='Modifier' /></td>
-				<td width="40"><img src='./img/supprimer.png' title='Supprimer' /></td>
+				<td width="40"><img src='./img/modifier.png' title='Modifier' class='modifier' /></td>
+				<td width="40"><img src='./img/supprimer.png' title='Supprimer' class='supprimer' /></td>
 			</tr>
 			<%
 		});

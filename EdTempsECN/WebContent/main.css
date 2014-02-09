@@ -927,7 +927,7 @@ table.liste_materiel th {
 	padding: 3px 5px 3px 5px;
 }
 
-#dialog_ajout_jour_ferie {
+#dialog_ajout_jour_ferie, #dialog_ajout_periode_bloquee {
 	display: none;
 }
 
