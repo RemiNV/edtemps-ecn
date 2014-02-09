@@ -108,7 +108,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 	    this.jqEcran.find("#bt_ajouter_jour_ferie").click(function() { 
 	    	me.dialogAjoutJourFerie.show(null, function (libelle, date, type) {
 	    		me.jourBloqueGestion.ajouterJourFerie(libelle, date, type, function() {
-	    			me.actualiserPage(0);	
+	    			me.actualiserPage(0);
 	    		});
 	    	});
 	    });

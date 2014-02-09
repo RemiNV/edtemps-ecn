@@ -89,11 +89,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 			confirm("Le jour séléctionné est un dimanche, êtes vous sûr de vouloir ajouter une période bloquée ?", function() {
 				callback();
 			});
-		} else if (this.ecranJoursBloques.jourBloqueGestion.isFerie(date)) {
-			confirm("Le jour séléctionné est férié, êtes vous sûr de vouloir ajouter une période bloquée ?", function() {
-				callback();
-			});
-		} else {
+		} else if (!this.ecranJoursBloques.jourBloqueGestion.isFerie(date)) {
 			callback();
 		}
 		
