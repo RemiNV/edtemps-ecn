@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.DatabaseException;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
-import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.models.JourFerie;
 import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
 
@@ -116,12 +115,6 @@ public class JourFerieGestion {
 	 */
 	public int sauverJourFerie(String libelle, boolean fermeture, Date date, int userId) throws EdtempsException {
 
-		// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
-		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
-		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
-			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
-		}
-
 		// Quelques vérifications sur l'objet à enregistrer
 		if (date==null || StringUtils.isEmpty(libelle)) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un jour férié doit avoir un libellé et une date");
@@ -176,12 +169,6 @@ public class JourFerieGestion {
 	 */
 	public void supprimerJourFerie(int id, int userId) throws EdtempsException {
 
-		// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
-		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
-		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
-			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
-		}
-
 		// Supprime le jour férié de la base de données à partir de l'identifiant
 		bdd.executeUpdate("DELETE FROM edt.joursferies WHERE jourferie_id = " + id);
 		logger.info("Suppression d'un jour férié");
@@ -197,12 +184,6 @@ public class JourFerieGestion {
 	 * @throws EdtempsException 
 	 */
 	public void modifierJourFerie(JourFerieIdentifie jour, int userId) throws EdtempsException {
-
-		// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
-		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
-		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
-			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour férié");
-		}
 
 		// Quelques vérifications sur l'objet à modifier
 		if (jour==null) {
@@ -294,12 +275,6 @@ public class JourFerieGestion {
 	 * @throws EdtempsException 
 	 */
 	public Map<String, Boolean> ajoutAutomatiqueJoursFeries(int annee, int userId) throws EdtempsException {
-
-		// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
-		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
-		if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
-			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à gérer les jours fériés");
-		}
 
 		// Récupère la liste des jours fériés pour l'année scolaire en cours
 		List<JourFerie> listeJours = getJourFeries(annee);

@@ -1,6 +1,7 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +9,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.json.Json;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.JsonValue;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +26,8 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.JourFerieGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.models.identifie.JourFerieIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
@@ -34,6 +40,13 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 
 	private static final long serialVersionUID = 2647012858867960542L;
 	private static Logger logger = LogManager.getLogger(JoursFeriesServlet.class.getName());
+	
+	private static class PreJourFerie {
+		public Integer idJour;
+		public String libelle;
+		public Date date;
+		public Boolean fermeture;
+	}
 	
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String pathInfo = req.getPathInfo();
@@ -61,6 +74,12 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		String pathInfo = req.getPathInfo();
 		
 		try {
+			// Vérifie que l'utilisateur est autorisé à gérer les jours fériés
+			UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+			if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à gérer les jours fériés");
+			}
+
 			switch(pathInfo) {
 			case "/ajouter":
 				doAjouter(userId, bdd, req, resp);
@@ -161,18 +180,12 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 	 */
 	protected void doAjouter(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
 		
-		// Récupère les paramètres
-		String libelle = req.getParameter("libelle");
-		Date date = this.getDateInRequest(req, "date");
-		String strFermeture = req.getParameter("fermeture");
-		if(StringUtils.isBlank(strFermeture)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre fermeture non fourni pour un ajout de jour férié/fermeture");
-		}
-		boolean fermeture = Boolean.valueOf(strFermeture);
+		// Récupère les paramètres dans la requête
+		PreJourFerie param = recupererInformation(req);
 
 		// Exécute la requête d'ajout avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
-		jourFerieGestion.sauverJourFerie(libelle, fermeture, date, userId);
+		jourFerieGestion.sauverJourFerie(param.libelle, param.fermeture, param.date, userId);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié ajouté", null));
 
@@ -190,29 +203,19 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 	 * @throws EdtempsException
 	 */
 	protected void doModifier(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, EdtempsException {
-		
-		// Récupère les paramètres
-		String libelle = req.getParameter("libelle");
-		Date date = this.getDateInRequest(req, "date");
-		String strIdJourFerie = req.getParameter("idJourFerie");
-		if(strIdJourFerie == null) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idJourFerie non fourni pour une modification de jour férié/fermeture");
-		}
-		int idJourFerie = Integer.parseInt(strIdJourFerie);
-		String strFermeture = req.getParameter("fermeture");
-		if(StringUtils.isBlank(strFermeture)) {
-			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre fermeture non fourni pour une modification de jour férié/fermeture");
-		}
-		boolean fermeture = Boolean.valueOf(strFermeture);
 
-		
-		JourFerieIdentifie jour = new JourFerieIdentifie(idJourFerie, libelle, date, fermeture);
+		// Récupère les paramètres dans la requête
+		PreJourFerie param = recupererInformation(req);
+		if (param.idJour == null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet jour incomplet");
+		}
+		JourFerieIdentifie jour = new JourFerieIdentifie(param.idJour, param.libelle, param.date, param.fermeture);
 		
 		// Exécute la requête de modification avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
 		jourFerieGestion.modifierJourFerie(jour, userId);
 		bdd.close();
-		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, fermeture ? "Jour de fermeture modifié" : "Jour férié modifié", null));
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, param.fermeture ? "Jour de fermeture modifié" : "Jour férié modifié", null));
 
 	}
 	
@@ -262,4 +265,43 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 
 	}
 
+
+	/**
+	 * Générer un objet de type PreJourFerie qui contient tous les champs intéressants à partir d'une requpete HTTP
+	 * 
+	 * @param req La requête à traiter
+	 * @return l'objet PreJourFerie
+	 * @throws EdtempsException
+	 */
+	protected PreJourFerie recupererInformation(HttpServletRequest req) throws EdtempsException {
+
+		PreJourFerie res = new PreJourFerie();
+		
+		String strPeriode = req.getParameter("jour");
+		if(StringUtils.isBlank(strPeriode)) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet jour manquant");
+		}
+		
+		JsonReader reader = Json.createReader(new StringReader(strPeriode));
+		JsonObject jsonObject = reader.readObject();
+		JsonNumber jsonId = getJsonNumberOrNull(jsonObject, "idJourFerie"); 
+		JsonNumber jsonDebut = getJsonNumberOrNull(jsonObject, "date"); 
+
+		res.libelle = jsonObject.containsKey("libelle") && !jsonObject.isNull("libelle") ? jsonObject.getString("libelle") : null;
+		res.fermeture = jsonObject.containsKey("fermeture") && !jsonObject.isNull("fermeture") ? jsonObject.getBoolean("fermeture") : null;
+		res.idJour = jsonId == null ? null : new Integer(jsonId.intValue());
+		res.date = jsonDebut == null ? null : new Date(jsonDebut.longValue());
+
+		if (res.date==null || StringUtils.isBlank(res.libelle) || res.fermeture==null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet jour incomplet");
+		}
+		
+		return res;
+	}
+
+	protected JsonNumber getJsonNumberOrNull(JsonObject object, String key) {
+		return object.containsKey(key) && !object.isNull(key) ? object.getJsonNumber(key) : null;
+	}
+
+	
 }
