@@ -36,7 +36,76 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		});
 		
 		jqBloc.find("#btn_annuler").click(function(e) {
-			jqBloc.dialog("close");
+			me.hide();
+		});
+		
+		jqBloc.find("#btn_executer").click(function(e) {
+			me.executerRepetition();
+		});
+	};
+	
+	/**
+	 * Exécute la répétition des événements en fonction de la prévisualisation précédemment demandée
+	 */
+	DialogRepeter.prototype.executerRepetition = function() {
+		var repetitions = new Array();
+		
+		for(var i=0,max=this.synthese.length; i<max; i++) {
+			var entree = this.synthese[i];
+			if(entree.resteProblemes) {
+				continue;
+			}
+			
+			// Génération du tableau de changement de salles
+			var changementSalle;
+			var idEvenementsSallesALiberer = new Array();
+			if(entree.nouvellesSalles) {
+				changementSalle = new Array();
+				for(var j=0, maxJ=entree.nouvellesSalles.length; j<maxJ; j++) {
+					var salle = entree.nouvellesSalles[j]; 
+					changementSalle.push(salle.id);
+					
+					// Ajout des événements dont l'association à la salle est à supprimer pour cette salle
+					for(var k=0, maxK=salle.evenementsEnCours.length; k<maxK; k++) {
+						idEvenementsSallesALiberer.push(salle.evenementsEnCours[k].id);
+					}
+				}
+			}
+			else {
+				changementSalle = null;
+			}
+			
+			repetitions.push({
+				dateDebut: entree.debut,
+				dateFin: entree.fin,
+				salles: changementSalle,
+				evenementsSallesALiberer: idEvenementsSallesALiberer
+			});
+		}
+		
+		// Lancement de la requête
+		var me = this;
+		this.afficherChargement("Exécution de l'opération...");
+		this.jqBloc.find("#btn_executer").attr("disabled", "disabled");
+		this.restManager.effectuerRequete("POST", "repeterevenement/executer", {
+			token: this.restManager.getToken(),
+			idEvenementRepetition: this.evenement.id,
+			idCalendrier: this.calendrier.id,
+			evenements: JSON.stringify(repetitions)
+		}, function(response) {
+			me.cacherChargement();
+			me.jqBloc.find("#btn_executer").removeAttr("disabled");
+			
+			if(response.resultCode == RestManager.resultCode_Success) {
+				window.showToast("Répétition effectuée");
+				me.hide();
+			}
+			else if(response.resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur d'exécution de l'opération ; vérifiez votre connexion");
+			}
+			else {
+				window.showToast("Erreur d'exécution de l'opération ; des événements ont-ils été créés/modifiés entre temps ?");
+			}
 		});
 	};
 
@@ -271,6 +340,10 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.jqBloc.find("#btn_executer").attr("disabled", "disabled");
 		
 		this.jqBloc.dialog("open");
+	};
+	
+	DialogRepeter.prototype.hide = function() {
+		this.jqBloc.dialog("close");
 	};
 	
 	return DialogRepeter;

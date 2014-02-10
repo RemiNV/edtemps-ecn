@@ -25,8 +25,6 @@ import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.managers.SalleGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
-import org.ecn.edtemps.models.identifie.SalleIdentifie;
-import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**

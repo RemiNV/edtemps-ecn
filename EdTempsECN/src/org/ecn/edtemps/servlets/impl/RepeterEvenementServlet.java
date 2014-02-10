@@ -19,6 +19,7 @@ import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.CalendrierGestion.DroitsCalendriers;
 import org.ecn.edtemps.managers.EvenementGestion;
+import org.ecn.edtemps.managers.SalleGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.models.TestRepetitionEvenement;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
@@ -91,6 +92,9 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 			int idEvenementRepetition = getIntParam(req, "idEvenementRepetition");
 			EvenementIdentifie evenementRepetition = evenementGestion.getEvenement(idEvenementRepetition);
 			
+			// Vérification que l'utilisateur est propriétaire de l'événement
+			// TODO : écrire !
+			
 			int idCalendrier = getIntParam(req, "idCalendrier");
 			ArrayList<Integer> lstIdCalendrier = new ArrayList<Integer>(1);
 			lstIdCalendrier.add(idCalendrier);
@@ -118,9 +122,12 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 					evenementGestion.supprimerSallesEvenementsNonCours(evenement.idSalles, evenement.idEvenementsSallesALiberer);
 				}
 				
+				// Utilisation des salles de l'événement d'origine si pas de changement précisé
+				ArrayList<Integer> salles = evenement.idSalles == null ? SalleGestion.getIdSalles(evenementRepetition.getSalles()) : evenement.idSalles; 
+				
 				evenementGestion.sauverEvenement(evenementRepetition.getNom(), evenement.dateDebut, evenement.dateFin, 
-						lstIdCalendrier, userId, evenement.idSalles, UtilisateurGestion.getUserIds(evenementRepetition.getIntervenants()), 
-						UtilisateurGestion.getUserIds(evenementRepetition.getResponsables()), false);
+						lstIdCalendrier, userId, salles, UtilisateurGestion.getUserIds(evenementRepetition.getIntervenants()), 
+								UtilisateurGestion.getUserIds(evenementRepetition.getResponsables()), false);
 			}
 			
 			bdd.commit();
@@ -129,9 +136,11 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 		}
 		catch(JsonException | ClassCastException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format du paramètre \"evenements\" incorrect", null));
+			logger.warn("Paramètres invalides pour la requête de répétition", e);
 		}
 		catch(EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
+			logger.error("Erreur lors d'une requête de répétition", e);
 		}
 		
 		bdd.close();
