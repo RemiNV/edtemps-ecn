@@ -24,6 +24,11 @@
 					<td><%= element.strProblemes %></td>
 					<td>
 						<%
+						if(element.resteProblemes) {
+							%>
+							<span>Ignoré</span><br/>
+							<%
+						}
 						if(element.afficherBoutonRechercheSalle) {
 							if(element.nouvellesSalles) {
 								%>
@@ -57,9 +62,9 @@
 		">
 	</div>
 	<div class="boutons_valider">
-		<span id="btn_annuler" class="button">Annuler</span>
-		<span id="btn_previsualiser" class="button">Prévisualiser</span>
-		<span id="btn_executer" class="button">Exécuter</span> 
+		<input type="button" id="btn_annuler" class="button" value="Annuler"/>
+		<input type="button" id="btn_previsualiser" class="button" value="Prévisualiser"/>
+		<input type="button" id="btn_executer" class="button" value="Exécuter"/> 
 	</div>
 	<div class="message_alerte" id="msg_repetition_plusieurs_calendriers">
 		

@@ -66,6 +66,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		if(!verifInput(jqPeriode, periode)) return;
 		
 		this.afficherChargement("Calcul des répétitions...");
+		this.jqBloc.find("#btn_previsualiser, #btn_executer").attr("disabled", "disabled");
 		
 		this.restManager.effectuerRequete("GET", "repeterevenement/previsualiser", {
 			token: this.restManager.getToken(),
@@ -74,6 +75,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			periode: periode
 		}, function(response) {
 			me.cacherChargement();
+			me.jqBloc.find("#btn_previsualiser, #btn_executer").removeAttr("disabled");
 			if(response.resultCode == RestManager.resultCode_Success) {
 				me.synthese = response.data;
 				for(var i=0; i<me.synthese.length; i++) {
@@ -169,19 +171,6 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.divSynthese.find(".btn_rechercher_salle").click(function(e) {
 			me.callbackRechercheSalle($(this));
 		});
-		
-		// Activation du bouton "Exécuter" si plus de problèmes
-		var probleme = false;
-		for(var i=0,max=this.synthese.length; i<max; i++) {
-			if(this.synthese[i].resteProblemes) {
-				probleme = true;
-				break;
-			}
-		}
-		
-		if(probleme) {
-			this.find("#btn_executer").removeAttr("disabled");
-		}
 	};
 	
 	/**
