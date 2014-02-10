@@ -160,9 +160,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		this.restManager.effectuerRequete("POST", "joursferies/supprimer", {
 			token: this.restManager.getToken(), idJourFerie: id
 		}, function(data) {
+			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
-				me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 				window.showToast("Jour férié supprimé");
 			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
 				window.showToast("Vous n'êtes pas autorisé à supprimer un jour férié.");
@@ -190,9 +190,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 			token: this.restManager.getToken(), libelle: libelle,
 			date: date.getTime(), fermeture: fermeture
 		}, function(data) {
+			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
-				me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 				window.showToast("Jour férié ajouté");
 			} else if (data.resultCode == RestManager.resultCode_AlphanumericRequired) {
 				window.showToast("Le libellé du jour doit être alphanumérique.");
@@ -225,9 +225,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 			token: this.restManager.getToken(), idJourFerie: id,
 			libelle: libelle, date: date.getTime(), fermeture: fermeture
 		}, function(data) {
+			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
-				me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 				window.showToast("Jour férié modifié");
 			} else if (data.resultCode == RestManager.resultCode_AlphanumericRequired) {
 				window.showToast("Le libellé du jour doit être alphanumérique.");
@@ -256,6 +256,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		this.restManager.effectuerRequete("POST", "joursferies/ajoutautomatique", {
 			token: this.restManager.getToken(), annee: annee
 		}, function(data) {
+			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
 				var nbJourAjoutes = data.data.listeAjoutes.length;
 				callback(nbJourAjoutes);
@@ -268,9 +269,6 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 				} else {
 					message = nbJourAjoutes + " jours fériés ont été ajoutés";
 				}
-				
-				me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
-
 				window.showToast(message);
 			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
 				window.showToast("Vous n'êtes pas autorisé à ajouter des jours fériés.");
@@ -305,9 +303,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 				vacances: vacances
 			})
 		}, function(data) {
+			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
-				me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 				window.showToast("Période bloquée ajoutée");
 			} else if (data.resultCode == RestManager.resultCode_AlphanumericRequired) {
 				window.showToast("Le libellé de la période bloquée doit être alphanumérique.");
@@ -348,9 +346,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 				vacances: vacances
 			})
 		}, function(data) {
+			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
-				me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 				window.showToast("Période bloquée modifiée");
 			} else if (data.resultCode == RestManager.resultCode_AlphanumericRequired) {
 				window.showToast("Le libellé de la période bloquée doit être alphanumérique.");
@@ -379,9 +377,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		this.restManager.effectuerRequete("POST", "periodesbloquees/supprimer", {
 			token: this.restManager.getToken(), idPeriodeBloquee: id
 		}, function(data) {
+			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
 				callback();
-				me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 				window.showToast("Période bloquée supprimée");
 			} else if (data.resultCode == RestManager.resultCode_AuthorizationError) {
 				window.showToast("Vous n'êtes pas autorisé à supprimer une période bloquée.");
