@@ -9,7 +9,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	 * @constructor
 	 * @alias DialogRepeter 
 	 */
-	var DialogRepeter = function(restManager, jqBloc, rechercheSalle) {
+	var DialogRepeter = function(restManager, jqBloc, rechercheSalle, evenementGestion, callbackAjout) {
 		var me = this;
 		this.restManager = restManager;
 		this.jqBloc = jqBloc;
@@ -17,6 +17,8 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.calendrier = null; // Calendrier en cours d'édition
 		this.synthese = null;
 		this.rechercheSalle = rechercheSalle;
+		this.evenementGestion = evenementGestion;
+		this.callbackAjout = callbackAjout;
 		
 		var contenuDialog = $(dialogRepeterEvenementTpl);
 		this.divSynthese = contenuDialog.find("#div_synthese");
@@ -87,20 +89,17 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		var me = this;
 		this.afficherChargement("Exécution de l'opération...");
 		this.jqBloc.find("#btn_executer").attr("disabled", "disabled");
-		this.restManager.effectuerRequete("POST", "repeterevenement/executer", {
-			token: this.restManager.getToken(),
-			idEvenementRepetition: this.evenement.id,
-			idCalendrier: this.calendrier.id,
-			evenements: JSON.stringify(repetitions)
-		}, function(response) {
+		
+		this.evenementGestion.repeterEvenement(this.evenement.id, this.calendrier.id, repetitions, function(resultCode) {
 			me.cacherChargement();
 			me.jqBloc.find("#btn_executer").removeAttr("disabled");
 			
-			if(response.resultCode == RestManager.resultCode_Success) {
+			if(resultCode == RestManager.resultCode_Success) {
 				window.showToast("Répétition effectuée");
 				me.hide();
+				me.callbackAjout();
 			}
-			else if(response.resultCode == RestManager.resultCode_NetworkError) {
+			else if(resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur d'exécution de l'opération ; vérifiez votre connexion");
 			}
 			else {
