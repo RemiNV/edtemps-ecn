@@ -27,8 +27,8 @@
 						if(element.afficherBoutonRechercheSalle) {
 							if(element.nouvellesSalles) {
 								%>
-								<span>(<%= element.nouvellesSalles.join(', ') %>)</span>
-								%>
+								<span>(<%= element.strNouvellesSalles %>)</span>
+								<%
 							}
 							else {
 								%>
@@ -60,5 +60,8 @@
 		<span id="btn_annuler" class="button">Annuler</span>
 		<span id="btn_previsualiser" class="button">Prévisualiser</span>
 		<span id="btn_executer" class="button">Exécuter</span> 
+	</div>
+	<div class="message_alerte" id="msg_repetition_plusieurs_calendriers">
+		
 	</div>
 </div>

@@ -9,12 +9,14 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	 * @constructor
 	 * @alias DialogRepeter 
 	 */
-	var DialogRepeter = function(restManager, jqBloc) {
+	var DialogRepeter = function(restManager, jqBloc, rechercheSalle) {
 		var me = this;
 		this.restManager = restManager;
 		this.jqBloc = jqBloc;
-		this.evenement = null;
+		this.evenement = null; // Evénement en cours d'édition
+		this.calendrier = null; // Calendrier en cours d'édition
 		this.synthese = null;
+		this.rechercheSalle = rechercheSalle;
 		
 		var contenuDialog = $(dialogRepeterEvenementTpl);
 		this.divSynthese = contenuDialog.find("#div_synthese");
@@ -23,6 +25,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		
 		jqBloc.append(contenuDialog).dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 700
 		});
 		
@@ -75,11 +78,6 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 				}
 				
 				me.updateSynthese();
-				
-				// Ajout des listeners
-				me.divSynthese.find(".btn_forcer_ajout").click(function(e) {
-					me.callbackForcerAjout($(this));
-				});
 			}
 			else if(response.resultCode == RestManager.resultCode_NetworkError) {
 				window.showToast("Erreur de récupération de la prévisualisation ; vérifiez votre connexion");
@@ -115,11 +113,45 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	};
 	
 	/**
+	 * Callback appelé lors du clic sur un bouton "Rech. salle"
+	 * @param jqButton
+	 */
+	DialogRepeter.prototype.callbackRechercheSalle = function(jqButton) {
+		var me = this;
+		var id = parseInt(jqButton.attr("data-id"));
+		var synthese = this.synthese[id];
+		
+		this.rechercheSalle.show(null, null, function(data) {
+			me.rechercheSalle.hide();
+			
+			synthese.nouvellesSalles = new Array();
+			console.log(data);
+			var nomsSalles = new Array();
+			for(var i=0,max=data.length; i<max; i++) {
+				synthese.nouvellesSalles.push(data[i].id);
+				nomsSalles.push(data[i].nom);
+			}
+			synthese.strNouvellesSalles = nomsSalles.join(", ");
+			
+			me.updateSynthese();
+		}, synthese.dateDebut, synthese.dateFin, this.calendrier.estCours);
+	};
+	
+	/**
 	 * Mise à jour du tableau de synthèse
 	 */
 	DialogRepeter.prototype.updateSynthese = function() {
 		// Remplissage du template
 		this.divSynthese.empty().append(this.templateSynthese({ synthese: this.synthese }));
+		
+		// Ajout des listeners
+		var me = this;
+		this.divSynthese.find(".btn_forcer_ajout").click(function(e) {
+			me.callbackForcerAjout($(this));
+		});
+		this.divSynthese.find(".btn_rechercher_salle").click(function(e) {
+			me.callbackRechercheSalle($(this));
+		});
 	};
 	
 	/**
@@ -153,11 +185,14 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	 */
 	DialogRepeter.prototype.parseTest = function(test) {
 		test.forcerAjout = false;
+		test.dateDebut = new Date(test.debut);
+		test.dateFin = new Date(test.fin);
 		test.nouvellesSalles = null;
+		test.strNouvellesSalles = null;
 		test.resteProblemes = (test.problemes.length > 0);
-		test.strDate = $.fullCalendar.formatDate(new Date(test.debut), "dd/MM/yyyy");
+		test.strDate = $.fullCalendar.formatDate(test.dateDebut, "dd/MM/yyyy");
 		test.strProblemes = test.problemes.length > 0 ? "" : "OK";
-		test.afficherBoutonForcer = (test.problemes.length > 0);
+		test.afficherBoutonForcer = false;
 		test.afficherBoutonRechercheSalle = false;
 		for(var i=0,max=test.problemes.length; i<max; i++) {
 			if(test.strProblemes) {
@@ -166,8 +201,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			
 			switch(test.problemes[i].status) {
 			case 1: // Salle occupée par un événement non cours
-				test.strProblemes += "Salle occupée par un cours : " + test.problemes[i].message;
-				test.afficherBoutonForcer = false;
+				test.strProblemes += "Salle occupée (cours) : " + test.problemes[i].message;
 				test.afficherBoutonRechercheSalle = true;
 				break;
 				
@@ -176,9 +210,11 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 				test.afficherBoutonRechercheSalle = true;
 				break;
 			case 3: // Public occupé
+				test.afficherBoutonForcer = true;
 				test.strProblemes += "Public occupé : " + test.problemes[i].message;
 				break;
 			case 4: // Jour bloqué
+				test.afficherBoutonForcer = true;
 				test.strProblemes += "Jour ou créneau bloqué : " + test.problemes[i].message;
 				break;
 			}
@@ -186,12 +222,32 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	};
 	
 	/**
-	 * Affichage de la boîte de dialogue
-	 * @param evenement L'événement à répéter
+	 * Définit le calendrier à utiliser pour la création d'événement et la recherche de salle.
+	 */
+	DialogRepeter.prototype.setCalendrier = function(calendrier) {
+		this.calendrier = calendrier;
+	};
+	
+	/**
+	 * Affichage de la boîte de dialogue. setCalendrier doit avoir été appelé précédemment.
+	 * @param evenement L'événement à répéter. Doit appartenir au calendrier défini par setCalendrier
 	 */
 	DialogRepeter.prototype.show = function(evenement) {
 		this.evenement = evenement;
 		this.divSynthese.empty();
+		
+		if(this.calendrier == null) {
+			throw "Demande de répétition d'événement sans préciser de calendrier";
+		}
+		
+		if(evenement.calendriers.length > 1) {
+			this.divSynthese.find("#msg_repetition_plusieurs_calendriers")
+				.text("L'événement d'origne est rattaché à plusieurs calendriers, mais ne sera dupliqué que dans " + this.calendrier.nom)
+				.show();
+		}
+		else {
+			this.divSynthese.find("#msg_repetition_plusieurs_calendriers").hide();
+		}
 		
 		this.jqBloc.dialog("open");
 	};

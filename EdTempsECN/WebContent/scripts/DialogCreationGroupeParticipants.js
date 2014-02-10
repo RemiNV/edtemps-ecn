@@ -107,6 +107,7 @@ define([ "RestManager", "MultiWidget", "UtilisateurGestion" ], function(RestMana
 		// Prépare la boîte dialogue
 		this.jqCreationGroupeForm.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 500,
 			modal: true,
 			show: {

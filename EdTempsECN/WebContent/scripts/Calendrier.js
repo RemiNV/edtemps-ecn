@@ -32,6 +32,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "unders
 		
 		jqDialogDetailsEvenement.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			draggable: false,
 			width: 500,
 			open: function(){

@@ -310,7 +310,7 @@ public class SalleGestion {
 			    "LEFT JOIN edt.evenementappartient ON evenement.eve_id=evenementappartient.eve_id " + 
 			    "LEFT JOIN edt.calendrierappartientgroupe ON evenementappartient.cal_id=calendrierappartientgroupe.cal_id " +
 			    "LEFT JOIN edt.groupeparticipant groupecours ON calendrierappartientgroupe.groupeparticipant_id=groupecours.groupeparticipant_id " +
-			    "AND groupecours.groupeparticipant_estcours = TRUE ";
+			    "AND (groupecours.groupeparticipant_estcours OR groupecours.groupeparticipant_aparentcours) ";
 		}
 		
 		// Vérifie la capacité de la salle

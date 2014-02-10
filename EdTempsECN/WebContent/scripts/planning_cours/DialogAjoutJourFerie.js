@@ -65,6 +65,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 		// Créer la boîte de dialogue
 		this.jqDialog.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 360,
 			modal: true,
 			show: { effect: "fade", duration: 200 },

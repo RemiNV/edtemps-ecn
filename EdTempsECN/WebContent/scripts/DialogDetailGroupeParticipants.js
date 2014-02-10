@@ -47,6 +47,7 @@ define([ "RestManager", "GroupeGestion" ], function(RestManager, GroupeGestion) 
 		// Affiche la boîte dialogue de détail d'un groupe de participants
 		this.jqDialog.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 500,
 			modal: true,
 			show: {

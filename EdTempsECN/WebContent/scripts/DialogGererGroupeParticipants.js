@@ -51,6 +51,7 @@ define([ "RestManager", "GroupeGestion", "EcranParametres" ], function(RestManag
 		// Affiche la boîte dialogue de gestion d'un groupe de participants
 		this.jqDialog.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 570,
 			modal: true,
 			show: { effect: "fade", duration: 200 },

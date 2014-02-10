@@ -421,7 +421,7 @@ define(["RestManager"], function(RestManager) {
 	 */
 	EvenementGestion.prototype.getEvenementsGroupesCalendrier = function(start, end, idCalendrier, ignoreCache, callback) {
 		var me = this;
-		this.getEvenements("listerevenements/groupescalendrier", EvenementGestion.CACHE_MODE_SALLE, start, end, 
+		this.getEvenements("listerevenements/groupescalendrier", EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER, start, end, 
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, null, idCalendrier);
 	};
 	

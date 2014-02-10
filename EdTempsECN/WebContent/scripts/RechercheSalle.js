@@ -2,7 +2,7 @@
  * Module de contrôle de la boîte de dialogue de recherche de salles
  * @module RechercheSalle
  */
-define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "jqueryquicksearch" ], function(RestManager) {
+define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "jqueryquicksearch", "lib/fullcalendar.translated.min" ], function(RestManager) {
 
 	/**
 	 * @constructor
@@ -12,6 +12,9 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.restManager = restManager;
 		this.jqRechercheSalleForm = jqRechercheSalle.find("#form_chercher_salle");
 		this.jqRechercheSalleResultat = jqRechercheSalle.find("#resultat_chercher_salle");
+		
+		this.customCallbackChargement = null;
+		this.customCallbackResultat = null;
 		
 		this.initAppele = false;
 		this.initDialogResultatAppele = false;
@@ -29,15 +32,44 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	
 	/**
 	 * Affiche la boîte de dialogue de recherche d'une salle libre
-	 * @param {DialogAjoutEvenement} dialogAjoutEvenement Boite de dialogue pour l'ajout d'événements
+	 * @param {DialogAjoutEvenement} dialogAjoutEvenement Boite de dialogue pour l'ajout d'événements. Peut être null si customCallbackResultat est défini.
+	 * @param {function} callbackChargemnet Callback appelé une fois les résultats de la recherche chargés (optionnel). Voir getSalle.
+	 * @param {function} callbackResultat Callback appelé pour indiquer le résultat rentré par l'utilisateur (optionnel). Voir getSalle.
+	 * @param {Date} dateDebut Date de début à pré-remplir dans la dialog (optionnel)
+	 * @param {Date} dateFin Date de fin à pré-remplir dans la dialog (optionnel)
+	 * @param {boolean} inclureSallesOccupees Indique si la checkbox "inclure salles occupées" doit être initialement cochée (optionnel)
 	 */
-	RechercheSalle.prototype.show = function(dialogAjoutEvenement) {
+	RechercheSalle.prototype.show = function(dialogAjoutEvenement, customCallbackChargement, customCallbackResultat, dateDebut, dateFin, inclureSallesOccupees) {
 		if(!this.initAppele) {
 			this.init(dialogAjoutEvenement);
 			this.initAppele = true;
 		}
 		
+		if(dateDebut) {
+			this.jqRechercheSalleForm.find("#form_recherche_salle_date").val($.datepicker.formatDate("dd/mm/yy", dateDebut));
+			this.jqRechercheSalleForm.find("#form_recherche_salle_debut").val($.fullCalendar.formatDate(dateDebut, "HH:mm"));
+		}
+		if(dateFin) {
+			this.jqRechercheSalleForm.find("#form_recherche_salle_fin").val($.fullCalendar.formatDate(dateFin, "HH:mm"));
+		}
+		if(inclureSallesOccupees === true) {
+			this.jqRechercheSalleForm.find("#form_recherche_salle_inclure_salles_occupees").attr("checked", true);
+		}
+		else if(inclureSallesOccupees === false) {
+			this.jqRechercheSalleForm.find("#form_recherche_salle_inclure_salles_occupees").attr("checked", false);
+		}
+		
+		this.customCallbackChargement = customCallbackChargement;
+		this.customCallbackResultat = customCallbackResultat;
+		
 		this.jqRechercheSalleForm.dialog("open");
+	};
+	
+	/**
+	 * Masquage de la dialog
+	 */
+	RechercheSalle.prototype.hide = function() {
+		this.jqRechercheSalleForm.dialog("close");
 	};
 
 	/**
@@ -92,11 +124,19 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 
 				// Appel de la méthode de recherche de salle
 				me.getSalle(dateDebut, dateFin, me.jqCapacite.val(), listeMateriel, inclureSallesOccupees, null, function() {
-					// Supression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
+					// Suppression message d'attente une fois la recherche effectuée (mais l'utilisateur n'a rien sélectionné)
 					me.jqRechercheSalleForm.find("#form_chercher_salle_valid").removeAttr("disabled");
 					me.jqRechercheSalleForm.find("#form_chercher_salle_chargement").css("display", "none");
+					if(me.customCallbackChargement) {
+						me.customCallbackChargement();
+					}
 				}, function(data) {
-					me.dialogAjoutEvenement.show(dateDebut, dateFin, data);
+					if(me.customCallbackResultat) {
+						me.customCallbackResultat(data);
+					}
+					else {
+						me.dialogAjoutEvenement.show(dateDebut, dateFin, data);
+					}
 				});
 
 			}
@@ -160,6 +200,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		this.jqRechercheSalleForm.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 440,
 			modal: true,
 			show: {
@@ -444,6 +485,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		// Affichage de la boîte de dialogue résultat
 		this.jqRechercheSalleResultat.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 400,
 			modal: true,
 			show: { effect: "fade", duration: 200 },

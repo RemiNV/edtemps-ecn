@@ -109,6 +109,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 		// Créer la boîte de dialogue
 		this.jqDialog.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 380,
 			modal: true,
 			show: { effect: "fade", duration: 200 },

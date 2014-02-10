@@ -14,23 +14,29 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	var EcranPlanningCours = function(restManager) {
 		var me = this;
 		this.restManager = restManager;
-		this.evenementGestion = new EvenementGestion(restManager);
-		this.calendrierGestion = new CalendrierGestion(restManager);
-		this.blocStatistiques = new BlocStatistiques(restManager, $("#bloc_statistiques"));
-		this.dialogRepeter = new DialogRepeter(restManager, $("#dialog_repeter"));
-		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
-		this.idCalendrierSelectionne = 0;
 		
 		var jqDialogRechercheSalle = $("#recherche_salle_libre").append(dialogRechercheSalleHtml);
 		this.rechercheSalle = new RechercheSalle(restManager, jqDialogRechercheSalle);
+		this.evenementGestion = new EvenementGestion(restManager);
+		this.calendrierGestion = new CalendrierGestion(restManager);
+		this.blocStatistiques = new BlocStatistiques(restManager, $("#bloc_statistiques"));
+		this.dialogRepeter = new DialogRepeter(restManager, $("#dialog_repeter"), this.rechercheSalle);
+		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
+		this.calendrierSelectionne = null;
+
 		
 		var jqDialogAjoutEvenement = $("#dialog_ajout_evenement").append(dialogAjoutEvenementHtml);
 		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, jqDialogAjoutEvenement, this.rechercheSalle, this.evenementGestion, function() { me.calendrier.refetchEvents(); });
 		
 		var jqDatepicker = null; // TODO : ajouter le datepicker sur la gauche
 		
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, 
-				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker, this.dialogRepeter);
+		this.calendrier = new Calendrier(function(start, end, callback) { 
+				me.onCalendarFetchEvents(start, end, callback);
+				
+				// Mise à jour des statistiques
+				me.updateStatistiques();
+				
+			}, this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker, this.dialogRepeter);
 		
 		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
 		if (this.restManager.aDroit(RestManager.actionsEdtemps_GererJoursBloques)) {
@@ -100,23 +106,42 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	EcranPlanningCours.prototype.callbackSelectCalendrier = function() {
 		var calId = $("#select_calendrier").val();
 		if(calId === "") {
-			this.idCalendrierSelectionne = 0;
+			this.calendrierSelectionne = null;
 		}
 		else {
-			this.idCalendrierSelectionne = parseInt(calId);
-			var calendrier = this.mesCalendriers[this.idCalendrierSelectionne];
-			$("#select_matiere").val(calendrier.matiere);
+			var idCalendrierSelectionne = parseInt(calId);
+			this.calendrierSelectionne = this.mesCalendriers[idCalendrierSelectionne];
+			$("#select_matiere").val(this.calendrierSelectionne.matiere);
 			
 			// Remplissage de la liste des groupes sélectionnés
-			$("#lst_groupes_associes").text(calendrier.nomsGroupesParents.join(", "));
+			$("#lst_groupes_associes").text(this.calendrierSelectionne.nomsGroupesParents.join(", "));
 			
 			// Mise à jour du bloc de statistiques
-			this.blocStatistiques.setGroupes(calendrier.groupesParents, calendrier.nomsGroupesParents);
-			// TODO : mettre de vraies dates
-			this.blocStatistiques.refreshStatistiques(calendrier.matiere, new Date(2013, 3, 1), new Date(2014, 3, 1));
+			this.updateStatistiques();
+			
+			// Renseignement du calendrier pour la répétition
+			this.dialogRepeter.setCalendrier(this.calendrierSelectionne);
 		}
 		
+		this.evenementGestion.clearCache(EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER);
 		this.calendrier.refetchEvents();
+	};
+	
+	/**
+	 * Récupération des statistiques si un calendrier est sélectionné, et mise à jour du bloc de statistiques
+	 */
+	EcranPlanningCours.prototype.updateStatistiques = function() {
+		if(this.calendrierSelectionne) {
+			this.blocStatistiques.setGroupes(this.calendrierSelectionne.groupesParents, this.calendrierSelectionne.nomsGroupesParents);
+			
+			// Récupération de la date en cours d'affichage
+			var dateAffichage = this.calendrier.getDate();
+			var aout = new Date(dateAffichage.getFullYear(), 8, 15); // 1 an du 15 août au 15 août
+			var dateDebut = new Date(aout > dateAffichage ? dateAffichage.getFullYear() - 1 : dateAffichage.getFullYear(), 8, 15);
+			var dateFin = new Date(dateDebut.getFullYear() + 1, 8, 15);
+			
+			this.blocStatistiques.refreshStatistiques(this.calendrierSelectionne.matiere, dateDebut, dateFin);
+		}
 	};
 	
 	EcranPlanningCours.VUE_NORMALE = "vue_normale";
@@ -139,15 +164,15 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
 		var me = this;
-		if(this.idCalendrierSelectionne != 0) {
-			this.evenementGestion.getEvenementsGroupesCalendrier(start, end, this.idCalendrierSelectionne, false, function(resultCode, evenements) {
+		if(this.calendrierSelectionne) {
+			this.evenementGestion.getEvenementsGroupesCalendrier(start, end, this.calendrierSelectionne.id, false, function(resultCode, evenements) {
 				if(resultCode === RestManager.resultCode_Success) {
 					
 					// Evénements des autres calendriers en gris
 					for(var i=0,maxI=evenements.length; i<maxI; i++) {
 						var hasCalendrier = false;
 						for(var j=0,maxJ=evenements[i].calendriers.length; j<maxJ; j++) {
-							if(evenements[i].calendriers[j] === me.idCalendrierSelectionne) {
+							if(evenements[i].calendriers[j] === me.calendrierSelectionne.id) {
 								hasCalendrier = true;
 								break;
 							}
