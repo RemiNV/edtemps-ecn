@@ -48,6 +48,9 @@ public class EvenementGestion {
 	/** Maximum de créneaux examinés pour mettre en place une répétition d'événement */
 	public static final int MAX_RECHERCHE_REPETITIONS = 75;
 	
+	/** Maximum d'événements par utilisateur et par calendrier par semaine glissante */
+	public static final int MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE = 20; 
+	
 	/**
 	 * Initialise un gestionnaire d'evenements
 	 * @param bdd Gestionnaire de base de données à utiliser
@@ -104,6 +107,16 @@ public class EvenementGestion {
 		
 		if(nom.length() > TAILLE_MAX_NOM_EVENEMENT || !StringUtils.isAlphanumericSpace(nom)) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le nom d'un événement doit être alphanumérique et de moins de " + TAILLE_MAX_NOM_EVENEMENT + " caractères");
+		}
+		
+		// Vérification des quotas de l'utilisateur
+		Date dateDebutFenetreQuota = new Date(dateDebut.getTime() - (1000 * 3600 * 84)); // -3.5 jours (84h)
+		Date dateFinFenetreQuota = new Date(dateDebut.getTime() + (1000 * 3600 * 84)); // +3.5 jours (84h)
+		
+		if(getMaxNbEvenementsParCalendriersUtilisateur(idCreateur, idCalendriers, dateDebutFenetreQuota, dateFinFenetreQuota) 
+				>= MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE) {
+			throw new EdtempsException(ResultCode.QUOTA_EXCEEDED, "Vous ne pouvez pas créer plus de " + 
+				MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE + " événements par calendrier et par semaine glissante");
 		}
 		
 		try {

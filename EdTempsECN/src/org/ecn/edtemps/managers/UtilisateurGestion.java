@@ -778,4 +778,14 @@ public class UtilisateurGestion {
 			throw new DatabaseException(e);
 		}
 	}
+	
+	public static ArrayList<Integer> getUserIds(List<UtilisateurIdentifie> utilisateurs) {
+		ArrayList<Integer> res = new ArrayList<Integer>(utilisateurs.size());
+		
+		for(UtilisateurIdentifie u : utilisateurs) {
+			res.add(u.getId());
+		}
+		
+		return res;
+	}
 }

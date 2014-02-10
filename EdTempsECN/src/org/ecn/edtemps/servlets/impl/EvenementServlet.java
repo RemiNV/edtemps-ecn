@@ -1,17 +1,11 @@
 package org.ecn.edtemps.servlets.impl;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonException;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,11 +16,14 @@ import org.apache.logging.log4j.Logger;
 import org.ecn.edtemps.exceptions.EdtempsException;
 import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
+import org.ecn.edtemps.json.JSONUtils.EvenementClient;
 import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.CalendrierGestion.DroitsCalendriers;
 import org.ecn.edtemps.managers.EvenementGestion;
+import org.ecn.edtemps.managers.SalleGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 import org.ecn.edtemps.models.identifie.SalleIdentifie;
 import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
@@ -41,20 +38,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 
 	private static final long serialVersionUID = 85479515540354619L;
 	private static Logger logger = LogManager.getLogger(EvenementServlet.class.getName());
-	public static final int MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE = 20; 
 	
-	
-	private static class ParamsAjouterModifierEvenement {
-		public String nom;
-		public Date dateDebut;
-		public Date dateFin;
-		public ArrayList<Integer> idCalendriers;
-		public ArrayList<Integer> idSalles;
-		public ArrayList<Integer> idIntervenants;
-		public ArrayList<Integer> idResponsables;
-		public ArrayList<Integer> idEvenementsSallesALiberer;
-		public Integer idEvenement;
-	}
 	
 	protected void doPostAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String pathInfo = req.getPathInfo();
@@ -94,7 +78,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		int idEvenement = Integer.parseInt(strIdEvenement);
 		EvenementIdentifie evenement = evenementGestion.getEvenement(idEvenement);
 		
-		if(!getUserIds(evenement.getResponsables()).contains(userId)) {
+		if(!UtilisateurGestion.getUserIds(evenement.getResponsables()).contains(userId)) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Tentative de supprimer un événement sans être propriétaire");
 		}
 		
@@ -114,7 +98,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		}
 		
 		try {
-			ParamsAjouterModifierEvenement paramsEvenement = getParamsAjouterModifier(strEvenement);
+			EvenementClient paramsEvenement = JSONUtils.getEvenementClient(strEvenement);
 			
 			EvenementGestion evenementGestion = new EvenementGestion(bdd);
 
@@ -172,7 +156,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 				
 				if(!droitsCalendriersNouveau.contientCours) {
 					bdd.rollback();
-					throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Vous ne pouvez pas prendre une salle déjà occupée pour un évènement autre qu'un cours");
+					throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Le calendrier n'est pas un calendrier de cours : impossible de prendre une salle déjà occupée");
 				}
 				
 				evenementGestion.supprimerSallesEvenementsNonCours(paramsEvenement.idSalles, paramsEvenement.idEvenementsSallesALiberer);
@@ -193,47 +177,6 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		}
 	}
 	
-	protected JsonArray getJsonArrayOrNull(JsonObject object, String key) {
-		return object.containsKey(key) && !object.isNull(key) ? object.getJsonArray(key) : null;
-	}
-	
-	protected JsonNumber getJsonNumberOrNull(JsonObject object, String key) {
-		return object.containsKey(key) && !object.isNull(key) ? object.getJsonNumber(key) : null;
-	}
-	
-	protected ParamsAjouterModifierEvenement getParamsAjouterModifier(String strEvenement) throws JsonException, ClassCastException {
-		
-		JsonReader reader = Json.createReader(new StringReader(strEvenement));
-		JsonObject jsonEvenement;
-		
-		jsonEvenement = reader.readObject();
-		
-		JsonNumber jsonDebut = getJsonNumberOrNull(jsonEvenement, "dateDebut"); 
-		JsonNumber jsonFin = getJsonNumberOrNull(jsonEvenement, "dateFin");
-		JsonArray jsonIdCalendriers = getJsonArrayOrNull(jsonEvenement, "calendriers");
-		JsonArray jsonIdSalles = getJsonArrayOrNull(jsonEvenement, "salles");
-		JsonArray jsonIdIntervenants = getJsonArrayOrNull(jsonEvenement, "intervenants");
-		JsonArray jsonIdResponsables = getJsonArrayOrNull(jsonEvenement, "responsables");
-		JsonArray jsonIdEvenementsSallesALiberer = getJsonArrayOrNull(jsonEvenement, "evenementsSallesALiberer"); 
-					
-		JsonNumber jsonIdEvenement = getJsonNumberOrNull(jsonEvenement, "id");
-		
-		ParamsAjouterModifierEvenement res = new ParamsAjouterModifierEvenement();
-		
-		res.nom = jsonEvenement.containsKey("nom") && !jsonEvenement.isNull("nom") ? jsonEvenement.getString("nom") : null;
-		
-		res.dateDebut = jsonDebut == null ? null : new Date(jsonDebut.longValue());
-		res.dateFin = jsonFin == null ? null : new Date(jsonFin.longValue());
-		res.idCalendriers = jsonIdCalendriers == null ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdCalendriers);
-		res.idSalles = jsonIdSalles == null ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdSalles);
-		res.idIntervenants = jsonIdIntervenants == null ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdIntervenants);
-		res.idResponsables = jsonIdResponsables == null ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdResponsables);
-		res.idEvenementsSallesALiberer = jsonIdEvenementsSallesALiberer == null ? null : JSONUtils.getIntegerArrayListSansDoublons(jsonIdEvenementsSallesALiberer);
-		res.idEvenement = jsonIdEvenement == null ? null : jsonIdEvenement.intValue();
-		
-		return res;
-	}
-	
 	/**
 	 * Ajout d'un évènement. Doit être appelé à l'intérieur d'une transaction.
 	 * 
@@ -250,7 +193,7 @@ public class EvenementServlet extends RequiresConnectionServlet {
 	 * @throws EdtempsException
 	 * @throws IOException
 	 */
-	protected void doAjouterEvenement(int userId, BddGestion bdd, HttpServletResponse resp, ParamsAjouterModifierEvenement params) throws EdtempsException, IOException {
+	protected void doAjouterEvenement(int userId, BddGestion bdd, HttpServletResponse resp, EvenementClient params) throws EdtempsException, IOException {
 		
 		// Vérification des paramètres
 		if(params.nom == null || StringUtils.isBlank(params.nom) || params.dateDebut == null || params.dateFin == null || params.idCalendriers == null || params.idSalles == null 
@@ -262,15 +205,6 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		
 		// Vérification que l'utilisateur n'a pas atteint son quota
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
-		
-		Date dateDebutFenetreQuota = new Date(params.dateDebut.getTime() - (1000 * 3600 * 84)); // -3.5 jours (84h)
-		Date dateFinFenetreQuota = new Date(params.dateDebut.getTime() + (1000 * 3600 * 84)); // +3.5 jours (84h)
-		
-		if(evenementGestion.getMaxNbEvenementsParCalendriersUtilisateur(userId, params.idCalendriers, dateDebutFenetreQuota, dateFinFenetreQuota) 
-				>= MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE) {
-			throw new EdtempsException(ResultCode.QUOTA_EXCEEDED, "Vous ne pouvez pas créer plus de " + 
-				MAX_EVENEMENTS_UTILISATEUR_PAR_CALENDRIER_SEMAINE + " événements par calendrier et par semaine glissante");
-		}
 		
 		evenementGestion.sauverEvenement(params.nom, params.dateDebut, params.dateFin, params.idCalendriers, userId, params.idSalles, 
 				params.idIntervenants, params.idResponsables, false);
@@ -297,11 +231,11 @@ public class EvenementServlet extends RequiresConnectionServlet {
 	 * @throws EdtempsException
 	 */
 	protected void doModifierEvenement(int userId, BddGestion bdd, HttpServletResponse resp, 
-			ParamsAjouterModifierEvenement params, EvenementIdentifie oldEven) throws IOException, EdtempsException {
+			EvenementClient params, EvenementIdentifie oldEven) throws IOException, EdtempsException {
 		
 		EvenementGestion evenementGestion = new EvenementGestion(bdd);
 		
-		ArrayList<Integer> oldIdsResponsables = getUserIds(oldEven.getResponsables());
+		ArrayList<Integer> oldIdsResponsables = UtilisateurGestion.getUserIds(oldEven.getResponsables());
 		
 		// TODO : autoriser un administrateur à faire ceci
 		// Vérification que l'utilisateur est autorisé à modifier cet évènement
@@ -315,32 +249,12 @@ public class EvenementServlet extends RequiresConnectionServlet {
 		Date nvDateDebut = params.dateDebut == null ? oldEven.getDateDebut() : params.dateDebut;
 		Date nvDateFin = params.dateFin == null ? oldEven.getDateFin() : params.dateFin;
 		List<Integer> nvIdCalendriers = params.idCalendriers == null ? oldEven.getIdCalendriers() : params.idCalendriers;
-		ArrayList<Integer> nvIdSalles = params.idSalles == null ? getIdSalles(oldEven.getSalles()) : params.idSalles;
-		ArrayList<Integer> nvIdIntervenants = params.idIntervenants == null ? getUserIds(oldEven.getIntervenants()) : params.idIntervenants;
-		ArrayList<Integer> nvIdResponsables = params.idResponsables == null ? getUserIds(oldEven.getResponsables()) : params.idResponsables;
+		ArrayList<Integer> nvIdSalles = params.idSalles == null ? SalleGestion.getIdSalles(oldEven.getSalles()) : params.idSalles;
+		ArrayList<Integer> nvIdIntervenants = params.idIntervenants == null ? UtilisateurGestion.getUserIds(oldEven.getIntervenants()) : params.idIntervenants;
+		ArrayList<Integer> nvIdResponsables = params.idResponsables == null ? UtilisateurGestion.getUserIds(oldEven.getResponsables()) : params.idResponsables;
 		
 		evenementGestion.modifierEvenement(oldEven.getId(), nvNom, nvDateDebut, nvDateFin, nvIdCalendriers, nvIdSalles, nvIdIntervenants, nvIdResponsables, false);
 		
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Evènement modifié", null));
-	}
-	
-	protected static ArrayList<Integer> getIdSalles(List<SalleIdentifie> salles) {
-		ArrayList<Integer> res = new ArrayList<Integer>(salles.size());
-		
-		for(SalleIdentifie s : salles) {
-			res.add(s.getId());
-		}
-		
-		return res;
-	}
-	
-	protected static ArrayList<Integer> getUserIds(List<UtilisateurIdentifie> utilisateurs) {
-		ArrayList<Integer> res = new ArrayList<Integer>(utilisateurs.size());
-		
-		for(UtilisateurIdentifie u : utilisateurs) {
-			res.add(u.getId());
-		}
-		
-		return res;
 	}
 }
