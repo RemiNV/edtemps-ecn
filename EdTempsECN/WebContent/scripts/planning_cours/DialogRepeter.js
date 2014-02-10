@@ -32,6 +32,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		// Listeners
 		jqBloc.find("#btn_previsualiser").click(function(e) {
 			me.lancerPrevisualisation();
+			jqBloc.find("#btn_executer").attr("disabled", "disabled");
 		});
 		
 		jqBloc.find("#btn_annuler").click(function(e) {
@@ -64,12 +65,15 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		if(!verifInput(jqNbEvenements, nbRepetitions)) return;
 		if(!verifInput(jqPeriode, periode)) return;
 		
+		this.afficherChargement("Calcul des répétitions...");
+		
 		this.restManager.effectuerRequete("GET", "repeterevenement/previsualiser", {
 			token: this.restManager.getToken(),
 			idEvenement: this.evenement.id,
 			nbRepetitions: nbRepetitions,
 			periode: periode
 		}, function(response) {
+			me.cacherChargement();
 			if(response.resultCode == RestManager.resultCode_Success) {
 				me.synthese = response.data;
 				for(var i=0; i<me.synthese.length; i++) {
@@ -86,6 +90,21 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 				window.showToast("Erreur de récupération de la prévisualisation");
 			}
 		});
+	};
+	
+	/**
+	 * Affichage d'un message de chargement dans la zone dédiée de la dialog
+	 * @param {string} message Message à afficher
+	 */
+	DialogRepeter.prototype.afficherChargement = function(message) {
+		this.jqBloc.find("#dialog_repeter_chargement").show().find("#dialog_repeter_message_chargement").text(message);
+	};
+	
+	/**
+	 * Masquage du message de chargement affiché
+	 */
+	DialogRepeter.prototype.cacherChargement = function() {
+		this.jqBloc.find("#dialog_repeter_chargement").hide();
 	};
 	
 	/**
@@ -124,11 +143,9 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.rechercheSalle.show(null, null, function(data) {
 			me.rechercheSalle.hide();
 			
-			synthese.nouvellesSalles = new Array();
-			console.log(data);
+			synthese.nouvellesSalles = data;
 			var nomsSalles = new Array();
 			for(var i=0,max=data.length; i<max; i++) {
-				synthese.nouvellesSalles.push(data[i].id);
 				nomsSalles.push(data[i].nom);
 			}
 			synthese.strNouvellesSalles = nomsSalles.join(", ");
@@ -152,6 +169,19 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.divSynthese.find(".btn_rechercher_salle").click(function(e) {
 			me.callbackRechercheSalle($(this));
 		});
+		
+		// Activation du bouton "Exécuter" si plus de problèmes
+		var probleme = false;
+		for(var i=0,max=this.synthese.length; i<max; i++) {
+			if(this.synthese[i].resteProblemes) {
+				probleme = true;
+				break;
+			}
+		}
+		
+		if(probleme) {
+			this.find("#btn_executer").removeAttr("disabled");
+		}
 	};
 	
 	/**
@@ -248,6 +278,8 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		else {
 			this.divSynthese.find("#msg_repetition_plusieurs_calendriers").hide();
 		}
+		
+		this.jqBloc.find("#btn_executer").attr("disabled", "disabled");
 		
 		this.jqBloc.dialog("open");
 	};

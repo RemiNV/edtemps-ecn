@@ -64,4 +64,9 @@
 	<div class="message_alerte" id="msg_repetition_plusieurs_calendriers">
 		
 	</div>
+	<div id="dialog_repeter_chargement" style="display: none">
+		<img src="img/spinner_chargement_outer_small.gif" class="spinner_chargement" alt="chargement" />
+		<span id="dialog_repeter_message_chargement"></span>
+	</div>
+</div>
 </div>
