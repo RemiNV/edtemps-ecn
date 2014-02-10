@@ -187,8 +187,12 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 
 		this.restManager.effectuerRequete("POST", "joursferies/ajouter", {
-			token: this.restManager.getToken(), libelle: libelle,
-			date: date.getTime(), fermeture: fermeture
+			token: this.restManager.getToken(),
+			jour: JSON.stringify({
+				libelle: libelle,
+				date: date.getTime(),
+				fermeture: fermeture
+			})
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
@@ -222,8 +226,13 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 
 		this.restManager.effectuerRequete("POST", "joursferies/modifier", {
-			token: this.restManager.getToken(), idJourFerie: id,
-			libelle: libelle, date: date.getTime(), fermeture: fermeture
+			token: this.restManager.getToken(),
+			jour: JSON.stringify({
+				idJourFerie: id,
+				libelle: libelle,
+				date: date.getTime(),
+				fermeture: fermeture
+			})
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {

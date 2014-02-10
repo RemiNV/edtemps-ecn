@@ -46,7 +46,7 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 		public Date dateFin;
 		public ArrayList<Integer> listeIdGroupes;
 		public Integer idPeriodeBloquee;
-		public boolean vacances;
+		public Boolean vacances;
 	}
 
 	
@@ -79,7 +79,7 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 			// Vérifie que l'utilisateur est autorisé à gérer les périodes bloquées
 			UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
 			if (!userGestion.aDroit(ActionsEdtemps.GERER_JOURS_BLOQUES, userId)) {
-				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à sauvegarder un jour bloqué");
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à gérer les périodes bloquées");
 			}
 			
 			switch(pathInfo) {
@@ -203,6 +203,9 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 
 		// Récupère les paramètres dans la requête
 		PrePeriodeBloquee param = recupererInformation(req);
+		if (param.idPeriodeBloquee == null) {
+			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet periode incomplet");
+		}
 
 		// Exécute la requête de modification avec le gestionnaire
 		PeriodeBloqueeGestion gestionnaire = new PeriodeBloqueeGestion(bdd);
@@ -247,7 +250,7 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 		res.libelle = jsonPeriode.containsKey("libelle") && !jsonPeriode.isNull("libelle") ? jsonPeriode.getString("libelle") : null;
 		res.vacances = jsonPeriode.containsKey("vacances") && !jsonPeriode.isNull("vacances") ? jsonPeriode.getBoolean("vacances") : null;
 
-		if (res.dateDebut==null || res.dateFin==null || res.dateDebut.after(res.dateFin) || StringUtils.isBlank(res.libelle) || res.listeIdGroupes.isEmpty()) {
+		if (res.dateDebut==null || res.dateFin==null || res.dateDebut.after(res.dateFin) || StringUtils.isBlank(res.libelle) || res.listeIdGroupes.isEmpty() || res.vacances==null) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet periode incomplet");
 		}
 		
