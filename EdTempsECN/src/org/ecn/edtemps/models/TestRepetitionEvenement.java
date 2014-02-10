@@ -2,12 +2,15 @@ package org.ecn.edtemps.models;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.ecn.edtemps.json.JSONAble;
 import org.ecn.edtemps.json.JSONUtils;
+import org.ecn.edtemps.models.identifie.EvenementIdentifie;
 
 public class TestRepetitionEvenement implements JSONAble {
 	
@@ -22,10 +25,16 @@ public class TestRepetitionEvenement implements JSONAble {
 	public static class Probleme implements JSONAble {
 		protected ProblemeStatus status;
 		protected String message;
+		protected List<? extends EvenementIdentifie> evenementsProbleme;
 		
 		public Probleme(ProblemeStatus status, String message) {
+			this(status, message, null);
+		}
+		
+		public Probleme(ProblemeStatus status, String message, List<? extends EvenementIdentifie> evenementsProbleme) {
 			this.status = status;
 			this.message = message;
+			this.evenementsProbleme = evenementsProbleme;
 		}
 		
 		public ProblemeStatus getStatus() {
@@ -36,12 +45,23 @@ public class TestRepetitionEvenement implements JSONAble {
 			return message;
 		}
 		
+		public List<? extends EvenementIdentifie> getEvenementsProbleme() {
+			return evenementsProbleme;
+		}
+		
 		@Override
 		public JsonValue toJson() {
-			return Json.createObjectBuilder()
+			JsonObjectBuilder builder = Json.createObjectBuilder()
 					.add("status", status.getInt())
-					.add("message", message)
-					.build();
+					.add("message", message);
+			if(evenementsProbleme == null) {
+				builder.addNull("evenementsProbleme");
+			}
+			else {
+				builder.add("evenementsProbleme", JSONUtils.getJsonArray(evenementsProbleme));
+			}
+			
+			return builder.build();
 		}
 	}
 	

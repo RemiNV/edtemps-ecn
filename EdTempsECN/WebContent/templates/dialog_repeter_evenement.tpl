@@ -29,7 +29,7 @@
 							<span>Ignoré</span><br/>
 							<%
 						}
-						if(element.afficherBoutonRechercheSalle) {
+						if(element.afficherBoutonRechercheSalleCours || (element.afficherBoutonRechercheSalleNonCours && !element.forcerAjout)) {
 							if(element.nouvellesSalles) {
 								%>
 								<span>(<%= element.strNouvellesSalles %>)</span>

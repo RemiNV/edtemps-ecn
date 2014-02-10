@@ -111,6 +111,9 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 			// Ajout de chacun des événements
 			for(EvenementClientRepetition evenement : evenements) {
 				
+				// Utilisation des salles de l'événement d'origine si pas de changement précisé
+				ArrayList<Integer> salles = evenement.idSalles == null ? SalleGestion.getIdSalles(evenementRepetition.getSalles()) : evenement.idSalles; 
+				
 				// Libération des salles occupées par un non-cours
 				if(evenement.idEvenementsSallesALiberer != null && !evenement.idEvenementsSallesALiberer.isEmpty()) {
 					
@@ -119,11 +122,8 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 						throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Le calendrier n'est pas un calendrier de cours : impossible de prendre une salle déjà occupée");
 					}
 					
-					evenementGestion.supprimerSallesEvenementsNonCours(evenement.idSalles, evenement.idEvenementsSallesALiberer);
+					evenementGestion.supprimerSallesEvenementsNonCours(salles, evenement.idEvenementsSallesALiberer);
 				}
-				
-				// Utilisation des salles de l'événement d'origine si pas de changement précisé
-				ArrayList<Integer> salles = evenement.idSalles == null ? SalleGestion.getIdSalles(evenementRepetition.getSalles()) : evenement.idSalles; 
 				
 				evenementGestion.sauverEvenement(evenementRepetition.getNom(), evenement.dateDebut, evenement.dateFin, 
 						lstIdCalendrier, userId, salles, UtilisateurGestion.getUserIds(evenementRepetition.getIntervenants()), 

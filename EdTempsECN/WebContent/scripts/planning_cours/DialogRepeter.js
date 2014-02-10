@@ -60,9 +60,10 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			
 			// Génération du tableau de changement de salles
 			var changementSalle;
-			var idEvenementsSallesALiberer = new Array();
+			var idEvenementsSallesALiberer;
 			if(entree.nouvellesSalles) {
 				changementSalle = new Array();
+				idEvenementsSallesALiberer = new Array();
 				for(var j=0, maxJ=entree.nouvellesSalles.length; j<maxJ; j++) {
 					var salle = entree.nouvellesSalles[j]; 
 					changementSalle.push(salle.id);
@@ -75,6 +76,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			}
 			else {
 				changementSalle = null;
+				idEvenementsSallesALiberer = entree.evenementsSallesALiberer; // Non vide si on force l'ajout d'événement
 			}
 			
 			repetitions.push({
@@ -183,22 +185,50 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	 */
 	DialogRepeter.prototype.callbackForcerAjout = function(jqButton) {
 		var id = parseInt(jqButton.attr("data-id"));
-		this.synthese[id].forcerAjout = true;
-		this.updateProblemes(this.synthese[id]);
+		var me = this;
 		
-		if(!this.synthese[id].resteProblemes) { // L'événement précédemment invalide sera ajouté
-			// Suppression derniers tests inutiles et renumérotation
-			var numMax = this.synthese[this.synthese.length-1].num;
-			for(var i=this.synthese.length-1; i>id && this.synthese[i].num == numMax; i--) {
-				this.synthese.pop();
+		// Poursuite de l'opération après confirmation éventuelle
+		function callbackContinuer() {
+			me.synthese[id].forcerAjout = true;
+			me.updateProblemes(me.synthese[id]);
+			
+			if(!me.synthese[id].resteProblemes) { // L'événement précédemment invalide sera ajouté
+				// Suppression derniers tests inutiles et renumérotation
+				var numMax = me.synthese[me.synthese.length-1].num;
+				for(var i=me.synthese.length-1; i>id && me.synthese[i].num == numMax; i--) {
+					me.synthese.pop();
+				}
+				
+				for(i=id+1,max=me.synthese.length; i<max; i++) {
+					me.synthese[i].num++;
+				}
 			}
 			
-			for(i=id+1,max=this.synthese.length; i<max; i++) {
-				this.synthese[i].num++;
+			me.updateSynthese();
+		}
+		
+		// Si un des problèmes est une salle occupée par un non-cours, supprimer l'association de l'événement à la salle
+		var evenementsSupprimerSalle = new Array();
+		for(var i=0,max=this.synthese[id].problemes.length; i<max; i++) {
+			var probleme = this.synthese[id].problemes[i];
+			
+			if(probleme.status == 2) { // 2 : salle occupée par non-cours
+				for(var j=0,maxJ=probleme.evenementsProbleme.length; j<maxJ; j++) {
+					evenementsSupprimerSalle.push(probleme.evenementsProbleme[j].id);
+				}
 			}
 		}
 		
-		this.updateSynthese();
+		// Des associations aux salles seront supprimées
+		if(evenementsSupprimerSalle.length > 0) {
+			window.confirm("Vous allez forcer la libération des salles ; continuer ?", function() {
+				me.synthese[id].evenementsSallesALiberer = me.synthese[id].evenementsSallesALiberer.concat(evenementsSupprimerSalle);
+				callbackContinuer(); // On ne continue que si l'utilisateur approuve
+			});
+		}
+		else {
+			callbackContinuer(); // Rien à approuver : on continue
+		}
 	};
 	
 	/**
@@ -249,15 +279,19 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		test.resteProblemes = false;
 		for(var i=0,max=test.problemes.length; i<max; i++) {
 			switch(test.problemes[i].status) {
-			case 1:
-			case 2:
+			case 1: // Salle occupée par cours
 				if(!test.nouvellesSalles) {
 					test.resteProblemes = true;
 				}
 				break;
+			case 2: // Salle occupée par non-cours
+				if(!test.nouvellesSalles && !test.forcerAjout) {
+					test.resteProblemes = true;
+				}
+				break;
 				
-			case 3:
-			case 4:
+			case 3: // Public occupé
+			case 4: // Période bloquée
 				if(!test.forcerAjout) {
 					test.resteProblemes = true;
 				}
@@ -280,21 +314,24 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		test.strDate = $.fullCalendar.formatDate(test.dateDebut, "dd/MM/yyyy");
 		test.strProblemes = test.problemes.length > 0 ? "" : "OK";
 		test.afficherBoutonForcer = false;
-		test.afficherBoutonRechercheSalle = false;
+		test.afficherBoutonRechercheSalleCours = false;
+		test.afficherBoutonRechercheSalleNonCours = false;
+		test.evenementsSallesALiberer = new Array();
 		for(var i=0,max=test.problemes.length; i<max; i++) {
 			if(test.strProblemes) {
 				test.strProblemes += "<br/>";
 			}
 			
 			switch(test.problemes[i].status) {
-			case 1: // Salle occupée par un événement non cours
+			case 1: // Salle occupée par un événement cours
 				test.strProblemes += "Salle occupée (cours) : " + test.problemes[i].message;
-				test.afficherBoutonRechercheSalle = true;
+				test.afficherBoutonRechercheSalleCours = true;
+				test.afficherBoutonForcer = true;
 				break;
 				
-			case 2: // Salle occupée par un événement non cors
+			case 2: // Salle occupée par un événement non cours
 				test.strProblemes += "Salle occupée (pas un cours) : " + test.problemes[i].message;
-				test.afficherBoutonRechercheSalle = true;
+				test.afficherBoutonRechercheSalleNonCours = true;
 				break;
 			case 3: // Public occupé
 				test.afficherBoutonForcer = true;

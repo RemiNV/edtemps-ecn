@@ -904,12 +904,12 @@ public class EvenementGestion {
 				
 				if(evenementsCours.size() > 0) {
 					// Le toString des Evenement utilise leur attribut nom
-					problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_COURS, StringUtils.join(evenementsCours, ", ")));
+					problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_COURS, StringUtils.join(evenementsCours, ", "), evenementsCours));
 				}
 				else { // Inutile d'examiner les non-cours s'il y a déjà un cours
 					List<EvenementIdentifie> evenementsNonCours = listerEvenementsSalleCoursOuPas(idSalles, newDateDebut, newDateFin, false, false);
 					if(evenementsNonCours.size() > 0) {
-						problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_NON_COURS, StringUtils.join(evenementsNonCours, ", ")));
+						problemes.add(new Probleme(ProblemeStatus.SALLE_OCCUPEE_NON_COURS, StringUtils.join(evenementsNonCours, ", "), evenementsNonCours));
 					}
 				}
 			}
@@ -918,10 +918,10 @@ public class EvenementGestion {
 			try {
 				ArrayList<EvenementComplet> evenementsPublic = this.listerEvenementsGroupesCalendrier(evenement.getIdCalendriers(), newDateDebut, newDateFin, false);
 				if(evenementsPublic.size() > 0) {
-					problemes.add(new Probleme(ProblemeStatus.PUBLIC_OCCUPE, StringUtils.join(evenementsPublic, ", ")));
+					problemes.add(new Probleme(ProblemeStatus.PUBLIC_OCCUPE, StringUtils.join(evenementsPublic, ", "), evenementsPublic));
 				}
 			} catch (MaxRowCountExceededException e) {
-				problemes.add(new Probleme(ProblemeStatus.PUBLIC_OCCUPE, "Public super-ultra-oversurbooké"));
+				problemes.add(new Probleme(ProblemeStatus.PUBLIC_OCCUPE, "Public super-ultra-oversurbooké", null));
 			}
 			
 			// Vérification de la présence d'un jour férié
