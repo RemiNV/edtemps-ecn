@@ -89,9 +89,12 @@ define([  ], function() {
 		this.jqEcran.find("#numero_annee_scolaire").html(this.annee + " - " + (this.annee + 1));
 		
 	    // Affecte la fonction de callback sur les jours cliquables
-	    this.jqEcran.find(".jour").click(function() {
-	    	me.callback(stringToDate($(this).attr("id")), $(this));
-	    });
+		this.jqEcran.find(".jour").click(function() {
+			me.callback(stringToDate($(this).attr("id")), $(this));
+		});
+	    
+	    // Supprime le callback sur les jours fériés
+		this.jqEcran.find(".ferie").unbind();
 	    
 	};
 

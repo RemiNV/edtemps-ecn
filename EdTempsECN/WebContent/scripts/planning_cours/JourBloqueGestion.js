@@ -434,23 +434,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		return liste;
 		
 	};
-	
 
-	/**
-	 * Teste si le jour passé en paramètre est un jour férié (non fermeture)
-	 * 
-	 * @param {date} date Date de recherche
-	 */
-	JourBloqueGestion.prototype.isFerie = function(date) {
-		
-		for (var i=0, maxI=this.joursFeries.length; i<maxI; i++) {
-			if (this.joursFeries[i].date==date.getTime() && !this.joursFeries[i].fermeture) return true;
-		}
-		
-		return false;
-		
-	};
-	
 	
 	return JourBloqueGestion;
 
