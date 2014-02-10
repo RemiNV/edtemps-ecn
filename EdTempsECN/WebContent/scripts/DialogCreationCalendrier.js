@@ -83,6 +83,7 @@ define([ "RestManager", "CalendrierGestion", "MultiWidget", "UtilisateurGestion"
 		// Crée la boite de dialog de création/modification d'un calendrier
 		this.jqDialog.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 500,
 			modal: true,
 			show: {

@@ -42,6 +42,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		// Initialisation de la dialog
 		jqDialog.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			modal: true,
 			width: 670,
 			show: { effect: "fade", duration: 200 },

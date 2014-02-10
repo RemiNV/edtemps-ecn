@@ -40,6 +40,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion", "
 		// Préparation de la dialogue de détails des jours bloqués
 		this.jqDialogDetailsJourBloque.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			draggable: false,
 			width: 500,
 			open: function(){

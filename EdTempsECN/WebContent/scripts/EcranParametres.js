@@ -57,8 +57,11 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		});
 		
 		// Initialisation des dialog
-		$("#dialog_export").dialog({
+		var dialogExport = $("#dialog_export");
+		
+		dialogExport.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			modal: true,
 			width: 600
 		});

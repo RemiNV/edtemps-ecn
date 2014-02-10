@@ -200,6 +200,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		// Affiche la boîte dialogue de recherche d'une salle libre
 		this.jqRechercheSalleForm.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 440,
 			modal: true,
 			show: {
@@ -484,6 +485,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		// Affichage de la boîte de dialogue résultat
 		this.jqRechercheSalleResultat.dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 400,
 			modal: true,
 			show: { effect: "fade", duration: 200 },

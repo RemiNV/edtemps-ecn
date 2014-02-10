@@ -25,6 +25,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		
 		jqBloc.append(contenuDialog).dialog({
 			autoOpen: false,
+			appendTo: "#dialog_hook",
 			width: 700
 		});
 		
