@@ -645,6 +645,42 @@ define(["RestManager"], function(RestManager) {
 		});
 	};
 	
+	/**
+	 * @typedef {Object} EvenementRepetition
+	 * 
+	 * @property {Date} dateDebut Date de début de l'événement
+	 * @property {Date} dateFin Date de fin de l'événement
+	 * @property {number[]} idSalles ID des salles, ou null pour utiliser les salles de l'événement d'origine
+	 * @property {number[]} evenementsSallesALiberer ID des événements (non cours) dont l'asociations aux salles est à supprimer 
+	 */
+	
+	/**
+	 * Répétition d'un événement
+	 * 
+	 * @param {number} idEvenementRepetition
+	 * @param {number} idCalendrier
+	 * @param {EvenementRepetition[]} repetitions
+	 * @param {function} callback Fonction appelée une fois la répétition effectuée. Prend un unique argument resultCode.
+	 */
+	EvenementGestion.prototype.repeterEvenement = function(idEvenementRepetition, idCalendrier, repetitions, callback) {
+		var me = this;
+		this.restManager.effectuerRequete("POST", "repeterevenement/executer", {
+			token: this.restManager.getToken(),
+			idEvenementRepetition: idEvenementRepetition,
+			idCalendrier: idCalendrier,
+			evenements: JSON.stringify(repetitions)
+		}, function(response) {
+			
+			if(response.resultCode === RestManager.resultCode_Success) {
+				// Vidage du cache pour chaque événement créé
+				for(var i=0,maxI=repetitions.length; i<maxI; i++) {
+					me.invalidateCache(repetitions[i].dateDebut, repetitions[i].dateFin);
+				}
+			}
+			
+			callback(response.resultCode);
+		});
+	};
 	
 	return EvenementGestion;
 	

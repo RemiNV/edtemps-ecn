@@ -9,7 +9,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	 * @constructor
 	 * @alias DialogRepeter 
 	 */
-	var DialogRepeter = function(restManager, jqBloc, rechercheSalle) {
+	var DialogRepeter = function(restManager, jqBloc, rechercheSalle, evenementGestion, callbackAjout) {
 		var me = this;
 		this.restManager = restManager;
 		this.jqBloc = jqBloc;
@@ -17,6 +17,8 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.calendrier = null; // Calendrier en cours d'édition
 		this.synthese = null;
 		this.rechercheSalle = rechercheSalle;
+		this.evenementGestion = evenementGestion;
+		this.callbackAjout = callbackAjout;
 		
 		var contenuDialog = $(dialogRepeterEvenementTpl);
 		this.divSynthese = contenuDialog.find("#div_synthese");
@@ -32,10 +34,77 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		// Listeners
 		jqBloc.find("#btn_previsualiser").click(function(e) {
 			me.lancerPrevisualisation();
+			jqBloc.find("#btn_executer").attr("disabled", "disabled");
 		});
 		
 		jqBloc.find("#btn_annuler").click(function(e) {
-			jqBloc.dialog("close");
+			me.hide();
+		});
+		
+		jqBloc.find("#btn_executer").click(function(e) {
+			me.executerRepetition();
+		});
+	};
+	
+	/**
+	 * Exécute la répétition des événements en fonction de la prévisualisation précédemment demandée
+	 */
+	DialogRepeter.prototype.executerRepetition = function() {
+		var repetitions = new Array();
+		
+		for(var i=0,max=this.synthese.length; i<max; i++) {
+			var entree = this.synthese[i];
+			if(entree.resteProblemes) {
+				continue;
+			}
+			
+			// Génération du tableau de changement de salles
+			var changementSalle;
+			var idEvenementsSallesALiberer = new Array();
+			if(entree.nouvellesSalles) {
+				changementSalle = new Array();
+				for(var j=0, maxJ=entree.nouvellesSalles.length; j<maxJ; j++) {
+					var salle = entree.nouvellesSalles[j]; 
+					changementSalle.push(salle.id);
+					
+					// Ajout des événements dont l'association à la salle est à supprimer pour cette salle
+					for(var k=0, maxK=salle.evenementsEnCours.length; k<maxK; k++) {
+						idEvenementsSallesALiberer.push(salle.evenementsEnCours[k].id);
+					}
+				}
+			}
+			else {
+				changementSalle = null;
+			}
+			
+			repetitions.push({
+				dateDebut: entree.debut,
+				dateFin: entree.fin,
+				salles: changementSalle,
+				evenementsSallesALiberer: idEvenementsSallesALiberer
+			});
+		}
+		
+		// Lancement de la requête
+		var me = this;
+		this.afficherChargement("Exécution de l'opération...");
+		this.jqBloc.find("#btn_executer").attr("disabled", "disabled");
+		
+		this.evenementGestion.repeterEvenement(this.evenement.id, this.calendrier.id, repetitions, function(resultCode) {
+			me.cacherChargement();
+			me.jqBloc.find("#btn_executer").removeAttr("disabled");
+			
+			if(resultCode == RestManager.resultCode_Success) {
+				window.showToast("Répétition effectuée");
+				me.hide();
+				me.callbackAjout();
+			}
+			else if(resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur d'exécution de l'opération ; vérifiez votre connexion");
+			}
+			else {
+				window.showToast("Erreur d'exécution de l'opération ; des événements ont-ils été créés/modifiés entre temps ?");
+			}
 		});
 	};
 
@@ -64,12 +133,17 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		if(!verifInput(jqNbEvenements, nbRepetitions)) return;
 		if(!verifInput(jqPeriode, periode)) return;
 		
+		this.afficherChargement("Calcul des répétitions...");
+		this.jqBloc.find("#btn_previsualiser, #btn_executer").attr("disabled", "disabled");
+		
 		this.restManager.effectuerRequete("GET", "repeterevenement/previsualiser", {
 			token: this.restManager.getToken(),
 			idEvenement: this.evenement.id,
 			nbRepetitions: nbRepetitions,
 			periode: periode
 		}, function(response) {
+			me.cacherChargement();
+			me.jqBloc.find("#btn_previsualiser, #btn_executer").removeAttr("disabled");
 			if(response.resultCode == RestManager.resultCode_Success) {
 				me.synthese = response.data;
 				for(var i=0; i<me.synthese.length; i++) {
@@ -86,6 +160,21 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 				window.showToast("Erreur de récupération de la prévisualisation");
 			}
 		});
+	};
+	
+	/**
+	 * Affichage d'un message de chargement dans la zone dédiée de la dialog
+	 * @param {string} message Message à afficher
+	 */
+	DialogRepeter.prototype.afficherChargement = function(message) {
+		this.jqBloc.find("#dialog_repeter_chargement").show().find("#dialog_repeter_message_chargement").text(message);
+	};
+	
+	/**
+	 * Masquage du message de chargement affiché
+	 */
+	DialogRepeter.prototype.cacherChargement = function() {
+		this.jqBloc.find("#dialog_repeter_chargement").hide();
 	};
 	
 	/**
@@ -124,11 +213,9 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.rechercheSalle.show(null, null, function(data) {
 			me.rechercheSalle.hide();
 			
-			synthese.nouvellesSalles = new Array();
-			console.log(data);
+			synthese.nouvellesSalles = data;
 			var nomsSalles = new Array();
 			for(var i=0,max=data.length; i<max; i++) {
-				synthese.nouvellesSalles.push(data[i].id);
 				nomsSalles.push(data[i].nom);
 			}
 			synthese.strNouvellesSalles = nomsSalles.join(", ");
@@ -249,7 +336,13 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			this.divSynthese.find("#msg_repetition_plusieurs_calendriers").hide();
 		}
 		
+		this.jqBloc.find("#btn_executer").attr("disabled", "disabled");
+		
 		this.jqBloc.dialog("open");
+	};
+	
+	DialogRepeter.prototype.hide = function() {
+		this.jqBloc.dialog("close");
 	};
 	
 	return DialogRepeter;

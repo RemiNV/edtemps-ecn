@@ -466,5 +466,15 @@ public class SalleGestion {
 			throw new DatabaseException(e);
 		}	
 	}
+	
+	public static ArrayList<Integer> getIdSalles(List<SalleIdentifie> salles) {
+		ArrayList<Integer> res = new ArrayList<Integer>(salles.size());
+		
+		for(SalleIdentifie s : salles) {
+			res.add(s.getId());
+		}
+		
+		return res;
+	}
 
 }

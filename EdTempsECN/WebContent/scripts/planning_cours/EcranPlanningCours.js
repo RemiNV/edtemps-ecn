@@ -20,22 +20,21 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.evenementGestion = new EvenementGestion(restManager);
 		this.calendrierGestion = new CalendrierGestion(restManager);
 		this.blocStatistiques = new BlocStatistiques(restManager, $("#bloc_statistiques"));
-		this.dialogRepeter = new DialogRepeter(restManager, $("#dialog_repeter"), this.rechercheSalle);
+		this.dialogRepeter = new DialogRepeter(restManager, $("#dialog_repeter"), this.rechercheSalle, 
+				this.evenementGestion, function() { me.callbackAjoutEvenement(); });
+		
 		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
 		this.calendrierSelectionne = null;
 
 		
 		var jqDialogAjoutEvenement = $("#dialog_ajout_evenement").append(dialogAjoutEvenementHtml);
-		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, jqDialogAjoutEvenement, this.rechercheSalle, this.evenementGestion, function() { me.calendrier.refetchEvents(); });
+		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, jqDialogAjoutEvenement, this.rechercheSalle, 
+				this.evenementGestion, function() { me.callbackAjoutEvenement(); });
 		
 		var jqDatepicker = null; // TODO : ajouter le datepicker sur la gauche
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { 
 				me.onCalendarFetchEvents(start, end, callback);
-				
-				// Mise à jour des statistiques
-				me.updateStatistiques();
-				
 			}, this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker, this.dialogRepeter);
 		
 		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
@@ -78,6 +77,13 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		$("#select_calendrier").change(function() {
 			me.callbackSelectCalendrier();
 		});
+	};
+	
+	/**
+	 * Callback appelé après l'ajout d'un événement, pour mettre à jour l'affichage
+	 */
+	EcranPlanningCours.prototype.callbackAjoutEvenement = function() {
+		this.calendrier.refetchEvents(); // Met aussi à jour les statistiques
 	};
 	
 	/**
@@ -191,6 +197,9 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 					window.showToast("Erreur de récupération des événements");
 				}
 			});
+			
+			// Mise à jour des statistiques
+			this.updateStatistiques();
 		}
 	};
 	
