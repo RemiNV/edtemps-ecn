@@ -257,19 +257,38 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	EcranJoursBloques.prototype.clickSurUnJour = function(date, jqElement) {
 		var me = this;
 		
-		// Récupère la liste des événemnts bloquants sur cette journée
+		// Récupère la liste des événements bloquants sur cette journée
 		var listeEvenementsBloquants = this.jourBloqueGestion.getJoursBloquesParJour(date);
 		
 		if (listeEvenementsBloquants.length == 0) {
-			me.dialogAjoutPeriodeBloquee.show(null, date, function (libelle, dateDebut, dateFin, listeGroupes) {
-				me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, false, function () {
-		    		me.actualiserPage(0);
-	    		});
-			});
+			
+			if (date.getDay()==0) {
+				confirm("Le jour séléctionné est un dimanche, êtes vous sûr de vouloir ajouter une période bloquée ?", function() {
+					me.ouvrirAjoutPeriodeBloquee(date);
+				});
+			} else {
+				me.ouvrirAjoutPeriodeBloquee(date);
+			}
+			
 		} else {
 			this.afficherDialogDetailJourBloque(listeEvenementsBloquants, date, jqElement);
 		}
     	
+	};
+	
+	
+	/**
+	 * Affiche la dialog d'ajout d'un jour bloqué 
+	 * 
+	 * @param {date} date Date du jour cliqué
+	 */
+	EcranJoursBloques.prototype.ouvrirAjoutPeriodeBloquee = function(date) {
+		var me = this;
+		this.dialogAjoutPeriodeBloquee.show(null, date, function (libelle, dateDebut, dateFin, listeGroupes) {
+			me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, false, function () {
+	    		me.actualiserPage(0);
+    		});
+		});
 	};
 
 	

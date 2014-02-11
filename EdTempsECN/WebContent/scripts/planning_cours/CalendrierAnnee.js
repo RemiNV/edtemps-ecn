@@ -8,14 +8,13 @@ define([  ], function() {
 	 * @constructor
 	 * @alias CalendrierAnnee
 	 * 
-	 * La méthode de callback recevra trois paramètres :
+	 * La méthode de callback recevra deux paramètres :
 	 * 		- un objet date à la date du jour cliqué
-	 * 		- un objet javascript qui contient l'évnément du jour s'il y en a un (peut être null)
-	 * 		- l'objet jquery cliqué (une div)
+	 * 		- l'objet jquery cliqué
 	 * 
 	 * La liste des jours spéciaux contient tous les jours fériés et les jours bloqués (donc les vacances)
 	 * Pour détecter la différence entre jour férié et jour bloqué, on regarde si l'attribut Date est présent.
-	 * Seul les jours fériés ont l'attribut Date.
+	 * Seuls les jours fériés ont l'attribut Date.
 	 */
 	var CalendrierAnnee = function(restManager, jqEcran, jqCalendar, annee, joursSpeciaux, callback) {
 		this.restManager = restManager;
