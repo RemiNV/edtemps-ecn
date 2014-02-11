@@ -19,35 +19,35 @@
 	font-size: 0.9em;
 }
 
-#jours_bloques div.jour {
+#jours_bloques .jour {
 	cursor: pointer;
 	border: solid 1px white;
 }
 
-#jours_bloques div.jour:hover {
+#jours_bloques .jour:hover {
 	border: solid 1px gray;
 }
 
-#jours_bloques div.dimanche {
+#jours_bloques .dimanche {
 	background-color: #D6D6D6;
 }
 
-#jours_bloques div.vacances {
+#jours_bloques .vacances {
 	background-color: #028400;
 	color: white;
 }
 
-#jours_bloques div.bloque {
+#jours_bloques .bloque {
 	background-color: #004058;
 	color: white;
 }
 
-#jours_bloques div.ferie {
+#jours_bloques .ferie {
 	background-color: #B30202;
 	color: white;
 }
 
-#jours_bloques div.fermeture {
+#jours_bloques .fermeture {
 	background-color: #DF4B0F;
 	color: white;
 }

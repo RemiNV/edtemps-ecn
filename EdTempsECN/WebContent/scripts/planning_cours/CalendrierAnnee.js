@@ -149,7 +149,7 @@ define([  ], function() {
 				if (jour.vacances) {		// Vacances
 					var date = dateDebut;
 					while (date.getTime() <= dateFin.getTime()) {
-						this.jqCalendar.find("#"+dateToString(date)).addClass("vacances");
+						this.jqCalendar.find("#"+dateToString(date)+" .initiale_jour").addClass("vacances");
 						date.setDate(date.getDate()+1);
 					}
 				} else {					// Période bloquée
