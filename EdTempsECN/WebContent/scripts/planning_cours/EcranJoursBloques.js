@@ -105,7 +105,9 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 
 	    // Affecte une action au bouton de gestion des vacances
 	    this.jqEcran.find("#bt_gestion_vacances").click(function() {
-	    	me.dialogGestionVacances.show();
+	    	me.dialogGestionVacances.show(function(needReload) {
+	    		if (needReload) me.actualiserPage(0);
+	    	});
 	    });
 	    
 	    // Affecte une action au bouton d'ajout automatique

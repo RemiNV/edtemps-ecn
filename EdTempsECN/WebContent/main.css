@@ -997,3 +997,33 @@ table.liste_materiel th {
 	margin: 5px;
 	cursor: pointer;
 }
+
+
+/** Dialog de gestion des vacances */
+#listeVacances {
+	border-collapse: collapse;
+	margin: 5px;
+}
+#listeVacances tr {
+	border-bottom: solid 1px black;
+}
+#listeVacances .libelle {
+	width: 200px;
+}
+
+#listeVacances .groupes {
+	width: 240px;
+}
+
+#listeVacances .date {
+	width: 100px;
+}
+
+#listeVacances .actions {
+	width: 70px;
+}
+
+#listeVacances .actions img {
+	margin: 5px;
+	cursor: pointer;
+}

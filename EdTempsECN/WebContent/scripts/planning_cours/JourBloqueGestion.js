@@ -82,6 +82,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 
 				// Trie les jours dans un objet indexé par identifiant
 				for (var i=0, maxI=me.joursFeries.length; i<maxI; i++) {
+					// Rajoute un attribut date transformée en chaîne de caractères
 					me.joursFeries[i].dateString = $.fullCalendar.formatDate(new Date(me.joursFeries[i].date), "dd/MM/yyyy");
 					me.joursFeriesTries[me.joursFeries[i].id] = me.joursFeries[i];
 				}
