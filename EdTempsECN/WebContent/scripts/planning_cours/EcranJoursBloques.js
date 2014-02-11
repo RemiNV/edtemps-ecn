@@ -217,7 +217,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 		    me.jqEcran.find(".supprimer_jour_ferie").click(function() {
 		    	var id = $(this).parents("tr").attr("data-id");
 		    	
-		    	confirm("Etes-vous sûr(e) de vouloir supprimer ce jour férié ?", function () {
+		    	confirm("Etes-vous sûr(e) de vouloir supprimer ce jour férié : '" + me.jourBloqueGestion.joursFeriesTries[id].libelle + "' ?", function () {
 			    	me.jourBloqueGestion.supprimerJourFerie(id, function() {
 			    		me.actualiserPage(0);
 			    	});
@@ -333,7 +333,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 
 	    	var id = $(this).parents("tr").attr("data-id");
 	    	
-	    	confirm("Etes-vous sûr(e) de vouloir supprimer cette période bloquée ?", function () {
+	    	confirm("Etes-vous sûr(e) de vouloir supprimer cette période bloquée : '" + me.jourBloqueGestion.joursBloquesTries[id].libelle + "' ?", function () {
 		    	me.jourBloqueGestion.supprimerPeriodeBloquee(id, function() {
 		    		me.actualiserPage(0);
 		    	});
@@ -417,7 +417,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 
 	    	var id = $(this).parents("tr").attr("data-id");
 	    	
-	    	confirm("Etes-vous sûr(e) de vouloir supprimer cette période de vacances ?", function () {
+	    	confirm("Etes-vous sûr(e) de vouloir supprimer cette période de vacances : '" + me.jourBloqueGestion.vacancesTriees[id].libelle + "' ?", function () {
 		    	me.jourBloqueGestion.supprimerPeriodeBloquee(id, function() {
 		    		me.actualiserPage(0);
 		    	});
