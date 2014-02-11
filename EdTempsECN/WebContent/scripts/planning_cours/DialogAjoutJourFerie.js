@@ -41,11 +41,13 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 		// Rempli les champs dans le cas de la modification
 		if (this.jour != null) {
 			this.jqDialog.dialog({ title: "Modification d'un jour férié" });
+			this.jqDialog.find("#btn_valider_ajout_jour_ferie").val("Enregistrer");
 			this.jqLibelle.val(jour.libelle);
 			this.jqDate.val(jour.dateString);
 			this.jqDialog.find("input:radio[name=type_jour_ferie][value="+jour.fermeture+"]").prop('checked', true);
 		} else {
 			this.jqDialog.dialog({ title: "Ajout d'un jour férié" });
+			this.jqDialog.find("#btn_valider_ajout_jour_ferie").val("Créer");
 		}
 
 		// Ouvre la boîte de dialogue

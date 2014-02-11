@@ -52,6 +52,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 			// Rempli les champs dans le cas de la modification
 			if (me.periode != null) {
 				me.jqDialog.dialog({ title: "Modification d'une période bloquée" });
+				me.jqDialog.find("#btn_valider_ajout_periode_bloquee").val("Enregistrer");
 				me.jqLibelle.val(periode.libelle);
 				me.jqHeureDebut.val(periode.strHeureDebut);
 				me.jqHeureFin.val(periode.strHeureFin);
@@ -68,6 +69,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 				
 			} else {
 				me.jqDialog.dialog({ title: "Ajout d'une période bloquée" });
+				me.jqDialog.find("#btn_valider_ajout_periode_bloquee").val("Créer");
 			}
 			
 			// Ouvre la boîte de dialogue

@@ -933,16 +933,13 @@ table.liste_materiel th {
 
 
 /* Dialog ajouter/modifier jours spéciaux : fériés, bloqués et vacances */
-#dialog_ajout_jour_ferie, #dialog_ajout_periode_bloquee {
+#dialog_ajout_jour_ferie, #dialog_ajout_periode_bloquee, #dialog_ajout_vacances {
 	display: none;
 }
 #dialog_ajout_periode_bloquee #date_jour_bloque {
 	text-align: center;
 	padding-bottom: 10px;
 	font-weight: bold;
-}
-#dialog_ajout_periode_bloquee #choix_groupes {
-	vertical-align: top;
 }
 #dialog_ajout_periode_bloquee input {
 	margin: 0px;
@@ -1000,30 +997,30 @@ table.liste_materiel th {
 
 
 /** Dialog de gestion des vacances */
-#listeVacances {
+.ui-dialog-titlebar.dialog_gestion_vacances_header, #dialog_gestion_vacances.ui-dialog-content {
+	padding: 15px;
+	background-color: white;
+}
+
+.ui-dialog-titlebar.dialog_gestion_vacances_header { 
+	background-image: none;
+	color: black;
+	border-radius: 2px 2px 0px 0px;
+	cursor: default;
+}
+
+#dialog_gestion_vacances.ui-dialog-content {
+	border-radius: 0px 0px 2px 2px;
+}
+.gestion_vacances table {
 	border-collapse: collapse;
-	margin: 5px;
+	margin-bottom: 20px;
 }
-#listeVacances tr {
-	border-bottom: solid 1px black;
-}
-#listeVacances .libelle {
-	width: 200px;
+.gestion_vacances table tr td {
+	border-bottom: solid 1px gray;
 }
 
-#listeVacances .groupes {
-	width: 240px;
-}
-
-#listeVacances .date {
-	width: 100px;
-}
-
-#listeVacances .actions {
-	width: 70px;
-}
-
-#listeVacances .actions img {
+.gestion_vacances table img {
 	margin: 5px;
 	cursor: pointer;
 }

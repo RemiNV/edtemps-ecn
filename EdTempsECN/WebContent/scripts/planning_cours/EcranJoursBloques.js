@@ -6,10 +6,11 @@
 define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
          "planning_cours/DialogAjoutJourFerie", "text!../../templates/dialog_ajout_jour_ferie.html",
          "planning_cours/DialogAjoutPeriodeBloquee", "text!../../templates/dialog_ajout_periode_bloquee.html",
-         "planning_cours/DialogGestionVacances", "text!../../templates/dialog_gestion_vacances.html", 
-         "text!../../templates/dialog_details_jourbloque.tpl", "RestManager", "underscore", "lib/fullcalendar.translated.min", "jquery" ],
+         "planning_cours/DialogAjoutVacances", "text!../../templates/dialog_ajout_vacances.html",
+         "text!../../templates/dialog_details_jourbloque.tpl",  "text!../../templates/dialog_gestion_vacances.tpl",
+         "RestManager", "underscore", "lib/fullcalendar.translated.min", "jquery" ],
          function(CalendrierAnnee, JourBloqueGestion, DialogAjoutJourFerie, dialogAjoutJourFerieHtml, DialogAjoutPeriodeBloquee, dialogAjoutPeriodeBloqueeHtml,
-        		 DialogGestionVacances, dialogGestionVacancesHtml, tplDialogDetailsJourBloque, RestManager, _) {
+        		  DialogAjoutVacances, dialogAjoutVacancesHtml, tplDialogDetailsJourBloque, tplDialogGestionVacances, RestManager, _) {
 	
 	/**
 	 * @constructor
@@ -20,18 +21,28 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 		this.restManager = restManager;
 		this.jqEcran = $("#jours_bloques");
 		this.jqDialogDetailsJourBloque = $("#dialog_detail_jourbloque");
+		this.jqDialogGestionVacances = $("#dialog_gestion_vacances");
 		this.jourBloqueGestion = new JourBloqueGestion(this.restManager, this.jqEcran);
+
+		// Si l'utilisateur n'a pas droit à gérer les jours bloqués, on le redirige
+		if (!this.restManager.aDroit(RestManager.actionsEdtemps_CreerGroupeCours)) {
+			document.location.href = "#agenda";
+			return;
+		}
+
+		/* ------------
+		 * Boîte de dialogue de détail des jours bloqués
+		 * ------------ */
 		
-		// Template pour la dialogue de détails des jours bloqués
+		// Template
 		this.templateDialogDetails = _.template(tplDialogDetailsJourBloque);
-		
-		// Action lors du clic dans la page, lorsque la dialogue de détail est ouverte
+
+		// Fermer la boîte de dialogue lors d'un clic externe
 		var closeDialogDetailsCallback = function(event) {
 			if(!me.jqDialogDetailsJourBloque.dialog("isOpen")) {
 				return;
 			}
-			
-			// On n'est pas à l'intérieur d'une dialog
+
 			var jqTarget = $(event.target);
 			if(!jqTarget.is(".ui_dialog")
 					&& jqTarget.closest(".ui-dialog").length == 0
@@ -41,7 +52,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 			}
 		};
 		
-		// Préparation de la dialogue de détails des jours bloqués
+		// Préparation de la boîte de dialogue
 		this.jqDialogDetailsJourBloque.dialog({
 			autoOpen: false,
 			appendTo: "#dialog_hook",
@@ -55,24 +66,59 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 			}
 		});
 		this.jqDialogDetailsJourBloque.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_detail_jourbloque_header");
+
 		
-		// Préparation de la boite de dialogue d'ajout de jours fériés
+		/* ------------
+		 * Boîte de dialogue de gestion des vacances
+		 * ------------ */
+		
+		// Template
+		this.templateDialogVacances = _.template(tplDialogGestionVacances);
+		
+		// Fermer la boîte de dialogue lors d'un clic externe
+		var closeGestionVacancesCallback = function(event) {
+			if(!me.jqDialogGestionVacances.dialog("isOpen")) {
+				return;
+			}
+			
+			// On n'est pas à l'intérieur d'une dialog
+			var jqTarget = $(event.target);
+			if(!jqTarget.is(".ui_dialog")
+					&& jqTarget.closest(".ui-dialog").length == 0
+					&& jqTarget.closest("#bt_gestion_vacances").length == 0) {
+				me.jqDialogGestionVacances.dialog("close");
+				return false;
+			}
+		};
+
+		// Préparation de la boîte de dialogue
+		this.jqDialogGestionVacances.dialog({
+			autoOpen: false,
+			appendTo: "#dialog_hook",
+			draggable: false,
+			width: 500,
+			open: function(){
+				$(document).bind("click", closeGestionVacancesCallback);
+			},
+			close: function() {
+				$(document).unbind("click", closeGestionVacancesCallback);
+			},
+			title: "Gestion des vacances de l'année"
+		});
+		this.jqDialogGestionVacances.dialog("widget").find(".ui-dialog-titlebar").addClass("dialog_gestion_vacances_header");
+
+		
+		// Préparation de la boîte de dialogue d'ajout de jours fériés
 		var jqDialogAjoutJourFerie = $("#dialog_ajout_jour_ferie").html(dialogAjoutJourFerieHtml);
 		this.dialogAjoutJourFerie = new DialogAjoutJourFerie(restManager, jqDialogAjoutJourFerie, this);
 
-		// Préparation de la boite de dialogue d'ajout de périodes bloquées
+		// Préparation de la boîte de dialogue d'ajout de périodes bloquées
 		var jqDialogAjoutPeriodeBloquee = $("#dialog_ajout_periode_bloquee").html(dialogAjoutPeriodeBloqueeHtml);
 		this.dialogAjoutPeriodeBloquee = new DialogAjoutPeriodeBloquee(restManager, jqDialogAjoutPeriodeBloquee, this);
 
-		// Préparation de la boite de dialogue de gestion des vacances
-		var jqDialogGestionVacances = $("#dialog_gestion_vacances").html(dialogGestionVacancesHtml);
-		this.dialogGestionVacances = new DialogGestionVacances(restManager, jqDialogGestionVacances, this);
-
-		// Si l'utilisateur n'a pas droit à gérer les jours bloqués, on le redirige
-		if (!this.restManager.aDroit(RestManager.actionsEdtemps_CreerGroupeCours)) {
-			document.location.href = "#agenda";
-			return;
-		}
+		// Préparation de la boîte de dialogue d'ajout de vacances
+		var jqDialogAjoutVacances = $("#dialog_ajout_vacances").html(dialogAjoutVacancesHtml);
+		this.dialogAjoutVacances = new DialogAjoutVacances(restManager, jqDialogAjoutVacances, this);
 
 		// Récupère l'année scolaire à afficher en fonction de la date du jour
 		var today = new Date();
@@ -105,9 +151,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 
 	    // Affecte une action au bouton de gestion des vacances
 	    this.jqEcran.find("#bt_gestion_vacances").click(function() {
-	    	me.dialogGestionVacances.show(function(needReload) {
-	    		if (needReload) me.actualiserPage(0);
-	    	});
+	    	me.afficherDialogGestionVacances(me.jourBloqueGestion.vacances);
 	    });
 	    
 	    // Affecte une action au bouton d'ajout automatique
@@ -292,6 +336,107 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 		// Ouverture de la dialogue
 		this.jqDialogDetailsJourBloque.dialog("open");
 	};
+	
+	
+	/**
+	 * Affiche la bulle de gestion des vacances
+	 * 
+	 * @param {Array} listeVacances liste des vacances
+	 */
+	EcranJoursBloques.prototype.afficherDialogGestionVacances = function(listeVacances) {
+		var me = this;
 		
+		// Préparation des données pour le template
+		for (var i=0, maxI=listeVacances.length; i<maxI; i++) {
+			var periode = listeVacances[i];
+			
+			// Ajoute des attributs string de date et heure - date de début
+			periode.strDateDebut = $.fullCalendar.formatDate(new Date(periode.dateDebut), "dd/MM/yyyy");
+			periode.strHeureDebut = $.fullCalendar.formatDate(new Date(periode.dateDebut), "HH:mm");
+
+			// Ajoute des attributs string de date et heure - date de fin
+			periode.strDateFin = $.fullCalendar.formatDate(new Date(periode.dateFin), "dd/MM/yyyy");
+			periode.strHeureFin = $.fullCalendar.formatDate(new Date(periode.dateFin), "HH:mm");
+
+			// Créer une chaîne de caractère des noms des groupes associés à ce jour
+			var str = "";
+			for (var j=0, maxJ=periode.listeGroupes.length; j<maxJ; j++) {
+				if (str!="") str += ", ";
+				str += periode.listeGroupes[j].nom;
+			}
+			periode.strGroupesAssocies = str;
+			periode.strGroupesAssociesSmall = racourcirChaine(str, 25);
+		}
+		
+		// Remplissage du template
+		this.jqDialogGestionVacances.find("#dialog_gestion_vacances_hook").html(this.templateDialogVacances({elements: listeVacances}));
+
+		// Positionnement de la dialogue
+		this.jqDialogGestionVacances.dialog("option", {
+			position: {
+				my: "center bottom",
+				at: "top-10",
+				of: me.jqEcran.find("#bt_gestion_vacances")
+			}
+		});
+
+		// Affecte une action aux boutons de modification
+		this.jqDialogGestionVacances.find(".modifier").click(function() {
+			me.jqDialogGestionVacances.dialog("close");
+	    	var id = $(this).parents("tr").attr("data-id");
+			
+			me.dialogAjoutVacances.show(me.jourBloqueGestion.vacancesTriees[id], function (libelle, dateDebut, dateFin, listeGroupes) {
+				me.jourBloqueGestion.modifierPeriodeBloquee(id, libelle, dateDebut, dateFin, listeGroupes, true, function () {
+		    		me.actualiserPage(0);
+	    		});
+			});
+		});
+		
+		// Affecte une action aux boutons de suppression
+		this.jqDialogGestionVacances.find(".supprimer").click(function() {
+			me.jqDialogGestionVacances.dialog("close");
+
+	    	var id = $(this).parents("tr").attr("data-id");
+	    	
+	    	confirm("Etes-vous sûr(e) de vouloir supprimer cette période de vacances ?", function () {
+		    	me.jourBloqueGestion.supprimerPeriodeBloquee(id, function() {
+		    		me.actualiserPage(0);
+		    	});
+	    	});
+
+		});
+		
+		// Affecte une action au bouton d'ajout
+		this.jqDialogGestionVacances.find("#bt_ajouter_gestion_vacances").click(function() {
+			me.jqDialogGestionVacances.dialog("close");
+			me.dialogAjoutVacances.show(null, function (libelle, dateDebut, dateFin, listeGroupes) {
+				me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, true, function () {
+		    		me.actualiserPage(0);
+	    		});
+			});
+		});
+
+		
+		// Ouverture de la dialogue
+		this.jqDialogGestionVacances.dialog("open");
+	};
+	
+
+	/**
+	 * Pends le début de la chaine et mets trois points si elle est trop longue
+	 */
+	function racourcirChaine(str, size) {
+		var res;
+		
+		if (str.length <= size) {
+			res = str;
+		} else {
+			res = str.substring(0, size) + " ...";
+		}
+		
+		return res;
+	}
+	
+	
 	return EcranJoursBloques;
 });
