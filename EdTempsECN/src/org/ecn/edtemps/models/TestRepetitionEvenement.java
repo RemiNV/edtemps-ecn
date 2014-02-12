@@ -69,7 +69,8 @@ public class TestRepetitionEvenement implements JSONAble {
 		SALLE_OCCUPEE_COURS(1),
 		SALLE_OCCUPEE_NON_COURS(2),
 		PUBLIC_OCCUPE(3),
-		JOUR_BLOQUE(4);
+		JOUR_BLOQUE(4),
+		DIMANCHE(5);
 		
 		protected int status;
 		

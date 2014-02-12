@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -101,6 +102,10 @@ public class EvenementGestion {
 		
 		if(StringUtils.isBlank(nom) || idCalendriers.isEmpty() || idResponsables.isEmpty() || idCreateur==null) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Un événement doit avoir un nom, un calendrier et un responsable et un créateur");
+		}
+		
+		if(dateDebut.after(dateFin)) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "La date de début doit être inférieure à celle de fin");
 		}
 
 		verifierDateEvenement(dateDebut);
@@ -939,6 +944,12 @@ public class EvenementGestion {
 			if(periodesBloquees.size() > 0) {
 				problemes.add(new Probleme(ProblemeStatus.JOUR_BLOQUE, periodesBloquees.get(0).getLibelle()));
 			}
+			
+			// Vérification de la présence d'un dimanche
+			if(containsDimanche(newDateDebut, newDateFin)) {
+				problemes.add(new Probleme(ProblemeStatus.DIMANCHE, "Dimanche"));
+			}
+			
 
 			// On affiche le numéro de la répétition qu'on essaie d'effectuer (et pas le nombre déjà effectué)
 			int numAffiche = repetitionsCourantes + 1;
@@ -959,4 +970,33 @@ public class EvenementGestion {
 		
 		return res;
 	}
+	
+	protected static boolean containsDimanche(Date debut, Date fin) {
+		Calendar calDebut = Calendar.getInstance(Locale.FRANCE);
+		calDebut.setTime(debut);
+		
+		Calendar calFin = Calendar.getInstance(Locale.FRANCE);
+		calFin.setTime(fin);
+		
+		boolean dimanche = false;
+		
+		if(DateUtils.isSameDay(calDebut, calFin)) {
+			if(calFin.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+				dimanche = true;
+			}
+		}
+		else {
+			while (!DateUtils.isSameDay(calDebut, calFin)) {
+				if(calDebut.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+					dimanche = true;
+					break;
+				}
+				
+				calDebut.add(Calendar.DATE, 1);
+			} 
+		}
+		
+		return dimanche;
+	}
+	
 }

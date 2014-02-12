@@ -317,7 +317,9 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		test.afficherBoutonRechercheSalleCours = false;
 		test.afficherBoutonRechercheSalleNonCours = false;
 		test.evenementsSallesALiberer = new Array();
-		for(var i=0,max=test.problemes.length; i<max; i++) {
+		
+		var problemeDimanche = false; // Pas d'affichage du bouton "forcer" si dimanche, et affichage uniquement de ce problème
+		for(var i=0,max=test.problemes.length; i<max && !problemeDimanche; i++) {
 			if(test.strProblemes) {
 				test.strProblemes += "<br/>";
 			}
@@ -340,6 +342,12 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			case 4: // Jour bloqué
 				test.afficherBoutonForcer = true;
 				test.strProblemes += "Jour ou créneau bloqué : " + test.problemes[i].message;
+				break;
+			case 5: // Dimanche
+				test.afficherBoutonForcer = false;
+				test.afficherBoutonRechercheSallecours = false;
+				test.strProblemes = "Dimanche"; // Remplace la chaîne précédente
+				problemeDimanche = true; // Sort de la boucle
 				break;
 			}
 		}
