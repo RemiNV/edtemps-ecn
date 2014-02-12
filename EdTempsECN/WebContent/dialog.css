@@ -4,7 +4,7 @@
  
  .ui-dialog {
 	z-index: 100;
-	position: absolute;
+	position: fixed;
 	border-radius: 5px;
 	box-shadow: 0 0 7px #555;
 }
