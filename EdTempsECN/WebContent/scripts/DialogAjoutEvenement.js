@@ -44,7 +44,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			autoOpen: false,
 			appendTo: "#dialog_hook",
 			modal: true,
-			width: 670,
+			width: 500,
 			show: { effect: "fade", duration: 200 },
 			hide: { effect: "explode", duration: 200 }
 		});
@@ -623,7 +623,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 							}
 							
 						},
-						width: 250
+						width: 252
 					});
 					
 					if(me.evenementEdit) {
@@ -675,10 +675,10 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			if(resultCode == RestManager.resultCode_Success) {
 				
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#input_proprietaires_evenement"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, 250));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, 249));
 				
 				me.multiWidgetIntervenants = new MultiWidget(me.jqDialog.find("#input_intervenants_evenement"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, null, 250));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, 249));
 				
 				if(me.evenementEdit) {
 					// Remplissage effectué à la fin de init() (se termine après showEdit())
@@ -723,7 +723,8 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		this.calendriersDisabled = false;
 		this.evenementEdit = null;
 		this.jqDialog.find("#notes_pas_proprietaire_calendrier").css("display", "none");
-		
+		this.jqDialog.find(".creneau_evenement").css("background-color", "transparent");
+
 		if(!this.initAppele) {
 			this.init();
 		}
@@ -849,7 +850,32 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			
 			me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
 		}
-
+		
+		// Assigne l'action sur les boutons de créneaux
+		$(".creneau_evenement").click(function() {
+			me.jqDialog.find(".creneau_evenement").css("background-color", "transparent");
+			$(this).css("background-color", "white");
+			switch ($(this).attr("id"))
+			{
+				case "creneau_m1":
+					me.jqDialog.find("#heure_debut").val("08:00");
+					me.jqDialog.find("#heure_fin").val("10:00");
+					break;
+				case "creneau_m2":
+					me.jqDialog.find("#heure_debut").val("10:00");
+					me.jqDialog.find("#heure_fin").val("12:00");
+					break;
+				case "creneau_s1":
+					me.jqDialog.find("#heure_debut").val("14:00");
+					me.jqDialog.find("#heure_fin").val("16:00");
+					break;
+				case "creneau_s2":
+					me.jqDialog.find("#heure_debut").val("16:00");
+					me.jqDialog.find("#heure_fin").val("18:00");
+					break;
+			}
+		});
+		
 		this.initAppele = true;
 	};
 	

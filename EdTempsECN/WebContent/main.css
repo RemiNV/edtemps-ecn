@@ -230,6 +230,14 @@ table.tbl_standard td {
 	margin-top: 20px;
 }
 
+#btn_gerer_agendas {
+	margin-left: 80px;
+}
+
+#btn_chercher_salle {
+	margin-left: 100px;
+}
+
 .boutons_valider {
 	text-align: right;
 }
@@ -590,6 +598,23 @@ table.liste_materiel th {
 }
 .salle_occupee_noncours {
 	color: #fb863a;
+}
+.creneau_evenement {
+	display: inline-block;
+	border: solid 1px gray;
+	padding: 2px 5px;
+	font-size: 0.9em;
+	margin: 0px 0px 0px -1px;
+	cursor: pointer;
+}
+#dialog_ajout_evenement .multiwidget {
+	display: inline-block;
+}
+#dialog_ajout_evenement .help_icon {
+	margin-left: 5px;
+}
+#dialog_ajout_evenement input {
+	margin: 0px;
 }
 
 /* 

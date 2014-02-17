@@ -1,44 +1,45 @@
 <table>
 	<tr>
-		<td><label for="txt_nom_evenement">Nom de l'événement : </label></td>
-		<td><input type="text" id="txt_nom_evenement" maxlength="50"/><div id="span_alert_nom_evenement_alphanumerique" class="message_alerte" style="display: none">Cette valeur doit être alphanumérique</div></td>
+		<td width="120"><label for="txt_nom_evenement">Nom</label></td>
+		<td><input type="text" id="txt_nom_evenement" maxlength="50" size="37" /><div id="span_alert_nom_evenement_alphanumerique" class="message_alerte" style="display: none">Cette valeur doit être alphanumérique</div></td>
 	</tr>
 	<!-- Elements à masquer selon les droits de l'utilisateur -->
 	<tr id="choix_proprietaire">
-		<td>Propriétaires <img alt="aide" class="help_icon" title="Donne les droits d'administration (modification/suppression)<br/>sur cet événement" src="img/help.png" /></td>
-		<td><input type="text" id="input_proprietaires_evenement" /></td>
+		<td valign="top">Propriétaires</td>
+		<td><input type="text" id="input_proprietaires_evenement" /><img alt="aide" class="help_icon" title="Donne les droits d'administration (modification/suppression)<br/>sur cet événement" src="img/help.png" /></td>
 	</tr>
 	<tr id="choix_intervenants">
-		<td>Intervenants <img alt="aide" class="help_icon" title="L'événement s'affichera dans la page &quot;&Eacute;vénements dans lesquels j'interviens&quot;<br/>de ces utilisateurs" src="img/help.png" /></td>
-		<td><input type="text" id="input_intervenants_evenement" /></td>
+		<td valign="top">Intervenants</td>
+		<td><input type="text" id="input_intervenants_evenement" /><img alt="aide" class="help_icon" title="L'événement s'affichera dans la page &quot;Mes interventions&quot;<br/>de ces utilisateurs" src="img/help.png" /></td>
 	</tr>
 	<tr>
-		<td>Calendriers : </td>
-		<td id="calendriers_evenement">
-			<select class="select_calendriers"></select>
-		</td>
+		<td valign="top">Agendas</td>
+		<td id="calendriers_evenement"><select class="select_calendriers"></select></td>
 	</tr>
 	<tr>
-		<td><label for="date_evenement">Date : </label></td>
+		<td><label for="date_evenement">Date</label></td>
 		<td><input type="text" id="date_evenement" /></td>
 	</tr>
 	<tr>
-		<td><label for="heure_debut">Heure de début : </label></td>
-		<td><input type="text" id="heure_debut" /></td>
+		<td><label for="creneau_evenement">Créneau</label></td>
+		<td><span class="creneau_evenement" id="creneau_m1">M1</span><span class="creneau_evenement" id="creneau_m2">M2</span><span class="creneau_evenement" id="creneau_s1">S1</span><span class="creneau_evenement" id="creneau_s2">S2</span></td>
 	</tr>
 	<tr>
-		<td><label for="heure_fin">Heure de fin : </label></td>
-		<td><input type="text" id="heure_fin" /></td>
+		<td><label for="heure_debut">Heure début</label></td>
+		<td><input type="text" id="heure_debut" /> <img alt="aide" class="help_icon" title="Le format attendu est &quot;hh:mm&quot;" src="img/help.png" /></td>
 	</tr>
 	<tr>
-		<td>Matériel <em>par salle</em> : <br/>(pour la recherche)</td>
-		<td>
-			<table id="tbl_materiel">
-			</table>
-		</td>
+		<td><label for="heure_fin">Heure fin</label></td>
+		<td><input type="text" id="heure_fin" /> <img alt="aide" class="help_icon" title="Le format attendu est &quot;hh:mm&quot;" src="img/help.png" /></td>
 	</tr>
+
 	<tr>
-		<td>Salles : </td>
+		<td>Matériel</td>
+		<td><table id="tbl_materiel"></table></td>
+	</tr>
+	
+	<tr>
+		<td>Salles</td>
 		<td>
 			<span id="salles_evenement">(Recherchez une ou plusieurs salle(s))</span><br/>
 			<input type="submit" id="btn_rechercher_salle_evenement" class="button" value="Rechercher"/> pour <input type="number" class='input_small' id="nb_personnes_evenement" value="5" /> personnes
@@ -63,7 +64,7 @@
 </div>
 
 <div class="boutons_valider">
-	<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Valider" />
+	<input type="submit" id="btn_valider_ajout_evenement" class="button" value="Créer" />
 </div>
 
 <div id="dialog_ajout_evenement_chargement" style="display: none">
