@@ -228,6 +228,19 @@ table.tbl_standard td {
 	overflow: auto;	
 	margin-bottom: 20px;
 	margin-top: 20px;
+	display: none;
+}
+
+#btn_form_chercher_salle_liste_materiel {
+	margin-top: 10px;
+	margin-left: 5px;
+	color: blue;
+	font-style: italic;
+	cursor: pointer;
+}
+
+#btn_form_chercher_salle_liste_materiel:hover {
+	text-decoration: underline;
 }
 
 #btn_gerer_agendas {
@@ -613,7 +626,7 @@ table.liste_materiel th {
 #dialog_ajout_evenement .help_icon {
 	margin-left: 5px;
 }
-#dialog_ajout_evenement input {
+#dialog_ajout_evenement input, #form_chercher_salle input {
 	margin: 0px;
 }
 

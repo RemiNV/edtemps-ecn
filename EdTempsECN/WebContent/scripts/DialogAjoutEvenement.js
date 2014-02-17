@@ -852,7 +852,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		}
 		
 		// Assigne l'action sur les boutons de créneaux
-		$(".creneau_evenement").click(function() {
+		me.jqDialog.find(".creneau_evenement").click(function() {
 			me.jqDialog.find(".creneau_evenement").css("background-color", "transparent");
 			$(this).css("background-color", "white");
 			switch ($(this).attr("id"))
