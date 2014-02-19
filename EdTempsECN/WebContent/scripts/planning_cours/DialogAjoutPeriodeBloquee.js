@@ -49,8 +49,8 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 
 		// Rempli les champs dans le cas de la modification
 		if (me.periode != null) {
-			me.jqDialog.dialog({ title: "Modification d'une période bloquée" });
-			me.jqDialog.find("#btn_valider_ajout_periode_bloquee").val("Enregistrer");
+			me.jqDialog.dialog({ title: "Modifier période bloquée" });
+			me.jqDialog.find("#btn_valider_ajout_periode_bloquee").val("Modifier");
 			me.jqLibelle.val(periode.libelle);
 			me.jqHeureDebut.val(periode.strHeureDebut);
 			me.jqHeureFin.val(periode.strHeureFin);
@@ -66,8 +66,8 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 			me.multiWidgetGroupes.setValues(liste);
 			
 		} else {
-			me.jqDialog.dialog({ title: "Ajout d'une période bloquée" });
-			me.jqDialog.find("#btn_valider_ajout_periode_bloquee").val("Créer");
+			me.jqDialog.dialog({ title: "Ajouter période bloquée" });
+			me.jqDialog.find("#btn_valider_ajout_periode_bloquee").val("Ajouter");
 		}
 		
 		// Ouvre la boîte de dialogue
@@ -109,7 +109,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 		this.jqHeureDebut.mask("99:99");
 		this.jqHeureFin.mask("99:99");
 		
-		// Listener du bouton "Fermer"
+		// Listener du bouton "Annuler"
 		this.jqDialog.find("#btn_annuler_ajout_periode_bloquee").click(function() {
 			me.jqDialog.dialog("close");
 		});
