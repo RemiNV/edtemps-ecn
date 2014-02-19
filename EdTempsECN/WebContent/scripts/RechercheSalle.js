@@ -62,8 +62,6 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.customCallbackChargement = customCallbackChargement;
 		this.customCallbackResultat = customCallbackResultat;
 
-		this.jqRechercheSalleForm.find(".creneau_evenement").css("background-color", "transparent");
-		
 		this.jqRechercheSalleForm.dialog("open");
 	};
 	
@@ -209,32 +207,32 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				duration: 200
 			}
 		});
-
-		// Assigne l'action sur les boutons de créneaux
-		this.jqRechercheSalleForm.find(".creneau_evenement").click(function() {
-			me.jqRechercheSalleForm.find(".creneau_evenement").css("background-color", "transparent");
-			$(this).css("background-color", "white");
-			switch ($(this).attr("id"))
-			{
-				case "creneau_m1":
-					me.jqRechercheSalleForm.find("#form_recherche_salle_debut").val("08:00");
-					me.jqRechercheSalleForm.find("#form_recherche_salle_fin").val("10:00");
-					break;
-				case "creneau_m2":
-					me.jqRechercheSalleForm.find("#form_recherche_salle_debut").val("10:00");
-					me.jqRechercheSalleForm.find("#form_recherche_salle_fin").val("12:00");
-					break;
-				case "creneau_s1":
-					me.jqRechercheSalleForm.find("#form_recherche_salle_debut").val("14:00");
-					me.jqRechercheSalleForm.find("#form_recherche_salle_fin").val("16:00");
-					break;
-				case "creneau_s2":
-					me.jqRechercheSalleForm.find("#form_recherche_salle_debut").val("16:00");
-					me.jqRechercheSalleForm.find("#form_recherche_salle_fin").val("18:00");
-					break;
+		
+		// Gestion des créneaux horaires
+		this.restManager.recupererCreneaux(function(success, data) {
+			if (success) {
+				
+				me.listeCreneaux = new Object();
+				var html = '';
+				for (var i=0, maxI=data.length; i<maxI; i++) {
+					html += '<span class="creneau_horaire" data-id="'+data[i].id+'">'+data[i].libelle+'</span>';
+					me.listeCreneaux[data[i].id] = data[i];
+				}
+				me.jqRechercheSalleForm.find("#listeCreneaux").html(html);
+				
+				me.jqRechercheSalleForm.find(".creneau_horaire").click(function() {
+					var horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].debut), "HH:mm");
+					me.jqRechercheSalleForm.find("#form_recherche_salle_debut").val(horaire);
+					horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].fin), "HH:mm");
+					me.jqRechercheSalleForm.find("#form_recherche_salle_fin").val(horaire);
+				});
+				
+			} else {
+				me.jqRechercheSalleForm.find("#listeCreneaux").parents("tr").remove();
 			}
 		});
-		
+
+		// Afficher / Cacher la liste des matériels
 		this.jqRechercheSalleForm.find("#btn_form_chercher_salle_liste_materiel").click(function() {
 			if (me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").is(":visible")) {
 				me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").hide();
@@ -242,6 +240,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").show();
 			}
 		});
+		
 		
 		this.initAppele = true;
 	};

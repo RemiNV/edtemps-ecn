@@ -612,7 +612,7 @@ table.liste_materiel th {
 .salle_occupee_noncours {
 	color: #fb863a;
 }
-.creneau_evenement {
+.creneau_horaire {
 	display: inline-block;
 	border: solid 1px gray;
 	padding: 2px 5px;

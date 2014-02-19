@@ -851,28 +851,27 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
 		}
 		
-		// Assigne l'action sur les boutons de créneaux
-		me.jqDialog.find(".creneau_evenement").click(function() {
-			me.jqDialog.find(".creneau_evenement").css("background-color", "transparent");
-			$(this).css("background-color", "white");
-			switch ($(this).attr("id"))
-			{
-				case "creneau_m1":
-					me.jqDialog.find("#heure_debut").val("08:00");
-					me.jqDialog.find("#heure_fin").val("10:00");
-					break;
-				case "creneau_m2":
-					me.jqDialog.find("#heure_debut").val("10:00");
-					me.jqDialog.find("#heure_fin").val("12:00");
-					break;
-				case "creneau_s1":
-					me.jqDialog.find("#heure_debut").val("14:00");
-					me.jqDialog.find("#heure_fin").val("16:00");
-					break;
-				case "creneau_s2":
-					me.jqDialog.find("#heure_debut").val("16:00");
-					me.jqDialog.find("#heure_fin").val("18:00");
-					break;
+		// Gestion des créneaux horaires
+		this.restManager.recupererCreneaux(function(success, data) {
+			if (success) {
+				
+				me.listeCreneaux = new Object();
+				var html = '';
+				for (var i=0, maxI=data.length; i<maxI; i++) {
+					html += '<span class="creneau_horaire" data-id="'+data[i].id+'">'+data[i].libelle+'</span>';
+					me.listeCreneaux[data[i].id] = data[i];
+				}
+				me.jqDialog.find("#listeCreneaux").html(html);
+				
+				me.jqDialog.find(".creneau_horaire").click(function() {
+					var horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].debut), "HH:mm");
+					me.jqDialog.find("#heure_debut").val(horaire);
+					horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].fin), "HH:mm");
+					me.jqDialog.find("#heure_fin").val(horaire);
+				});
+				
+			} else {
+				me.jqDialog.find("#listeCreneaux").parents("tr").remove();
 			}
 		});
 		
