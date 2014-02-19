@@ -83,6 +83,33 @@ public class CreneauGestion {
 		}
 
 	}
+
+
+	/**
+	 * Récupérer les informations sur un créneaux
+	 * 
+	 * @param id Identifiant du créneau à récupérer
+	 * @return la liste des créneaux
+	 * @throws EdtempsException 
+	 */
+	public CreneauIdentifie getCreneau(int id) throws DatabaseException {
+		
+		try {
+
+			ResultSet requete = bdd.executeRequest("SELECT * FROM edt.creneau WHERE creneau_id="+id);
+			requete.next();
+			CreneauIdentifie resultat = this.inflateCreneauFromRow(requete);
+			logger.info("Récupération des informations sur le créneau (id="+id+")");
+
+			requete.close();
+			
+			return resultat;
+
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+
+	}
 	
 	
 	/**
