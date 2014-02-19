@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Affiche la demande de confirmation de suppression
  */
 function confirmationSupprimerAdministrateur() {

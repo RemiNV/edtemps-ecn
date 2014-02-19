@@ -1,4 +1,4 @@
-$(document).ready(function() {
+﻿$(document).ready(function() {
 
 	$("#modifier_type_utilisateurs_form_droits").multiSelect({
 		afterInit: function(ms){
