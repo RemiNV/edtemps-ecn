@@ -65,11 +65,10 @@ public class CreneauGestion {
 		
 		try {
 			
-			ArrayList<CreneauIdentifie> resultat = new ArrayList<CreneauIdentifie>();
-
-			ResultSet requete = bdd.executeRequest("SELECT * FROM edt.creneau");
+			ResultSet requete = bdd.executeRequest("SELECT * FROM edt.creneau ORDER BY creneau_debut");
 			logger.info("Récupération de la liste des créneaux");
 
+			ArrayList<CreneauIdentifie> resultat = new ArrayList<CreneauIdentifie>();
 			while (requete.next()) {
 				resultat.add(this.inflateCreneauFromRow(requete));
 			}
@@ -161,11 +160,14 @@ public class CreneauGestion {
 		try {
 			
 			PreparedStatement req = bdd.getConnection().prepareStatement(
-					"UPDATE edt.creneau SET creneau_libelle=?, creneau_debut=?, creneau_fin=? WHERE creneau_id");
+					"UPDATE edt.creneau SET creneau_libelle=?, creneau_debut=?, creneau_fin=? WHERE creneau_id=?");
 			
 			req.setString(1, creneau.getLibelle());
 			req.setTime(2, creneau.getDebut());
 			req.setTime(3, creneau.getFin());
+			req.setInt(4, creneau.getId());
+			
+			req.execute();
 			
 			logger.info("Modification d'un créneau en base de données (id="+creneau.getId()+")");
 
