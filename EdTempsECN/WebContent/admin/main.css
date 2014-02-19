@@ -182,13 +182,13 @@ ul.button_nav li:last-child {
 	width: 100%;
 }
 
-#liste_salles .liste_salles_modifier {
+.liste_salles_modifier {
 	text-align: right;
 	padding-right: 5px;
 	border-right: none;
 }
 
-#liste_salles .liste_salles_supprimer {
+.liste_salles_supprimer {
 	padding-left: 5px;
 	border-left: none;
 }
