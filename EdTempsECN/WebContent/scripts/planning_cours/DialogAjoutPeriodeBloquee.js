@@ -170,6 +170,31 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 				window.showToast("Erreur lors de la récupération des groupes de participants ; vérifiez votre connexion.");
 			}
 		});
+		
+		
+		// Gestion des créneaux horaires
+		this.restManager.recupererCreneaux(function(success, data) {
+			if (success) {
+				
+				me.listeCreneaux = new Object();
+				var html = '';
+				for (var i=0, maxI=data.length; i<maxI; i++) {
+					html += '<span class="creneau_horaire" data-id="'+data[i].id+'">'+data[i].libelle+'</span>';
+					me.listeCreneaux[data[i].id] = data[i];
+				}
+				me.jqDialog.find("#listeCreneaux").html(html);
+				
+				me.jqDialog.find(".creneau_horaire").click(function() {
+					var horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].debut), "HH:mm");
+					me.jqDialog.find("#heure_debut_periode_bloquee").val(horaire);
+					horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].fin), "HH:mm");
+					me.jqDialog.find("#heure_fin_periode_bloquee").val(horaire);
+				});
+				
+			} else {
+				me.jqDialog.find("#listeCreneaux").parents("tr").remove();
+			}
+		});
 
 	};
 
