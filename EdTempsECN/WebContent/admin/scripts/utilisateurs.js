@@ -1,4 +1,4 @@
-$(document).ready(function() {
+﻿$(document).ready(function() {
 	
 	// Filtre des prénoms
 	$("#filtre_prenom").keyup(function() {

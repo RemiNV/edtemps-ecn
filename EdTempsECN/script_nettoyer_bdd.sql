@@ -13,6 +13,7 @@ DROP SEQUENCE IF EXISTS edt.calendrierappartientgroupe_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.periodesbloquees_periodebloquee_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.joursferies_jourferie_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.periodesbloqueesappartientgroupe_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS edt.creneau_creneau_id_seq CASCADE;
 
 DROP TABLE IF EXISTS edt.salle CASCADE;
 DROP TABLE IF EXISTS edt.materiel CASCADE;
@@ -41,6 +42,7 @@ DROP TABLE IF EXISTS edt.administrateurs CASCADE;
 DROP TABLE IF EXISTS edt.joursferies CASCADE;
 DROP TABLE IF EXISTS edt.periodesbloquees CASCADE;
 DROP TABLE IF EXISTS edt.periodesbloqueesappartientgroupe CASCADE;
+DROP TABLE IF EXISTS edt.creneau CASCADE;
 
 DROP FUNCTION IF EXISTS edt.update_groupeparticipant_aparentcours();
 DROP FUNCTION IF EXISTS edt.set_groupeparticipant_aparentcours();

@@ -296,6 +296,17 @@ CREATE TABLE edt.PeriodesBloqueesAppartientGroupe (
 ALTER SEQUENCE edt.periodesbloqueesappartientgroupe_id_seq OWNER TO "edtemps-ecn";
 
 
+CREATE SEQUENCE edt.creneau_creneau_id_seq;
+CREATE TABLE edt.Creneau (
+                creneau_id INTEGER NOT NULL DEFAULT nextval('edt.creneau_creneau_id_seq'),
+                creneau_libelle VARCHAR NOT NULL,
+                creneau_debut TIME NOT NULL,
+                creneau_fin TIME NOT NULL,
+                CONSTRAINT creneau_id PRIMARY KEY (creneau_id)
+);
+ALTER SEQUENCE edt.creneau_creneau_id_seq OWNER TO "edtemps-ecn";
+
+
 ALTER TABLE edt.ALieuenSalle ADD CONSTRAINT salle_alieuensalle_fk
 FOREIGN KEY (salle_id)
 REFERENCES edt.Salle (salle_id)
@@ -546,3 +557,4 @@ ALTER TABLE edt.administrateurs OWNER TO "edtemps-ecn";
 ALTER TABLE edt.periodesbloquees OWNER TO "edtemps-ecn";
 ALTER TABLE edt.joursferies OWNER TO "edtemps-ecn";
 ALTER TABLE edt.periodesbloqueesappartientgroupe OWNER TO "edtemps-ecn";
+ALTER TABLE edt.creneau OWNER TO "edtemps-ecn";

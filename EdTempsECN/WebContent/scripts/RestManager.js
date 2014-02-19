@@ -27,6 +27,8 @@ define(["jquery"], function() {
 		this._connected = false; // Appeler connexion() ou checkConnexion() pour mettre à jour ce statut
 		
 		this._identificationErrorFallback = null; // Fonction appelée en cas d'erreur d'identification
+		
+		this._listeCreneaux = null;
 	};
 	
 	/**
@@ -275,6 +277,29 @@ define(["jquery"], function() {
 			return false;
 		}
 	};
+	
+	
+	/**
+	 * Récupérer les créneaux horaires définis en base de données
+	 */
+	RestManager.prototype.recupererCreneaux = function(callback) {
+		var me = this;
+		
+		if (this._listeCreneaux==null) {
+			this.effectuerRequete("GET", "creneaux", { token: this._token }, function(data) {
+				if(data.resultCode == RestManager.resultCode_Success) {
+					me._listeCreneaux = data.data.listeCreneaux;
+					callback(true, me._listeCreneaux);
+				} else {
+					callback(false, null);
+				}
+			}, true);
+		} else {
+			callback(true, this._listeCreneaux);
+		}
+		
+	};
+
 	
 	// Renvoyer RestManager dans cette fonction le définit comme l'objet de ce fichier de module
 	return RestManager;

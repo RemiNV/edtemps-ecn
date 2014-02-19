@@ -4,16 +4,14 @@
 	</div>
 	
 	<div id="boutons_colonne_gauche">
-		<a href="#parametres/mes_abonnements" id="btn_gerer_agendas" class="button">Paramètres</a>
-		<span class="button" id="btn_ajout_evenement">+ &Eacute;vénement</span>
+		<span class="button" id="btn_ajout_evenement">Nouvel événement</span>
 	</div>
 	
 	<div id="accueil_datepicker"></div>
 	
 	<div id="bloc_vos_agendas" class="bloc_sidebar">
-		<div class="header">Vos agendas :</div>
-		<div id="liste_groupes">
-		</div>
+		<div class="header">Abonnements : <a href="#parametres/mes_abonnements" id="btn_gerer_agendas" class="button">Gérer</a></div>
+		<div id="liste_groupes"></div>
 	</div>
 </div>
 
@@ -26,12 +24,12 @@
 	
 	<ul id="nav_vue_agenda" class="button_nav">
 		<li class="selected" id="tab_mes_abonnements"><a href="#agenda/mes_abonnements">Mes abonnements</a></li>
-		<li id="tab_mes_evenements"><a href="#agenda/mes_evenements">&Eacute;vénements dans lesquels j'interviens</a></li>
-		<li id="tab_vue_groupe"><a href="#agenda/vue_groupe">Vue groupe</a></li>
-		<li id="tab_vue_salle"><a href="#agenda/vue_salle">Vue salle</a></li>
+		<li id="tab_mes_evenements"><a href="#agenda/mes_evenements">Mes interventions</a></li>
+		<li id="tab_vue_groupe"><a href="#agenda/vue_groupe">Parcourir agendas</a></li>
+		<li id="tab_vue_salle"><a href="#agenda/vue_salle">Agenda salle</a></li>
 	</ul>
 	
-	<span id="btn_chercher_salle" class="button">Chercher une salle libre</span>
+	<span id="btn_chercher_salle" class="button">Rechercher salle libre</span>
 	
 	<div id="choix_groupe" style="display: none">
 		Afficher les événements du groupe : 
@@ -65,7 +63,7 @@
 					<td><select id="dropdown_filtre_matiere"></select></td>
 				</tr>
 				<tr>
-					<td><label for="dropdown_filtre_type">par type :</label></td>
+					<td><label for="dropdown_filtre_type">par type de cours :</label></td>
 					<td><select id="dropdown_filtre_type"></select></td>
 				</tr>
 				<tr>
@@ -84,7 +82,7 @@
 </div>
 
 <!-- Dialog d'ajout d'événements (masquée au chargement du JavaScript) -->
-<div id="dialog_ajout_evenement" title="Ajouter un événement">
+<div id="dialog_ajout_evenement" title="Nouvel événement">
 	<!-- Rempli à partir de dialog_ajout_evenement.html -->
 </div>
 

@@ -1,27 +1,33 @@
-<div id="form_chercher_salle" title="Formulaire de recherche d'une salle libre">
+<div id="form_chercher_salle" title="Rechercher salle libre">
 	<form>
 		<table id="form_chercher_salle_table">
 			<tr>
-				<td><label for="form_recherche_salle_date">Date de réservation</label></td>
+				<td><label for="form_recherche_salle_date">Date</label></td>
 				<td><input type="text" name="form_recherche_salle_date" id="form_recherche_salle_date" /></td>
 			</tr>
 			<tr>
-				<td><label for="form_recherche_salle_debut">Heure de début (ex: 14:00)</label></td>
-				<td><input type="text" name="form_recherche_salle_debut" id="form_recherche_salle_debut" /></td>
+				<td><label for="listeCreneaux">Créneau</label></td>
+				<td id="listeCreneaux"></td>
 			</tr>
 			<tr>
-				<td><label for="form_recherche_salle_fin">Heure de fin (ex: 17:00)</label></td>
-				<td><input type="text" name="form_recherche_salle_fin" id="form_recherche_salle_fin" /></td>
+				<td><label for="form_recherche_salle_debut">Heure début</label></td>
+				<td><input type="text" name="form_recherche_salle_debut" id="form_recherche_salle_debut" /> <img alt="aide" class="help_icon" title="Le format attendu est &quot;hh:mm&quot;" src="img/help.png" /></td>
+			</tr>
+			<tr>
+				<td><label for="form_recherche_salle_fin">Heure fin</label></td>
+				<td><input type="text" name="form_recherche_salle_fin" id="form_recherche_salle_fin" /> <img alt="aide" class="help_icon" title="Le format attendu est &quot;hh:mm&quot;" src="img/help.png" /></td>
 			</tr>
 			<tr>
 				<td><label for="form_recherche_salle_capacite">Capacité</label></td>
-				<td><input type="text" name="form_recherche_salle_capacite" id="form_recherche_salle_capacite" value="5" /></td>
+				<td><input type="text" name="form_recherche_salle_capacite" id="form_recherche_salle_capacite" size="5" /></td>
 			</tr>
 			<tr>
-				<td><label for="form_recherche_salle_inclure_salles_occupees">Inclure les salles occupées <img alt="Aide" title="Si vous cochez la case, les salles occupées par des événements autres que des cours seront inclues dans la recherche." src="img/help.png" class="help_icon" /></label></td>
-				<td><input type="checkbox" name="form_recherche_salle_inclure_salles_occupees" id="form_recherche_salle_inclure_salles_occupees" /></td>
+				<td><label for="form_recherche_salle_inclure_salles_occupees">Inclure les salles occupées</label></td>
+				<td><input type="checkbox" name="form_recherche_salle_inclure_salles_occupees" id="form_recherche_salle_inclure_salles_occupees" /> <img alt="Aide" title="Si vous cochez la case, les salles occupées par des événements autres que des cours seront inclues dans la recherche." src="img/help.png" class="help_icon" /></td>
 			</tr>
 		</table>
+		
+		<div id="btn_form_chercher_salle_liste_materiel">Plus d'options ...</div>
 
 		<div id="form_chercher_salle_liste_materiel">
 			<table>
@@ -35,7 +41,6 @@
 		</div>
 
 		<div id="form_chercher_salle_boutons" class="boutons_valider">
-			<input type="button" id="form_chercher_salle_fermer" class="button" value="Fermer" />
 			<input type="button" id="form_chercher_salle_valid" class="button" value="Rechercher" />
 		</div>
 	</form>

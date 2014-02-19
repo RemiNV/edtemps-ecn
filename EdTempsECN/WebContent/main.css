@@ -228,6 +228,27 @@ table.tbl_standard td {
 	overflow: auto;	
 	margin-bottom: 20px;
 	margin-top: 20px;
+	display: none;
+}
+
+#btn_form_chercher_salle_liste_materiel {
+	margin-top: 10px;
+	margin-left: 5px;
+	color: blue;
+	font-style: italic;
+	cursor: pointer;
+}
+
+#btn_form_chercher_salle_liste_materiel:hover {
+	text-decoration: underline;
+}
+
+#btn_gerer_agendas {
+	margin-left: 80px;
+}
+
+#btn_chercher_salle {
+	margin-left: 100px;
 }
 
 .boutons_valider {
@@ -591,6 +612,26 @@ table.liste_materiel th {
 .salle_occupee_noncours {
 	color: #fb863a;
 }
+<<<<<<< HEAD
+=======
+.creneau_horaire {
+	display: inline-block;
+	border: solid 1px gray;
+	padding: 2px 5px;
+	font-size: 0.9em;
+	margin: 0px 0px 0px -1px;
+	cursor: pointer;
+}
+#dialog_ajout_evenement .multiwidget {
+	display: inline-block;
+}
+#dialog_ajout_evenement .help_icon {
+	margin-left: 5px;
+}
+#dialog_ajout_evenement input, #form_chercher_salle input {
+	margin: 0px;
+}
+>>>>>>> 785c9d62e9d217188f36f453e8f9b080829b0950
 
 /* 
  * Onglet "Mes groupes de participants" de la page de paramétrage

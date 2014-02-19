@@ -84,7 +84,7 @@ public class AdministrateurTypesUtilisateursServlet extends HttpServlet {
 	 * @throws IOException 
 	 */
 	public void doAjouter(HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		logger.error("Ajouter un type d'utilisateur");
+		logger.info("Ajout d'un type d'utilisateur");
 
 		// Récupération de l'identifiant de la salle à supprimer dans la requête
 		String nom = req.getParameter("ajouter_type_utilisateurs_nom");
@@ -107,7 +107,7 @@ public class AdministrateurTypesUtilisateursServlet extends HttpServlet {
 	 * @throws IOException 
 	 */
 	public void doModifierDroits(HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		logger.error("Modifier les droits d'un type d'utilisateur");
+		logger.info("Modification des droits d'un type d'utilisateur");
 		
 		// Récupération des données du formulaire
 		Integer id = req.getParameter("modifier_type_utilisateurs_form_id")!="" ? Integer.valueOf(req.getParameter("modifier_type_utilisateurs_form_id")) : null;
@@ -146,7 +146,7 @@ public class AdministrateurTypesUtilisateursServlet extends HttpServlet {
 	 * @throws IOException 
 	 */
 	public void doSupprimer(HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		logger.error("Supprimer un type d'utilisateur");
+		logger.info("Suppression d'un type d'utilisateur");
 
 		// Récupération de l'identifiant du type à supprimer
 		Integer id = req.getParameter("supprimer_types_utilisateurs_id")!="" ? Integer.valueOf(req.getParameter("supprimer_types_utilisateurs_id")) : null;
