@@ -122,7 +122,7 @@ public class AdministrateurServlet extends HttpServlet {
 	 * @throws InvalidKeyException 
 	 */
 	protected void doAjouter(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws DatabaseException, IOException, InvalidKeyException, NoSuchAlgorithmException {
-		logger.error("Ajouter un administrateur");
+		logger.info("Ajout d'un administrateur");
 
 		// Récupération du login et du mot de passe
 		String login = req.getParameter("ajouter_administrateur_login");
@@ -153,7 +153,7 @@ public class AdministrateurServlet extends HttpServlet {
 	 * @throws IOException 
 	 */
 	protected void doSupprimer(HttpServletRequest req, HttpServletResponse resp, HttpSession session) throws DatabaseException, IOException {
-		logger.error("Suppression d'un administrateur");
+		logger.info("Suppression d'un administrateur");
 
 		// Récupération de l'identifiant de l'administrateur à supprimer
 		Integer id = req.getParameter("supprimer_administrateur_id")!="" ? Integer.valueOf(req.getParameter("supprimer_administrateur_id")) : null;
