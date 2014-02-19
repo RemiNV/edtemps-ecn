@@ -462,7 +462,7 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 			for (var i=0; i<nbGroupes; i++) {
 				var idGroupe = listeGroupes[i].parentIdTmp;
 				if (!dejaMisEnValeur[idGroupe]) {
-					$("#tbl_mes_groupes_ligne_"+idGroupe).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+					$("#tbl_mes_groupes_ligne_"+idGroupe).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Demande de rattachement en attente");
 					$("#tbl_mes_groupes_ligne_"+idGroupe+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+idGroupe+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
 					dejaMisEnValeur[idGroupe] = true;
 				}

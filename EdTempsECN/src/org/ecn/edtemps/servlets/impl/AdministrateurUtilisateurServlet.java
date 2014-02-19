@@ -83,7 +83,7 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 	 * @throws EdtempsException 
 	 */
 	public void doModifierType(HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
-		logger.error("Modifer le type d'un utilisateur");
+		logger.info("Modification d'un type d'un utilisateur");
 
 		// Récupération des valeurs du formulaire
 		Integer userId = req.getParameter("modifier_utilisateur_id")!="" ? Integer.valueOf(req.getParameter("modifier_utilisateur_id")) : null;
@@ -122,7 +122,7 @@ public class AdministrateurUtilisateurServlet extends HttpServlet {
 	 * @throws EdtempsException 
 	 */
 	public void doChangerStatut(boolean valide, HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
-		logger.error("Activer/Désactiver un utilisateur");
+		logger.info("Activation/Désactivation un utilisateur");
 
 		// Récupération des valeurs du formulaire
 		Integer id = req.getParameter("id")!="" ? Integer.valueOf(req.getParameter("id")) : null;

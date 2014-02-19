@@ -1,4 +1,4 @@
-$(document).ready(function() {
+﻿$(document).ready(function() {
 	// Masques sur les champs du formulaire d'ajout d'une salle
 	$("#ajouter_salle_capacite").mask("9?999");
 	$("#ajouter_salle_numero").mask("9?999");

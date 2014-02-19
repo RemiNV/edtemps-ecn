@@ -88,7 +88,7 @@ public class AdministrateurSalleServlet extends HttpServlet {
 	 * @throws IOException 
 	 */
 	public void doSupprimer(HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		logger.error("Suppression d'une salle");
+		logger.info("Suppression d'une salle");
 
 		// Récupération de l'identifiant de la salle à supprimer dans la requête
 		Integer id = req.getParameter("id")!="" ? Integer.valueOf(req.getParameter("id")) : null;
@@ -116,7 +116,7 @@ public class AdministrateurSalleServlet extends HttpServlet {
 	 * @throws EdtempsException 
 	 */
 	public void doAjouter(HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
-		logger.error("Ajout d'une salle");
+		logger.info("Ajout d'une salle");
 
 		// Récupération des valeurs du formulaire
 		String batiment = req.getParameter("ajouter_salle_batiment");
@@ -171,7 +171,7 @@ public class AdministrateurSalleServlet extends HttpServlet {
 	 * @throws EdtempsException 
 	 */
 	public void doModifier(HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
-		logger.error("Modifer d'une salle");
+		logger.info("Modification d'une salle");
 
 		// Récupération des valeurs du formulaire
 		String batiment = req.getParameter("modifier_salle_batiment");

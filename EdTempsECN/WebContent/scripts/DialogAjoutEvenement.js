@@ -44,7 +44,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			autoOpen: false,
 			appendTo: "#dialog_hook",
 			modal: true,
-			width: 670,
+			width: 500,
 			show: { effect: "fade", duration: 200 },
 			hide: { effect: "explode", duration: 200 }
 		});
@@ -623,7 +623,7 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 							}
 							
 						},
-						width: 250
+						width: 252
 					});
 					
 					if(me.evenementEdit) {
@@ -675,10 +675,10 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			if(resultCode == RestManager.resultCode_Success) {
 				
 				me.multiWidgetProprietaires = new MultiWidget(me.jqDialog.find("#input_proprietaires_evenement"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, 250));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, 249));
 				
 				me.multiWidgetIntervenants = new MultiWidget(me.jqDialog.find("#input_intervenants_evenement"), 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, null, 250));
+						MultiWidget.AUTOCOMPLETE_OPTIONS(proprietaires, 3, 249));
 				
 				if(me.evenementEdit) {
 					// Remplissage effectué à la fin de init() (se termine après showEdit())
@@ -723,7 +723,8 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		this.calendriersDisabled = false;
 		this.evenementEdit = null;
 		this.jqDialog.find("#notes_pas_proprietaire_calendrier").css("display", "none");
-		
+		this.jqDialog.find(".creneau_evenement").css("background-color", "transparent");
+
 		if(!this.initAppele) {
 			this.init();
 		}
@@ -849,7 +850,31 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 			
 			me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
 		}
-
+		
+		// Gestion des créneaux horaires
+		this.restManager.recupererCreneaux(function(success, data) {
+			if (success) {
+				
+				me.listeCreneaux = new Object();
+				var html = '';
+				for (var i=0, maxI=data.length; i<maxI; i++) {
+					html += '<span class="creneau_horaire" data-id="'+data[i].id+'">'+data[i].libelle+'</span>';
+					me.listeCreneaux[data[i].id] = data[i];
+				}
+				me.jqDialog.find("#listeCreneaux").html(html);
+				
+				me.jqDialog.find(".creneau_horaire").click(function() {
+					var horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].debut), "HH:mm");
+					me.jqDialog.find("#heure_debut").val(horaire);
+					horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].fin), "HH:mm");
+					me.jqDialog.find("#heure_fin").val(horaire);
+				});
+				
+			} else {
+				me.jqDialog.find("#listeCreneaux").parents("tr").remove();
+			}
+		});
+		
 		this.initAppele = true;
 	};
 	

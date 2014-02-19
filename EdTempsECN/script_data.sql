@@ -817,4 +817,10 @@
 		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
 		WHERE groupeparticipant_nom='EI1' AND periodebloquee_libelle = 'Forum Atlantique Promo B';
 
+/* Créneaux horaires */
+	INSERT INTO edt.Creneau(creneau_libelle, creneau_debut, creneau_fin) VALUES ('M1', '08:00', '10:00');
+	INSERT INTO edt.Creneau(creneau_libelle, creneau_debut, creneau_fin) VALUES ('M2', '10:15', '12:15');
+	INSERT INTO edt.Creneau(creneau_libelle, creneau_debut, creneau_fin) VALUES ('S1', '13:45', '15:45');
+	INSERT INTO edt.Creneau(creneau_libelle, creneau_debut, creneau_fin) VALUES ('S2', '16:00', '18:00');
+
 COMMIT;

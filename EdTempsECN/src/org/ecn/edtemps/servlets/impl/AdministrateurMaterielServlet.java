@@ -80,7 +80,7 @@ public class AdministrateurMaterielServlet extends HttpServlet {
 	 * @throws IOException 
 	 */
 	public void doSupprimer(HttpServletRequest req, HttpServletResponse resp) throws EdtempsException, IOException {
-		logger.error("Suppression d'un type matériel");
+		logger.info("Suppression d'un type matériel");
 
 		// Récupération de l'identifiant du type de matériel à supprimer
 		Integer id = req.getParameter("supprimer_materiel_id")!="" ? Integer.valueOf(req.getParameter("supprimer_materiel_id")) : null;
@@ -108,7 +108,7 @@ public class AdministrateurMaterielServlet extends HttpServlet {
 	 * @throws EdtempsException 
 	 */
 	public void doAjouter(HttpServletRequest req, HttpServletResponse resp) throws IOException, EdtempsException {
-		logger.error("Ajout d'un type de matériel");
+		logger.info("Ajout d'un type de matériel");
 
 		// Récupération du nom
 		String nom = req.getParameter("ajouter_materiel_nom");

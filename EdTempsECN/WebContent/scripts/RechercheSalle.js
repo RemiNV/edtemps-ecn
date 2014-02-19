@@ -61,7 +61,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		
 		this.customCallbackChargement = customCallbackChargement;
 		this.customCallbackResultat = customCallbackResultat;
-		
+
 		this.jqRechercheSalleForm.dialog("open");
 	};
 	
@@ -142,11 +142,6 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 			}
 		});
 
-		// Affectation d'une méthode au clic sur le bouton "Fermer"
-		this.jqRechercheSalleForm.find("#form_chercher_salle_fermer").click(function() {
-			me.jqRechercheSalleForm.dialog("close");
-		});
-
 		// Affectation d'une méthode au clic sur la zone Date
 		this.jqDate.click(function() {
 			me.jqDate.datepicker("show");
@@ -201,7 +196,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 		this.jqRechercheSalleForm.dialog({
 			autoOpen: false,
 			appendTo: "#dialog_hook",
-			width: 440,
+			width: 400,
 			modal: true,
 			show: {
 				effect: "fade",
@@ -212,7 +207,41 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 				duration: 200
 			}
 		});
+		
+		// Gestion des créneaux horaires
+		this.restManager.recupererCreneaux(function(success, data) {
+			if (success) {
+				
+				me.listeCreneaux = new Object();
+				var html = '';
+				for (var i=0, maxI=data.length; i<maxI; i++) {
+					html += '<span class="creneau_horaire" data-id="'+data[i].id+'">'+data[i].libelle+'</span>';
+					me.listeCreneaux[data[i].id] = data[i];
+				}
+				me.jqRechercheSalleForm.find("#listeCreneaux").html(html);
+				
+				me.jqRechercheSalleForm.find(".creneau_horaire").click(function() {
+					var horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].debut), "HH:mm");
+					me.jqRechercheSalleForm.find("#form_recherche_salle_debut").val(horaire);
+					horaire = $.fullCalendar.formatDate(new Date(me.listeCreneaux[$(this).attr("data-id")].fin), "HH:mm");
+					me.jqRechercheSalleForm.find("#form_recherche_salle_fin").val(horaire);
+				});
+				
+			} else {
+				me.jqRechercheSalleForm.find("#listeCreneaux").parents("tr").remove();
+			}
+		});
 
+		// Afficher / Cacher la liste des matériels
+		this.jqRechercheSalleForm.find("#btn_form_chercher_salle_liste_materiel").click(function() {
+			if (me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").is(":visible")) {
+				me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").hide();
+			} else {
+				me.jqRechercheSalleForm.find("#form_chercher_salle_liste_materiel").show();
+			}
+		});
+		
+		
 		this.initAppele = true;
 	};
 
