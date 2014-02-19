@@ -1,6 +1,6 @@
 package org.ecn.edtemps.models;
 
-import java.util.Date;
+import java.sql.Time;
 
 /**
  * Classe modèle d'un créneau horaire
@@ -10,8 +10,8 @@ import java.util.Date;
 public class Creneau {
 
 	protected String libelle;
-	protected Date debut;
-	protected Date fin;
+	protected Time debut;
+	protected Time fin;
 	
 	/**
 	 * Constructeur de base
@@ -20,7 +20,7 @@ public class Creneau {
 	 * @param debut Horaire de début du créneau
 	 * @param fin Horaire de fin du créneau
 	 */
-	public Creneau(String libelle, Date debut, Date fin) {
+	public Creneau(String libelle, Time debut, Time fin) {
 		this.libelle = libelle;
 		this.debut = debut;
 		this.fin = fin;
@@ -29,20 +29,20 @@ public class Creneau {
 	public String getLibelle() {
 		return libelle;
 	}
-	public Date getDebut() {
+	public Time getDebut() {
 		return debut;
 	}
-	public Date getFin() {
+	public Time getFin() {
 		return fin;
 	}
 	
 	public void setLibelle(String libelle) {
 		this.libelle = libelle;
 	}
-	public void setDebut(Date debut) {
+	public void setDebut(Time debut) {
 		this.debut = debut;
 	}
-	public void setFin(Date fin) {
+	public void setFin(Time fin) {
 		this.fin = fin;
 	}
 	

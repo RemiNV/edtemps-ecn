@@ -1,6 +1,6 @@
 package org.ecn.edtemps.models.identifie;
 
-import java.util.Date;
+import java.sql.Time;
 
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
@@ -26,7 +26,7 @@ public class CreneauIdentifie extends Creneau implements JSONAble {
 	 * @param debut Horaire de début du créneau
 	 * @param fin Horaire de fin du créneau
 	 */
-	public CreneauIdentifie(int id, String libelle, Date debut, Date fin) {
+	public CreneauIdentifie(int id, String libelle, Time debut, Time fin) {
 		super(libelle, debut, fin);
 		this.id = id;
 	}

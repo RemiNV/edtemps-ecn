@@ -3,8 +3,8 @@ package org.ecn.edtemps.managers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -48,8 +48,8 @@ public class CreneauGestion {
 	private CreneauIdentifie inflateCreneauFromRow(ResultSet row) throws SQLException {
 		int id = row.getInt("creneau_id");
 		String libelle = row.getString("creneau_libelle");
-		Date debut = row.getDate("creneau_debut");
-		Date fin = row.getDate("creneau_fin");
+		Time debut = row.getTime("creneau_debut");
+		Time fin = row.getTime("creneau_fin");
 		
 		return new CreneauIdentifie(id, libelle, debut, fin);
 	}
@@ -101,8 +101,8 @@ public class CreneauGestion {
 					"INSERT INTO edt.creneau (creneau_libelle, creneau_debut, creneau_fin) VALUES (?, ?, ?) RETURNING creneau_id");
 			
 			req.setString(1, creneau.getLibelle());
-			req.setTimestamp(2, new java.sql.Timestamp(creneau.getDebut().getTime()));
-			req.setTimestamp(3, new java.sql.Timestamp(creneau.getFin().getTime()));
+			req.setTime(2, creneau.getDebut());
+			req.setTime(3, creneau.getFin());
 			
 			ResultSet rsLigneCreee = req.executeQuery();
 			 
@@ -137,8 +137,8 @@ public class CreneauGestion {
 					"UPDATE edt.creneau SET creneau_libelle=?, creneau_debut=?, creneau_fin=? WHERE creneau_id");
 			
 			req.setString(1, creneau.getLibelle());
-			req.setTimestamp(2, new java.sql.Timestamp(creneau.getDebut().getTime()));
-			req.setTimestamp(3, new java.sql.Timestamp(creneau.getFin().getTime()));
+			req.setTime(2, creneau.getDebut());
+			req.setTime(3, creneau.getFin());
 			
 			logger.info("Modification d'un créneau en base de données (id="+creneau.getId()+")");
 
