@@ -16,6 +16,7 @@
 		<title>Espace d'administration</title>
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/admin/main.css" />
 		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="<%=request.getContextPath()%>/scripts/lib/jquery.maskedinput.min.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/admin/scripts/creneaux.js"></script>
 	</head>
 	
@@ -85,14 +86,16 @@
 						bdd.close();
 						
 						for(CreneauIdentifie c : creneaux) {
-							SimpleDateFormat formater = new SimpleDateFormat("hh:mm");
+							SimpleDateFormat formater = new SimpleDateFormat("HH:mm");
 						%>
 							<tr data-id="<%= c.getId() %>">
 								<td><%= c.getLibelle() %></td>
 								<td><%= formater.format(c.getDebut()) %></td>
 								<td><%= formater.format(c.getFin()) %></td>
-								<td class="liste_salles_modifier"><a href="<%= request.getContextPath() %>/admin/creneaux/modifier.jsp?id=<%= c.getId() %>"><img alt="Modifier" title="Modifier" src="<%= request.getContextPath() %>/img/modifier.png" /></a></td>
-								<td class="liste_salles_supprimer"><form onsubmit='return confirmationSupprimerCreneau()' action='<%= request.getContextPath() %>/administrateur/creneaux/supprimer' method='POST'><input src='<%= request.getContextPath() %>/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='<%= c.getId() %>' /></form></td>
+								<td class="colCenter">
+									<a href="<%= request.getContextPath() %>/admin/creneaux/modifier.jsp?id=<%= c.getId() %>"><img alt="Modifier" title="Modifier" src="<%= request.getContextPath() %>/img/modifier.png" class="action" /></a>
+									<form class="action" onsubmit='return confirmationSupprimerCreneau()' action='<%= request.getContextPath() %>/administrateur/creneaux/supprimer' method='POST'><input src='<%= request.getContextPath() %>/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='idCreneau' value='<%= c.getId() %>' /></form>
+								</td>
 							</tr>
 						<%	
 						}

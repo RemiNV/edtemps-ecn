@@ -171,9 +171,14 @@
       <servlet-class>org.ecn.edtemps.servlets.impl.StatistiquesServlet</servlet-class>
   </servlet>
   
-   <servlet>
+  <servlet>
       <servlet-name>RepeterEvenement</servlet-name>
       <servlet-class>org.ecn.edtemps.servlets.impl.RepeterEvenementServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+      <servlet-name>AdministrationCreneaux</servlet-name>
+      <servlet-class>org.ecn.edtemps.servlets.impl.AdministrateurCreneauServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -344,6 +349,11 @@
   <servlet-mapping>
       <servlet-name>RepeterEvenement</servlet-name>
       <url-pattern>/repeterevenement/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>AdministrationCreneaux</servlet-name>
+      <url-pattern>/administrateur/creneaux/*</url-pattern>
   </servlet-mapping>
   
 </web-app>

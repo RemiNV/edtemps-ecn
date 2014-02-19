@@ -30,7 +30,7 @@
 			response.sendRedirect("../general.jsp");
 		}
 	}
-	SimpleDateFormat formater = new SimpleDateFormat("hh:mm");
+	SimpleDateFormat formater = new SimpleDateFormat("HH:mm");
 %>
 
 <!DOCTYPE html>
@@ -54,11 +54,21 @@
 			<div id="content">
 			
 				<form action="<%=request.getContextPath() %>/administrateur/creneaux/ajoutermodifier" method="POST" onsubmit="return validationAjouterModifierCreneaux()">
-					<input type="hidden"<%=(creneau==null) ? "" : " value='"+id+"'" %> name="creneau_id" />
+					<input type="hidden"<%=(creneau==null) ? "" : " value='"+id+"'" %> name="idCreneau" />
 					<table>
-						<tr><td><label for="creneau_libelle">Libellé :</label></td><td><input type="text" name="creneau_libelle" id="creneau_libelle" size="50" value="<%=creneau==null ? "" : creneau.getLibelle() %>" /></td></tr>
-						<tr><td><label for="creneau_debut">Début :</label></td><td><input type="text" name="creneau_debut" id="creneau_debut" size="50" value="<%=creneau==null ? "" : formater.format(creneau.getDebut()) %>" /> (Format attendu : "hh:mm")</td></tr>
-						<tr><td><label for="creneau_fin">Fin :</label></td><td><input type="text" name="creneau_fin" id="creneau_fin" size="50" value="<%=creneau==null ? "" : formater.format(creneau.getFin()) %>" /> (Format attendu : "hh:mm")</td></tr>
+						<tr><td><label for="creneau_libelle">Libellé :</label></td><td><input type="text" name="libelleCreneau" id="creneau_libelle" size="50" value="<%=creneau==null ? "" : creneau.getLibelle() %>" autofocus /></td></tr>
+						<tr>
+							<td>
+								<label for="creneau_debut">Début :</label></td><td><input type="text" id="creneau_debut" size="5" value="<%=creneau==null ? "" : formater.format(creneau.getDebut()) %>" />
+								<input type="hidden" name="debutCreneau" id="debutCreneau" /> <i>(Format attendu : "hh:mm")</i>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="creneau_fin">Fin :</label></td><td><input type="text" id="creneau_fin" size="5" value="<%=creneau==null ? "" : formater.format(creneau.getFin()) %>" />
+								<input type="hidden" name="finCreneau" id="finCreneau" /> <i>(Format attendu : "hh:mm")</i>
+							</td>
+						</tr>
 					</table>
 					<input type="submit" class="button" value="<%=(creneau==null) ? "Ajouter" : "Modifier" %>" />
 				</form>

@@ -34,8 +34,8 @@ function validationAjouterModifierCreneaux() {
 	}
 	
 	// Début
-	var debutH = jqDebut.val().substring(0, 2);
-	var debutM = jqDebut.val().substring(3, 5);
+	var debutH = parseInt(jqDebut.val().substring(0, 2));
+	var debutM = parseInt(jqDebut.val().substring(3, 5));
 	if (jqDebut.val()=="") {
 		jqDebut.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
 		jqDebut.attr("title", "Champ obligatoire");
@@ -49,8 +49,8 @@ function validationAjouterModifierCreneaux() {
 	}
 	
 	// Fin
-	var finH = jqFin.val().substring(0, 2);
-	var finM = jqFin.val().substring(3, 5);
+	var finH = parseInt(jqFin.val().substring(0, 2));
+	var finM = parseInt(jqFin.val().substring(3, 5));
 	if (jqFin.val()=="") {
 		jqFin.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
 		jqFin.attr("title", "Champ obligatoire");
@@ -59,7 +59,7 @@ function validationAjouterModifierCreneaux() {
 		jqFin.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
 		jqFin.attr("title", "L'horaire n'est pas correct");
 		valid = false;
-	} else if ((60*debutH + debutM) > (60*finH + finM)) {
+	} else if (((60*debutH) + debutM) > ((60*finH) + finM)) {
 		jqDebut.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
 		jqDebut.attr("title", "Les deux horaires sont incohérents");
 		jqFin.css("box-shadow", "#FF0000 0 0 10px").css("border", "1px solid #FF0000");
@@ -69,5 +69,11 @@ function validationAjouterModifierCreneaux() {
 		jqFin.css("box-shadow", "#60C003 0 0 10px").css("border", "1px solid #60C003").attr("title", "");
 	}
 
+	if (valid) {
+		var today = new Date();
+		$("#debutCreneau").val(new Date(today.getFullYear(), today.getMonth(), today.getDate(), debutH, debutM, 0).getTime()); 
+		$("#finCreneau").val(new Date(today.getFullYear(), today.getMonth(), today.getDate(), finH, finM, 0).getTime()); 
+	}
+	
 	return valid;
 }

@@ -82,7 +82,7 @@
 							out.write("<th>Numéro</th>");
 							out.write("<th>Capacité</th>");
 							out.write("<th>Liste des matériels</th>");
-							out.write("<th colspan='2'>Actions</th>");
+							out.write("<th>Actions</th>");
 							out.write("</tr>");
 							for (SalleIdentifie salle : listeSalles) {
 								out.write("<tr>");
@@ -100,8 +100,8 @@
 									}
 								}
 								out.write("<td>" + (preparationCase.length()>0 ? preparationCase.substring(0, preparationCase.length()-2) : "") + "</td>");
-								out.write("<td class='liste_salles_modifier'><form action='"+request.getContextPath()+"/admin/salles/modifier.jsp' methode='POST'><input src='"+request.getContextPath()+"/img/modifier.png' type='image' title='' /><input type='hidden' name='id' value='"+salle.getId()+"' /></form></td>");
-								out.write("<td class='liste_salles_supprimer'><form onsubmit='return confirmationSupprimerSalle()' action='"+request.getContextPath()+"/administrateur/salles/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+salle.getId()+"' /></form></td>");
+								out.write("<td class='colCenter'><form class='action' action='"+request.getContextPath()+"/admin/salles/modifier.jsp' methode='POST'><input src='"+request.getContextPath()+"/img/modifier.png' type='image' title='' /><input type='hidden' name='id' value='"+salle.getId()+"' /></form>");
+								out.write("<form class='action' onsubmit='return confirmationSupprimerSalle()' action='"+request.getContextPath()+"/administrateur/salles/supprimer' method='POST'><input src='"+request.getContextPath()+"/img/supprimer.png' type='image' title='Supprimer' /><input type='hidden' name='id' value='"+salle.getId()+"' /></form></td>");
 								out.write("</tr>");
 							}
 						}

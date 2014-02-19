@@ -173,6 +173,13 @@ ul.button_nav li:last-child {
 	font-size: 0.9em;
 }
 
+.action {
+	display: inline-block;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+
 /**
  * Page de gestion des salles
  */
@@ -180,17 +187,6 @@ ul.button_nav li:last-child {
 #liste_salles {
 	margin-top: 20px;
 	width: 100%;
-}
-
-.liste_salles_modifier {
-	text-align: right;
-	padding-right: 5px;
-	border-right: none;
-}
-
-.liste_salles_supprimer {
-	padding-left: 5px;
-	border-left: none;
 }
 
 #ajouter_salle_form {
