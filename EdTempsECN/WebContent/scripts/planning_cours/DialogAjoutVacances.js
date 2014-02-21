@@ -45,8 +45,8 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 
 		// Rempli les champs dans le cas de la modification
 		if (me.periode != null) {
-			me.jqDialog.dialog({ title: "Modification d'une période de vacances" });
-			me.jqDialog.find("#btn_valider_ajout_vacances").val("Enregistrer");
+			me.jqDialog.dialog({ title: "Modifier période de vacances" });
+			me.jqDialog.find("#btn_valider_ajout_vacances").val("Modifier");
 			me.jqLibelle.val(periode.libelle);
 			me.jqDateDebut.val(periode.strDateDebut);
 			me.jqHeureDebut.val(periode.strHeureDebut);
@@ -64,8 +64,8 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 			me.multiWidgetGroupes.setValues(liste);
 			
 		} else {
-			me.jqDialog.dialog({ title: "Ajout d'une période de vacances" });
-			me.jqDialog.find("#btn_valider_ajout_vacances").val("Créer");
+			me.jqDialog.dialog({ title: "Ajouter période de vacances" });
+			me.jqDialog.find("#btn_valider_ajout_vacances").val("Ajouter");
 		}
 		
 		// Ouvre la boîte de dialogue

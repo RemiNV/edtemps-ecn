@@ -979,8 +979,10 @@ table.liste_materiel th {
 }
 #dialog_ajout_periode_bloquee #date_jour_bloque {
 	text-align: center;
-	padding-bottom: 10px;
-	font-weight: bold;
+	border: 1px solid #0187AA;
+	color: #0187AA;
+	width: 100%;
+	margin-top: -10px;
 }
 #dialog_ajout_periode_bloquee input {
 	margin: 0px;

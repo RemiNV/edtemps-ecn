@@ -40,14 +40,14 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 		
 		// Rempli les champs dans le cas de la modification
 		if (this.jour != null) {
-			this.jqDialog.dialog({ title: "Modification d'un jour férié" });
-			this.jqDialog.find("#btn_valider_ajout_jour_ferie").val("Enregistrer");
+			this.jqDialog.dialog({ title: "Modifier jour férié" });
+			this.jqDialog.find("#btn_valider_ajout_jour_ferie").val("Modifier");
 			this.jqLibelle.val(jour.libelle);
 			this.jqDate.val(jour.dateString);
 			this.jqDialog.find("input:radio[name=type_jour_ferie][value="+jour.fermeture+"]").prop('checked', true);
 		} else {
-			this.jqDialog.dialog({ title: "Ajout d'un jour férié" });
-			this.jqDialog.find("#btn_valider_ajout_jour_ferie").val("Créer");
+			this.jqDialog.dialog({ title: "Ajouter jour férié" });
+			this.jqDialog.find("#btn_valider_ajout_jour_ferie").val("Ajouter");
 		}
 
 		// Ouvre la boîte de dialogue
@@ -84,7 +84,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
         // Ajout du datepicker sur le champ date
         this.jqDate.datepicker({
             showAnim : 'slideDown',
-            showOn: 'button', // "both" pourrait être utilisé mais le datepicker serait ouvert à l'ouverture de la dialog (focus sur le champ)
+            showOn: 'both',
             buttonText: "Calendrier",
             dateFormat: "dd/mm/yy",
             buttonImage: "img/datepicker.png", // image pour le bouton d'affichage du calendrier
@@ -100,7 +100,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
             firstDay: 1
         });
 		
-		// Listener du bouton "Fermer"
+		// Listener du bouton "Annuler"
 		this.jqDialog.find("#btn_annuler_ajout_jour_ferie").click(function() {
 			me.jqDialog.dialog("close");
 		});
