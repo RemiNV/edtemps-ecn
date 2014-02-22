@@ -612,8 +612,7 @@ table.liste_materiel th {
 .salle_occupee_noncours {
 	color: #fb863a;
 }
-<<<<<<< HEAD
-=======
+
 .creneau_horaire {
 	display: inline-block;
 	border: solid 1px gray;
@@ -631,7 +630,6 @@ table.liste_materiel th {
 #dialog_ajout_evenement input, #form_chercher_salle input {
 	margin: 0px;
 }
->>>>>>> 785c9d62e9d217188f36f453e8f9b080829b0950
 
 /* 
  * Onglet "Mes groupes de participants" de la page de paramétrage
@@ -1066,4 +1064,57 @@ table.liste_materiel th {
 .gestion_vacances table img {
 	margin: 5px;
 	cursor: pointer;
+}
+
+/**** Vue planning groupes ***/
+#planning_groupes {
+	padding: 0px 10px;
+	height: 300px; /* TODO : changer */
+}
+
+
+table.tbl_planning_groupes {
+	width: 100%;
+	height: 100%;
+	border-collapse: collapse;
+}
+
+table.tbl_planning_groupes .horaire_creneau {
+	width: 16.66%;
+	display: inline-block;
+	text-align: center;
+	margin-right: -4px;
+}
+
+table.tbl_planning_groupes tr.planning_groupes_header, table.tbl_planning_groupes tr.planning_groupes_ligne_horaires {
+	height: 25px;
+	background-color: #f6f6f6;
+}
+table.tbl_planning_groupes tr.planning_groupes_header th {
+	border-bottom: none;
+}
+table.tbl_planning_groupes tr.planning_groupes_ligne_horaires td {
+	border-top: none;
+}
+table.tbl_planning_groupes td.case_nom_groupe {
+	background-color: #f6f6f6;
+}
+
+table.tbl_planning_groupes td, table.tbl_planning_groupes th {
+	border: 1px solid #ccc;
+	text-align: center;
+}
+
+
+.tbl_planning_groupes .division_creneau {
+	width: 16.66%;
+	height: 100%;
+	border-right: 1px dotted #ddd;
+	display: inline-block;
+	margin-right: -5px;
+	margin-bottom: -1px;
+}
+
+.tbl_planning_groupes .division_creneau:last-child {
+	border-right: none;
 }

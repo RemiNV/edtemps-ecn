@@ -4,8 +4,10 @@
  * @module EcranPlanningCours
  */
 define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrier", "text!../../templates/dialog_ajout_evenement.html", "text!../../templates/dialog_recherche_salle.html",
-        "RestManager", "CalendrierGestion", "planning_cours/BlocStatistiques", "planning_cours/DialogRepeter", "jquery"], function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
-        		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion, BlocStatistiques, DialogRepeter) {
+        "RestManager", "CalendrierGestion", "planning_cours/BlocStatistiques", "planning_cours/DialogRepeter", "planning_cours/PlanningGroupes", "jquery"], 
+        function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
+        		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion, 
+        		BlocStatistiques, DialogRepeter, PlanningGroupes) {
 	
 	/**
 	 * @constructor
@@ -16,6 +18,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.restManager = restManager;
 		
 		var jqDialogRechercheSalle = $("#recherche_salle_libre").append(dialogRechercheSalleHtml);
+		this.estVueGroupes = false;
 		this.rechercheSalle = new RechercheSalle(restManager, jqDialogRechercheSalle);
 		this.evenementGestion = new EvenementGestion(restManager);
 		this.calendrierGestion = new CalendrierGestion(restManager);
@@ -36,6 +39,8 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.calendrier = new Calendrier(function(start, end, callback) { 
 				me.onCalendarFetchEvents(start, end, callback);
 			}, this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker, this.dialogRepeter);
+		
+		this.planningGroupes = new PlanningGroupes($("#planning_groupes"));
 		
 		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
 		if (this.restManager.aDroit(RestManager.actionsEdtemps_GererJoursBloques)) {
@@ -83,7 +88,14 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	 * Callback appelé après l'ajout d'un événement, pour mettre à jour l'affichage
 	 */
 	EcranPlanningCours.prototype.callbackAjoutEvenement = function() {
-		this.calendrier.refetchEvents(); // Met aussi à jour les statistiques
+		
+		// Re-récupérer les événements met aussi à jour les statistiques avec onCalendarFetchEventss
+		if(this.estVueGroupes) {
+			this.calendrier.refetchEvents();
+		}
+		else {
+			this.planningGroupes.refetchEvents();
+		}
 	};
 	
 	/**
@@ -130,7 +142,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		}
 		
 		this.evenementGestion.clearCache(EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER);
-		this.calendrier.refetchEvents();
+		this.calendrier.refetchEvents(); // La sélection du calendrier n'est disponible qu'en vue normale
 	};
 	
 	/**
@@ -141,7 +153,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			this.blocStatistiques.setGroupes(this.calendrierSelectionne.groupesParents, this.calendrierSelectionne.nomsGroupesParents);
 			
 			// Récupération de la date en cours d'affichage
-			var dateAffichage = this.calendrier.getDate();
+			var dateAffichage = this.estVueGroupes ? this.planningGroupes.getDate() : this.calendrier.getDate();
 			var aout = new Date(dateAffichage.getFullYear(), 8, 15); // 1 an du 15 août au 15 août
 			var dateDebut = new Date(aout > dateAffichage ? dateAffichage.getFullYear() - 1 : dateAffichage.getFullYear(), 8, 15);
 			var dateFin = new Date(dateDebut.getFullYear() + 1, 8, 15);
@@ -157,14 +169,16 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		
 		$("#nav_vue_agenda li").removeClass("selected");
 		if(vue === EcranPlanningCours.VUE_GROUPES) {
+			this.estVueGroupes = true;
 			$("#nav_vue_agenda #tab_vue_groupes").addClass("selected");
-			$("#ligne_select_calendrier").hide();
-			// TODO : changer le contenu
+			$("#ligne_select_calendrier, #calendar").hide();
+			$("#planning_groupes").show();
 		}
 		else {
+			this.estVueGroupes = false;
 			$("#nav_vue_agenda #tab_vue_normale").addClass("selected");
-			$("#ligne_select_calendrier").show();
-			// TODO : changer le contenu
+			$("#ligne_select_calendrier, #calendar").show();
+			$("#planning_groupes").hide();
 		}
 	};
 	
