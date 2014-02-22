@@ -16,7 +16,9 @@ var require = {
 		underscore: "lib/underscore-min",
 		jqueryquicksearch: "lib/jquery.quicksearch", // Bibliothèque effectuant le tri dans le jquerymultiselect
 		jquerycombobox: "lib/jquery.ui.combobox",
-		datepicker: "lib/datepicker"
+		datepicker: "lib/datepicker",
+		moment: "lib/moment.min",
+		moment_fr: "lib/moment.fr"
 	},
 
 	/* Configuration des bibliothèques non AMD (non compatibles avec 

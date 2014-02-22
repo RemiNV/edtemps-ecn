@@ -40,7 +40,8 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 				me.onCalendarFetchEvents(start, end, callback);
 			}, this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker, this.dialogRepeter);
 		
-		this.planningGroupes = new PlanningGroupes($("#planning_groupes"));
+		this.planningGroupes = new PlanningGroupes($("#planning_groupes"), $("#planning_groupes_btn_precedent"), 
+				$("#planning_groupes_btn_suivant"), $("#planning_groupes_label_date"));
 		
 		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
 		if (this.restManager.aDroit(RestManager.actionsEdtemps_GererJoursBloques)) {
@@ -172,13 +173,13 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			this.estVueGroupes = true;
 			$("#nav_vue_agenda #tab_vue_groupes").addClass("selected");
 			$("#ligne_select_calendrier, #calendar").hide();
-			$("#planning_groupes").show();
+			$("#page_planning_groupes").show();
 		}
 		else {
 			this.estVueGroupes = false;
 			$("#nav_vue_agenda #tab_vue_normale").addClass("selected");
 			$("#ligne_select_calendrier, #calendar").show();
-			$("#planning_groupes").hide();
+			$("#page_planning_groupes").hide();
 		}
 	};
 	

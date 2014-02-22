@@ -1,4 +1,4 @@
-<table class="tbl_planning_groupes">
+<table class="tbl_planning_groupes" style="max-height: <%= groupes.length * 150%>px">
 	<tr class="planning_groupes_header">
 		<th class="planning_groupes_num_semaine" rowspan="2">
 			Semaine <span class="semaine"></span>
@@ -6,7 +6,7 @@
 		<%
 		for(var i=0; i<6; i++) {
 		%>
-		<th><%= jours[i] %></th>
+		<th class="jour"></th>
 		<%
 		}
 		%>

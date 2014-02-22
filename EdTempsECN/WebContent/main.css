@@ -1067,11 +1067,37 @@ table.liste_materiel th {
 }
 
 /**** Vue planning groupes ***/
+#planning_groupes_btn_precedent, #planning_groupes_btn_suivant {
+	font-size: 2em;
+	font-family: "Courier New", Courier, monospace;
+	display: inline-block;
+	text-align: center;
+	width: 33px;
+	height: 36px;
+}
+#planning_groupes_btn_precedent {
+	padding: 0px 5px 0px 11px;
+	border-radius: 4px 0px 0px 4px;
+	margin-left: 10px;
+	margin-bottom: 10px;
+}
+#planning_groupes_btn_suivant {
+	padding: 0px 11px 0px 5px;
+	border-radius: 0px 4px 4px 0px;
+	margin-bottom: 10px;
+}
+#planning_groupes_label_date {
+	padding-left: 50%;
+	margin-left: -200px;
+	font-size: 1.5em;
+	display: inline-block;
+	width: 300px;
+	text-align: center;
+}
 #planning_groupes {
 	padding: 0px 10px;
 	height: 300px; /* TODO : changer */
 }
-
 
 table.tbl_planning_groupes {
 	width: 100%;
@@ -1092,7 +1118,13 @@ table.tbl_planning_groupes tr.planning_groupes_header, table.tbl_planning_groupe
 }
 table.tbl_planning_groupes tr.planning_groupes_header th {
 	border-bottom: none;
+	width: 14%;
 }
+table.tbl_planning_groupes tr.planning_groupes_header th.planning_groupes_num_semaine {
+	border-bottom: none;
+	width: 16%;
+}
+
 table.tbl_planning_groupes tr.planning_groupes_ligne_horaires td {
 	border-top: none;
 }
@@ -1104,7 +1136,6 @@ table.tbl_planning_groupes td, table.tbl_planning_groupes th {
 	border: 1px solid #ccc;
 	text-align: center;
 }
-
 
 .tbl_planning_groupes .division_creneau {
 	width: 16.66%;
