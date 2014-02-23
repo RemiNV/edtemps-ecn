@@ -28,7 +28,8 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		
 		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
 		this.calendrierSelectionne = null;
-		this.groupesVueGroupe = null;
+		this.calendriersVueGroupe = null;
+		this.dateDebutStatistiquesAJour = null; // Date de début des statistiques affichées
 
 		
 		var jqDialogAjoutEvenement = $("#dialog_ajout_evenement").append(dialogAjoutEvenementHtml);
@@ -42,7 +43,9 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			}, this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker, this.dialogRepeter);
 		
 		this.planningGroupes = new PlanningGroupes($("#planning_groupes"), $("#planning_groupes_btn_precedent"), 
-				$("#planning_groupes_btn_suivant"), $("#planning_groupes_btn_aujourdhui"), $("#planning_groupes_label_date"));
+				$("#planning_groupes_btn_suivant"), $("#planning_groupes_btn_aujourdhui"), $("#planning_groupes_label_date"), function(start, end, callback) {
+			me.onCalendarFetchEvents(start, end, callback);
+		});
 		
 		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
 		if (this.restManager.aDroit(RestManager.actionsEdtemps_GererJoursBloques)) {
@@ -82,8 +85,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		selectMatiere.change(function() {
 			me.remplirSelectCalendriers();
 			if(me.estVueGroupes) {
-				me.updateGroupesVueGroupe();
-				me.planningGroupes.resetGroupes(me.groupesVueGroupe);
+				me.updateMatiereVueGroupe();
 			}
 		});
 		
@@ -96,6 +98,8 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	 * Callback appelé après l'ajout d'un événement, pour mettre à jour l'affichage
 	 */
 	EcranPlanningCours.prototype.callbackAjoutEvenement = function() {
+		
+		this.dateDebutStatistiquesAJour = null;
 		
 		// Re-récupérer les événements met aussi à jour les statistiques avec onCalendarFetchEventss
 		if(this.estVueGroupes) {
@@ -158,7 +162,6 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	 */
 	EcranPlanningCours.prototype.updateStatistiques = function() {
 		if(this.calendrierSelectionne) {
-			this.blocStatistiques.setGroupes(this.calendrierSelectionne.groupesParents, this.calendrierSelectionne.nomsGroupesParents);
 			
 			// Récupération de la date en cours d'affichage
 			var dateAffichage = this.estVueGroupes ? this.planningGroupes.getDate() : this.calendrier.getDate();
@@ -166,6 +169,14 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			var dateDebut = new Date(aout > dateAffichage ? dateAffichage.getFullYear() - 1 : dateAffichage.getFullYear(), 8, 15);
 			var dateFin = new Date(dateDebut.getFullYear() + 1, 8, 15);
 			
+			if(this.dateDebutStatistiquesAJour == dateDebut) {
+				return; // Déjà mis à jour (sauf erreur de mise à jour : pas pris en compte)
+			}
+			else {
+				this.dateDebutStatistiquesAJour = dateDebut;
+			}
+			
+			this.blocStatistiques.setGroupes(this.calendrierSelectionne.groupesParents, this.calendrierSelectionne.nomsGroupesParents);
 			this.blocStatistiques.refreshStatistiques(this.calendrierSelectionne.matiere, dateDebut, dateFin);
 		}
 	};
@@ -181,8 +192,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			$("#nav_vue_agenda #tab_vue_groupes").addClass("selected");
 			$("#ligne_select_calendrier, #calendar").hide();
 			$("#page_planning_groupes").show();
-			this.updateGroupesVueGroupe();
-			this.planningGroupes.resetGroupes(this.groupesVueGroupe);
+			this.updateMatiereVueGroupe();
 		}
 		else {
 			this.estVueGroupes = false;
@@ -193,38 +203,44 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	};
 	
 	/**
-	 * Mise à jour des groupes affichés dans la "vue groupes" en utilisant
-	 * la matière sélectionnée (tous les groupes des calendriers de la matière)
+	 * Mise à jour des groupes affichés dans la "vue groupes" et des calendriers sélectionnés (this.calendriersVueGroupe)
+	 * en utilisant la matière sélectionnée (tous les groupes des calendriers de la matière)
 	 */
-	EcranPlanningCours.prototype.updateGroupesVueGroupe = function() {
+	EcranPlanningCours.prototype.updateMatiereVueGroupe = function() {
 		var matiere = $("#select_matiere").val();
 		
 		// Récupération des calendriers de la matière
-		var calendriers;
 		if(matiere) {
-			calendriers = _.where(this.mesCalendriers, { matiere: matiere });
+			this.calendriersVueGroupe = _.where(this.mesCalendriers, { matiere: matiere });
 		}
 		else {
-			calendriers = new Array();
+			this.calendriersVueGroupe = new Array();
 		}
 		
 		// Récupération des groupes de ce calendrier
-		this.groupesVueGroupe = new Array();
-		for(var i=0, maxI=calendriers.length; i<maxI; i++) {
-			for(var j=0, maxJ=calendriers[i].groupesParents.length; j<maxJ; j++) {
-				this.groupesVueGroupe.push({ id: calendriers[i].groupesParents[j], nom: calendriers[i].nomsGroupesParents[j] });
+		var groupesVueGroupe = new Array();
+		for(var i=0, maxI=this.calendriersVueGroupe.length; i<maxI; i++) {
+			for(var j=0, maxJ=this.calendriersVueGroupe[i].groupesParents.length; j<maxJ; j++) {
+				groupesVueGroupe.push({ id: this.calendriersVueGroupe[i].groupesParents[j], nom: this.calendriersVueGroupe[i].nomsGroupesParents[j] });
 			}
 		}
 		
-		$("#lst_groupes_associes").text(_.pluck(this.groupesVueGroupe, "nom").join(", "));
+		$("#lst_groupes_associes").text(_.pluck(groupesVueGroupe, "nom").join(", "));
+		
+		this.planningGroupes.resetGroupes(groupesVueGroupe);
 	};
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
 		var me = this;
-		if(this.calendrierSelectionne) {
-			this.evenementGestion.getEvenementsGroupesCalendrier(start, end, this.calendrierSelectionne.id, false, function(resultCode, evenements) {
+
+		if((!this.estVueGroupes && this.calendrierSelectionne) || (this.calendriersVueGroupe && this.estVueGroupes)) {
+			
+			// Fonction de récupération en fonction de la vue
+			var funcReq = this.estVueGroupes ? this.evenementGestion.getEvenementsGroupesCalendriers : this.evenementGestion.getEvenementsGroupesCalendrier;
+			var arg = this.estVueGroupes ? _.pluck(this.calendriersVueGroupe, "id") : this.calendrierSelectionne.id;
+			
+			funcReq.call(this.evenementGestion, start, end, arg, false, function(resultCode, evenements) {
 				if(resultCode === RestManager.resultCode_Success) {
-					
 					// Evénements des autres calendriers en gris
 					for(var i=0,maxI=evenements.length; i<maxI; i++) {
 						
@@ -242,7 +258,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 				}
 			});
 			
-			// Mise à jour des statistiques
+			// Mise à jour des statistiques (pas de requête effectuée si déjà à jour)
 			this.updateStatistiques();
 		}
 	};

@@ -33,6 +33,7 @@ public class DisconnectServlet extends RequiresConnectionServlet {
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Utilisateur déconnecté", null));
 			bdd.close();
 		} catch (DatabaseException e) {
+			bdd.close();
 			resp.getWriter().write(ResponseManager.generateResponse(ResultCode.DATABASE_ERROR, e.getMessage(), null));
 			logger.error("Erreur d'accès à la base de données lors de la déconnexion d'un utilisateur", e);
 		}

@@ -45,6 +45,7 @@ public class DisponibiliteServlet extends QueryWithIntervalServlet {
 			idSalle = Integer.parseInt(strIdSalle);
 		}
 		catch(NumberFormatException e) {
+			bdd.close();
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "ID de salle incorrect", e);
 		}
 		

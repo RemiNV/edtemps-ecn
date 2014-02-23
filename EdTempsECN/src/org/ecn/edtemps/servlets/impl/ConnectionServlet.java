@@ -52,15 +52,13 @@ public class ConnectionServlet extends HttpServlet {
 		else {
 			
 			ResultCode result;
-			
+			BddGestion bddGestion = null;
 			try {
-				BddGestion bddGestion = new BddGestion();
+				bddGestion = new BddGestion();
 				UtilisateurGestion utilisateurGestion = new UtilisateurGestion(bddGestion);
 				
 				ObjetRetourMethodeConnexion retourConnexion = utilisateurGestion.seConnecter(username, password);
 				result = ResultCode.SUCCESS;
-				
-				bddGestion.close();
 				
 				JsonObject data = Json.createObjectBuilder()
 						.add("token", retourConnexion.getToken())
@@ -78,6 +76,10 @@ public class ConnectionServlet extends HttpServlet {
 			} catch (EdtempsException e) {
 				reponse = ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null);
 				logger.error("Erreur lors de la vérification de la connexion d'un utilisateur", e);
+			}
+			
+			if(bddGestion != null) {
+				bddGestion.close();
 			}
 		}
 		

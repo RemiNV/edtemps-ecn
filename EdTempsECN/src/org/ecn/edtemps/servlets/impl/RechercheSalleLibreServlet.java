@@ -53,6 +53,7 @@ public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 			
 			// Liste du matériel
 			if(!paramMateriel.matches("|\\d+:\\d+(,\\d+:\\d+)*")) { // Vide ou au format entier:entier,entier:entier...
+				bdd.close();
 				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format du paramètre materiel incorrect");
 			}
 			
@@ -68,6 +69,7 @@ public class RechercheSalleLibreServlet extends QueryWithIntervalServlet {
 
 		} catch (NumberFormatException e) {
 			logger.error("Erreur lors du parsing des dates reçues en paramètres provenant de la boîte de dialogue de recherche d'une salle libre", e);
+			bdd.close();
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, e);
 		}
 		

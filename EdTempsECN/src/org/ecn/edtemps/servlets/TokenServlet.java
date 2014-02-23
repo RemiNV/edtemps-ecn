@@ -76,9 +76,11 @@ public abstract class TokenServlet extends HttpServlet {
 				switch(method) {
 				case GET:
 					doGetAfterLogin(userId, bdd, req, resp);
+					bdd.close();
 					break;
 				case POST:
 					doPostAfterLogin(userId, bdd, req, resp);
+					bdd.close();
 					break;
 				}
 				return;

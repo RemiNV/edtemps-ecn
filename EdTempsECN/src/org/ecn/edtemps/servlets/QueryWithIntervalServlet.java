@@ -61,6 +61,7 @@ public abstract class QueryWithIntervalServlet extends RequiresConnectionServlet
 		JsonValue data = null;
 		try {
 			data = doQuery(userId, bdd, dateDebut, dateFin, req);
+			bdd.close();
 		} catch (EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
 			bdd.close();
@@ -80,7 +81,7 @@ public abstract class QueryWithIntervalServlet extends RequiresConnectionServlet
 	/**
 	 * Récupère les valeurs qui doivent être renvoyées par la requête
 	 * @param userId ID de l'utilisateur connecté et effectuant la requête
-	 * @param bdd Base de données à utiliser <b>et fermer dans cette méthode</b> une fois le traitement terminé
+	 * @param bdd Base de données à utiliser. Elle sera fermée par la méthode appelante.
 	 * @param dateDebut Date de début de l'intervalle pour cette requête
 	 * @param dateFin Date de fin de l'intervalle pour cette requête
 	 * @param req Requête effectuée

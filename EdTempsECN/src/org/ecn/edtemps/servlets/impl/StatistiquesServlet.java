@@ -26,8 +26,11 @@ public class StatistiquesServlet extends QueryWithIntervalServlet {
 		String matiere = req.getParameter("matiere");
 		
 		StatistiquesGestion statistiquesGestion = new StatistiquesGestion(bdd);
+		JsonValue res = statistiquesGestion.getStatistiques(userId, dateDebut, dateFin, matiere).toJson();
 		
-		return statistiquesGestion.getStatistiques(userId, dateDebut, dateFin, matiere).toJson();
+		bdd.close();
+		
+		return res;
 	}
 
 }

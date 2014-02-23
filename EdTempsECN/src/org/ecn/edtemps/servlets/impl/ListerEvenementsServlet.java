@@ -26,34 +26,41 @@ public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 		
 	String pathInfo = req.getPathInfo();
 	EvenementGestion evenementGestion = new EvenementGestion(bdd);
+	
+	JsonValue res;
 			
 		switch(pathInfo) {
 		case "/groupe":
 			int idGroupe = getIntParam(req, "idGroupe");
-			return JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true));
+			res = JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true));
 		case "/intervenant":
-			return JSONUtils.getJsonArray(evenementGestion.listerEvenementsIntervenant(userId, dateDebut, dateFin, true));
+			res = JSONUtils.getJsonArray(evenementGestion.listerEvenementsIntervenant(userId, dateDebut, dateFin, true));
 		case "/salle":
 			int idSalle = getIntParam(req, "idSalle");
-			return JSONUtils.getJsonArray(evenementGestion.listerEvenementCompletsSalle(idSalle, dateDebut, dateFin, true));
+			res = JSONUtils.getJsonArray(evenementGestion.listerEvenementCompletsSalle(idSalle, dateDebut, dateFin, true));
 		case "/groupescalendriers":
 			String strIdCalendriers = req.getParameter("idCalendriers");
 			if(strIdCalendriers == null) {
+				bdd.close();
 				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idCalendriers manquant");
 			}
 			
 			try {
 				JsonArray array = Json.createReader(new ByteArrayInputStream(strIdCalendriers.getBytes())).readArray();
 				ArrayList<Integer> idCalendriers = JSONUtils.getIntegerArrayList(array);
-				return JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupesCalendrier(idCalendriers, dateDebut, dateFin, true));
+				res = JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupesCalendrier(idCalendriers, dateDebut, dateFin, true));
 			}
 			catch(JsonException e) {
+				bdd.close();
 				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format incorrect pour idCalendriers", e);
 			}
 			
 		default:
-			return null;
+			res = null;
 		}
+		
+		bdd.close();
+		return res;
 	}
 	
 	protected int getIntParam(HttpServletRequest req, String nomParam) throws EdtempsException {

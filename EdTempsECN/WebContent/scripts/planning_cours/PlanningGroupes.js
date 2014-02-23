@@ -8,12 +8,13 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 	 * @constructor
 	 * @alias module:PlanningGroupes
 	 */
-	var PlanningGroupes = function(jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour) {
+	var PlanningGroupes = function(jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour, onFetchCallback) {
 		this.jqPlanningGroupes = jqPlanningGroupes;
 		this.jqLabelJour = jqLabelJour;
 		this.groupes = new Array();
 		this.template = _.template(tplPlanningGroupes);
 		this.date = null;
+		this.onFetchCallback = onFetchCallback;
 		
 		// Réglage de la langue
 		moment.lang("fr");
@@ -56,9 +57,17 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		this.refetchEvents();
 	};
 	
+	PlanningGroupes.prototype.showEvents = function(events) {
+		console.log("Events : ", events);
+	};
+	
 	PlanningGroupes.prototype.refetchEvents = function() {
 		console.log("Refetch !");
-		// TODO : remplir correctement
+		var me = this;
+		var dateFin = moment(this.date).add("days", 6).toDate();
+		this.onFetchCallback(this.date, dateFin, function(events) {
+			me.showEvents(events);
+		});
 	};
 	
 	PlanningGroupes.prototype.getDate = function() {
@@ -83,7 +92,7 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		var momDebut = moment(this.date);
 		var strIntervalle = mom.month() == momDebut.month() ? 
 				momDebut.date() + " - " + mom.date() + mom.format(" MMMM") 
-				: momDebut.format("Mo MMMM - ") + mom.format("Mo MMMM");
+				: momDebut.format("Do MMMM - ") + mom.format("Do MMMM");
 		
 		this.jqLabelJour.text(strIntervalle);
 		

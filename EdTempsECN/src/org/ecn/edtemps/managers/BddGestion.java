@@ -23,7 +23,6 @@ public class BddGestion {
 	
 	/** Interface de connexion à la base de données */
 	private Connection _connection;
-	
 	private static Logger logger = LogManager.getLogger(BddGestion.class.getName());
 
 	
@@ -72,6 +71,9 @@ public class BddGestion {
 	 */
 	public boolean close() {
 		try {
+			if(_connection.isClosed()) {
+				return true;
+			}
 			_connection.close();
 			return true;
 		} catch (SQLException e) {

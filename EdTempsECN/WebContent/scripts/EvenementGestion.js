@@ -425,6 +425,20 @@ define(["RestManager"], function(RestManager) {
 				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, null, [idCalendrier]);
 	};
 	
+	/**
+	 * Récupérer les évènements des groupes auxquels sont associés plusieurs calendriers
+	 * 
+	 * @param {Date} start Date de début pour la recherche
+	 * @param {Date} end Date de fin pour la recherche
+	 * @param {number[]} idCalendriers Identifiants des calendriers
+	 * @param {boolean} ignoreCache true pour forcer la récupération depuis le serveur
+	 * @param {function} callback Fonction appelée pour fournir les résultats une fois la requête effectuée.
+	 */
+	EvenementGestion.prototype.getEvenementsGroupesCalendriers = function(start, end, idCalendriers, ignoreCache, callback) {
+		var me = this;
+		this.getEvenements("listerevenements/groupescalendriers", EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER, start, end, 
+				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, null, idCalendriers);
+	};
 	
 	/**
 	 * Enregistrement des évènements récupérés pour un intervalle donné
