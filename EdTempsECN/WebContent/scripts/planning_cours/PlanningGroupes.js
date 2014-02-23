@@ -52,6 +52,7 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 	PlanningGroupes.prototype.resetGroupes = function(newGroupes) {
 		this.groupes = newGroupes;
 		this.render();
+		
 		this.refetchEvents();
 	};
 	

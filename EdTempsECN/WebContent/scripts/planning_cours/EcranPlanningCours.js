@@ -4,10 +4,10 @@
  * @module EcranPlanningCours
  */
 define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrier", "text!../../templates/dialog_ajout_evenement.html", "text!../../templates/dialog_recherche_salle.html",
-        "RestManager", "CalendrierGestion", "planning_cours/BlocStatistiques", "planning_cours/DialogRepeter", "planning_cours/PlanningGroupes", "jquery"], 
+        "RestManager", "CalendrierGestion", "planning_cours/BlocStatistiques", "planning_cours/DialogRepeter", "planning_cours/PlanningGroupes", "underscore", "jquery"], 
         function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
         		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion, 
-        		BlocStatistiques, DialogRepeter, PlanningGroupes) {
+        		BlocStatistiques, DialogRepeter, PlanningGroupes, _) {
 	
 	/**
 	 * @constructor
@@ -28,6 +28,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		
 		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
 		this.calendrierSelectionne = null;
+		this.groupesVueGroupe = null;
 
 		
 		var jqDialogAjoutEvenement = $("#dialog_ajout_evenement").append(dialogAjoutEvenementHtml);
@@ -80,6 +81,10 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		// Listeners
 		selectMatiere.change(function() {
 			me.remplirSelectCalendriers();
+			if(me.estVueGroupes) {
+				me.updateGroupesVueGroupe();
+				me.planningGroupes.resetGroupes(me.groupesVueGroupe);
+			}
 		});
 		
 		$("#select_calendrier").change(function() {
@@ -108,11 +113,11 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		var matiere = $("#select_matiere").val();
 		var cals;
 		
-		cals = new Array();
-		for(var id in this.mesCalendriers) {
-			if(matiere === '' || this.mesCalendriers[id].matiere == matiere) {
-				cals.push(this.mesCalendriers[id]);	
-			}
+		if(matiere === '') {
+			cals = _.values(this.mesCalendriers);
+		}
+		else {
+			cals = _.where(this.mesCalendriers, { matiere: matiere });
 		}
 		
 		var selectCalendrier = $("#select_calendrier").empty().append("<option value=''>---</option>");
@@ -176,6 +181,8 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			$("#nav_vue_agenda #tab_vue_groupes").addClass("selected");
 			$("#ligne_select_calendrier, #calendar").hide();
 			$("#page_planning_groupes").show();
+			this.updateGroupesVueGroupe();
+			this.planningGroupes.resetGroupes(this.groupesVueGroupe);
 		}
 		else {
 			this.estVueGroupes = false;
@@ -183,6 +190,33 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			$("#ligne_select_calendrier, #calendar").show();
 			$("#page_planning_groupes").hide();
 		}
+	};
+	
+	/**
+	 * Mise à jour des groupes affichés dans la "vue groupes" en utilisant
+	 * la matière sélectionnée (tous les groupes des calendriers de la matière)
+	 */
+	EcranPlanningCours.prototype.updateGroupesVueGroupe = function() {
+		var matiere = $("#select_matiere").val();
+		
+		// Récupération des calendriers de la matière
+		var calendriers;
+		if(matiere) {
+			calendriers = _.where(this.mesCalendriers, { matiere: matiere });
+		}
+		else {
+			calendriers = new Array();
+		}
+		
+		// Récupération des groupes de ce calendrier
+		this.groupesVueGroupe = new Array();
+		for(var i=0, maxI=calendriers.length; i<maxI; i++) {
+			for(var j=0, maxJ=calendriers[i].groupesParents.length; j<maxJ; j++) {
+				this.groupesVueGroupe.push({ id: calendriers[i].groupesParents[j], nom: calendriers[i].nomsGroupesParents[j] });
+			}
+		}
+		
+		$("#lst_groupes_associes").text(_.pluck(this.groupesVueGroupe, "nom").join(", "));
 	};
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
@@ -193,15 +227,8 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 					
 					// Evénements des autres calendriers en gris
 					for(var i=0,maxI=evenements.length; i<maxI; i++) {
-						var hasCalendrier = false;
-						for(var j=0,maxJ=evenements[i].calendriers.length; j<maxJ; j++) {
-							if(evenements[i].calendriers[j] === me.calendrierSelectionne.id) {
-								hasCalendrier = true;
-								break;
-							}
-						}
 						
-						if(!hasCalendrier) {
+						if(!_.contains(evenements[i].calendriers, me.calendrierSelectionne.id)) {
 							evenements[i].color = "#999";
 						}
 					}

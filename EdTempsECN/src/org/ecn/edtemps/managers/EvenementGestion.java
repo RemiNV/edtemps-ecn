@@ -693,6 +693,10 @@ public class EvenementGestion {
 	public ArrayList<EvenementComplet> listerEvenementsGroupesCalendrier(List<Integer> idCalendriers, Date dateDebut, Date dateFin, boolean createTransaction) 
 			throws DatabaseException, MaxRowCountExceededException {
 		
+		if(idCalendriers.size() == 0) {
+			return new ArrayList<EvenementComplet>(0);
+		}
+		
 		if(createTransaction) {
 			_bdd.startTransaction();
 		}

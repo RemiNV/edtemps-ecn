@@ -1,7 +1,12 @@
 package org.ecn.edtemps.servlets.impl;
 
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Date;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonException;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,9 +36,21 @@ public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 		case "/salle":
 			int idSalle = getIntParam(req, "idSalle");
 			return JSONUtils.getJsonArray(evenementGestion.listerEvenementCompletsSalle(idSalle, dateDebut, dateFin, true));
-		case "/groupescalendrier":
-			int idCalendrier = getIntParam(req, "idCalendrier");
-			return JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupesCalendrier(idCalendrier, dateDebut, dateFin, true));
+		case "/groupescalendriers":
+			String strIdCalendriers = req.getParameter("idCalendriers");
+			if(strIdCalendriers == null) {
+				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Paramètre idCalendriers manquant");
+			}
+			
+			try {
+				JsonArray array = Json.createReader(new ByteArrayInputStream(strIdCalendriers.getBytes())).readArray();
+				ArrayList<Integer> idCalendriers = JSONUtils.getIntegerArrayList(array);
+				return JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupesCalendrier(idCalendriers, dateDebut, dateFin, true));
+			}
+			catch(JsonException e) {
+				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format incorrect pour idCalendriers", e);
+			}
+			
 		default:
 			return null;
 		}

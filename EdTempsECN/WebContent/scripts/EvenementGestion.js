@@ -70,7 +70,7 @@ define(["RestManager"], function(RestManager) {
 	 *
 	 * @param {Date} dateDebut Date de début pour la recherche
 	 * @param {Date} dateFin Date de fin pour la recherche
-	 * @param {function} callback Fonction appelée une fois la requête effectuée. Prend en paramètre resultCode et data (non fourni si resultCode != RestManager.resultCode_Success)
+	 * @param {function} callback Fonction appelée une fois la requête effectuée. Prend en paramètre resultCode et data (data non fourni si resultCode != RestManager.resultCode_Success)
 	 */
 	EvenementGestion.prototype.queryAbonnements = function(dateDebut, dateFin, callback) {
 	
@@ -100,11 +100,11 @@ define(["RestManager"], function(RestManager) {
 	 * @param {Date} dateDebut Début de la fenêtre de recherche
 	 * @param {Date} dateFin Fin de la fenêtre de recherche
 	 * @param {function} callback Fonction à appeler pour fournir le résultat de la requête (paramètres resultCode et data)
-	 * @param {number[]} idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
-	 * @param {number[]} idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
-	 * @param {number[]} idCalendrier ID du calendrier pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements relatifs à un calendrier
+	 * @param {number} idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 * @param {number} idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
+	 * @param {number[]} idCalendriers ID des calendriers pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements relatifs à des calendriers
 	 */
-	EvenementGestion.prototype.queryEvenements = function(url, dateDebut, dateFin, callback, idSalle, idGroupe, idCalendrier) {
+	EvenementGestion.prototype.queryEvenements = function(url, dateDebut, dateFin, callback, idSalle, idGroupe, idCalendriers) {
 		
 		var params = {
 			token: this.restManager.getToken(),
@@ -120,8 +120,8 @@ define(["RestManager"], function(RestManager) {
 			params.idGroupe = idGroupe;
 		}
 		
-		if(idCalendrier) {
-			params.idCalendrier = idCalendrier;
+		if(idCalendriers) {
+			params.idCalendriers = JSON.stringify(idCalendriers);
 		}
 		
 		this.restManager.effectuerRequete("GET", url, params, function(data) {
@@ -314,11 +314,11 @@ define(["RestManager"], function(RestManager) {
 	 * @param {function} parsingMethod Méthode à utiliser pour convertir les évènements retournés par le serveur au format fullCalendar
 	 * @param {boolean} ignoreCache Ignorer les évènements stockés en cache et forcer la requête vers le serveur
 	 * @param {function} callback Fonction de rappel à appeler avec les résultats. Prend les paramètres resultCode et evenements (tableau des évènements)
-	 * @param {number[]} idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
-	 * @param {number[]} idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
-	 * @param {number[]} idCalendrier ID du calendrier pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements relatifs à un calendrier
+	 * @param {number} idSalle ID de la salle pour laquelle les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'une salle
+	 * @param {number} idGroupe ID du groupe pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements d'un groupe
+	 * @param {number[]} idCalendriers ID des calendriers pour lequel les évènements sont à récupérer ; à ne préciser que pour lister les évènements relatifs à des calendriers
 	 */
-	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, parsingMethod, ignoreCache, callback, idSalle, idGroupe, idCalendrier) {
+	EvenementGestion.prototype.getEvenements = function(url, modeCache, dateDebut, dateFin, parsingMethod, ignoreCache, callback, idSalle, idGroupe, idCalendriers) {
 		var me = this;
 		
 		// Récupération depuis le cache si disponible
@@ -341,7 +341,7 @@ define(["RestManager"], function(RestManager) {
 				else {
 					callback(resultCode);
 				}
-			}, idSalle, idGroupe, idCalendrier);
+			}, idSalle, idGroupe, idCalendriers);
 		}
 	};
 	
@@ -421,8 +421,8 @@ define(["RestManager"], function(RestManager) {
 	 */
 	EvenementGestion.prototype.getEvenementsGroupesCalendrier = function(start, end, idCalendrier, ignoreCache, callback) {
 		var me = this;
-		this.getEvenements("listerevenements/groupescalendrier", EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER, start, end, 
-				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, null, idCalendrier);
+		this.getEvenements("listerevenements/groupescalendriers", EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER, start, end, 
+				function(events) { return me.parseEventsCompletsFullCalendar(events); }, ignoreCache, callback, null, null, [idCalendrier]);
 	};
 	
 	
