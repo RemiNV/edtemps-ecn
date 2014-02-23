@@ -41,7 +41,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			}, this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker, this.dialogRepeter);
 		
 		this.planningGroupes = new PlanningGroupes($("#planning_groupes"), $("#planning_groupes_btn_precedent"), 
-				$("#planning_groupes_btn_suivant"), $("#planning_groupes_label_date"));
+				$("#planning_groupes_btn_suivant"), $("#planning_groupes_btn_aujourdhui"), $("#planning_groupes_label_date"));
 		
 		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
 		if (this.restManager.aDroit(RestManager.actionsEdtemps_GererJoursBloques)) {
@@ -56,7 +56,9 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 				var objMatieres = new Object();
 				me.mesCalendriers = new Object();
 				for(var i=0, max=data.length; i<max; i++) {
-					objMatieres[data[i].matiere] = true;
+					if(data[i].matiere) {
+						objMatieres[data[i].matiere] = true;
+					}
 					me.mesCalendriers[data[i].id] = data[i];
 				}
 				

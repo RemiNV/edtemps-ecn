@@ -1073,26 +1073,32 @@ table.liste_materiel th {
 	display: inline-block;
 	text-align: center;
 	width: 33px;
-	height: 36px;
+	height: 40px;
+	vertical-align: text-top;
 }
 #planning_groupes_btn_precedent {
-	padding: 0px 5px 0px 11px;
+	padding: 0px 0px 38px 7px;
 	border-radius: 4px 0px 0px 4px;
 	margin-left: 10px;
 	margin-bottom: 10px;
 }
 #planning_groupes_btn_suivant {
-	padding: 0px 11px 0px 5px;
+	padding: 0px 7px 38px 0px;
 	border-radius: 0px 4px 4px 0px;
 	margin-bottom: 10px;
 }
+#planning_groupes_btn_aujourdhui {
+	margin-left: 10px;
+	height: 40px;
+	vertical-align: text-top;
+}
 #planning_groupes_label_date {
-	padding-left: 50%;
-	margin-left: -200px;
+	position: absolute;
+	left: 50%;
 	font-size: 1.5em;
 	display: inline-block;
-	width: 300px;
 	text-align: center;
+	margin-left: 100px;
 }
 #planning_groupes {
 	padding: 0px 10px;

@@ -8,16 +8,16 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 	 * @constructor
 	 * @alias module:PlanningGroupes
 	 */
-	var PlanningGroupes = function(jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqLabelJour) {
+	var PlanningGroupes = function(jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour) {
 		this.jqPlanningGroupes = jqPlanningGroupes;
+		this.jqLabelJour = jqLabelJour;
 		this.groupes = new Array();
 		this.template = _.template(tplPlanningGroupes);
 		this.date = null;
 		
 		// Réglage de la langue
 		moment.lang("fr");
-		
-		
+			
 		// Listeners
 		var me = this;
 		jqBtnPrecedent.click(function(e) {
@@ -25,7 +25,11 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		});
 		
 		jqBtnSuivant.click(function(e) {
-			me.setDate(moment(me.date).add("days", -7).toDate());
+			me.setDate(moment(me.date).add("days", 7).toDate());
+		});
+		
+		jqBtnAujourdhui.click(function(e) {
+			me.setDate(new Date());
 		});
 		
 		this.render();
@@ -65,12 +69,22 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		
 		var mom = moment(this.date);
 		this.jqPlanningGroupes.find("th.jour").each(function() {
-			console.log("lapin !");
 			$(this).text(mom.format("dddd D/MM"));
 			mom.add("days", 1);
 		});
 		
+		mom.add("days", -1);
+		
+		// Numéro de semaine affiché
 		this.jqPlanningGroupes.find("#planning_groupes_num_semaine").text(mom.format("w"));
+		
+		// Plage de dates affichée
+		var momDebut = moment(this.date);
+		var strIntervalle = mom.month() == momDebut.month() ? 
+				momDebut.date() + " - " + mom.date() + mom.format(" MMMM") 
+				: momDebut.format("Mo MMMM - ") + mom.format("Mo MMMM");
+		
+		this.jqLabelJour.text(strIntervalle);
 		
 		this.refetchEvents();
 	};
