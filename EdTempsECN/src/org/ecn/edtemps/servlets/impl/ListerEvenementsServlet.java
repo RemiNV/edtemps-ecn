@@ -33,11 +33,14 @@ public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 		case "/groupe":
 			int idGroupe = getIntParam(req, "idGroupe");
 			res = JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupe(idGroupe, dateDebut, dateFin, true));
+			break;
 		case "/intervenant":
 			res = JSONUtils.getJsonArray(evenementGestion.listerEvenementsIntervenant(userId, dateDebut, dateFin, true));
+			break;
 		case "/salle":
 			int idSalle = getIntParam(req, "idSalle");
 			res = JSONUtils.getJsonArray(evenementGestion.listerEvenementCompletsSalle(idSalle, dateDebut, dateFin, true));
+			break;
 		case "/groupescalendriers":
 			String strIdCalendriers = req.getParameter("idCalendriers");
 			if(strIdCalendriers == null) {
@@ -54,9 +57,10 @@ public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 				bdd.close();
 				throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Format incorrect pour idCalendriers", e);
 			}
-			
+			break;
 		default:
 			res = null;
+			break;
 		}
 		
 		bdd.close();

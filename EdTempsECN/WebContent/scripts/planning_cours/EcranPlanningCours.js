@@ -244,7 +244,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 					// Evénements des autres calendriers en gris
 					for(var i=0,maxI=evenements.length; i<maxI; i++) {
 						
-						if(!_.contains(evenements[i].calendriers, me.calendrierSelectionne.id)) {
+						if(!me.estVueGroupes && !_.contains(evenements[i].calendriers, me.calendrierSelectionne.id)) {
 							evenements[i].color = "#999";
 						}
 					}

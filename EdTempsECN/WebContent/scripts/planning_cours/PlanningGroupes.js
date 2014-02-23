@@ -91,8 +91,8 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		// Plage de dates affichée
 		var momDebut = moment(this.date);
 		var strIntervalle = mom.month() == momDebut.month() ? 
-				momDebut.date() + " - " + mom.date() + mom.format(" MMMM") 
-				: momDebut.format("Do MMMM - ") + mom.format("Do MMMM");
+				momDebut.date() + " - " + mom.date() + mom.format(" MMMM YYYY") 
+				: momDebut.format("Do MMMM - ") + mom.format("Do MMMM YYYY");
 		
 		this.jqLabelJour.text(strIntervalle);
 		
