@@ -30,6 +30,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.calendrierSelectionne = null;
 		this.calendriersVueGroupe = null;
 		this.dateDebutStatistiquesAJour = null; // Date de début des statistiques affichées
+		this.matiereSelectionnee = null;
 
 		
 		var jqDialogAjoutEvenement = $("#dialog_ajout_evenement").append(dialogAjoutEvenementHtml);
@@ -83,9 +84,10 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		
 		// Listeners
 		selectMatiere.change(function() {
+			me.matiereSelectionnee = selectMatiere.val();
 			me.remplirSelectCalendriers();
 			if(me.estVueGroupes) {
-				me.updateMatiereVueGroupe();
+				me.updateCalendriersVueGroupe();
 			}
 		});
 		
@@ -114,14 +116,13 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	 * Remplissage du select des calendriers en fonction du select des matières (qui sert de filtre)
 	 */
 	EcranPlanningCours.prototype.remplirSelectCalendriers = function() {
-		var matiere = $("#select_matiere").val();
 		var cals;
 		
-		if(matiere === '') {
+		if(this.matiereSelectionnee === '') {
 			cals = _.values(this.mesCalendriers);
 		}
 		else {
-			cals = _.where(this.mesCalendriers, { matiere: matiere });
+			cals = _.where(this.mesCalendriers, { matiere: this.matiereSelectionnee });
 		}
 		
 		var selectCalendrier = $("#select_calendrier").empty().append("<option value=''>---</option>");
@@ -169,7 +170,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			var dateDebut = new Date(aout > dateAffichage ? dateAffichage.getFullYear() - 1 : dateAffichage.getFullYear(), 8, 15);
 			var dateFin = new Date(dateDebut.getFullYear() + 1, 8, 15);
 			
-			if(this.dateDebutStatistiquesAJour == dateDebut) {
+			if(this.dateDebutStatistiquesAJour && this.dateDebutStatistiquesAJour.getTime() == dateDebut.getTime()) {
 				return; // Déjà mis à jour (sauf erreur de mise à jour : pas pris en compte)
 			}
 			else {
@@ -186,13 +187,16 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	
 	EcranPlanningCours.prototype.setVue = function(vue) {
 		
+		// Changement de vue : suppression du cache
+		this.evenementGestion.clearCache(EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER);
+		
 		$("#nav_vue_agenda li").removeClass("selected");
 		if(vue === EcranPlanningCours.VUE_GROUPES) {
 			this.estVueGroupes = true;
 			$("#nav_vue_agenda #tab_vue_groupes").addClass("selected");
 			$("#ligne_select_calendrier, #calendar").hide();
 			$("#page_planning_groupes").show();
-			this.updateMatiereVueGroupe();
+			this.updateCalendriersVueGroupe();
 		}
 		else {
 			this.estVueGroupes = false;
@@ -206,7 +210,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	 * Mise à jour des groupes affichés dans la "vue groupes" et des calendriers sélectionnés (this.calendriersVueGroupe)
 	 * en utilisant la matière sélectionnée (tous les groupes des calendriers de la matière)
 	 */
-	EcranPlanningCours.prototype.updateMatiereVueGroupe = function() {
+	EcranPlanningCours.prototype.updateCalendriersVueGroupe = function() {
 		var matiere = $("#select_matiere").val();
 		
 		// Récupération des calendriers de la matière
@@ -227,7 +231,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		
 		$("#lst_groupes_associes").text(_.pluck(groupesVueGroupe, "nom").join(", "));
 		
-		this.planningGroupes.resetGroupes(groupesVueGroupe);
+		this.planningGroupes.resetGroupes(groupesVueGroupe, this.calendriersVueGroupe);
 	};
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
@@ -238,25 +242,33 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			// Fonction de récupération en fonction de la vue
 			var funcReq = this.estVueGroupes ? this.evenementGestion.getEvenementsGroupesCalendriers : this.evenementGestion.getEvenementsGroupesCalendrier;
 			var arg = this.estVueGroupes ? _.pluck(this.calendriersVueGroupe, "id") : this.calendrierSelectionne.id;
-			
-			funcReq.call(this.evenementGestion, start, end, arg, false, function(resultCode, evenements) {
-				if(resultCode === RestManager.resultCode_Success) {
-					// Evénements des autres calendriers en gris
-					for(var i=0,maxI=evenements.length; i<maxI; i++) {
-						
-						if(!me.estVueGroupes && !_.contains(evenements[i].calendriers, me.calendrierSelectionne.id)) {
-							evenements[i].color = "#999";
+
+			if(arg == null || arg.length === 0) {
+				callback(new Array());
+			}
+			else {
+				funcReq.call(this.evenementGestion, start, end, arg, false, function(resultCode, evens) {
+					if(resultCode === RestManager.resultCode_Success) {
+						// Evénements des autres calendriers en gris
+						for(var i=0,maxI=evens.length; i<maxI; i++) {
+							
+							if(!me.estVueGroupes && !_.contains(evens[i].calendriers, me.calendrierSelectionne.id)) {
+								evens[i].color = "#999"; // Evénement n'est pas du calendrier sélectionné (vue normale)
+							}
+							else if(me.estVueGroupes && !_.contains(evens[i].matieres, me.matiereSelectionnee)) {
+								evens[i].color = "#999"; // Evénement n'est pas de la matière sélectionnée (vue groupes)
+							}
 						}
+						callback(evens);
 					}
-					callback(evenements);
-				}
-				else if(resultCode === RestManager.resultCode_NetworkError) {
-					window.showToast("Erreur de récupération des événements ; vérifiez votre connection");
-				}
-				else {
-					window.showToast("Erreur de récupération des événements");
-				}
-			});
+					else if(resultCode === RestManager.resultCode_NetworkError) {
+						window.showToast("Erreur de récupération des événements ; vérifiez votre connection");
+					}
+					else {
+						window.showToast("Erreur de récupération des événements");
+					}
+				});
+			}
 			
 			// Mise à jour des statistiques (pas de requête effectuée si déjà à jour)
 			this.updateStatistiques();

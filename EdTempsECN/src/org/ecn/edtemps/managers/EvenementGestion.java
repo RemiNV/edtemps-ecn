@@ -6,8 +6,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -667,11 +670,11 @@ public class EvenementGestion {
  	 * @param dateDebut Date de début de la fenêtre de recherche
 	 * @param dateFin Date de fin de la fenêtre de recherche
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode ; sinon la méthode <b>doit</b> être appelée dans une transaction
-	 * @return Liste d'événements récupérés
+	 * @return Liste d'événements récupérés (valeurs) pour chaque groupe (ID du groupe en clé). Pas d'entrée si liste d'événements vide pour un groupe.
 	 * @throws DatabaseException 
 	 * @throws MaxRowCountExceededException 
 	 */
-	public ArrayList<EvenementComplet> listerEvenementsGroupesCalendrier(int idCalendrier, Date dateDebut, Date dateFin, boolean createTransaction) 
+	public Hashtable<Integer, ArrayList<EvenementComplet>> listerEvenementsGroupesCalendrier(int idCalendrier, Date dateDebut, Date dateFin, boolean createTransaction) 
 			throws DatabaseException, MaxRowCountExceededException {
 		
 		ArrayList<Integer> ids = new ArrayList<Integer>(1);
@@ -686,34 +689,49 @@ public class EvenementGestion {
  	 * @param dateDebut Date de début de la fenêtre de recherche
 	 * @param dateFin Date de fin de la fenêtre de recherche
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode ; sinon la méthode <b>doit</b> être appelée dans une transaction
-	 * @return Liste d'événements récupérés
+	 * @return Liste d'événements récupérés (valeurs) pour chaque groupe (ID du groupe en clé). Pas d'entrée si liste d'événements vide pour un groupe.
 	 * @throws DatabaseException 
 	 * @throws MaxRowCountExceededException 
 	 */
-	public ArrayList<EvenementComplet> listerEvenementsGroupesCalendrier(List<Integer> idCalendriers, Date dateDebut, Date dateFin, boolean createTransaction) 
+	public Hashtable<Integer, ArrayList<EvenementComplet>> listerEvenementsGroupesCalendrier(List<Integer> idCalendriers, Date dateDebut, Date dateFin, boolean createTransaction) 
 			throws DatabaseException, MaxRowCountExceededException {
 		
+		Hashtable<Integer, ArrayList<EvenementComplet>> res = new Hashtable<Integer, ArrayList<EvenementComplet>>();
+		
 		if(idCalendriers.size() == 0) {
-			return new ArrayList<EvenementComplet>(0);
+			return res; // Résultat vide
 		}
 		
 		if(createTransaction) {
 			_bdd.startTransaction();
 		}
 		
+		// Récupération des groupes de ces calendriers
+		ArrayList<Integer> idGroupes = new ArrayList<Integer>();
 		String strIds = StringUtils.join(idCalendriers, ",");
+		ResultSet reponse = _bdd.executeRequest("SELECT cap.groupeparticipant_id FROM edt.calendrierappartientgroupe cap WHERE cap.cal_id IN (" + strIds + ")");
 		
-		// Création de la table temporaire des parents/enfants des groupes du calendrier
-		GroupeGestion.makeTempTableListeParentsEnfants(_bdd, "SELECT grp.groupeparticipant_id," +
-			"grp.groupeparticipant_nom, grp.groupeparticipant_rattachementautorise," +
-			"grp.groupeparticipant_id_parent, grp.groupeparticipant_id_parent_tmp, grp.groupeparticipant_estcours, grp.groupeparticipant_estcalendrierunique " +
-			"FROM edt.groupeparticipant grp " +
-			"INNER JOIN edt.calendrierappartientgroupe cap ON cap.groupeparticipant_id=grp.groupeparticipant_id " +
-			"AND cap.cal_id IN (" + strIds + ")");
-				
-		ArrayList<EvenementComplet> res = listerEvenementsGroupesTempTable(GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS, dateDebut, dateFin);
+		try {
+			while(reponse.next()) {
+				idGroupes.add(reponse.getInt(1));
+			}
+			reponse.close();
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
 		
-		GroupeGestion.dropTempTableListeParentsEnfants(_bdd);
+		// Récupération des événements pour chaque groupe (permet de repérer facilement quel événement récupéré appartient à quel groupe)
+		for(int idGroupe : idGroupes) {
+			GroupeGestion.makeTempTableListeParentsEnfants(_bdd, idGroupe);
+			
+			ArrayList<EvenementComplet> evens = listerEvenementsGroupesTempTable(GroupeGestion.NOM_TEMPTABLE_PARENTSENFANTS, dateDebut, dateFin);
+			
+			if(evens.size() > 0) {
+				res.put(idGroupe, evens);
+			}
+			
+			GroupeGestion.dropTempTableListeParentsEnfants(_bdd);
+		}
 		
 		if(createTransaction) {
 			_bdd.commit();
@@ -925,7 +943,8 @@ public class EvenementGestion {
 				
 			// Vérification de la disponibilité du public
 			try {
-				ArrayList<EvenementComplet> evenementsPublic = this.listerEvenementsGroupesCalendrier(evenement.getIdCalendriers(), newDateDebut, newDateFin, false);
+				Hashtable<Integer, ArrayList<EvenementComplet>> mapEvenementsPublic = this.listerEvenementsGroupesCalendrier(evenement.getIdCalendriers(), newDateDebut, newDateFin, false);
+				ArrayList<EvenementComplet> evenementsPublic = getEvenementsResultatGroupes(mapEvenementsPublic);
 				if(evenementsPublic.size() > 0) {
 					problemes.add(new Probleme(ProblemeStatus.PUBLIC_OCCUPE, StringUtils.join(evenementsPublic, ", "), evenementsPublic));
 				}
@@ -970,6 +989,29 @@ public class EvenementGestion {
 		
 		if(createTransaction) {
 			_bdd.commit();
+		}
+		
+		return res;
+	}
+	
+	/**
+	 * Récupération des événements contenus dans une table de résultats, comme celle renvoyée par listerEvenementsGroupesCalendrier.
+	 * La liste résultat contient tous les événements sans doublons
+	 * @param resultatGroupes Table de résultats
+	 * @return Liste d'événements contenus dans la table de résultats, sans doublon
+	 */
+	protected static ArrayList<EvenementComplet> getEvenementsResultatGroupes(Hashtable<Integer, ArrayList<EvenementComplet>> resultatGroupes) {
+		
+		ArrayList<EvenementComplet> res = new ArrayList<EvenementComplet>();
+		HashSet<Integer> idSet = new HashSet<Integer>();
+		for(Entry<Integer, ArrayList<EvenementComplet>> entry : resultatGroupes.entrySet()) {
+			
+			for(EvenementComplet even : entry.getValue()) {
+				if(!idSet.contains(even.getId())) {
+					idSet.add(even.getId());
+					res.add(even);
+				}
+			}
 		}
 		
 		return res;

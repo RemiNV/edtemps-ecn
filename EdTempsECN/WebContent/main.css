@@ -1143,6 +1143,10 @@ table.tbl_planning_groupes td, table.tbl_planning_groupes th {
 	text-align: center;
 }
 
+table.tbl_planning_groupes td.jour {
+	position: relative;
+}
+
 .tbl_planning_groupes .division_creneau {
 	width: 16.66%;
 	height: 100%;
@@ -1154,4 +1158,10 @@ table.tbl_planning_groupes td, table.tbl_planning_groupes th {
 
 .tbl_planning_groupes .division_creneau:last-child {
 	border-right: none;
+}
+
+table.tbl_planning_groupes .evenement_groupe {
+	position: absolute;
+	height: 100%;
+	background-color: blue;
 }

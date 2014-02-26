@@ -3,10 +3,13 @@ package org.ecn.edtemps.servlets.impl;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map.Entry;
 
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonException;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,6 +18,7 @@ import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.EvenementGestion;
+import org.ecn.edtemps.models.identifie.EvenementComplet;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
 public class ListerEvenementsServlet extends QueryWithIntervalServlet {
@@ -49,9 +53,20 @@ public class ListerEvenementsServlet extends QueryWithIntervalServlet {
 			}
 			
 			try {
+				
+				// Récupération des événements
 				JsonArray array = Json.createReader(new ByteArrayInputStream(strIdCalendriers.getBytes())).readArray();
 				ArrayList<Integer> idCalendriers = JSONUtils.getIntegerArrayList(array);
-				res = JSONUtils.getJsonArray(evenementGestion.listerEvenementsGroupesCalendrier(idCalendriers, dateDebut, dateFin, true));
+				
+				Hashtable<Integer, ArrayList<EvenementComplet>> tblEvenements = evenementGestion.listerEvenementsGroupesCalendrier(idCalendriers, dateDebut, dateFin, true);
+				
+				// Création du JSON de sortie
+				JsonObjectBuilder builder = Json.createObjectBuilder();
+				for(Entry<Integer, ArrayList<EvenementComplet>> entry : tblEvenements.entrySet()) {
+					builder.add(String.valueOf(entry.getKey()), JSONUtils.getJsonArray(entry.getValue()));
+				}
+				
+				res = builder.build();
 			}
 			catch(JsonException e) {
 				bdd.close();
