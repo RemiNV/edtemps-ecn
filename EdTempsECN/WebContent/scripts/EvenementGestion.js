@@ -209,21 +209,38 @@ define(["RestManager"], function(RestManager) {
 	 * (format complet, avec matières et types, classe EvenementComplet).
 	 * Les événements passés en argument sont organisés par groupe : c'est un objet avec pour clés les ID de groupes,
 	 * et valeurs les tableaux d'événements.
-	 * Les événements parsés ont le même format qu'avec parseEventsCompletsFullCalendar, avec un attribut idGroupe supplémentaire.
-	 * Plusieurs événements peuvent être en double dans le tableau résultat, en ayant un idGroupe différent
+	 * Les événements parsés ont le même format qu'avec parseEventsCompletsFullCalendar, avec un attribut idGroupe (ou idGroupes si suppression des doublons) supplémentaire.
 	 * 
 	 * @param {Object} evenementsGroupes Mapping idGroupe -> tableau d'événements
+	 * @param {boolean} sansDoublons Supprimer les doublons : les événements auront un attribut idGroupes qui sera un tableau dans ce cas.
 	 * @return Tableau d'évènements parsés
 	 */
-	EvenementGestion.prototype.parseEventsGroupesFullCalendar = function(evenementsGroupes) {
+	EvenementGestion.prototype.parseEventsGroupesFullCalendar = function(evenementsGroupes, sansDoublons) {
 		var res = new Array();
+		
+		var evens = new Object(); // Pour la suppression des doublons : association id événement -> événement
 		
 		for(var idGroupe in evenementsGroupes) {
 			var evenementsGroupe = this.parseEventsCompletsFullCalendar(evenementsGroupes[idGroupe]);
 			for(var i=0; i<evenementsGroupe.length; i++) {
-				var even = evenementsGroupe[i];
-				even.idGroupe = idGroupe;
-				res.push(even);
+				
+				var even;
+				if(sansDoublons) {
+					even = evens[evenementsGroupe[i].id];
+					if(!even) { // Première occurrence de l'événement
+						even = evenementsGroupe[i];
+						evens[evenementsGroupe[i].id] = even;
+						even.idGroupes = new Array();
+						res.push(even);
+					}
+					
+					even.idGroupes.push(idGroupe);
+				}
+				else {
+					even = evenementsGroupe[i];
+					even.idGroupe = idGroupe;
+					res.push(even);
+				}
 			}
 		}
 		
@@ -448,7 +465,7 @@ define(["RestManager"], function(RestManager) {
 	EvenementGestion.prototype.getEvenementsGroupesCalendrier = function(start, end, idCalendrier, ignoreCache, callback) {
 		var me = this;
 		this.getEvenements("listerevenements/groupescalendriers", EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER, start, end, 
-				function(data) { return me.parseEventsGroupesFullCalendar(data); }, ignoreCache, callback, null, null, [idCalendrier]);
+				function(data) { return me.parseEventsGroupesFullCalendar(data, true); }, ignoreCache, callback, null, null, [idCalendrier]);
 	};
 	
 	/**

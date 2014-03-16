@@ -65,7 +65,6 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 	};
 	
 	PlanningGroupes.prototype.showEvents = function(events) {
-		console.log("Events : ", events);
 		
 		// Vidage des événements déjà affichés
 		this.jqPlanningGroupes.find(".evenement_groupe").remove();
