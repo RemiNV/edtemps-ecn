@@ -364,6 +364,11 @@ define(["CalendrierGestion", "RestManager", "MultiWidget", "UtilisateurGestion",
 		
 		var callbackFunction = function(resultCode) {
 			
+			// Vidage du cache si l'événement a été modifié
+			if(me.evenementEdit) {
+				me.evenementGestion.invalidateCache(me.evenementEdit.start, me.evenementEdit.end);
+			}
+			
 			// Masquage du message d'attente
 			me.jqDialog.find("#dialog_ajout_evenement_chargement").css("display", "none");
 			

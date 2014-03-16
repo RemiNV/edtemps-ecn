@@ -1164,4 +1164,5 @@ table.tbl_planning_groupes .evenement_groupe {
 	position: absolute;
 	height: 100%;
 	background-color: blue;
+	cursor: pointer;
 }

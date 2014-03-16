@@ -4,9 +4,9 @@
  * @module EcranPlanningCours
  */
 define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrier", "text!../../templates/dialog_ajout_evenement.html", "text!../../templates/dialog_recherche_salle.html",
-        "RestManager", "CalendrierGestion", "planning_cours/BlocStatistiques", "planning_cours/DialogRepeter", "planning_cours/PlanningGroupes", "underscore", "jquery"], 
+        "RestManager", "CalendrierGestion", "DialogDetailsEvenement", "planning_cours/BlocStatistiques", "planning_cours/DialogRepeter", "planning_cours/PlanningGroupes", "underscore", "jquery"], 
         function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
-        		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion, 
+        		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion, DialogDetailsEvenement,
         		BlocStatistiques, DialogRepeter, PlanningGroupes, _) {
 	
 	/**
@@ -35,15 +35,19 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		
 		var jqDialogAjoutEvenement = $("#dialog_ajout_evenement").append(dialogAjoutEvenementHtml);
 		this.dialogAjoutEvenement = new DialogAjoutEvenement(restManager, jqDialogAjoutEvenement, this.rechercheSalle, 
-				this.evenementGestion, function() { me.callbackAjoutEvenement(); });
+				this.evenementGestion, function() { me.callbackRefresh(); });
+		
+		// Dialog de détails des événements
+		this.dialogDetailsEvenement = new DialogDetailsEvenement($("#dialog_details_evenement"), this.evenementGestion, this.dialogAjoutEvenement, 
+				this.dialogRepeter, function() { me.callbackRefresh(); });
 		
 		var jqDatepicker = null; // TODO : ajouter le datepicker sur la gauche
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { 
 				me.onCalendarFetchEvents(start, end, callback);
-			}, this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), jqDatepicker, this.dialogRepeter);
+			}, this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, jqDatepicker);
 		
-		this.planningGroupes = new PlanningGroupes($("#planning_groupes"), $("#planning_groupes_btn_precedent"), 
+		this.planningGroupes = new PlanningGroupes(this.dialogDetailsEvenement, $("#planning_groupes"), $("#planning_groupes_btn_precedent"), 
 				$("#planning_groupes_btn_suivant"), $("#planning_groupes_btn_aujourdhui"), $("#planning_groupes_label_date"), function(start, end, callback) {
 			me.onCalendarFetchEvents(start, end, callback);
 		});
@@ -97,18 +101,18 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	};
 	
 	/**
-	 * Callback appelé après l'ajout d'un événement, pour mettre à jour l'affichage
+	 * Callback appelé quand un rafraîchissement des événements est nécessaire
 	 */
-	EcranPlanningCours.prototype.callbackAjoutEvenement = function() {
+	EcranPlanningCours.prototype.callbackRefresh = function() {
 		
 		this.dateDebutStatistiquesAJour = null;
 		
 		// Re-récupérer les événements met aussi à jour les statistiques avec onCalendarFetchEventss
 		if(this.estVueGroupes) {
-			this.calendrier.refetchEvents();
+			this.planningGroupes.refetchEvents();
 		}
 		else {
-			this.planningGroupes.refetchEvents();
+			this.calendrier.refetchEvents();
 		}
 	};
 	

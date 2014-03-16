@@ -5,8 +5,8 @@
  */
 define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "RechercheSalle", "GroupeGestion", 
         "DialogAjoutEvenement", "RestManager", "underscore", "text!../templates/dialog_ajout_evenement.html", "text!../templates/dialog_recherche_salle.html",
-        "jquery", "jqueryui", "jquerycombobox", "datepicker"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
-        		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager, _, dialogAjoutEvenementHtml, dialogRechercheSalleHtml) {
+        "DialogDetailsEvenement", "jquery", "jqueryui", "jquerycombobox", "datepicker"], function(Calendrier, EvenementGestion, ListeGroupesParticipants, 
+        		RechercheSalle, GroupeGestion, DialogAjoutEvenement, RestManager, _, dialogAjoutEvenementHtml, dialogRechercheSalleHtml, DialogDetailsEvenement) {
 	
 	/**
 	 * @constructor
@@ -34,6 +34,9 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		
 		this.calendrier = null;
 		this.listeGroupesParticipants = null;
+		
+		// Dialog de détails des événements
+		this.dialogDetailsEvenement = new DialogDetailsEvenement($("#dialog_details_evenement"), this.evenementGestion, this.dialogAjoutEvenement, null, function() { me.rafraichirCalendrier(); });
 		
 		// TODO : cacher le lien "mode planning cours" pour les utilisateurs non autorisés
 	};
@@ -87,7 +90,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		}
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, 
-				this.dialogAjoutEvenement, this.evenementGestion, $("#dialog_details_evenement"), $("#accueil_datepicker"));
+				this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, $("#accueil_datepicker"));
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
 		

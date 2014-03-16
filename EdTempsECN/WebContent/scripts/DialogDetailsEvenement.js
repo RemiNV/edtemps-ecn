@@ -21,9 +21,10 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "jquery
 			
 			// On n'est pas à l'intérieur d'une dialog
 			var jqTarget = $(event.target);
-			if(!jqTarget.is(".ui_dialog, .fc-event") 
+			if(!jqTarget.is(".ui_dialog, .fc-event, .evenement_groupe") 
 					&& jqTarget.closest(".ui-dialog").length == 0
-					&& jqTarget.closest(".fc-event").length == 0) {
+					&& jqTarget.closest(".fc-event").length == 0
+					&& jqTarget.closest(".evenement_groupe").length == 0) {
 				jqDialog.dialog("close");
 				return false;
 			}

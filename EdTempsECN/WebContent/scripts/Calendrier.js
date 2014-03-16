@@ -8,13 +8,8 @@ define(["RestManager", "DialogDetailsEvenement", "underscore", "lib/fullcalendar
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, jqDialogDetailsEvenement, jqDatepicker, dialogRepeter) {
+	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, dialogDetailsEvenement, jqDatepicker) {
 		var me = this;
-		this.dialogRepeter = dialogRepeter;
-		
-		// Dialog de détails des événements
-		var dialogDetailsEvenement = new DialogDetailsEvenement(jqDialogDetailsEvenement, evenementGestion, dialogAjoutEvenement, dialogRepeter, function() { me.refetchEvents(); });
-		
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
 		var oldDatesDrag = Object();

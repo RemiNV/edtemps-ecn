@@ -8,7 +8,8 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 	 * @constructor
 	 * @alias module:PlanningGroupes
 	 */
-	var PlanningGroupes = function(jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour, onFetchCallback) {
+	var PlanningGroupes = function(dialogDetailsEvenement, jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour, onFetchCallback) {
+		this.dialogDetailsEvenement = dialogDetailsEvenement;
 		this.jqPlanningGroupes = jqPlanningGroupes;
 		this.jqLabelJour = jqLabelJour;
 		this.groupes = new Array();
@@ -66,6 +67,8 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 	
 	PlanningGroupes.prototype.showEvents = function(events) {
 		
+		var me = this;
+		
 		// Vidage des événements déjà affichés
 		this.jqPlanningGroupes.find(".evenement_groupe").remove();
 		
@@ -92,8 +95,12 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 			if(offsetDebut + width > 100) width = 100 - offsetDebut;
 			
 			// Ajout de l'événement
+			var event = events[i];
 			caseJour.prepend($("<div class='evenement_groupe'></div>").css({ left: offsetDebut + '%', width: width + '%', backgroundColor: events[i].color })
-					.attr("title", events[i].nom));
+					.attr("title", events[i].nom))
+					.click(function(e) {
+						me.dialogDetailsEvenement.show(event, $(e.target));
+					});
 		}
 	};
 	
