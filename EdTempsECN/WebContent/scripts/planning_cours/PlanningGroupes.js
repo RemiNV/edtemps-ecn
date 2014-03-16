@@ -99,7 +99,6 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 	};
 	
 	PlanningGroupes.prototype.refetchEvents = function() {
-		console.log("Refetch !");
 		var me = this;
 		var dateFin = moment(this.date).add("days", 6).toDate();
 		this.onFetchCallback(this.date, dateFin, function(events) {

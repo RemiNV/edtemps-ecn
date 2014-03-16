@@ -72,7 +72,7 @@ define(["RestManager", "DialogDetailsEvenement", "underscore", "lib/fullcalendar
 				
 				// Callback d'ouverture de la dialog de détails
 				jqElement.click(function() {
-					dialogDetailsEvenement.show(event);
+					dialogDetailsEvenement.show(event, jqElement);
 				});
 			},
 			eventDragStop: function(event, jsEvent, ui, view) {

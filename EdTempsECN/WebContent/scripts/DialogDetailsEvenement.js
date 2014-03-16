@@ -2,7 +2,7 @@
  * Module de gestion de la dialog de détails d'un événement
  * @module DialogDetailsEvenement
  */
-define(["text!../templates/dialog_details_evenement.tpl", "jquery"], function(tplDialogDetailsEvenement) {
+define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "jquery"], function(RestManager, tplDialogDetailsEvenement) {
 
 	/**
 	 * @constructor
