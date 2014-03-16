@@ -339,12 +339,12 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			case 1: // Salle occupée par un événement cours
 				test.strProblemes += "Salle occupée (cours) : " + test.problemes[i].message;
 				test.afficherBoutonRechercheSalleCours = true;
-				test.afficherBoutonForcer = true;
 				break;
 				
 			case 2: // Salle occupée par un événement non cours
 				test.strProblemes += "Salle occupée (pas un cours) : " + test.problemes[i].message;
 				test.afficherBoutonRechercheSalleNonCours = true;
+				test.afficherBoutonForcer = true;
 				break;
 			case 3: // Public occupé
 				test.afficherBoutonForcer = true;
