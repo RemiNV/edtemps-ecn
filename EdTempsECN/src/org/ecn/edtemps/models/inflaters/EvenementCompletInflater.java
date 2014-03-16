@@ -57,15 +57,22 @@ public class EvenementCompletInflater extends AbsEvenementInflater<EvenementComp
 			// Récupération des types et matières depuis la base
 			ResultSet reponseCalendriers = bdd.executeRequest("SELECT matiere.matiere_nom, typecalendrier.typecal_libelle " +
 					"FROM edt.calendrier " +
-					"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
-					"INNER JOIN edt.typecalendrier ON typecalendrier.typecal_id=calendrier.typecal_id " +
+					"LEFT JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id " +
+					"LEFT JOIN edt.typecalendrier ON typecalendrier.typecal_id=calendrier.typecal_id " +
 					"INNER JOIN edt.evenementappartient ON evenementappartient.cal_id=calendrier.cal_id " +
 					"AND evenementappartient.eve_id=" + id);
 
 			try {
 				while(reponseCalendriers.next()) {
-					matieres.add(reponseCalendriers.getString("matiere_nom"));
-					types.add(reponseCalendriers.getString("typecal_libelle"));
+					String nomMatiere = reponseCalendriers.getString("matiere_nom");
+					if(nomMatiere != null) {
+						matieres.add(nomMatiere);
+					}
+					
+					String libelleType = reponseCalendriers.getString("typecal_libelle");
+					if(libelleType != null) {
+						types.add(libelleType);
+					}
 				}
 				reponseCalendriers.close();
 				

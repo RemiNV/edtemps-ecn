@@ -24,7 +24,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.calendrierGestion = new CalendrierGestion(restManager);
 		this.blocStatistiques = new BlocStatistiques(restManager, $("#bloc_statistiques"));
 		this.dialogRepeter = new DialogRepeter(restManager, $("#dialog_repeter"), this.rechercheSalle, 
-				this.evenementGestion, function() { me.callbackAjoutEvenement(); });
+				this.evenementGestion, function() { me.callbackRefresh(); });
 		
 		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
 		this.calendrierSelectionne = null;

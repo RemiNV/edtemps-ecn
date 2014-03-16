@@ -69,8 +69,10 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 					changementSalle.push(salle.id);
 					
 					// Ajout des événements dont l'association à la salle est à supprimer pour cette salle
-					for(var k=0, maxK=salle.evenementsEnCours.length; k<maxK; k++) {
-						idEvenementsSallesALiberer.push(salle.evenementsEnCours[k].id);
+					if(salle.evenementsEnCours) {
+						for(var k=0, maxK=salle.evenementsEnCours.length; k<maxK; k++) {
+							idEvenementsSallesALiberer.push(salle.evenementsEnCours[k].id);
+						}
 					}
 				}
 			}
@@ -190,19 +192,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		// Poursuite de l'opération après confirmation éventuelle
 		function callbackContinuer() {
 			me.synthese[id].forcerAjout = true;
-			me.updateProblemes(me.synthese[id]);
-			
-			if(!me.synthese[id].resteProblemes) { // L'événement précédemment invalide sera ajouté
-				// Suppression derniers tests inutiles et renumérotation
-				var numMax = me.synthese[me.synthese.length-1].num;
-				for(var i=me.synthese.length-1; i>id && me.synthese[i].num == numMax; i--) {
-					me.synthese.pop();
-				}
-				
-				for(i=id+1,max=me.synthese.length; i<max; i++) {
-					me.synthese[i].num++;
-				}
-			}
+			me.updateProblemes(id);
 			
 			me.updateSynthese();
 		}
@@ -244,11 +234,13 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 			me.rechercheSalle.hide();
 			
 			synthese.nouvellesSalles = data;
+			
 			var nomsSalles = new Array();
 			for(var i=0,max=data.length; i<max; i++) {
 				nomsSalles.push(data[i].nom);
 			}
 			synthese.strNouvellesSalles = nomsSalles.join(", ");
+			me.updateProblemes(id);
 			
 			me.updateSynthese();
 		}, synthese.dateDebut, synthese.dateFin, this.calendrier.estCours);
@@ -272,10 +264,17 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	};
 	
 	/**
-	 * Mise à jour de test.resteProblemes en prenant en compte test.forcerAjout et test.nouvellesSalles
+	 * Mise à jour de test.resteProblemes en prenant en compte test.forcerAjout et test.nouvellesSalles.
+	 * Renumérotation du tableau de synthèse s'il ne reste plus de problèmes.
 	 * @param test
 	 */
-	DialogRepeter.prototype.updateProblemes = function(test) {
+	DialogRepeter.prototype.updateProblemes = function(idSynthese) {
+		test = this.synthese[idSynthese];
+		
+		if(!test.resteProblemes) {
+			return;
+		}
+		
 		test.resteProblemes = false;
 		for(var i=0,max=test.problemes.length; i<max; i++) {
 			switch(test.problemes[i].status) {
@@ -296,6 +295,18 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 					test.resteProblemes = true;
 				}
 				break;
+			}
+		}
+		
+		if(!test.resteProblemes) {
+			// Suppression derniers tests inutiles (on a suffisamment d'événements) et renumérotation
+			var numMax = this.synthese[this.synthese.length-1].num;
+			for(var i=this.synthese.length-1; i>idSynthese && this.synthese[i].num == numMax; i--) {
+				this.synthese.pop();
+			}
+			
+			for(i=idSynthese+1,max=this.synthese.length; i<max; i++) {
+				this.synthese[i].num++;
 			}
 		}
 	};
