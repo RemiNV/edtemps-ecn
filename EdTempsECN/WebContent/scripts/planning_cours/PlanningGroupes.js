@@ -23,10 +23,12 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		var me = this;
 		jqBtnPrecedent.click(function(e) {
 			me.setDate(moment(me.date).add("days", -7).toDate());
+			me.renderDate();
 		});
 		
 		jqBtnSuivant.click(function(e) {
 			me.setDate(moment(me.date).add("days", 7).toDate());
+			me.renderDate();
 		});
 		
 		jqBtnAujourdhui.click(function(e) {
@@ -48,6 +50,8 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		}
 		
 		this.jqPlanningGroupes.empty().append(this.template({  groupes: groupes }));
+		
+		this.renderDate();
 	};
 	
 	/**
@@ -89,10 +93,9 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 			if(offsetDebut + width > 100) width = 100 - offsetDebut;
 			
 			// Ajout de l'événement
-			caseJour.prepend($("<div class='evenement_groupe'></div>").css({ left: offsetDebut + '%', width: width + '%', backgroundColor: events[i].color }));
+			caseJour.prepend($("<div class='evenement_groupe'></div>").css({ left: offsetDebut + '%', width: width + '%', backgroundColor: events[i].color })
+					.attr("title", events[i].nom));
 		}
-		
-		
 	};
 	
 	PlanningGroupes.prototype.refetchEvents = function() {
@@ -107,10 +110,11 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 	PlanningGroupes.prototype.getDate = function() {
 		return this.date;
 	};
-
-	PlanningGroupes.prototype.setDate = function(date) {
-		this.date = moment(date).startOf("isoweek").toDate();
-		
+	
+	/**
+	 * Mise à jour de l'affichage des dates dans les colonnes
+	 */
+	PlanningGroupes.prototype.renderDate = function() {
 		var mom = moment(this.date);
 		this.jqPlanningGroupes.find("th.jour").each(function() {
 			$(this).text(mom.format("dddd D/MM"));
@@ -120,15 +124,19 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		mom.add("days", -1);
 		
 		// Numéro de semaine affiché
-		this.jqPlanningGroupes.find("#planning_groupes_num_semaine").text(mom.format("w"));
+		var momDebut = moment(this.date);
+		this.jqPlanningGroupes.find("#planning_groupes_num_semaine").text(momDebut.format("w"));
 		
 		// Plage de dates affichée
-		var momDebut = moment(this.date);
 		var strIntervalle = mom.month() == momDebut.month() ? 
 				momDebut.date() + " - " + mom.date() + mom.format(" MMMM YYYY") 
 				: momDebut.format("Do MMMM - ") + mom.format("Do MMMM YYYY");
 		
 		this.jqLabelJour.text(strIntervalle);
+	};
+
+	PlanningGroupes.prototype.setDate = function(date) {
+		this.date = moment(date).startOf("isoweek").toDate();
 		
 		this.refetchEvents();
 	};

@@ -190,12 +190,15 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		// Changement de vue : suppression du cache
 		this.evenementGestion.clearCache(EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER);
 		
+		var date = this.estVueGroupes ? this.planningGroupes.getDate() : this.calendrier.getDate();
+		
 		$("#nav_vue_agenda li").removeClass("selected");
 		if(vue === EcranPlanningCours.VUE_GROUPES) {
 			this.estVueGroupes = true;
 			$("#nav_vue_agenda #tab_vue_groupes").addClass("selected");
 			$("#ligne_select_calendrier, #calendar").hide();
 			$("#page_planning_groupes").show();
+			this.planningGroupes.setDate(date);
 			this.updateCalendriersVueGroupe();
 		}
 		else {
@@ -203,6 +206,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			$("#nav_vue_agenda #tab_vue_normale").addClass("selected");
 			$("#ligne_select_calendrier, #calendar").show();
 			$("#page_planning_groupes").hide();
+			this.calendrier.gotoDate(date);
 		}
 	};
 	
