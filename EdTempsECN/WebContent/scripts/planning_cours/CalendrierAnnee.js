@@ -135,11 +135,7 @@ define([  ], function() {
 			if (jour.date) {
 				var date = new Date(jour.date);
 				
-				if (jour.fermeture) {		// Jour de fermeture
-					this.jqCalendar.find("#"+dateToString(date)).addClass("fermeture").attr("data", i).attr("title", this.dateEnTouteLettres(date));
-				} else {					// Jour férié
-					this.jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i).attr("title", this.dateEnTouteLettres(date));
-				}
+				this.jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i).attr("title", this.dateEnTouteLettres(date));
 			}
 			else {
 				var dateDebut = new Date(jour.dateDebut);

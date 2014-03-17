@@ -767,12 +767,8 @@
 
 
 /* jours fériés */
-	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date, jourferie_fermeture) VALUES ('Jour de l''an', '2014-01-01', false);
-	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date, jourferie_fermeture) VALUES ('Fête du travail', '2014-05-01', false);
-
-/* jours de fermeture */
-	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date, jourferie_fermeture) VALUES ('Pont du 1 mai', '2014-05-02', true);
-	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date, jourferie_fermeture) VALUES ('Pont du 8 mai', '2014-05-09', true);
+	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Jour de l''an', '2014-01-01');
+	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Fête du travail', '2014-05-01');
 
 /* jours bloqué */
 	/* Vacances */

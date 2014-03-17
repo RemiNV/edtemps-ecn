@@ -113,7 +113,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 				
 				// Indiquer à l'utilisateur qu'il essaye de rentrer un jour férié pour une autre année que celle en cours...
 				if (date.getTime() < debutAnnneeScolaire.getTime() || date.getTime() > finAnnneeScolaire.getTime()) {
-					confirm("Etes vous sûr de vouloir ajouter un jour férié/fermeture pour une autre année scolaire que celle en cours de modification ?", function () { me.valider(date); });
+					confirm("Etes vous sûr de vouloir ajouter un jour férié pour une autre année scolaire que celle en cours de modification ?", function () { me.valider(date); });
 				} else {
 					me.valider(date);
 				}

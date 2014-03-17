@@ -43,7 +43,7 @@ public class JourFerieGestion {
 	
 	/**
 	 * Création d'un jour férié à partir d'une ligne de base de données.
-	 * Colonnes nécessaires dans le ResultSet : jourferie_id, jourferie_libelle, jourferie_date, jourferie_fermeture
+	 * Colonnes nécessaires dans le ResultSet : jourferie_id, jourferie_libelle, jourferie_date
 	 * 
 	 * @param row Résultat de la requête placé sur la ligne à lire
 	 * @return JourFerie créé
@@ -53,9 +53,8 @@ public class JourFerieGestion {
 		int id = row.getInt("jourferie_id");
 		String libelle = row.getString("jourferie_libelle");
 		Date date = row.getDate("jourferie_date");
-		boolean fermeture = row.getBoolean("jourferie_fermeture");
 		
-		return new JourFerieIdentifie(id, libelle, date, fermeture);
+		return new JourFerieIdentifie(id, libelle, date);
 	}
 	
 	
@@ -71,7 +70,7 @@ public class JourFerieGestion {
 		
 		try {
 
-			String requeteString = "SELECT jourferie_id, jourferie_libelle, jourferie_date, jourferie_fermeture" +
+			String requeteString = "SELECT jourferie_id, jourferie_libelle, jourferie_date" +
 					" FROM edt.joursferies" +
 					" WHERE jourferie_date >= ? AND jourferie_date <= ?" +
 					" ORDER BY jourferie_date";
@@ -107,13 +106,12 @@ public class JourFerieGestion {
 	 * Sauver un jour férié dans la base de données
 	 * 
 	 * @param libelle Libellé du jour férié
-	 * @param fermeture Vrai si c'est un jour de fermeture
 	 * @param date Date du jour férié
 	 * @param userId Identifiant de l'utilisateur qui fait la requête
 	 * @return l'identifiant de la ligne ajoutée
 	 * @throws EdtempsException 
 	 */
-	public int sauverJourFerie(String libelle, boolean fermeture, Date date, int userId) throws EdtempsException {
+	public int sauverJourFerie(String libelle,  Date date, int userId) throws EdtempsException {
 
 		// Quelques vérifications sur l'objet à enregistrer
 		if (date==null || StringUtils.isEmpty(libelle)) {
@@ -134,16 +132,15 @@ public class JourFerieGestion {
 						
 			// Prépare la requête
 			PreparedStatement requete = bdd.getConnection().prepareStatement("INSERT INTO edt.joursferies" +
-					" (jourferie_libelle, jourferie_date, jourferie_fermeture) " +
-					" VALUES (?, ?, ?) " +
+					" (jourferie_libelle, jourferie_date) " +
+					" VALUES (?, ?) " +
 				    " RETURNING jourferie_id");
 			requete.setString(1, libelle);
 			requete.setTimestamp(2, new java.sql.Timestamp(date.getTime()));
-			requete.setBoolean(3, fermeture);
 			
 			// Exécute la requête
 			ResultSet ligneCreee = requete.executeQuery();
-			logger.info("Sauvegarde d'un jour " + (fermeture ? "de fermeture" : "férié"));
+			logger.info("Sauvegarde d'un jour férié");
 			 
 			// On récupère l'id du jour créé
 			ligneCreee.next();
@@ -206,16 +203,15 @@ public class JourFerieGestion {
 			
 			// Prépare la requête
 			PreparedStatement requete = bdd.getConnection().prepareStatement("UPDATE edt.joursferies" +
-					" SET jourferie_libelle = ?, jourferie_date = ?, jourferie_fermeture = ?" +
+					" SET jourferie_libelle = ?, jourferie_date = ?" +
 					" WHERE jourferie_id = " + jour.getId());
 			requete.setString(1, jour.getLibelle());
 			requete.setTimestamp(2, new java.sql.Timestamp(jour.getDate().getTime()));
-			requete.setBoolean(3, jour.getFermeture());
 
 			// Exécute la requête
 			requete.execute();
 			requete.close();
-			logger.info("Modification d'un jour " + (jour.getFermeture() ? "de fermeture" : "férié"));
+			logger.info("Modification d'un jour férié");
 			
 		} catch (SQLException e) {
 			throw new EdtempsException(ResultCode.DATABASE_ERROR, e);
@@ -284,7 +280,7 @@ public class JourFerieGestion {
 		
 		for (JourFerie jour : listeJours) {
 			try {
-				this.sauverJourFerie(jour.getLibelle(), false, jour.getDate(), userId);
+				this.sauverJourFerie(jour.getLibelle(), jour.getDate(), userId);
 				mapJours.put(jour.getLibelle(), true);
 			} catch(EdtempsException e) {
 				if (e.getResultCode()==ResultCode.DAY_TAKEN) {
@@ -309,32 +305,32 @@ public class JourFerieGestion {
 	public List<JourFerie> getJourFeries(int annee) {
 		List<JourFerie> datesFeries = new ArrayList<JourFerie>();
 
-		datesFeries.add(new JourFerie("Jour de l'an", new GregorianCalendar(annee+1, 0, 1).getTime(), false));
-		datesFeries.add(new JourFerie("Fête du travail", new GregorianCalendar(annee+1, 4, 1).getTime(), false));
-		datesFeries.add(new JourFerie("8 mai", new GregorianCalendar(annee+1, 4, 8).getTime(), false));
-		datesFeries.add(new JourFerie("Armistice", new GregorianCalendar(annee, 10, 11).getTime(), false));
-		datesFeries.add(new JourFerie("Noël", new GregorianCalendar(annee, 11, 25).getTime(), false));
-		datesFeries.add(new JourFerie("Fête Nationale", new GregorianCalendar(annee+1, 6, 14).getTime(), false));
-		datesFeries.add(new JourFerie("Assomption", new GregorianCalendar(annee+1, 7, 15).getTime(), false));
-		datesFeries.add(new JourFerie("Toussaint", new GregorianCalendar(annee, 10, 1).getTime(), false));
+		datesFeries.add(new JourFerie("Jour de l'an", new GregorianCalendar(annee+1, 0, 1).getTime()));
+		datesFeries.add(new JourFerie("Fête du travail", new GregorianCalendar(annee+1, 4, 1).getTime()));
+		datesFeries.add(new JourFerie("8 mai", new GregorianCalendar(annee+1, 4, 8).getTime()));
+		datesFeries.add(new JourFerie("Armistice", new GregorianCalendar(annee, 10, 11).getTime()));
+		datesFeries.add(new JourFerie("Noël", new GregorianCalendar(annee, 11, 25).getTime()));
+		datesFeries.add(new JourFerie("Fête Nationale", new GregorianCalendar(annee+1, 6, 14).getTime()));
+		datesFeries.add(new JourFerie("Assomption", new GregorianCalendar(annee+1, 7, 15).getTime()));
+		datesFeries.add(new JourFerie("Toussaint", new GregorianCalendar(annee, 10, 1).getTime()));
 
 		// Lundi de pacques
 		GregorianCalendar pacques = calculLundiPacques(annee+1);
-		datesFeries.add(new JourFerie("Lundi de Pâcques", pacques.getTime(), false));
+		datesFeries.add(new JourFerie("Lundi de Pâcques", pacques.getTime()));
 
 		// Ascension (= pâques + 38 jours)
 		GregorianCalendar ascension = new GregorianCalendar(annee+1,
 				pacques.get(GregorianCalendar.MONTH),
 				pacques.get(GregorianCalendar.DAY_OF_MONTH));
 		ascension.add(GregorianCalendar.DAY_OF_MONTH, 38);
-		datesFeries.add(new JourFerie("Ascension", ascension.getTime(), false));
+		datesFeries.add(new JourFerie("Ascension", ascension.getTime()));
 
 		// Pentecôte (= pâques + 49 jours)
 		GregorianCalendar pentecote = new GregorianCalendar(annee+1,
 				pacques.get(GregorianCalendar.MONTH),
 				pacques.get(GregorianCalendar.DAY_OF_MONTH));
 		pentecote.add(GregorianCalendar.DAY_OF_MONTH, 49);
-		datesFeries.add(new JourFerie("Pentecôte", pentecote.getTime(), false));
+		datesFeries.add(new JourFerie("Pentecôte", pentecote.getTime()));
 
 		return datesFeries;
 	}

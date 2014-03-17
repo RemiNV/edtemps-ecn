@@ -180,10 +180,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * 
 	 * @param {string} libelle Libellé du jour férié à ajouter
 	 * @param {date} date Date du jour férié
-	 * @param {boolean} fermeture Vrai si c'est un jour de fermeture, Faux sinon
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
-	JourBloqueGestion.prototype.ajouterJourFerie = function(libelle, date, fermeture, callback) {
+	JourBloqueGestion.prototype.ajouterJourFerie = function(libelle, date, callback) {
 		var me = this;
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 
@@ -191,8 +190,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 			token: this.restManager.getToken(),
 			jour: JSON.stringify({
 				libelle: libelle,
-				date: date.getTime(),
-				fermeture: fermeture
+				date: date.getTime()
 			})
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
@@ -219,10 +217,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {int} id Identifiant du jour férié à modifier
 	 * @param {string} libelle Libellé du jour férié
 	 * @param {date} date Date du jour férié
-	 * @param {boolean} fermeture Vrai si c'est un jour de fermeture, Faux sinon
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
-	JourBloqueGestion.prototype.modifierJourFerie = function(id, libelle, date, fermeture, callback) {
+	JourBloqueGestion.prototype.modifierJourFerie = function(id, libelle, date, callback) {
 		var me = this;
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 
@@ -231,8 +228,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 			jour: JSON.stringify({
 				idJourFerie: id,
 				libelle: libelle,
-				date: date.getTime(),
-				fermeture: fermeture
+				date: date.getTime()
 			})
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours

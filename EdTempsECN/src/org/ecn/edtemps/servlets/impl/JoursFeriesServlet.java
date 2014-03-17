@@ -45,7 +45,6 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		public Integer idJour;
 		public String libelle;
 		public Date date;
-		public Boolean fermeture;
 	}
 	
 	protected void doGetAfterLogin(int userId, BddGestion bdd, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -185,7 +184,7 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 
 		// Exécute la requête d'ajout avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
-		jourFerieGestion.sauverJourFerie(param.libelle, param.fermeture, param.date, userId);
+		jourFerieGestion.sauverJourFerie(param.libelle, param.date, userId);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié ajouté", null));
 
@@ -209,13 +208,13 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		if (param.idJour == null) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet jour incomplet");
 		}
-		JourFerieIdentifie jour = new JourFerieIdentifie(param.idJour, param.libelle, param.date, param.fermeture);
+		JourFerieIdentifie jour = new JourFerieIdentifie(param.idJour, param.libelle, param.date);
 		
 		// Exécute la requête de modification avec le gestionnaire
 		JourFerieGestion jourFerieGestion = new JourFerieGestion(bdd);
 		jourFerieGestion.modifierJourFerie(jour, userId);
 		bdd.close();
-		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, param.fermeture ? "Jour de fermeture modifié" : "Jour férié modifié", null));
+		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Jour férié modifié", null));
 
 	}
 	
@@ -288,11 +287,10 @@ public class JoursFeriesServlet extends RequiresConnectionServlet {
 		JsonNumber jsonDebut = getJsonNumberOrNull(jsonObject, "date"); 
 
 		res.libelle = jsonObject.containsKey("libelle") && !jsonObject.isNull("libelle") ? jsonObject.getString("libelle") : null;
-		res.fermeture = jsonObject.containsKey("fermeture") && !jsonObject.isNull("fermeture") ? jsonObject.getBoolean("fermeture") : null;
 		res.idJour = jsonId == null ? null : new Integer(jsonId.intValue());
 		res.date = jsonDebut == null ? null : new Date(jsonDebut.longValue());
 
-		if (res.date==null || StringUtils.isBlank(res.libelle) || res.fermeture==null) {
+		if (res.date==null || StringUtils.isBlank(res.libelle)) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet jour incomplet");
 		}
 		

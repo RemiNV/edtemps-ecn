@@ -164,7 +164,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	    // Affecte une action au bouton d'ajout
 	    this.jqEcran.find("#bt_ajouter_jour_ferie").click(function() { 
 	    	me.dialogAjoutJourFerie.show(null, function (libelle, date) {
-	    		me.jourBloqueGestion.ajouterJourFerie(libelle, date, false, function() {
+	    		me.jourBloqueGestion.ajouterJourFerie(libelle, date, function() {
 	    			me.actualiserPage(0);
 	    		});
 	    	});
@@ -205,8 +205,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 		    me.jqEcran.find(".modifier_jour_ferie").click(function() {
 		    	var id = $(this).parents("tr").attr("data-id");
 
-		    	me.dialogAjoutJourFerie.show(me.jourBloqueGestion.joursFeriesTries[id], function (libelle, date, type) {
-		    		me.jourBloqueGestion.modifierJourFerie(id, libelle, date, type, function () {
+		    	me.dialogAjoutJourFerie.show(me.jourBloqueGestion.joursFeriesTries[id], function (libelle, date) {
+		    		me.jourBloqueGestion.modifierJourFerie(id, libelle, date, function () {
 			    		me.actualiserPage(0);
 		    		});
 		    	});

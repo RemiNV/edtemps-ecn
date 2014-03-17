@@ -270,7 +270,6 @@ CREATE TABLE edt.joursferies (
 				jourferie_id INTEGER NOT NULL DEFAULT nextval('edt.joursferies_jourferie_id_seq'),
                 jourferie_libelle VARCHAR NOT NULL,
 				jourferie_date DATE NOT NULL,
-				jourferie_fermeture BOOLEAN NOT NULL,
                 CONSTRAINT jourferie_id PRIMARY KEY (jourferie_id)
 );
 ALTER SEQUENCE edt.joursferies_jourferie_id_seq OWNER TO "edtemps-ecn";

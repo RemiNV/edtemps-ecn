@@ -25,10 +25,9 @@ public class JourFerieIdentifie extends JourFerie implements JSONAble {
 	 * @param id Identifiant du jour férié
 	 * @param libelle Libellé du jour férié
 	 * @param date Date du jour férié
-	 * @param fermeture Vrai, si c'est un jour de fermeture
 	 */
-	public JourFerieIdentifie(int id, String libelle, Date date, boolean fermeture) {
-		super(libelle, date, fermeture);
+	public JourFerieIdentifie(int id, String libelle, Date date) {
+		super(libelle, date);
 		this.id = id;
 	}
 	
@@ -38,7 +37,6 @@ public class JourFerieIdentifie extends JourFerie implements JSONAble {
 		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("id", this.id)
 				.add("libelle", this.libelle)
-				.add("fermeture", this.fermeture)
 				.add("date", this.date.getTime());
 		return builder.build();
 	}
