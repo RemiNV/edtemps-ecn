@@ -134,7 +134,7 @@ public class PeriodeBloqueeGestion {
 	public void sauverPeriodeBloquee(String libelle, Date dateDebut, Date dateFin, boolean vacances, boolean fermeture, ArrayList<Integer> listeIdGroupe) throws EdtempsException {
 
 		// Quelques vérifications sur l'objet à enregistrer
-		if (dateDebut==null || dateDebut==null || listeIdGroupe.isEmpty() || StringUtils.isEmpty(libelle)) {
+		if (StringUtils.isEmpty(libelle) || dateDebut==null || dateDebut==null || (vacances && listeIdGroupe.isEmpty()) || (fermeture && !listeIdGroupe.isEmpty()) || (!fermeture && !vacances && listeIdGroupe.isEmpty())) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Les informations sur la période bloquée ne sont pas complètes");
 		}
 		
@@ -143,11 +143,6 @@ public class PeriodeBloqueeGestion {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libellé d'une période bloquée doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
 		}
 		
-		// Vérifie que dans le cas d'une fermeture, il n'y a pas de groupes
-		if (fermeture && !listeIdGroupe.isEmpty()) {
-			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Tentative d'enregistrer une période de fermeture avec des groupes");
-		}
-
 		try {
 			
 			// Démarre une transaction
@@ -168,19 +163,21 @@ public class PeriodeBloqueeGestion {
 			ResultSet ligneCreee = requete.executeQuery();
 			logger.info("Sauvegarde d'une période bloquée");
 			 
-			// On récupère l'id de la ligne créée
-			ligneCreee.next();
-			int idLigneCree = ligneCreee.getInt("periodebloquee_id");
-			ligneCreee.close();
-			requete.close();
-			
-			// Requête d'ajout des liens avec les groupes de participants liés
-			String strReq = "INSERT INTO edt.periodesbloqueesappartientgroupe (groupeparticipant_id, periodebloquee_id) VALUES";
-			for (int i=0; i<listeIdGroupe.size() ; i++) {
-				if (i!=0) strReq += ", ";
-				strReq += " (" + listeIdGroupe.get(i) + ", " + idLigneCree + ")";
+			if (!fermeture) {
+				// On récupère l'id de la ligne créée
+				ligneCreee.next();
+				int idLigneCree = ligneCreee.getInt("periodebloquee_id");
+				ligneCreee.close();
+				requete.close();
+				
+				// Requête d'ajout des liens avec les groupes de participants liés
+				String strReq = "INSERT INTO edt.periodesbloqueesappartientgroupe (groupeparticipant_id, periodebloquee_id) VALUES";
+				for (int i=0; i<listeIdGroupe.size() ; i++) {
+					if (i!=0) strReq += ", ";
+					strReq += " (" + listeIdGroupe.get(i) + ", " + idLigneCree + ")";
+				}
+				bdd.executeRequest(strReq);
 			}
-			bdd.executeRequest(strReq);
 			
 			// Commit la transaction
 			bdd.commit();
@@ -206,18 +203,13 @@ public class PeriodeBloqueeGestion {
 	public void modifierPeriodeBloquee(int id, String libelle, Date dateDebut, Date dateFin, boolean vacances, boolean fermeture, ArrayList<Integer> listeIdGroupe) throws EdtempsException {
 
 		// Quelques vérifications sur l'objet à enregistrer
-		if (dateDebut==null || dateDebut==null || listeIdGroupe.isEmpty() || StringUtils.isEmpty(libelle)) {
+		if (StringUtils.isEmpty(libelle) || dateDebut==null || dateDebut==null || (vacances && listeIdGroupe.isEmpty()) || (fermeture && !listeIdGroupe.isEmpty()) || (!fermeture && !vacances && listeIdGroupe.isEmpty())) {
 			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Les informations sur la période bloquée ne sont pas complètes");
 		}
 		
 		// Vérifie que le libellé est bien alphanumérique
 		if(libelle.length() > TAILLE_MAX_LIBELLE || !libelle.matches("^['a-zA-Z \u00C0-\u00FF0-9]+$")) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libellé d'une période bloquée doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
-		}
-
-		// Vérifie que dans le cas d'une fermeture, il n'y a pas de groupes
-		if (fermeture && !listeIdGroupe.isEmpty()) {
-			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Tentative d'enregistrer une période de fermeture avec des groupes");
 		}
 
 		try {
@@ -238,16 +230,18 @@ public class PeriodeBloqueeGestion {
 			requete.execute();
 			requete.close();
 			
-			// Supprime l'ancienne liste des groupes liés
-			bdd.executeUpdate("DELETE FROM edt.periodesbloqueesappartientgroupe WHERE periodebloquee_id=" + id);
-			
-			// Recréer la liste des groupes liés
-			String strReq = "INSERT INTO edt.periodesbloqueesappartientgroupe (groupeparticipant_id, periodebloquee_id) VALUES";
-			for (int i=0; i<listeIdGroupe.size() ; i++) {
-				if (i!=0) strReq += ", ";
-				strReq += " (" + listeIdGroupe.get(i) + ", " + id + ")";
+			if (!fermeture) {
+				// Supprime l'ancienne liste des groupes liés
+				bdd.executeUpdate("DELETE FROM edt.periodesbloqueesappartientgroupe WHERE periodebloquee_id=" + id);
+				
+				// Recréer la liste des groupes liés
+				String strReq = "INSERT INTO edt.periodesbloqueesappartientgroupe (groupeparticipant_id, periodebloquee_id) VALUES";
+				for (int i=0; i<listeIdGroupe.size() ; i++) {
+					if (i!=0) strReq += ", ";
+					strReq += " (" + listeIdGroupe.get(i) + ", " + id + ")";
+				}
+				bdd.executeRequest(strReq);
 			}
-			bdd.executeRequest(strReq);
 
 			// Commit la transaction
 			bdd.commit();

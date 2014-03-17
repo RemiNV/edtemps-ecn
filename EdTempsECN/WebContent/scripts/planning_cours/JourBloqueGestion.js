@@ -30,11 +30,13 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		this.joursFeries = new Array();
 		this.joursBloques = new Array();
 		this.vacances = new Array();
+		this.fermetures = new Array();
 
 		// Listes indexées par les identifiants des jours
 		this.joursFeriesTries = new Object();
 		this.joursBloquesTries = new Object();
 		this.vacancesTriees = new Object();
+		this.fermeturesTriees = new Object();
 		
 		// Affiche le message de chargement en cours
 		this.jqEcran.find("#chargement_en_cours").show();
@@ -44,11 +46,12 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 			
 			var joursSpeciaux = me.joursFeries;
 			
-			// Récupère les vacances et jours bloqués
+			// Récupère les vacances, jours bloqués et fermetures
 			me.getPeriodesBloquees(annee, dateDebut, dateFin, function() {
 				
 				joursSpeciaux = joursSpeciaux.concat(me.joursBloques);
 				joursSpeciaux = joursSpeciaux.concat(me.vacances);
+				joursSpeciaux = joursSpeciaux.concat(me.fermetures);
 				
 				// Cache le message de chargement en cours
 				me.jqEcran.find("#chargement_en_cours").hide();
@@ -119,21 +122,14 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 					var jour = data.data.listePeriodesBloquees[i];
 					
 					if (jour.vacances) {
-						
-						// Ajoute les vacances dans la liste non triée
 						me.vacances.push(jour);
-						
-						// Trie les jours dans un objet indexé par identifiant
 						me.vacancesTriees[jour.id] = jour;
-						
+					} else if (jour.fermeture) {
+						me.fermetures.push(jour);
+						me.fermeturesTriees[jour.id] = jour;
 					} else {
-
-						// Ajoute les vacances dans la liste non triée
 						me.joursBloques.push(jour);
-
-						// Trie les jours dans un objet indexé par identifiant
 						me.joursBloquesTries[jour.id] = jour;
-						
 					}
 				}
 				
@@ -292,13 +288,18 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {string} libelle Libellé de la période bloquée
 	 * @param {date} dateDebut Date de début de la période bloquée
 	 * @param {date} dateFin Date de fin de la période bloquée
-	 * @param {boolean} vacances Vrai si ce sont des vacances, Faux sinon
+	 * @param {string} type Vaut 'fermetures' ou 'vacances'
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
-	JourBloqueGestion.prototype.ajouterPeriodeBloquee = function(libelle, dateDebut, dateFin, listeGroupes, vacances, callback) {
+	JourBloqueGestion.prototype.ajouterPeriodeBloquee = function(libelle, dateDebut, dateFin, listeGroupes, type, callback) {
 		var me = this;
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 
+		if (type != 'fermetures' && type != 'vacances') {
+			window.showToast("Erreur lors de la modification de la période bloquée ; vérifiez votre connexion.");
+			return;
+		}
+		
 		this.restManager.effectuerRequete("POST", "periodesbloquees/ajouter", {
 			token: this.restManager.getToken(),
 			periode: JSON.stringify({
@@ -306,7 +307,8 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 				listeGroupes: listeGroupes,
 				dateDebut: dateDebut.getTime(),
 				dateFin: dateFin.getTime(),
-				vacances: vacances
+				vacances: (type=='vacances'),
+				fermeture: (type=='fermetures')
 			})
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
@@ -334,13 +336,18 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {string} libelle Libellé de la période bloquée
 	 * @param {date} dateDebut Date de début de la période bloquée
 	 * @param {date} dateFin Date de fin de la période bloquée
-	 * @param {boolean} vacances Vrai si ce sont des vacances, Faux sinon
+	 * @param {string} type Vaut 'fermetures' ou 'vacances'
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
-	JourBloqueGestion.prototype.modifierPeriodeBloquee = function(id, libelle, dateDebut, dateFin, listeGroupes, vacances, callback) {
+	JourBloqueGestion.prototype.modifierPeriodeBloquee = function(id, libelle, dateDebut, dateFin, listeGroupes, type, callback) {
 		var me = this;
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
-
+		
+		if (type != 'fermetures' && type != 'vacances') {
+			window.showToast("Erreur lors de la modification de la période bloquée ; vérifiez votre connexion.");
+			return;
+		}
+		
 		this.restManager.effectuerRequete("POST", "periodesbloquees/modifier", {
 			token: this.restManager.getToken(),
 			periode: JSON.stringify({
@@ -349,7 +356,8 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 				listeGroupes: listeGroupes,
 				dateDebut: dateDebut.getTime(),
 				dateFin: dateFin.getTime(),
-				vacances: vacances
+				vacances: (type=='vacances'),
+				fermeture: (type=='fermetures')
 			})
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours

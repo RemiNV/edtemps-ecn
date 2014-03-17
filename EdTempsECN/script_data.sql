@@ -790,6 +790,10 @@
 	/* Fermetures de l'école */
 	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
 		VALUES ('Fermeture d''été', '2014-08-02 00:00:00', '2014-08-17 00:00:00', false, true);
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
+		VALUES ('Pont du 1er mai', '2014-05-02 00:00:00', '2014-05-02 00:00:00', false, true);
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
+		VALUES ('Pont du 8 mai', '2014-05-09 00:00:00', '2014-05-09 00:00:00', false, true);
 
 		
 /* liaisons des jours bloqués aux groupes */

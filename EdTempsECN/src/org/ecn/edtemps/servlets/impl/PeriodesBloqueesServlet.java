@@ -251,10 +251,10 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 		res.vacances = jsonPeriode.containsKey("vacances") && !jsonPeriode.isNull("vacances") ? jsonPeriode.getBoolean("vacances") : null;
 		res.fermeture = jsonPeriode.containsKey("fermeture") && !jsonPeriode.isNull("fermeture") ? jsonPeriode.getBoolean("fermeture") : null;
 
-		if (res.dateDebut==null || res.dateFin==null || res.dateDebut.after(res.dateFin) || StringUtils.isBlank(res.libelle) || res.listeIdGroupes.isEmpty() || res.vacances==null || res.fermeture==null) {
+		if (res.dateDebut==null || res.dateFin==null || res.dateDebut.after(res.dateFin) || StringUtils.isBlank(res.libelle) || res.vacances==null || res.fermeture==null) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet periode incomplet");
 		}
-		
+
 		return res;
 	}
 

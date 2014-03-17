@@ -18,6 +18,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 		this.jqGroupes = jqDialog.find("#groupes_participants_vacances");
 		this.periode = null; // Est rempli dans le cas d'une modification
 		this.multiWidgetGroupes = null;
+		this.type = ""; // Chaine de caractère qui vaut "vacances" ou 'fermeture'
 		
 		this.initAppele = false;
 	};
@@ -27,45 +28,60 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 	 * Affiche la boîte de dialogue
 	 * 
 	 * @param {object} periode Objet periode qui peut être null dans le cas d'ajout,
-	 * 						   sinon, il contient toutes les informations d'une période de vacances
+	 * 						   sinon, il contient toutes les informations d'une période de vacances/fermeture
+	 * @param {string} type Vaut "fermetures" ou "vacances"
 	 * @param {function} callback Méthode appellée au clic sur Valider
 	 */
-	DialogAjoutVacances.prototype.show = function(periode, callback) {
+	DialogAjoutVacances.prototype.show = function(periode, type, callback) {
+
+		if (type != "fermetures" && type != "vacances") {
+			return;
+		}
+		
 		if(!this.initAppele) {
-			this.init(periode, callback);
+			this.init(periode, type, callback);
 			return;
 		}
 		
 		// Récupère les paramètres
 		this.callback = callback;
 		this.periode = periode;
-		var me = this;
+		this.type = type;
 
 		// Rempli les champs dans le cas de la modification
-		if (me.periode != null) {
-			me.jqDialog.dialog({ title: "Modifier période de vacances" });
-			me.jqDialog.find("#btn_valider_ajout_vacances").val("Modifier");
-			me.jqLibelle.val(periode.libelle);
-			me.jqDateDebut.val(periode.strDateDebut);
-			me.jqDateFin.val(periode.strDateFin);
+		if (this.periode != null) {
+			this.jqDialog.dialog({ title: "Modifier période de "+type });
+			this.jqDialog.find("#btn_valider_ajout_vacances").val("Modifier");
+			this.jqLibelle.val(periode.libelle);
+			this.jqDateDebut.val(periode.strDateDebut);
+			this.jqDateFin.val(periode.strDateFin);
 
-			// Affiche les groupes de participants avec le multiwidget
-			var liste = new Array();
-			for (var i=0, maxI=periode.listeGroupes.length; i<maxI; i++) {
-				liste.push({
-						label: periode.listeGroupes[i].nom,
-						value: periode.listeGroupes[i].id
-				});
+			if (type=="vacances") {
+				// Affiche les groupes de participants avec le multiwidget
+				var liste = new Array();
+				for (var i=0, maxI=periode.listeGroupes.length; i<maxI; i++) {
+					liste.push({
+							label: periode.listeGroupes[i].nom,
+							value: periode.listeGroupes[i].id
+					});
+				}
+				this.multiWidgetGroupes.setValues(liste);
 			}
-			me.multiWidgetGroupes.setValues(liste);
 			
 		} else {
-			me.jqDialog.dialog({ title: "Ajouter période de vacances" });
-			me.jqDialog.find("#btn_valider_ajout_vacances").val("Ajouter");
+			this.jqDialog.dialog({ title: "Ajouter période de " + type });
+			this.jqDialog.find("#btn_valider_ajout_vacances").val("Ajouter");
 		}
 		
+		// Cache la ligne correspondant aux groupes dans le cas de fermetures
+		if (type=="fermetures") {
+			this.jqDialog.find("#groupes_participants_vacances").parents("tr").remove();
+			this.jqDialog.find("#span_alert_choix_groupe_manquant").parents("tr").remove();
+		}
+
+		
 		// Ouvre la boîte de dialogue
-		me.jqDialog.dialog("open");
+		this.jqDialog.dialog("open");
 
 	};
 	
@@ -74,10 +90,11 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 	 * Initialise la boîte de dialogue
 	 * 
 	 * @param {object} periode Objet periode qui peut être null dans le cas d'ajout,
-	 * 						   sinon, il contient toutes les informations d'une période de vacances
+	 * 						   sinon, il contient toutes les informations d'une période de vacances/fermetures
+	 * @param {string} type Vaut "fermetures" ou "vacances"
 	 * @param {function} callback Méthode appellée au clic sur Valider
 	 */
-	DialogAjoutVacances.prototype.init = function(periode, callback) {
+	DialogAjoutVacances.prototype.init = function(periode, type, callback) {
 		var me=this;
 		
 		// Créer la boîte de dialogue
@@ -151,7 +168,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 				}
 				
 				// Appelle la méthode de callback
-				me.callback(me.jqLibelle.val(), dateDebut, dateFin, me.multiWidgetGroupes.val());
+				me.callback(me.jqLibelle.val(), dateDebut, dateFin, (me.type=="vacances" ? me.multiWidgetGroupes.val() : new Array()));
 
 				// Ferme la boite de dialogue
 				me.jqDialog.dialog("close");
@@ -174,12 +191,11 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 				}
 				
 				// Met en place le multi widget pour le choix des groupes de participants
-				me.multiWidgetGroupes = new MultiWidget(me.jqGroupes, 
-						MultiWidget.AUTOCOMPLETE_OPTIONS(liste, 3, 240));
+				me.multiWidgetGroupes = new MultiWidget(me.jqGroupes, MultiWidget.AUTOCOMPLETE_OPTIONS(liste, 3, 240));
 
 				// Retourne à la méthode show()
 				me.initAppele = true;
-				me.show(periode, callback);
+				me.show(periode, type, callback);
 
 			} else {
 				window.showToast("Erreur lors de la récupération des groupes de participants ; vérifiez votre connexion.");
@@ -220,7 +236,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 		}
 		
 		// Vérifie qu'il y a un groupe
-		if (this.multiWidgetGroupes.val()=="") {
+		if (this.type=="vacances" && this.multiWidgetGroupes.val()=="") {
 			this.jqDialog.find("#span_alert_choix_groupe_manquant").show();
 			correct = false;
 		}
