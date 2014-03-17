@@ -43,7 +43,7 @@
 }
 
 #jours_bloques .ferie {
-	background-color: #B30202;
+	background-color: #B30202 !important;
 	color: white;
 }
 
