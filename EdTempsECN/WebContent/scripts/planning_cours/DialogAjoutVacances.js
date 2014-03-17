@@ -2,7 +2,7 @@
  * Module de contrôle de la boîte de dialogue d'ajout/modification de vacances
  * @module DialogAjoutVacances
  */
-define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jquerymaskedinput" ], function(RestManager, EcranJoursBloques, MultiWidget) {
+define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], function(RestManager, EcranJoursBloques, MultiWidget) {
 
 	/**
 	 * @constructor
@@ -14,9 +14,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 		this.jqDialog = jqDialog;
 		this.jqLibelle = jqDialog.find("#txt_libelle");
 		this.jqDateDebut = jqDialog.find("#date_debut_vacances");
-		this.jqHeureDebut = jqDialog.find("#heure_debut_vacances");
 		this.jqDateFin = jqDialog.find("#date_fin_vacances");
-		this.jqHeureFin = jqDialog.find("#heure_fin_vacances");
 		this.jqGroupes = jqDialog.find("#groupes_participants_vacances");
 		this.periode = null; // Est rempli dans le cas d'une modification
 		this.multiWidgetGroupes = null;
@@ -49,9 +47,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 			me.jqDialog.find("#btn_valider_ajout_vacances").val("Modifier");
 			me.jqLibelle.val(periode.libelle);
 			me.jqDateDebut.val(periode.strDateDebut);
-			me.jqHeureDebut.val(periode.strHeureDebut);
 			me.jqDateFin.val(periode.strDateFin);
-			me.jqHeureFin.val(periode.strHeureFin);
 
 			// Affiche les groupes de participants avec le multiwidget
 			var liste = new Array();
@@ -95,9 +91,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 			close: function() {
 				me.jqLibelle.val("");
 				me.jqDateDebut.val("");
-				me.jqHeureDebut.val("");
 				me.jqDateFin.val("");
-				me.jqHeureFin.val("");
 				me.periode = null;
 				me.jqDialog.find(".message_alerte").hide();
 				me.multiWidgetGroupes.clear();
@@ -126,11 +120,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
         };
 		this.jqDateDebut.datepicker(options);        
 		this.jqDateFin.datepicker(options);        
-        
-		// Masque sur les heures de début et fin
-		this.jqHeureDebut.mask("99:99");
-		this.jqHeureFin.mask("99:99");
-		
+        		
 		// Listener du bouton "Annuler"
 		this.jqDialog.find("#btn_annuler_ajout_vacances").click(function() {
 			me.jqDialog.dialog("close");
@@ -142,26 +132,20 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 			if (me.isCorrect()) {
 
 				var strDateDebut = me.jqDateDebut.val();
-				var strHeureDebut = me.jqHeureDebut.val();
 				var strDateFin = me.jqDateFin.val();
-				var strHeureFin = me.jqHeureFin.val();
 				
 				var jourDebut = parseInt(strDateDebut.substring(0, 2));
 				var moisDebut = parseInt(strDateDebut.substring(3, 5))-1;
 				var anneeDebut = parseInt(strDateDebut.substring(6, 10));
-				var heureDebut = parseInt(strHeureDebut.substring(0, 2));
-				var minutesDebut = parseInt(strHeureDebut.substring(3));
-				var dateDebut = new Date(anneeDebut, moisDebut, jourDebut, heureDebut, minutesDebut, 0);
+				var dateDebut = new Date(anneeDebut, moisDebut, jourDebut, 0, 0, 0);
 				
 				var jourFin = parseInt(strDateFin.substring(0, 2));
 				var moisFin = parseInt(strDateFin.substring(3, 5))-1;
 				var anneeFin = parseInt(strDateFin.substring(6, 10));
-				var heureFin = parseInt(strHeureFin.substring(0, 2));
-				var minutesFin = parseInt(strHeureFin.substring(3));
-				var dateFin = new Date(anneeFin, moisFin, jourFin, heureFin, minutesFin, 0);
+				var dateFin = new Date(anneeFin, moisFin, jourFin, 0, 0, 0);
 				
 				// Vérifie la cohérence des dates
-				if (dateDebut.getTime()>dateFin.getTime()) {
+				if (dateDebut.getTime() > dateFin.getTime()) {
 					alert("Les dates sont incohérentes. Veuillez les modifier.");
 					return;
 				}
@@ -224,22 +208,14 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 		}
 		
 		// Validation de la date de début
-		var decoupageHeureMinute = this.jqHeureDebut.val().split(":");
-		if (this.jqDateDebut.val().length==0 || this.jqHeureDebut.val().length==0) {
+		if (this.jqDateDebut.val().length==0) {
 			this.jqDialog.find("#span_alert_date_debut_absente").show();
-			correct = false;
-		} else if (decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1])) {
-			this.jqDialog.find("#span_alert_heure_debut_incorrecte").show();
 			correct = false;
 		}
 		
 		// Validation de la date de fin
-		decoupageHeureMinute = this.jqHeureFin.val().split(":");
-		if (this.jqDateFin.val().length==0 || this.jqHeureFin.val().length==0) {
+		if (this.jqDateFin.val().length==0) {
 			this.jqDialog.find("#span_alert_date_fin_absente").show();
-			correct = false;
-		} else if (decoupageHeureMinute[0]>23 || isNaN(decoupageHeureMinute[0]) || decoupageHeureMinute[1]>59 || isNaN(decoupageHeureMinute[1])) {
-			this.jqDialog.find("#span_alert_heure_fin_incorrecte").show();
 			correct = false;
 		}
 		

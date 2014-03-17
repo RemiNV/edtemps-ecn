@@ -1,11 +1,11 @@
 <table>
 	<tr>
 		<td width="95"><label for="txt_libelle">Libellé : </label></td>
-		<td colspan="2"><input type="text" id="txt_libelle" maxlength="50" size="40" /></td>
+		<td><input type="text" id="txt_libelle" maxlength="50" size="40" /></td>
 	</tr>
 	<tr>
 		<td></td>
-		<td colspan="2">
+		<td>
 			<div id="span_alert_libelle_non_alphanumerique" class="message_alerte" style="display: none">Cette valeur doit être alphanumérique</div>
 			<div id="span_alert_libelle_absent" class="message_alerte" style="display: none">Ce champ est obligatoire</div>
 		</td>
@@ -13,13 +13,11 @@
 
 	<tr>
 		<td><label for="date_debut_vacances">Début : </label></td>
-		<td width="130"><input type="text" id="date_debut_vacances" size="10" /></td>
-		<td>à <input type="text" id="heure_debut_vacances" size="4"/></td>
+		<td><input type="text" id="date_debut_vacances" size="10" /></td>
 	</tr>
 	<tr>
 		<td></td>
-		<td colspan="2">
-			<div id="span_alert_heure_debut_incorrecte" class="message_alerte" style="display: none">Ce champ n'est pas correct</div>
+		<td>
 			<div id="span_alert_date_debut_absente" class="message_alerte" style="display: none">Ce champ est obligatoire</div>
 		</td>
 	</tr>
@@ -27,23 +25,21 @@
 	<tr>
 		<td><label for="date_fin_vacances">Fin : </label></td>
 		<td><input type="text" id="date_fin_vacances" size="10" /></td>
-		<td>à <input type="text" id="heure_fin_vacances" size="4" /></td>
 	</tr>
 	<tr>
 		<td></td>
-		<td colspan="2">
-			<div id="span_alert_heure_fin_incorrecte" class="message_alerte" style="display: none">Ce champ n'est pas correct</div>
+		<td>
 			<div id="span_alert_date_fin_absente" class="message_alerte" style="display: none">Ce champ est obligatoire</div>
 		</td>
 	</tr>
 	
 	<tr>
 		<td valign="top">Groupes : </td>
-		<td colspan="2"><input type="text" id="groupes_participants_vacances" /></td>
+		<td><input type="text" id="groupes_participants_vacances" /></td>
 	</tr>
 	<tr>
 		<td></td>
-		<td colspan="2"><div id="span_alert_choix_groupe_manquant" class="message_alerte" style="display: none">Vous devez sélectionner un groupe</div></td>
+		<td><div id="span_alert_choix_groupe_manquant" class="message_alerte" style="display: none">Vous devez sélectionner un groupe</div></td>
 	</tr>
 	
 </table>

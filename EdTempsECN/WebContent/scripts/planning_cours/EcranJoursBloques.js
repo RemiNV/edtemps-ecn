@@ -371,11 +371,9 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 			
 			// Ajoute des attributs string de date et heure - date de début
 			periode.strDateDebut = $.fullCalendar.formatDate(new Date(periode.dateDebut), "dd/MM/yyyy");
-			periode.strHeureDebut = $.fullCalendar.formatDate(new Date(periode.dateDebut), "HH:mm");
 
 			// Ajoute des attributs string de date et heure - date de fin
 			periode.strDateFin = $.fullCalendar.formatDate(new Date(periode.dateFin), "dd/MM/yyyy");
-			periode.strHeureFin = $.fullCalendar.formatDate(new Date(periode.dateFin), "HH:mm");
 
 			// Créer une chaîne de caractère des noms des groupes associés à ce jour
 			var str = "";
