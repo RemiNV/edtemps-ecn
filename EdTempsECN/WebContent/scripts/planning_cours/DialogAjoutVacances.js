@@ -75,8 +75,11 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 		
 		// Cache la ligne correspondant aux groupes dans le cas de fermetures
 		if (type=="fermetures") {
-			this.jqDialog.find("#groupes_participants_vacances").parents("tr").remove();
-			this.jqDialog.find("#span_alert_choix_groupe_manquant").parents("tr").remove();
+			this.jqDialog.find("#groupes_participants_vacances").parents("tr").hide();
+			this.jqDialog.find("#span_alert_choix_groupe_manquant").parents("tr").hide();
+		} else {
+			this.jqDialog.find("#groupes_participants_vacances").parents("tr").show();
+			this.jqDialog.find("#span_alert_choix_groupe_manquant").parents("tr").show();
 		}
 
 		

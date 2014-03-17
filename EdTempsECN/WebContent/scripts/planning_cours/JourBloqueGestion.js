@@ -295,8 +295,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		var me = this;
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 
-		if (type != 'fermetures' && type != 'vacances') {
+		if (type!=null && type != 'fermetures' && type != 'vacances') {
 			window.showToast("Erreur lors de la modification de la période bloquée ; vérifiez votre connexion.");
+			this.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			return;
 		}
 		
@@ -307,8 +308,8 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 				listeGroupes: listeGroupes,
 				dateDebut: dateDebut.getTime(),
 				dateFin: dateFin.getTime(),
-				vacances: (type=='vacances'),
-				fermeture: (type=='fermetures')
+				vacances: (type==='vacances'),
+				fermeture: (type==='fermetures')
 			})
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
@@ -343,8 +344,9 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		var me = this;
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 		
-		if (type != 'fermetures' && type != 'vacances') {
+		if (type!=null && type != 'fermetures' && type != 'vacances') {
 			window.showToast("Erreur lors de la modification de la période bloquée ; vérifiez votre connexion.");
+			this.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			return;
 		}
 		
@@ -356,8 +358,8 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 				listeGroupes: listeGroupes,
 				dateDebut: dateDebut.getTime(),
 				dateFin: dateFin.getTime(),
-				vacances: (type=='vacances'),
-				fermeture: (type=='fermetures')
+				vacances: (type==='vacances'),
+				fermeture: (type==='fermetures')
 			})
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours

@@ -288,7 +288,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	EcranJoursBloques.prototype.ouvrirAjoutPeriodeBloquee = function(date) {
 		var me = this;
 		this.dialogAjoutPeriodeBloquee.show(null, date, function (libelle, dateDebut, dateFin, listeGroupes) {
-			me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, false, function () {
+			me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, null, function () {
 	    		me.actualiserPage(0);
     		});
 		});
@@ -324,7 +324,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	    	var id = $(this).parents("tr").attr("data-id");
 			
 			me.dialogAjoutPeriodeBloquee.show(me.jourBloqueGestion.joursBloquesTries[id], date, function (libelle, dateDebut, dateFin, listeGroupes) {
-				me.jourBloqueGestion.modifierPeriodeBloquee(id, libelle, dateDebut, dateFin, listeGroupes, false, function () {
+				me.jourBloqueGestion.modifierPeriodeBloquee(id, libelle, dateDebut, dateFin, listeGroupes, null, function () {
 		    		me.actualiserPage(0);
 	    		});
 			});
@@ -348,7 +348,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 		this.jqDialogDetailsJourBloque.find("#btnAjouterPeriodeBloquee").click(function() {
 			me.jqDialogDetailsJourBloque.dialog("close");
 			me.dialogAjoutPeriodeBloquee.show(null, date, function (libelle, dateDebut, dateFin, listeGroupes) {
-				me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, false, function () {
+				me.jourBloqueGestion.ajouterPeriodeBloquee(libelle, dateDebut, dateFin, listeGroupes, null, function () {
 		    		me.actualiserPage(0);
 	    		});
 			});
