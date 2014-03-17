@@ -12,7 +12,7 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.PeriodeBloquee;
 
 /**
- * Classe modèle identifiée d'une période bloquée : jours bloqués ou vacances
+ * Classe modèle identifiée d'une période bloquée : jours bloqués, vacances ou fermeture de l'école
  * 
  * @author Joffrey
  */
@@ -30,9 +30,10 @@ public class PeriodeBloqueeIdentifie extends PeriodeBloquee implements JSONAble 
 	 * @param dateFin Date de fin de la période
 	 * @param listeGroupes Liste des groupes rattachés à la période
 	 * @param vacances VRAI si la période bloquée correspond à des vacances
+	 * @param fermeture VRAI si la période bloquée correspond à une fermeture
 	 */
-	public PeriodeBloqueeIdentifie(int id, String libelle, Date dateDebut, Date dateFin, List<GroupeIdentifie> listeGroupes, boolean vacances) {
-		super(libelle, dateDebut, dateFin, listeGroupes, vacances);
+	public PeriodeBloqueeIdentifie(int id, String libelle, Date dateDebut, Date dateFin, List<GroupeIdentifie> listeGroupes, boolean vacances, boolean fermeture) {
+		super(libelle, dateDebut, dateFin, listeGroupes, vacances, fermeture);
 		this.id = id;
 	}
 	
@@ -43,6 +44,7 @@ public class PeriodeBloqueeIdentifie extends PeriodeBloquee implements JSONAble 
 				.add("id", this.id)
 				.add("libelle", this.libelle)
 				.add("vacances", this.vacances)
+				.add("fermeture", this.fermeture)
 				.add("dateDebut", this.dateDebut.getTime())
 				.add("dateFin", this.dateFin.getTime())
 				.add("listeGroupes", JSONUtils.getJsonArray(this.listeGroupes));

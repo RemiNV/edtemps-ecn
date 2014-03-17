@@ -12,7 +12,7 @@ import org.ecn.edtemps.json.JSONUtils;
 import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 
 /**
- * Classe modèle d'une période bloquée : jours bloqués ou vacances
+ * Classe modèle d'une période bloquée : jours bloqués, vacances ou fermeture de l'école
  * 
  * @author Joffrey
  */
@@ -33,6 +33,8 @@ public class PeriodeBloquee implements JSONAble {
 	/** VRAI si la période bloquée correspond à des vacances */
 	protected boolean vacances;
 
+	/** VRAI si la période bloquée correspond à une fermeture de l'école */
+	protected boolean fermeture;
 	
 	/** 
 	 * Constructeur avec les paramètres obligatoires
@@ -42,13 +44,15 @@ public class PeriodeBloquee implements JSONAble {
 	 * @param dateFin Date de fin de la période
 	 * @param listeGroupes Liste des groupes rattachés à la période
 	 * @param vacances VRAI si la période bloquée correspond à des vacances
+	 * @param fermeture VRAI si la période bloquée correspond à une fermeture
 	 */
-	public PeriodeBloquee (String libelle, Date dateDebut, Date dateFin, List<GroupeIdentifie> listeGroupes, boolean vacances) {
+	public PeriodeBloquee (String libelle, Date dateDebut, Date dateFin, List<GroupeIdentifie> listeGroupes, boolean vacances, boolean fermeture) {
 		this.libelle = libelle;
 		this.dateDebut = dateDebut;
 		this.dateFin = dateFin;
 		this.listeGroupes = listeGroupes;
 		this.vacances = vacances;
+		this.fermeture = fermeture;
 	}
 	
 
@@ -57,6 +61,7 @@ public class PeriodeBloquee implements JSONAble {
 		JsonObjectBuilder builder =  Json.createObjectBuilder()
 				.add("libelle", this.libelle)
 				.add("vacances", this.vacances)
+				.add("fermeture", this.fermeture)
 				.add("dateDebut", this.dateDebut.getTime())
 				.add("dateFin", this.dateFin.getTime())
 				.add("listeGroupes", JSONUtils.getJsonArray(this.listeGroupes));
@@ -102,6 +107,14 @@ public class PeriodeBloquee implements JSONAble {
 
 	public void setVacances(boolean vacances) {
 		this.vacances = vacances;
+	}
+
+	public boolean getFermeture() {
+		return fermeture;
+	}
+
+	public void setFermeture(boolean fermeture) {
+		this.fermeture = fermeture;
 	}
 
 }

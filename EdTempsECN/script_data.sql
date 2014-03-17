@@ -770,22 +770,27 @@
 	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Jour de l''an', '2014-01-01');
 	INSERT INTO edt.joursferies(jourferie_libelle, jourferie_date) VALUES ('Fête du travail', '2014-05-01');
 
-/* jours bloqué */
+/* périodes bloquées */
 	/* Vacances */
-	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
-		VALUES ('Vacances de Noël', '2013-12-23 00:00:00', '2014-01-05 00:00:00', true);
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
+		VALUES ('Vacances de Noël', '2013-12-23 00:00:00', '2014-01-05 00:00:00', true, false);
 		
-	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
-		VALUES ('Vacances d''hiver', '2014-03-03 00:00:00', '2014-03-09 00:00:00', true);
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
+		VALUES ('Vacances d''hiver', '2014-03-03 00:00:00', '2014-03-09 00:00:00', true, false);
 		
-	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
-		VALUES ('Vacances d''été', '2014-07-01 00:00:00', '2014-08-31 00:00:00', true);
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
+		VALUES ('Vacances d''été', '2014-07-01 00:00:00', '2014-08-31 00:00:00', true, false);
 
 	/* Journées particulières */
-	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
-		VALUES ('Forum Atlantique Promo A', '2013-11-13 08:00:00', '2013-11-13 12:00:00', false);
-	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)
-		VALUES ('Forum Atlantique Promo B', '2013-11-13 14:00:00', '2013-11-13 18:00:00', false);
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
+		VALUES ('Forum Atlantique Promo A', '2013-11-13 08:00:00', '2013-11-13 12:00:00', false, false);
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
+		VALUES ('Forum Atlantique Promo B', '2013-11-13 14:00:00', '2013-11-13 18:00:00', false, false);
+		
+	/* Fermetures de l'école */
+	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
+		VALUES ('Fermeture d''été', '2014-08-02 00:00:00', '2014-08-17 00:00:00', false, true);
+
 		
 /* liaisons des jours bloqués aux groupes */
 	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)

@@ -47,6 +47,7 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 		public ArrayList<Integer> listeIdGroupes;
 		public Integer idPeriodeBloquee;
 		public Boolean vacances;
+		public Boolean fermeture;
 	}
 
 	
@@ -121,7 +122,6 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 		// Récupère les paramètres
 		Date debut = this.getDateInRequest(req, "debut");
 		Date fin = this.getDateInRequest(req, "fin");
-		Boolean vacances = req.getParameter("vacances")=="" ? null : Boolean.valueOf(req.getParameter("vacances"));
 
 		// Quelques vérifications sur les dates
 		if (debut==null || fin==null || debut.after(fin)) {
@@ -130,7 +130,7 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 		
 		// Exécute la requête de récupération avec le gestionnaire
 		PeriodeBloqueeGestion gestionnaire = new PeriodeBloqueeGestion(bdd);
-		List<PeriodeBloqueeIdentifie> resultat = gestionnaire.getPeriodesBloquees(debut, fin, vacances);
+		List<PeriodeBloqueeIdentifie> resultat = gestionnaire.getPeriodesBloquees(debut, fin);
 		bdd.close();
 		
 		// Création de la réponse
@@ -183,7 +183,7 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 
 		// Exécute la requête d'ajout avec le gestionnaire
 		PeriodeBloqueeGestion gestionnaire = new PeriodeBloqueeGestion(bdd);
-		gestionnaire.sauverPeriodeBloquee(param.libelle, param.dateDebut, param.dateFin, param.vacances, param.listeIdGroupes);
+		gestionnaire.sauverPeriodeBloquee(param.libelle, param.dateDebut, param.dateFin, param.vacances, param.fermeture, param.listeIdGroupes);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Période bloquée ajoutée", null));
 
@@ -209,7 +209,7 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 
 		// Exécute la requête de modification avec le gestionnaire
 		PeriodeBloqueeGestion gestionnaire = new PeriodeBloqueeGestion(bdd);
-		gestionnaire.modifierPeriodeBloquee(param.idPeriodeBloquee, param.libelle, param.dateDebut, param.dateFin, param.vacances, param.listeIdGroupes);
+		gestionnaire.modifierPeriodeBloquee(param.idPeriodeBloquee, param.libelle, param.dateDebut, param.dateFin, param.vacances, param.fermeture, param.listeIdGroupes);
 		bdd.close();
 		resp.getWriter().write(ResponseManager.generateResponse(ResultCode.SUCCESS, "Période bloquée modifiée", null));
 
@@ -249,8 +249,9 @@ public class PeriodesBloqueesServlet extends RequiresConnectionServlet {
 
 		res.libelle = jsonPeriode.containsKey("libelle") && !jsonPeriode.isNull("libelle") ? jsonPeriode.getString("libelle") : null;
 		res.vacances = jsonPeriode.containsKey("vacances") && !jsonPeriode.isNull("vacances") ? jsonPeriode.getBoolean("vacances") : null;
+		res.fermeture = jsonPeriode.containsKey("fermeture") && !jsonPeriode.isNull("fermeture") ? jsonPeriode.getBoolean("fermeture") : null;
 
-		if (res.dateDebut==null || res.dateFin==null || res.dateDebut.after(res.dateFin) || StringUtils.isBlank(res.libelle) || res.listeIdGroupes.isEmpty() || res.vacances==null) {
+		if (res.dateDebut==null || res.dateFin==null || res.dateDebut.after(res.dateFin) || StringUtils.isBlank(res.libelle) || res.listeIdGroupes.isEmpty() || res.vacances==null || res.fermeture==null) {
 			throw new EdtempsException(ResultCode.WRONG_PARAMETERS_FOR_REQUEST, "Objet periode incomplet");
 		}
 		

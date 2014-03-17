@@ -94,7 +94,7 @@ define([  ], function() {
 	    
 	    // Supprime le callback sur les jours fériés
 		this.jqEcran.find(".ferie").unbind();
-	    
+		this.jqEcran.find(".fermeture").unbind();
 	};
 
 	
@@ -132,9 +132,8 @@ define([  ], function() {
 		for (var i=0, maxI=this.joursSpeciaux.length; i<maxI; i++) {
 			var jour = this.joursSpeciaux[i];
 			
-			if (jour.date) {
+			if (jour.date) {		// Jour férié
 				var date = new Date(jour.date);
-				
 				this.jqCalendar.find("#"+dateToString(date)).addClass("ferie").attr("data", i).attr("title", this.dateEnTouteLettres(date));
 			}
 			else {
@@ -143,8 +142,16 @@ define([  ], function() {
 				
 				if (jour.vacances) {		// Vacances
 					var date = dateDebut;
+					
 					while (date.getTime() <= dateFin.getTime()) {
 						this.jqCalendar.find("#"+dateToString(date)+" .initiale_jour").addClass("vacances");
+						date.setDate(date.getDate()+1);
+					}
+				} else if (jour.fermeture) {	// Fermeture
+					var date = dateDebut;
+					
+					while (date.getTime() <= dateFin.getTime()) {
+						this.jqCalendar.find("#"+dateToString(date)).addClass("fermeture");
 						date.setDate(date.getDate()+1);
 					}
 				} else {					// Période bloquée

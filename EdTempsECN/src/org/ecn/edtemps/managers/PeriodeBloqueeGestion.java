@@ -41,7 +41,8 @@ public class PeriodeBloqueeGestion {
 	
 	/**
 	 * Création d'une période bloquée à partir d'une ligne de base de données
-	 * Colonnes nécessaires dans le ResultSet : periodebloquee_id, periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin
+	 * Colonnes nécessaires dans le ResultSet : periodebloquee_id, periodebloquee_libelle, periodebloquee_date_debut,
+	 * periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture
 	 * 
 	 * @param row Résultat de la requête placé sur la ligne à lire
 	 * @return PeriodeBloquee créée
@@ -54,6 +55,7 @@ public class PeriodeBloqueeGestion {
 		Date dateDebut = row.getTimestamp("periodebloquee_date_debut");
 		Date dateFin = row.getTimestamp("periodebloquee_date_fin");
 		boolean vacances = row.getBoolean("periodebloquee_vacances");
+		boolean fermeture = row.getBoolean("periodebloquee_fermeture");
 		
 		// Récupération des groupes associés
 		ResultSet requete = bdd.executeRequest("SELECT groupeparticipant.groupeparticipant_id, groupeparticipant.groupeparticipant_nom, " +
@@ -71,31 +73,25 @@ public class PeriodeBloqueeGestion {
 		
 		requete.close();
 		
-		return new PeriodeBloqueeIdentifie(id, libelle, dateDebut, dateFin, listeGroupes, vacances);
+		return new PeriodeBloqueeIdentifie(id, libelle, dateDebut, dateFin, listeGroupes, vacances, fermeture);
 	}
 	
 	
 	/**
 	 * Récupérer la liste des périodes bloquées dans la base de données pour une période donnée
-	 * Trois possibilité :
-	 * 		- récupération des vacances (vacances=true)
-	 * 		- récupération des jours bloqués non vacances (vacances=false)
-	 * 		- récupération de tous les jours bloqués (vacances=null)
 	 * 
 	 * @param debut Début de la période de recherche
 	 * @param fin Fin de la période de recherche
-	 * @param vacances Si non null, inclus uniquement les vacances (true) ou les non-vacances (false)
 	 * @return la liste des jours bloqués
 	 * @throws EdtempsException 
 	 */
-	public List<PeriodeBloqueeIdentifie> getPeriodesBloquees(Date debut, Date fin, Boolean vacances) throws DatabaseException {
+	public List<PeriodeBloqueeIdentifie> getPeriodesBloquees(Date debut, Date fin) throws DatabaseException {
 
 		try {
 
-			String requeteString = "SELECT periodebloquee_id, periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances" +
+			String requeteString = "SELECT periodebloquee_id, periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture" +
 					" FROM edt.periodesbloquees" +
 					" WHERE periodebloquee_date_debut <= ? AND periodebloquee_date_fin >= ?" +
-					(vacances==null ? "" : " AND periodebloquee_vacances = "+vacances) + 
 					" ORDER BY periodebloquee_date_debut";
 			
 			PreparedStatement requetePreparee = bdd.getConnection().prepareStatement(requeteString);
@@ -131,10 +127,11 @@ public class PeriodeBloqueeGestion {
 	 * @param dateDebut Date de début de la période
 	 * @param dateFin Date de fin de la période
 	 * @param vacances VRAI si c'est une période de vacances
+	 * @param fermeture VRAI si c'est une période de fermeture
 	 * @param listeIdGroupe Liste des identifiants des groupes liés à cette période
 	 * @throws EdtempsException
 	 */
-	public void sauverPeriodeBloquee(String libelle, Date dateDebut, Date dateFin, boolean vacances, ArrayList<Integer> listeIdGroupe) throws EdtempsException {
+	public void sauverPeriodeBloquee(String libelle, Date dateDebut, Date dateFin, boolean vacances, boolean fermeture, ArrayList<Integer> listeIdGroupe) throws EdtempsException {
 
 		// Quelques vérifications sur l'objet à enregistrer
 		if (dateDebut==null || dateDebut==null || listeIdGroupe.isEmpty() || StringUtils.isEmpty(libelle)) {
@@ -145,6 +142,11 @@ public class PeriodeBloqueeGestion {
 		if(libelle.length() > TAILLE_MAX_LIBELLE || !libelle.matches("^['a-zA-Z \u00C0-\u00FF0-9]+$")) {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libellé d'une période bloquée doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
 		}
+		
+		// Vérifie que dans le cas d'une fermeture, il n'y a pas de groupes
+		if (fermeture && !listeIdGroupe.isEmpty()) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Tentative d'enregistrer une période de fermeture avec des groupes");
+		}
 
 		try {
 			
@@ -153,13 +155,14 @@ public class PeriodeBloqueeGestion {
 			
 			// Prépare la requête d'insertion
 			PreparedStatement requete = bdd.getConnection().prepareStatement("INSERT INTO edt.periodesbloquees" +
-					" (periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances)" +
-					" VALUES (?, ?, ?, ?)" +
+					" (periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)" +
+					" VALUES (?, ?, ?, ?, ?)" +
 				    " RETURNING periodebloquee_id");
 			requete.setString(1, libelle);
 			requete.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
 			requete.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
 			requete.setBoolean(4, vacances);
+			requete.setBoolean(5, fermeture);
 			
 			// Exécute la requête
 			ResultSet ligneCreee = requete.executeQuery();
@@ -196,10 +199,11 @@ public class PeriodeBloqueeGestion {
 	 * @param dateDebut Nouvelle date de début
 	 * @param dateFin Nouvelle date de fin
 	 * @param vacances Nouvelle valeur pour vacances
+	 * @param fermeture Nouvelle valeur pour fermeture
 	 * @param listeIdGroupe Nouvelle liste des identifiants des groupes liés à cette période
 	 * @throws EdtempsException
 	 */
-	public void modifierPeriodeBloquee(int id, String libelle, Date dateDebut, Date dateFin, boolean vacances, ArrayList<Integer> listeIdGroupe) throws EdtempsException {
+	public void modifierPeriodeBloquee(int id, String libelle, Date dateDebut, Date dateFin, boolean vacances, boolean fermeture, ArrayList<Integer> listeIdGroupe) throws EdtempsException {
 
 		// Quelques vérifications sur l'objet à enregistrer
 		if (dateDebut==null || dateDebut==null || listeIdGroupe.isEmpty() || StringUtils.isEmpty(libelle)) {
@@ -211,6 +215,11 @@ public class PeriodeBloqueeGestion {
 			throw new EdtempsException(ResultCode.ALPHANUMERIC_REQUIRED, "Le libellé d'une période bloquée doit être alphanumérique et de moins de " + TAILLE_MAX_LIBELLE + " caractères");
 		}
 
+		// Vérifie que dans le cas d'une fermeture, il n'y a pas de groupes
+		if (fermeture && !listeIdGroupe.isEmpty()) {
+			throw new EdtempsException(ResultCode.INVALID_OBJECT, "Tentative d'enregistrer une période de fermeture avec des groupes");
+		}
+
 		try {
 			
 			// Démarre une transaction
@@ -218,13 +227,14 @@ public class PeriodeBloqueeGestion {
 			
 			// Modifie les valeurs de base de la période
 			PreparedStatement requete = bdd.getConnection().prepareStatement("UPDATE edt.periodesbloquees" +
-					" SET periodebloquee_libelle=?, periodebloquee_date_debut=?, periodebloquee_date_fin=?, periodebloquee_vacances=?" +
+					" SET periodebloquee_libelle=?, periodebloquee_date_debut=?, periodebloquee_date_fin=?, periodebloquee_vacances=?, periodebloquee_fermeture=?" +
 					" WHERE periodebloquee_id=?");
 			requete.setString(1, libelle);
 			requete.setTimestamp(2, new java.sql.Timestamp(dateDebut.getTime()));
 			requete.setTimestamp(3, new java.sql.Timestamp(dateFin.getTime()));
 			requete.setBoolean(4, vacances);
-			requete.setInt(5, id);
+			requete.setBoolean(5, fermeture);
+			requete.setInt(6, id);
 			requete.execute();
 			requete.close();
 			

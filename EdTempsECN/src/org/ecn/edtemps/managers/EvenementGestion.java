@@ -962,7 +962,7 @@ public class EvenementGestion {
 			}
 			
 			// Vérification de la présence d'une période bloquée
-			List<PeriodeBloqueeIdentifie> periodesBloquees = periodeBloqueeGestion.getPeriodesBloquees(newDateDebut, newDateFin, null);
+			List<PeriodeBloqueeIdentifie> periodesBloquees = periodeBloqueeGestion.getPeriodesBloquees(newDateDebut, newDateFin);
 			
 			if(periodesBloquees.size() > 0) {
 				problemes.add(new Probleme(ProblemeStatus.JOUR_BLOQUE, periodesBloquees.get(0).getLibelle()));

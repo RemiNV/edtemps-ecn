@@ -281,6 +281,7 @@ CREATE TABLE edt.periodesbloquees (
                 periodebloquee_date_debut TIMESTAMP NOT NULL,
                 periodebloquee_date_fin TIMESTAMP NOT NULL,
 				periodebloquee_vacances BOOLEAN NOT NULL,
+				periodebloquee_fermeture BOOLEAN NOT NULL,
                 CONSTRAINT periodebloquee_id PRIMARY KEY (periodebloquee_id)
 );
 ALTER SEQUENCE edt.periodesbloquees_periodebloquee_id_seq OWNER TO "edtemps-ecn";
