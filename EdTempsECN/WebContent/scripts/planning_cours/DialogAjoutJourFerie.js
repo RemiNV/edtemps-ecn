@@ -44,7 +44,6 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 			this.jqDialog.find("#btn_valider_ajout_jour_ferie").val("Modifier");
 			this.jqLibelle.val(jour.libelle);
 			this.jqDate.val(jour.dateString);
-			this.jqDialog.find("input:radio[name=type_jour_ferie][value="+jour.fermeture+"]").prop('checked', true);
 		} else {
 			this.jqDialog.dialog({ title: "Ajouter jour férié" });
 			this.jqDialog.find("#btn_valider_ajout_jour_ferie").val("Ajouter");
@@ -76,7 +75,6 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 				me.jqLibelle.val("");
 				me.jqDate.val("");
 				me.jour = null;
-				me.jqDialog.find("input:radio[name=type_jour_ferie][value=false]").prop('checked', true);
 				me.jqDialog.find(".message_alerte").hide();
 			}
 		});
@@ -137,9 +135,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	 */
 	DialogAjoutJourFerie.prototype.valider = function(date) {
 		
-		var type = this.jqDialog.find("input:radio[name=type_jour_ferie]:checked").val();
-		
-		this.callback(this.jqLibelle.val(), date, type);
+		this.callback(this.jqLibelle.val(), date);
 		this.jqDialog.dialog("close");
 		
 	};
