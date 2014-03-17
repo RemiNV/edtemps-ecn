@@ -159,7 +159,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 
 		this.restManager.effectuerRequete("POST", "joursferies/supprimer", {
-			token: this.restManager.getToken(), idJourFerie: id
+			token: this.restManager.getToken(), idJourFerie: parseInt(id)
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
@@ -222,11 +222,11 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	JourBloqueGestion.prototype.modifierJourFerie = function(id, libelle, date, callback) {
 		var me = this;
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
-
+		
 		this.restManager.effectuerRequete("POST", "joursferies/modifier", {
 			token: this.restManager.getToken(),
 			jour: JSON.stringify({
-				idJourFerie: id,
+				idJourFerie: parseInt(id),
 				libelle: libelle,
 				date: date.getTime()
 			})
@@ -381,7 +381,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		this.jqEcran.find("#chargement_en_cours").show();	// Affiche le message de chargement en cours
 
 		this.restManager.effectuerRequete("POST", "periodesbloquees/supprimer", {
-			token: this.restManager.getToken(), idPeriodeBloquee: id
+			token: this.restManager.getToken(), idPeriodeBloquee: parseInt(id)
 		}, function(data) {
 			me.jqEcran.find("#chargement_en_cours").hide();	// Cache le message de chargement en cours
 			if(data.resultCode == RestManager.resultCode_Success) {
