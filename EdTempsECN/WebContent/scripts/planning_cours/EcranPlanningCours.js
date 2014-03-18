@@ -151,6 +151,9 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			// Remplissage de la liste des groupes sélectionnés
 			$("#lst_groupes_associes").text(this.calendrierSelectionne.nomsGroupesParents.join(", "));
 			
+			// Initialise le filtre pour les jours spéciaux en fonction des groupes du calendrier
+			this.evenementGestion.joursSpeciauxFiltre = this.calendrierSelectionne.groupesParents;
+			
 			// Mise à jour du bloc de statistiques
 			this.updateStatistiques();
 			
