@@ -89,7 +89,8 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 			this.setVue("mes_abonnements");
 		}
 		
-		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, 
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); },
+				function(start, end, callback) { me.evenementGestion.recupererJoursSpeciaux(start, end, callback); },
 				this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, $("#accueil_datepicker"));
 		
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));

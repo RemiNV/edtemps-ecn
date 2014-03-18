@@ -8,7 +8,7 @@ define(["RestManager", "DialogDetailsEvenement", "underscore", "lib/fullcalendar
 	 * @constructor
 	 * @alias module:Calendrier
 	 */
-	var Calendrier = function(eventsSource, dialogAjoutEvenement, evenementGestion, dialogDetailsEvenement, jqDatepicker) {
+	var Calendrier = function(eventsSource, specialDaysSource, dialogAjoutEvenement, evenementGestion, dialogDetailsEvenement, jqDatepicker) {
 		var me = this;
 		
 		// Mémorise les anciennes dates des évènements lors du drag&drop, resize
@@ -23,6 +23,7 @@ define(["RestManager", "DialogDetailsEvenement", "underscore", "lib/fullcalendar
 			weekNumbers: true,
 			weekNumberTitle: "Sem.",
 			firstDay: 1,
+			firstHour: 8,
 			editable: true,
 			defaultView: "agendaWeek",
 			timeFormat: "HH'h'(mm){ - HH'h'(mm)}",
@@ -47,9 +48,8 @@ define(["RestManager", "DialogDetailsEvenement", "underscore", "lib/fullcalendar
 				posCalendrier = me.jqCalendar.offset();
 				me.jqCalendar.fullCalendar("option", "height", Math.max(window.innerHeight - posCalendrier.top - 10, 500));
 			},
-			events: eventsSource,
+			eventSources: [eventsSource, specialDaysSource],
 			dayClick: function(date, allDay, jsEvent, view) {
-				
 				// La dialog de détails se fermera juste après ce listener (clic en-dehors)
 				if(dialogDetailsEvenement.isOpen()) {
 					return;
@@ -66,33 +66,39 @@ define(["RestManager", "DialogDetailsEvenement", "underscore", "lib/fullcalendar
 				}
 				
 				// Callback d'ouverture de la dialog de détails
-				jqElement.click(function() {
-					dialogDetailsEvenement.show(event, jqElement);
-				});
+				if (!event.specialDay) {
+					jqElement.click(function() {
+						dialogDetailsEvenement.show(event, jqElement);
+					});
+				}
 			},
 			eventDragStop: function(event, jsEvent, ui, view) {
-				if(!event.pendingUpdates) { // L'évènement est synchronisé avec le serveur
+				if(!event.specialDay && !event.pendingUpdates) { // L'évènement est synchronisé avec le serveur
 					
 					// Copie profonde des dates (fullCalendar les modifie)
 					oldDatesDrag[event.id] = { start: new Date(event.start.getTime()), end: new Date(event.end.getTime()) };
 				}
 			},
 			eventResizeStop: function(event, jsEvent, ui, view) {
-				if(!event.pendingUpdates) {
+				if(!event.specialDay && !event.pendingUpdates) {
 					oldDatesDrag[event.id] = { start: event.start, end: event.end };
 				}
 			},
 			eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-				// Evènements "toute la journée" non supportés
-				if(allDay) {
-					revertFunc();
-				}
-				else {			
-					updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
+				if (!event.specialDay) {
+					// Evènements "toute la journée" non supportés
+					if(allDay) {
+						revertFunc();
+					}
+					else {			
+						updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
+					}
 				}
 			},
 			eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
-				updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
+				if (!event.specialDay) {
+					updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
+				}
 			},
 			viewRender: function() {
 				if(jqDatepicker) {

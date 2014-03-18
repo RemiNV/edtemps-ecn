@@ -21,6 +21,11 @@ define(["RestManager"], function(RestManager) {
 		// Groupes et calendriers récupérés mémorisés
 		this.matieresCalendriers = null;
 		this.typesCalendriers = null;
+		
+		// Jours spéciaux récupérés mémorisés
+		this.joursSpeciaux = null;
+		this.joursSpeciauxDebut = null;	// Début de la plage récupérée
+		this.joursSpeciauxFin = null;	// Fin de la plage récupérée
 	};
 	
 	EvenementGestion.CACHE_MODE_GROUPE = 1;
@@ -278,7 +283,8 @@ define(["RestManager"], function(RestManager) {
 				types: evenements[i].types,
 				allDay: false,
 				editable: estProprietaire,
-				color: "#3a87ad"
+				color: "#3a87ad",
+				specialDay: false
 			});
 		}
 		
@@ -741,6 +747,93 @@ define(["RestManager"], function(RestManager) {
 			callback(response.resultCode);
 		});
 	};
+	
+	
+	/**
+	 * Fonction appelée par fullCalendar lorsque le mécanisme de "fetch" est déclenché
+	 * Pour un soucis de performance, on récupère tous les jours spéciaux de l'année que l'on stocke en mémoire
+	 * Tous les jours spéciaux (jours fériés, vacances, fermetures et journées bloquées) de l'année sont récupérées
+	 * 
+	 * @param {Date} start Début de la période pendant laquelle les jours spéciaux doivent être récupérés
+	 * @param {Date} end Fin de la période pendant laquelle les jours spéciaux doivent être récupérés
+	 * @param {function} callback Callback de fullcalendar auquel il faut fournir les jours spéciaux (au format compatible fullcalendar)
+	 */
+	EvenementGestion.prototype.recupererJoursSpeciaux = function(start, end, callback) {
+
+		// Si la période est déjà récupérée, on retourne le tableau directement
+		if (this.joursSpeciaux != null && this.joursSpeciaux.length>0
+				&& (this.joursSpeciauxDebut != null && start.getTime() > this.joursSpeciauxDebut)
+				&& (this.joursSpeciauxFin != null && end.getTime() < this.joursSpeciauxFin)) {
+			callback(this.joursSpeciaux);
+			return;
+		}
+		
+		this.joursSpeciaux = new Array();
+		this.joursSpeciauxDebut = start.setMonth(start.getMonth()-6);
+		this.joursSpeciauxFin = end.setMonth(end.getMonth()+6);
+		
+		var me = this;
+		
+		// Récupération des jours fériés
+		this.restManager.effectuerRequete("GET", "joursferies/getJoursFeries", {
+			token: this.restManager.getToken(), debut: this.joursSpeciauxDebut, fin: this.joursSpeciauxFin
+		}, function(data) {
+			if(data.resultCode == RestManager.resultCode_Success) {
+				
+				// Stocke la liste des jours fériés dans la variable de module après formattage
+				for (var i=0, maxI=data.data.listeJoursFeries.length; i<maxI; i++) {
+					var jour = data.data.listeJoursFeries[i];
+					var date = new Date(jour.date);
+					
+					me.joursSpeciaux.push({
+					    title: jour.libelle,
+			            start: new Date(date.setHours(8)),
+			            end: new Date(date.setHours(22)),
+						allDay: false,
+						editable: false,
+						color: "#999",
+						specialDay: true
+					});
+				}
+				
+				callback(me.joursSpeciaux);
+/*
+				// Récupération des périodes bloquées
+				this.restManager.effectuerRequete("GET", "periodesbloquees/getperiodesbloquees", {
+					token: this.restManager.getToken(), debut: dateDebut, fin: dateFin
+				}, function(data) {
+					if(data.resultCode == RestManager.resultCode_Success) {
+
+						// Stocke la liste des périodes bloquées dans la variable de module après formattage
+						for (var i=0, maxI=data.data.listePeriodesBloquees.length; i<maxI; i++) {
+							var jour = data.data.listePeriodesBloquees[i];
+							
+							me.joursSpeciaux.push({
+							    title: jour.libelle,
+					            start: new Date(jour.dateDebut),
+					            end: new Date(jour.dateFin),
+								allDay: false,
+								editable: false,
+								color: "red",
+								specialDay: true
+							});
+						}
+						
+						callback(me.joursSpeciaux);
+					} else {
+						window.showToast("Erreur lors de la récupération des jours spéciaux ; vérifiez votre connexion.");
+						callback(new Array());
+					}
+				});
+*/
+			} else {
+				window.showToast("Erreur lors de la récupération des jours spéciaux ; vérifiez votre connexion.");
+				callback(new Array());
+			}
+		});
+
+	};
+	
 	
 	return EvenementGestion;
 	

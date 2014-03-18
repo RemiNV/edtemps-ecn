@@ -113,7 +113,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 		var me = this;
 		
 		this.restManager.effectuerRequete("GET", "periodesbloquees/getperiodesbloquees", {
-			token: this.restManager.getToken(), debut: dateDebut, fin: dateFin, vacances: null
+			token: this.restManager.getToken(), debut: dateDebut, fin: dateFin
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 

@@ -43,9 +43,9 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		
 		var jqDatepicker = null; // TODO : ajouter le datepicker sur la gauche
 		
-		this.calendrier = new Calendrier(function(start, end, callback) { 
-				me.onCalendarFetchEvents(start, end, callback);
-			}, this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, jqDatepicker);
+		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); },
+				function(start, end, callback) { me.evenementGestion.recupererJoursSpeciaux(start, end, callback); },
+				this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, jqDatepicker);
 		
 		this.planningGroupes = new PlanningGroupes(this.dialogDetailsEvenement, $("#planning_groupes"), $("#planning_groupes_btn_precedent"), 
 				$("#planning_groupes_btn_suivant"), $("#planning_groupes_btn_aujourdhui"), $("#planning_groupes_label_date"), function(start, end, callback) {
