@@ -26,6 +26,7 @@ define(["RestManager"], function(RestManager) {
 		this.joursSpeciaux = null;
 		this.joursSpeciauxDebut = null;	// Début de la plage récupérée
 		this.joursSpeciauxFin = null;	// Fin de la plage récupérée
+		this.joursSpeciauxFiltre = null;	// Si cette variable est null, aucun filtre sur les jours spéciaux, sinon seuls les groupes cités seront affichés
 	};
 	
 	EvenementGestion.CACHE_MODE_GROUPE = 1;
@@ -764,7 +765,7 @@ define(["RestManager"], function(RestManager) {
 		if (this.joursSpeciaux != null && this.joursSpeciaux.length>0
 				&& (this.joursSpeciauxDebut != null && start.getTime() > this.joursSpeciauxDebut)
 				&& (this.joursSpeciauxFin != null && end.getTime() < this.joursSpeciauxFin)) {
-			callback(this.joursSpeciaux);
+			callback(this.filtrerJoursSpeciaux(this.joursSpeciaux));
 			return;
 		}
 		
@@ -784,7 +785,7 @@ define(["RestManager"], function(RestManager) {
 				for (var i=0, maxI=data.data.listeJoursFeries.length; i<maxI; i++) {
 					var jour = data.data.listeJoursFeries[i];
 					var date = new Date(jour.date);
-					me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(8), date.setHours(22)));
+					me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(8), date.setHours(22), new Array()));
 				}
 
 				// Récupération des périodes bloquées
@@ -797,16 +798,7 @@ define(["RestManager"], function(RestManager) {
 						for (var i=0, maxI=data.data.listePeriodesBloquees.length; i<maxI; i++) {
 							var jour = data.data.listePeriodesBloquees[i];
 
-							// Préparation du libellé du jour pour afficher le nom des groupes concernés
-							var libelle = jour.libelle;
-							if (maxJ=jour.listeGroupes.length) {
-								libelle += " [";
-								for (var j=0; j<maxJ; j++) {
-									if (j>0) libelle += ", ";
-									libelle += jour.listeGroupes[j].nom;
-								}
-								libelle += "]";
-							}
+
 							
 							// Si c'est une période de vacances ou de fermeture, on créer un événement par jour dans la période
 							if (jour.vacances || jour.fermeture) {
@@ -816,16 +808,28 @@ define(["RestManager"], function(RestManager) {
 								var date = dateDebut;
 								
 								while (date.getTime() <= dateFin.getTime()) {
-									me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(libelle, date.setHours(8), date.setHours(22)));
+									me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(8), date.setHours(22), jour.listeGroupes));
 									date.setDate(date.getDate()+1);
 								}
 							} else {
-								me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(libelle, jour.dateDebut, jour.dateFin));
+								
+								// Préparation du libellé du jour pour afficher le nom des groupes concernés
+								var libelle = jour.libelle;
+								if (maxJ=jour.listeGroupes.length) {
+									libelle += " [";
+									for (var j=0; j<maxJ; j++) {
+										if (j>0) libelle += ", ";
+										libelle += jour.listeGroupes[j].nom;
+									}
+									libelle += "]";
+								}
+								
+								me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(libelle, jour.dateDebut, jour.dateFin, jour.listeGroupes));
 							}
 							
 						}
 						
-						callback(me.joursSpeciaux);
+						callback(me.filtrerJoursSpeciaux(me.joursSpeciaux));
 					} else {
 						window.showToast("Erreur lors de la récupération des jours spéciaux ; vérifiez votre connexion.");
 						callback(new Array());
@@ -843,12 +847,13 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Retourne un évènement compatible fullCalendar à partir de données de base (libellé et date)
 	 * 
-	 * @param libelle Nom du jour
-	 * @param dateDebut Date de début du jour pour l'affichage
-	 * @param dateFin Date de fin du jour pour l'affichage
-	 * @return Evénement parsé pour fullcalendar
+	 * @param {string} libelle Nom du jour
+	 * @param {long} dateDebut Date de début du jour pour l'affichage
+	 * @param {long} dateFin Date de fin du jour pour l'affichage
+	 * @param {groupes[]} groupes Liste des groupes auxquels le jour spécial est lié
+	 * @return {object} Jour spécial parsé pour fullcalendar
 	 */
-	EvenementGestion.prototype.parseSpecialDayFullCalendar = function(libelle, dateDebut, dateFin) {
+	EvenementGestion.prototype.parseSpecialDayFullCalendar = function(libelle, dateDebut, dateFin, groupes) {
 		return {
 		    title: libelle,
             start: new Date(dateDebut),
@@ -856,10 +861,46 @@ define(["RestManager"], function(RestManager) {
 			allDay: false,
 			editable: false,
 			color: "#999",
-			specialDay: true
+			specialDay: true,
+			groupes: groupes
 		};
 	};
 	
+
+	/**
+	 * Fonction de filtrage des jours spéciaux. Seuls les jours sans groupes ou les jours
+	 * associés à un groupe à afficher sont sélectionnés.
+	 * La variable "" contient la liste des identifiants des groupes à afficher
+	 * 
+	 * 
+	 * @param {object[]} jours Tous les jours spéciaux à filtrer
+	 * @return {object[]} les jours spéciaux sélectionnés par le filtre
+	 */
+	EvenementGestion.prototype.filtrerJoursSpeciaux = function(jours) {
+
+		// Pas de filtrage
+		if (this.joursSpeciauxFiltre == null) {
+			return jours;
+		}
+		
+		var res = new Array();
+		
+		// Parcours de la liste des jours à filtrer
+		for (var i=0, maxI=jours.length; i<maxI; i++) {
+		
+			// Parcours de la liste des groupes liés à ce jour spécial
+			for (var j=0, maxJ=jours[i].groupes.length; j<maxJ; j++) {
+				if (this.joursSpeciauxFiltre.indexOf(jours[i].groupes[j].id) >= 0) {
+					res.push(jours[i]);
+				}	
+			}
+			
+		}
+		
+		return res;
+
+	};
+
 	
 	return EvenementGestion;
 	

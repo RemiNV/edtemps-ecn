@@ -93,7 +93,7 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 				function(start, end, callback) { me.evenementGestion.recupererJoursSpeciaux(start, end, callback); },
 				this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, $("#accueil_datepicker"));
 		
-		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"));
+		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"), this.evenementGestion);
 		
 		this.verifieAttentesRattachements();
 	};

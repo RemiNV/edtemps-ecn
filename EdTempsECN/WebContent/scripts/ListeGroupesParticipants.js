@@ -2,15 +2,16 @@
  * Module de gestion pour la liste des groupes de participants affichée dans le panneau de gauche de l'écran principal
  * @module ListeGroupesParticipants
  */
-define([ "RestManager", "jqueryrotate" ], function(RestManager) {
+define([ "EvenementGestion", "RestManager", "jqueryrotate" ], function(EvenementGestion, RestManager) {
 
 	/**
 	 * @constructor
 	 * @alias module:ListeGroupesParticipants
 	 */
-	var ListeGroupesParticipants = function(restManager, calendrier, jqListe) {
+	var ListeGroupesParticipants = function(restManager, calendrier, jqListe, evenementGestion) {
 		this.restManager = restManager;
 		this.jqListe = jqListe;
+		this.evenementGestion = evenementGestion;
 
 		// Liste des groupes masqués initialisée avec la mémoire localStorage du navigateur
 		this.groupesMasques = new Object();
@@ -84,11 +85,19 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		this.groupes = new Object();
 		this.arbre = new Object();
 		
+		// Initialise le filtre pour les jours spéciaux (dans EvenementGestion)
+		this.evenementGestion.joursSpeciauxFiltre = new Array();
+		
 		// Pour chaque groupe, ajout d'un attribut affiche qui indique si ses événements doivent être affichés
 		for (var i = 0, maxI=groupes.length ; i < maxI ; i++) {
 			
 			// Récupère la valeur de l'affichage dans la liste des groupes masqués (provenant de localStorage)
 			this.listeGroupes[i].affiche = (this.groupesMasques[groupes[i].id] !== true);
+			
+			// Initialise le filtre pour les jours spéciaux (dans EvenementGestion)
+			if (this.listeGroupes[i].affiche) {
+				this.evenementGestion.joursSpeciauxFiltre.push(parseInt(groupes[i].id));
+			}
 			
 			// Alimente la liste des groupes repérés par leur identifiant
 			this.groupes[groupes[i].id] = groupes[i];
@@ -110,7 +119,6 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 
 		// Appelle la méthode de création de l'arbre à partir des cours en vrac
 		this.creerArborescenceDesGroupes(groupes);
-
 	};
 
 	
@@ -287,6 +295,18 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			localStorage["GroupesMasques"] = localStor;
 		}
 		
+		// Met à jour le filtre pour les jours spéciaux (dans EvenementGestion)
+		if (this.groupesMasques[groupeId]) {
+			// Cacher les jours spéciaux de ce groupe
+			var position = this.evenementGestion.joursSpeciauxFiltre.indexOf(parseInt(groupeId));
+			if (position >= 0) {
+				this.evenementGestion.joursSpeciauxFiltre.splice(position, 1);
+			}
+		} else {
+			// Afficher les jours spéciaux de ce groupe
+			this.evenementGestion.joursSpeciauxFiltre.push(parseInt(groupeId));
+		}
+		
 		// Rafraichit le calendrier
 		this.calendrier.refetchEvents();
 	};
@@ -311,7 +331,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 			// Pour chaque calendrier lié à cet événement
 			for (var j = 0, maxJ = evenements[i].calendriers.length ; j < maxJ && !eventOk ; j++) {
 
-				 // Si le calendrier existe pour l'utilisateur (il y est abonné indirectement)
+				// Si le calendrier existe pour l'utilisateur (il y est abonné indirectement)
 				if(this.groupesCalendriers[evenements[i].calendriers[j]]) {
 
 					// Pour chaque groupe lié à ce calendrier
