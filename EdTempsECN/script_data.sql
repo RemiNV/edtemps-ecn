@@ -227,6 +227,9 @@
 		SELECT 'EI1', false, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='Elèves ingénieur' LIMIT 1;
 
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
+		SELECT 'EI1 Promo A', false, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI1' LIMIT 1;
+
+	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
 		SELECT 'EI1 Promo B', false, groupeparticipant.groupeparticipant_id, true, false, 5 FROM edt.groupeparticipant WHERE groupeparticipant.groupeparticipant_nom='EI1' LIMIT 1;
 
 	INSERT INTO edt.groupeparticipant(groupeparticipant_nom, groupeparticipant_rattachementautorise, groupeparticipant_id_parent, groupeparticipant_estcours, groupeParticipant_estCalendrierUnique, groupeparticipant_createur)
@@ -276,6 +279,7 @@
 			(groupeparticipant.groupeparticipant_nom='Elèves ingénieur' 
 			OR groupeparticipant.groupeparticipant_nom='Electifs'
 			OR groupeparticipant.groupeparticipant_nom='EI1'
+			OR groupeparticipant.groupeparticipant_nom='EI1 Promo A'
 			OR groupeparticipant.groupeparticipant_nom='EI1 Promo B'
 			OR groupeparticipant.groupeparticipant_nom='EI1 Groupe K'
 			OR groupeparticipant.groupeparticipant_nom='EI1 Groupe L'
@@ -783,9 +787,9 @@
 
 	/* Journées particulières */
 	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
-		VALUES ('Forum Atlantique Promo A', '2013-11-13 08:00:00', '2013-11-13 12:00:00', false, false);
+		VALUES ('Forum Atlantique1', '2013-11-13 08:00:00', '2013-11-13 12:00:00', false, false);
 	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
-		VALUES ('Forum Atlantique Promo B', '2013-11-13 14:00:00', '2013-11-13 18:00:00', false, false);
+		VALUES ('Forum Atlantique2', '2013-11-13 14:00:00', '2013-11-13 18:00:00', false, false);
 		
 	/* Fermetures de l'école */
 	INSERT INTO edt.periodesbloquees(periodebloquee_libelle, periodebloquee_date_debut, periodebloquee_date_fin, periodebloquee_vacances, periodebloquee_fermeture)
@@ -815,12 +819,12 @@
 	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
 		SELECT groupeparticipant_id, periodebloquee_id
 		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
-		WHERE groupeparticipant_nom='EI1' AND periodebloquee_libelle = 'Forum Atlantique Promo A';
+		WHERE groupeparticipant_nom='EI1 Promo A' AND periodebloquee_libelle = 'Forum Atlantique1';
 		
 	INSERT INTO edt.PeriodesBloqueesAppartientGroupe(groupeparticipant_id, periodebloquee_id)
 		SELECT groupeparticipant_id, periodebloquee_id
 		FROM edt.groupeparticipant CROSS JOIN edt.periodesbloquees
-		WHERE groupeparticipant_nom='EI1' AND periodebloquee_libelle = 'Forum Atlantique Promo B';
+		WHERE groupeparticipant_nom='EI1 Promo B' AND periodebloquee_libelle = 'Forum Atlantique2';
 
 /* Créneaux horaires */
 	INSERT INTO edt.Creneau(creneau_libelle, creneau_debut, creneau_fin) VALUES ('M1', '08:00', '10:00');
