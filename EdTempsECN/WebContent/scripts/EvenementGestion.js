@@ -797,6 +797,18 @@ define(["RestManager"], function(RestManager) {
 						for (var i=0, maxI=data.data.listePeriodesBloquees.length; i<maxI; i++) {
 							var jour = data.data.listePeriodesBloquees[i];
 
+							// Préparation du libellé du jour pour afficher le nom des groupes concernés
+							var libelle = jour.libelle;
+							if (maxJ=jour.listeGroupes.length) {
+								libelle += " [";
+								for (var j=0; j<maxJ; j++) {
+									if (j>0) libelle += ", ";
+									libelle += jour.listeGroupes[j].nom;
+								}
+								libelle += "]";
+							}
+							
+							// Si c'est une période de vacances ou de fermeture, on créer un événement par jour dans la période
 							if (jour.vacances || jour.fermeture) {
 								
 								var dateDebut = new Date(jour.dateDebut);
@@ -804,11 +816,11 @@ define(["RestManager"], function(RestManager) {
 								var date = dateDebut;
 								
 								while (date.getTime() <= dateFin.getTime()) {
-									me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(8), date.setHours(22)));
+									me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(libelle, date.setHours(8), date.setHours(22)));
 									date.setDate(date.getDate()+1);
 								}
 							} else {
-								me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, jour.dateDebut, jour.dateFin));
+								me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(libelle, jour.dateDebut, jour.dateFin));
 							}
 							
 						}
