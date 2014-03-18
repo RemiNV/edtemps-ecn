@@ -797,8 +797,6 @@ define(["RestManager"], function(RestManager) {
 						// Stocke la liste des jours fériés dans la variable de module après formatage
 						for (var i=0, maxI=data.data.listePeriodesBloquees.length; i<maxI; i++) {
 							var jour = data.data.listePeriodesBloquees[i];
-
-
 							
 							// Si c'est une période de vacances ou de fermeture, on créer un événement par jour dans la période
 							if (jour.vacances || jour.fermeture) {

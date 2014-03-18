@@ -2,13 +2,13 @@
  * Module de gestion de l'interface du tableau de planning des groupes
  * @module PlanningGroupes
  */
-define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "moment_fr", "jquery"], function(tplPlanningGroupes, _, moment) {
+define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "EvenementGestion", "moment_fr", "jquery"], function(tplPlanningGroupes, _, moment, EvenementGestion) {
 
 	/**
 	 * @constructor
 	 * @alias module:PlanningGroupes
 	 */
-	var PlanningGroupes = function(dialogDetailsEvenement, jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour, onFetchCallback) {
+	var PlanningGroupes = function(dialogDetailsEvenement, jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour, onFetchCallback, evenementGestion) {
 		this.dialogDetailsEvenement = dialogDetailsEvenement;
 		this.jqPlanningGroupes = jqPlanningGroupes;
 		this.jqLabelJour = jqLabelJour;
@@ -16,6 +16,7 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		this.template = _.template(tplPlanningGroupes);
 		this.date = null;
 		this.onFetchCallback = onFetchCallback;
+		this.evenementGestion = evenementGestion;
 		
 		// Réglage de la langue
 		moment.lang("fr");
@@ -97,10 +98,13 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 			// Ajout de l'événement
 			var event = events[i];
 			caseJour.prepend($("<div class='evenement_groupe'></div>").css({ left: offsetDebut + '%', width: width + '%', backgroundColor: events[i].color })
-					.attr("title", events[i].nom))
-					.click(function(e) {
-						me.dialogDetailsEvenement.show(event, $(e.target));
-					});
+					.attr("title", events[i].nom));
+			
+			if (!event.specialDay) {
+				caseJour.click(function(e) {
+					me.dialogDetailsEvenement.show(event, $(e.target));
+				});
+			}
 		}
 	};
 	
@@ -108,6 +112,25 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "mo
 		var me = this;
 		var dateFin = moment(this.date).add("days", 6).toDate();
 		this.onFetchCallback(this.date, dateFin, function(events) {
+			
+			// Récupération des jours spéciaux filtrés (car déjà récupérés dans EcranPlanningCours)
+			var listeJoursSpeciauxFiltres = me.evenementGestion.filtrerJoursSpeciaux(me.evenementGestion.joursSpeciaux);
+			
+			// Pour chaque jour spécial, on créer un événement par groupe pour afficher le jour spécial dans chaque ligne concernée
+			for (var i=0; i<listeJoursSpeciauxFiltres.length; i++) {
+				var e = listeJoursSpeciauxFiltres[i];
+				for (var j=0; j<e.groupes.length; j++) {
+					var copieE = new Object();
+					copieE.nom = e.nom;
+					copieE.start = e.start;
+					copieE.end = e.end;
+					copieE.idGroupe = e.groupes[j].id;
+					copieE.color = e.color;
+					copieE.specialDay = true;
+					events.push(copieE);
+				}
+			}
+			
 			me.showEvents(events);
 		});
 	};

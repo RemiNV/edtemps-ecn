@@ -48,9 +48,9 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 				this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, jqDatepicker);
 		
 		this.planningGroupes = new PlanningGroupes(this.dialogDetailsEvenement, $("#planning_groupes"), $("#planning_groupes_btn_precedent"), 
-				$("#planning_groupes_btn_suivant"), $("#planning_groupes_btn_aujourdhui"), $("#planning_groupes_label_date"), function(start, end, callback) {
-			me.onCalendarFetchEvents(start, end, callback);
-		});
+				$("#planning_groupes_btn_suivant"), $("#planning_groupes_btn_aujourdhui"), $("#planning_groupes_label_date"),
+				function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.evenementGestion
+		);
 		
 		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
 		if (this.restManager.aDroit(RestManager.actionsEdtemps_GererJoursBloques)) {
@@ -241,7 +241,10 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		}
 		
 		$("#lst_groupes_associes").text(_.pluck(groupesVueGroupe, "nom").join(", "));
-		
+
+		// Initialise le filtre pour les jours spéciaux en fonction des groupes de la matière
+		this.evenementGestion.joursSpeciauxFiltre = _.pluck(groupesVueGroupe, "id");
+
 		this.planningGroupes.resetGroupes(groupesVueGroupe, this.calendriersVueGroupe);
 	};
 	
