@@ -890,7 +890,7 @@ define(["RestManager"], function(RestManager) {
 		
 			// Parcours de la liste des groupes liés à ce jour spécial
 			for (var j=0, maxJ=jours[i].groupes.length; j<maxJ; j++) {
-				if (this.joursSpeciauxFiltre.indexOf(jours[i].groupes[j].id) >= 0) {
+				if (this.joursSpeciauxFiltre.indexOf(jours[i].groupes[j].id) >= 0 && res.indexOf(jours[i]) < 0) {
 					res.push(jours[i]);
 				}	
 			}
