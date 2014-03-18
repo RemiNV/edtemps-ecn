@@ -780,43 +780,37 @@ define(["RestManager"], function(RestManager) {
 		}, function(data) {
 			if(data.resultCode == RestManager.resultCode_Success) {
 				
-				// Stocke la liste des jours fériés dans la variable de module après formattage
+				// Stocke la liste des jours fériés dans la variable de module après formatage
 				for (var i=0, maxI=data.data.listeJoursFeries.length; i<maxI; i++) {
 					var jour = data.data.listeJoursFeries[i];
 					var date = new Date(jour.date);
-					
-					me.joursSpeciaux.push({
-					    title: jour.libelle,
-			            start: new Date(date.setHours(8)),
-			            end: new Date(date.setHours(22)),
-						allDay: false,
-						editable: false,
-						color: "#999",
-						specialDay: true
-					});
+					me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(8), date.setHours(22)));
 				}
-				
-				callback(me.joursSpeciaux);
-/*
+
 				// Récupération des périodes bloquées
-				this.restManager.effectuerRequete("GET", "periodesbloquees/getperiodesbloquees", {
-					token: this.restManager.getToken(), debut: dateDebut, fin: dateFin
+				me.restManager.effectuerRequete("GET", "periodesbloquees/getperiodesbloquees", {
+					token: me.restManager.getToken(), debut: me.joursSpeciauxDebut, fin: me.joursSpeciauxFin
 				}, function(data) {
 					if(data.resultCode == RestManager.resultCode_Success) {
 
-						// Stocke la liste des périodes bloquées dans la variable de module après formattage
+						// Stocke la liste des jours fériés dans la variable de module après formatage
 						for (var i=0, maxI=data.data.listePeriodesBloquees.length; i<maxI; i++) {
 							var jour = data.data.listePeriodesBloquees[i];
+
+							if (jour.vacances || jour.fermeture) {
+								
+								var dateDebut = new Date(jour.dateDebut);
+								var dateFin = new Date(jour.dateFin);
+								var date = dateDebut;
+								
+								while (date.getTime() <= dateFin.getTime()) {
+									me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(8), date.setHours(22)));
+									date.setDate(date.getDate()+1);
+								}
+							} else {
+								me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, jour.dateDebut, jour.dateFin));
+							}
 							
-							me.joursSpeciaux.push({
-							    title: jour.libelle,
-					            start: new Date(jour.dateDebut),
-					            end: new Date(jour.dateFin),
-								allDay: false,
-								editable: false,
-								color: "red",
-								specialDay: true
-							});
 						}
 						
 						callback(me.joursSpeciaux);
@@ -825,13 +819,33 @@ define(["RestManager"], function(RestManager) {
 						callback(new Array());
 					}
 				});
-*/
+
 			} else {
 				window.showToast("Erreur lors de la récupération des jours spéciaux ; vérifiez votre connexion.");
 				callback(new Array());
 			}
 		});
 
+	};
+	
+	/**
+	 * Retourne un évènement compatible fullCalendar à partir de données de base (libellé et date)
+	 * 
+	 * @param libelle Nom du jour
+	 * @param dateDebut Date de début du jour pour l'affichage
+	 * @param dateFin Date de fin du jour pour l'affichage
+	 * @return Evénement parsé pour fullcalendar
+	 */
+	EvenementGestion.prototype.parseSpecialDayFullCalendar = function(libelle, dateDebut, dateFin) {
+		return {
+		    title: libelle,
+            start: new Date(dateDebut),
+            end: new Date(dateFin),
+			allDay: false,
+			editable: false,
+			color: "#999",
+			specialDay: true
+		};
 	};
 	
 	

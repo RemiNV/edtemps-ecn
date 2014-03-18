@@ -73,32 +73,28 @@ define(["RestManager", "DialogDetailsEvenement", "underscore", "lib/fullcalendar
 				}
 			},
 			eventDragStop: function(event, jsEvent, ui, view) {
-				if(!event.specialDay && !event.pendingUpdates) { // L'évènement est synchronisé avec le serveur
+				if(!event.pendingUpdates) { // L'évènement est synchronisé avec le serveur
 					
 					// Copie profonde des dates (fullCalendar les modifie)
 					oldDatesDrag[event.id] = { start: new Date(event.start.getTime()), end: new Date(event.end.getTime()) };
 				}
 			},
 			eventResizeStop: function(event, jsEvent, ui, view) {
-				if(!event.specialDay && !event.pendingUpdates) {
+				if(!event.pendingUpdates) {
 					oldDatesDrag[event.id] = { start: event.start, end: event.end };
 				}
 			},
 			eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-				if (!event.specialDay) {
-					// Evènements "toute la journée" non supportés
-					if(allDay) {
-						revertFunc();
-					}
-					else {			
-						updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
-					}
+				// Evènements "toute la journée" non supportés
+				if(allDay) {
+					revertFunc();
+				}
+				else {			
+					updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
 				}
 			},
 			eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
-				if (!event.specialDay) {
-					updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
-				}
+				updateDatesEvenement(event, evenementGestion, revertFunc, me.jqCalendar, oldDatesDrag[event.id].start, oldDatesDrag[event.id].end);
 			},
 			viewRender: function() {
 				if(jqDatepicker) {
