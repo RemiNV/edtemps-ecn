@@ -47,7 +47,7 @@ define([ "RestManager", "jqueryrotate" ], function(RestManager) {
 		// uniquement les calendriers auxquels l'utilisateur est abonné
 		this.groupesCalendriers = null;
 		
-		// Tableau qui contient un arbre des groupes pour facilite l'affichage de l'arborescence
+		// Tableau qui contient un arbre des groupes pour faciliter l'affichage de l'arborescence
 		this.arbre = null;
 		
 		// Ignore les appels à afficherBlocVosAgendas si déjà affiché
