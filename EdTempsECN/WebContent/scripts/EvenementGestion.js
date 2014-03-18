@@ -816,12 +816,7 @@ define(["RestManager"], function(RestManager) {
 								// Préparation du libellé du jour pour afficher le nom des groupes concernés
 								var libelle = jour.libelle;
 								if (maxJ=jour.listeGroupes.length) {
-									libelle += " [";
-									for (var j=0; j<maxJ; j++) {
-										if (j>0) libelle += ", ";
-										libelle += jour.listeGroupes[j].nom;
-									}
-									libelle += "]";
+									libelle += " [" + _.pluck(jour.listeGroupes, "nom").join(", ") +  "]";
 								}
 								
 								me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(libelle, jour.dateDebut, jour.dateFin, jour.listeGroupes));
@@ -856,6 +851,7 @@ define(["RestManager"], function(RestManager) {
 	EvenementGestion.prototype.parseSpecialDayFullCalendar = function(libelle, dateDebut, dateFin, groupes) {
 		return {
 		    title: libelle,
+		    nom: libelle,
             start: new Date(dateDebut),
             end: new Date(dateFin),
 			allDay: false,
