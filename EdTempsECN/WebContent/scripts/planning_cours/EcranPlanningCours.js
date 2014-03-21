@@ -4,7 +4,7 @@
  * @module EcranPlanningCours
  */
 define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrier", "text!../../templates/dialog_ajout_evenement.html", "text!../../templates/dialog_recherche_salle.html",
-        "RestManager", "CalendrierGestion", "DialogDetailsEvenement", "planning_cours/BlocStatistiques", "planning_cours/DialogRepeter", "planning_cours/PlanningGroupes", "underscore", "jquery"], 
+        "RestManager", "CalendrierGestion", "DialogDetailsEvenement", "planning_cours/BlocStatistiques", "planning_cours/DialogRepeter", "planning_cours/PlanningGroupes", "underscore", "jquery", "datepicker"], 
         function(EvenementGestion, DialogAjoutEvenement, RechercheSalle, Calendrier, 
         		dialogAjoutEvenementHtml, dialogRechercheSalleHtml, RestManager, CalendrierGestion, DialogDetailsEvenement,
         		BlocStatistiques, DialogRepeter, PlanningGroupes, _) {
@@ -41,16 +41,45 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.dialogDetailsEvenement = new DialogDetailsEvenement($("#dialog_details_evenement"), this.evenementGestion, this.dialogAjoutEvenement, 
 				this.dialogRepeter, function() { me.callbackRefresh(); });
 		
-		var jqDatepicker = null; // TODO : ajouter le datepicker sur la gauche
+		// Mini-calendrier
+		dateNow = new Date();
+		dateToday = new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate());
+		var jqDatePicker = $("#accueil_datepicker");
+		jqDatePicker.DatePicker({
+			flat: true,
+			date: new Date(),
+			locale: {
+				days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+				daysShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+				daysMin: ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"],
+				months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+				monthsShort: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"],
+				weekMin: 'sem'
+			},
+			onChange: function(strDate, date) {
+				if(me.calendrier) {
+					me.calendrier.gotoDate(date);
+				}
+				if (me.planningGroupes) {
+					me.planningGroupes.gotoDate(date);
+				}
+			},
+			onRender: function(date) {
+				return {
+					selected: false,
+					disabled: false,
+					className: date.getTime() == dateToday.getTime() ? "today" : null
+				};
+			}
+		});
 		
 		this.calendrier = new Calendrier(function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); },
 				function(start, end, callback) { me.evenementGestion.recupererJoursSpeciaux(start, end, callback); },
-				this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, jqDatepicker);
+				this.dialogAjoutEvenement, this.evenementGestion, this.dialogDetailsEvenement, jqDatePicker);
 		
 		this.planningGroupes = new PlanningGroupes(this.dialogDetailsEvenement, $("#planning_groupes"), $("#planning_groupes_btn_precedent"), 
 				$("#planning_groupes_btn_suivant"), $("#planning_groupes_btn_aujourdhui"), $("#planning_groupes_label_date"),
-				function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.evenementGestion
-		);
+				function(start, end, callback) { me.onCalendarFetchEvents(start, end, callback); }, this.evenementGestion, jqDatePicker);
 		
 		// Si l'utilisateur a le droit, on affiche le bouton pour accéder à l'écran de gestion des jours bloqués
 		if (this.restManager.aDroit(RestManager.actionsEdtemps_GererJoursBloques)) {

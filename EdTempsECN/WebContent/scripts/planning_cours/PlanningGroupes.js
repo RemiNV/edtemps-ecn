@@ -8,7 +8,7 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 	 * @constructor
 	 * @alias module:PlanningGroupes
 	 */
-	var PlanningGroupes = function(dialogDetailsEvenement, jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour, onFetchCallback, evenementGestion) {
+	var PlanningGroupes = function(dialogDetailsEvenement, jqPlanningGroupes, jqBtnPrecedent, jqBtnSuivant, jqBtnAujourdhui, jqLabelJour, onFetchCallback, evenementGestion, jqDatepicker) {
 		this.dialogDetailsEvenement = dialogDetailsEvenement;
 		this.jqPlanningGroupes = jqPlanningGroupes;
 		this.jqLabelJour = jqLabelJour;
@@ -17,6 +17,7 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		this.date = null;
 		this.onFetchCallback = onFetchCallback;
 		this.evenementGestion = evenementGestion;
+		this.jqDatepicker = jqDatepicker;
 		
 		// Réglage de la langue
 		moment.lang("fr");
@@ -24,17 +25,21 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		// Listeners
 		var me = this;
 		jqBtnPrecedent.click(function(e) {
+			me.changeDatePicker(moment(me.jqDatepicker.DatePickerGetDate()).add("days", -7).toDate());
 			me.setDate(moment(me.date).add("days", -7).toDate());
 			me.renderDate();
 		});
 		
 		jqBtnSuivant.click(function(e) {
+			me.changeDatePicker(moment(me.jqDatepicker.DatePickerGetDate()).add("days", 7).toDate());
 			me.setDate(moment(me.date).add("days", 7).toDate());
 			me.renderDate();
 		});
 		
 		jqBtnAujourdhui.click(function(e) {
+			me.changeDatePicker(new Date());
 			me.setDate(new Date());
+			me.renderDate();
 		});
 		
 		this.render();
@@ -167,6 +172,17 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		this.date = moment(date).startOf("isoweek").toDate();
 		
 		this.refetchEvents();
+	};
+	
+	PlanningGroupes.prototype.gotoDate = function(date) {
+		this.setDate(moment(date).toDate());
+		this.renderDate();
+	};
+
+	PlanningGroupes.prototype.changeDatePicker = function(date) {
+		if (this.jqDatepicker) {
+			this.jqDatepicker.DatePickerSetDate(date, date);
+		}
 	};
 
 	return PlanningGroupes;
