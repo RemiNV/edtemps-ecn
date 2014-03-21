@@ -34,6 +34,9 @@ define(["RestManager"], function(RestManager) {
 	EvenementGestion.CACHE_MODE_MES_EVENEMENTS = 3;
 	EvenementGestion.CACHE_MODE_MES_ABONNEMENTS = 4;
 	EvenementGestion.CACHE_MODE_PLANNING_CALENDRIER = 5;
+	
+	EvenementGestion.JOURNEE_ENTIERE_START = 8;
+	EvenementGestion.JOURNEE_ENTIERE_END = 22;
 
 	/**
 	 * @typedef {Object} Evenement
@@ -785,7 +788,7 @@ define(["RestManager"], function(RestManager) {
 				for (var i=0, maxI=data.data.listeJoursFeries.length; i<maxI; i++) {
 					var jour = data.data.listeJoursFeries[i];
 					var date = new Date(jour.date);
-					me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(8), date.setHours(22), new Array()));
+					me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(EvenementGestion.JOURNEE_ENTIERE_START), date.setHours(EvenementGestion.JOURNEE_ENTIERE_END), new Array()));
 				}
 
 				// Récupération des périodes bloquées
@@ -806,7 +809,7 @@ define(["RestManager"], function(RestManager) {
 								var date = dateDebut;
 								
 								while (date.getTime() <= dateFin.getTime()) {
-									me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(8), date.setHours(22), jour.listeGroupes));
+									me.joursSpeciaux.push(me.parseSpecialDayFullCalendar(jour.libelle, date.setHours(EvenementGestion.JOURNEE_ENTIERE_START), date.setHours(EvenementGestion.JOURNEE_ENTIERE_END), jour.listeGroupes));
 									date.setDate(date.getDate()+1);
 								}
 							} else {
@@ -881,9 +884,16 @@ define(["RestManager"], function(RestManager) {
 		
 		// Parcours de la liste des jours à filtrer
 		for (var i=0, maxI=jours.length; i<maxI; i++) {
-		
+			var nbGroupes=jours[i].groupes.length;
+
+			// Si le jour n'a pas de groue c'est qu'il est pour tout le monde
+			if (nbGroupes == 0) {
+				res.push(jours[i]);
+				continue;
+			}
+			
 			// Parcours de la liste des groupes liés à ce jour spécial
-			for (var j=0, maxJ=jours[i].groupes.length; j<maxJ; j++) {
+			for (var j=0; j<nbGroupes; j++) {
 				if (this.joursSpeciauxFiltre.indexOf(jours[i].groupes[j].id) >= 0 && res.indexOf(jours[i]) < 0) {
 					res.push(jours[i]);
 				}	
