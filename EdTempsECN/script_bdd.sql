@@ -307,6 +307,16 @@ CREATE TABLE edt.Creneau (
 ALTER SEQUENCE edt.creneau_creneau_id_seq OWNER TO "edtemps-ecn";
 
 
+CREATE TABLE edt.heurescours(
+	matiere_id integer not null,
+	typecalendrier_id integer not null,
+	heurescours_quantite integer not null,
+	constraint pk_heurescours primary key(matiere_id, typecalendrier_id),
+	constraint fk_heurescours_matiere_id foreign key(matiere_id) references edt.matiere(matiere_id),
+	constraint fk_heurescours_typecalendrier_id foreign key(typecalendrier_id) references edt.typecalendrier(typecal_id)
+);
+
+
 ALTER TABLE edt.ALieuenSalle ADD CONSTRAINT salle_alieuensalle_fk
 FOREIGN KEY (salle_id)
 REFERENCES edt.Salle (salle_id)

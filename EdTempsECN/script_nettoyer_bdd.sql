@@ -15,6 +15,7 @@ DROP SEQUENCE IF EXISTS edt.joursferies_jourferie_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.periodesbloqueesappartientgroupe_id_seq CASCADE;
 DROP SEQUENCE IF EXISTS edt.creneau_creneau_id_seq CASCADE;
 
+DROP TABLE IF EXISTS edt.heurescours CASCADE;
 DROP TABLE IF EXISTS edt.salle CASCADE;
 DROP TABLE IF EXISTS edt.materiel CASCADE;
 DROP TABLE IF EXISTS edt.contientmateriel CASCADE;
