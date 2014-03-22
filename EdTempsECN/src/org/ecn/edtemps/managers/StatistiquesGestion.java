@@ -37,6 +37,7 @@ public class StatistiquesGestion {
 				"INNER JOIN edt.calendrier ON calendrier.cal_id=evenementappartient.cal_id " +
 				"INNER JOIN edt.typecalendrier ON calendrier.typecal_id=typecalendrier.typecal_id " +
 				"INNER JOIN edt.calendrierappartientgroupe cap ON calendrier.cal_id=cap.cal_id " +
+				"INNER JOIN edt.groupeparticipant ON groupeparticipant.groupeparticipant_id=cap.groupeparticipant_id AND NOT groupeparticipant.groupeparticipant_estcalendrierunique " +
 				"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id AND matiere.matiere_nom = ? " +
 				"INNER JOIN edt.proprietairecalendrier ON proprietairecalendrier.cal_id=calendrier.cal_id AND proprietairecalendrier.utilisateur_id=" + idUtilisateur +
 				" WHERE evenement.eve_datefin > ? AND evenement.eve_datedebut <= ? " +
@@ -58,12 +59,13 @@ public class StatistiquesGestion {
 			while(resultSet.next()) {
 				
 				int typeCours = resultSet.getInt("typecal_id");
-				if(strTypeCoursCourant == null) {
+				if(typeCoursCourant == -1) { // Première occurrence
 					strTypeCoursCourant = resultSet.getString("typecal_libelle");
+					typeCoursCourant = typeCours;
 				}
 
 				// Les typecours identiques doivent être à la suite : nouveau type de cours
-				if(typeCours != typeCoursCourant && typeCoursCourant != -1) {
+				if(typeCours != typeCoursCourant) {
 					res.setStatistiquesTypeCours(strTypeCoursCourant, nextMap);
 					
 					typeCoursCourant = typeCours;
@@ -77,7 +79,7 @@ public class StatistiquesGestion {
 			
 			resultSet.close();
 			
-			if(strTypeCoursCourant != null) {
+			if(strTypeCoursCourant != null) { // Ajout du dernier type de cours
 				res.setStatistiquesTypeCours(strTypeCoursCourant, nextMap);
 			}
 		} catch (SQLException e) {

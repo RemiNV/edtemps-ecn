@@ -21,14 +21,10 @@ define(["underscore", "text!../../templates/bloc_statistiques.tpl", "RestManager
 	
 	/**
 	 * Définit les groupes affichés dans les statistiques
-	 * @param {integer[]} idsGroupes IDs des groupes
-	 * @param {integer[]} nomsGroupes Noms des groupes, doit avoir la même taille que idsGroupes
+	 * @param {Object} Mapping id => nom des groupes
 	 */
-	BlocStatistiques.prototype.setGroupes = function(idsGroupes, nomsGroupes) {
-		this.groupes = new Object();
-		for(var i=0,maxI=idsGroupes.length; i<maxI; i++) {
-			this.groupes[idsGroupes[i]] = nomsGroupes[i];
-		}
+	BlocStatistiques.prototype.setGroupes = function(groupes) {
+		this.groupes = groupes;
 	};
 	
 	BlocStatistiques.prototype.refreshStatistiques = function(matiere, dateDebut, dateFin) {

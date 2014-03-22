@@ -27,10 +27,10 @@
 		%>
 	</tr>
 	<%
-	for(var i=0,max=groupes.length; i<max; i++) {
+	for(var idGroupe in groupes) {
 	%>
-	<tr id="ligne_groupe_<%= groupes[i].id %>" style="height: <%= 100/(groupes.length + 1) %>%;">
-		<td class="case_nom_groupe"><%= groupes[i].nom %></td>
+	<tr id="ligne_groupe_<%= idGroupe %>" style="height: <%= 100/(nbGroupes + 1) %>%;">
+		<td class="case_nom_groupe"><%= groupes[idGroupe] %></td>
 		<%		
 		for(var j=0; j<6; j++) {
 		%>

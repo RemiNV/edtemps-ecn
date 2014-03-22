@@ -29,7 +29,10 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.mesCalendriers = null; // Ensemble des calendriers indexés par ID
 		this.calendrierSelectionne = null;
 		this.calendriersVueGroupe = null;
+		this.groupesVueGroupe = null;
 		this.dateDebutStatistiquesAJour = null; // Date de début des statistiques affichées
+		this.idGroupesStatistiquesAJour = null;
+		this.matiereStatistiquesAJour = null;
 		this.matiereSelectionnee = null;
 
 		
@@ -198,7 +201,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	 * Récupération des statistiques si un calendrier est sélectionné, et mise à jour du bloc de statistiques
 	 */
 	EcranPlanningCours.prototype.updateStatistiques = function() {
-		if(this.calendrierSelectionne) {
+		if((!this.estVueGroupes && this.calendrierSelectionne) || (this.estVueGroupes && !_.isEmpty(this.groupesVueGroupe))) {
 			
 			// Récupération de la date en cours d'affichage
 			var dateAffichage = this.estVueGroupes ? this.planningGroupes.getDate() : this.calendrier.getDate();
@@ -206,15 +209,52 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			var dateDebut = new Date(aout > dateAffichage ? dateAffichage.getFullYear() - 1 : dateAffichage.getFullYear(), 8, 15);
 			var dateFin = new Date(dateDebut.getFullYear() + 1, 8, 15);
 			
-			if(this.dateDebutStatistiquesAJour && this.dateDebutStatistiquesAJour.getTime() == dateDebut.getTime()) {
-				return; // Déjà mis à jour (sauf erreur de mise à jour : pas pris en compte)
+			
+			if(this.estVueGroupes) {
+				var matiere = $("#select_matiere").val();
+				var idGroupes = _.keys(this.groupesVueGroupe);
+				
+				if(this.dateDebutStatistiquesAJour != null // Méthode déjà appelée (variable initialisée)
+						&& this.dateDebutStatistiquesAJour.getTime() == dateDebut.getTime() // Date déjà mise à jour
+						&& _.intersection(idGroupes, this.idGroupesStatistiquesAJour).length == this.idGroupesStatistiquesAJour.length // Mêmes groupes
+						&& this.matiereStatistiquesAJour == matiere) {
+					return; // Déjà mis à jour (sauf erreur de mise à jour : pas pris en compte)
+				}
+				else {
+					this.dateDebutStatistiquesAJour = dateDebut;
+					this.idGroupesStatistiquesAJour = idGroupes;
+					this.matiereStatistiquesAJour = matiere;
+				}
+				
+				this.blocStatistiques.setGroupes(this.groupesVueGroupe);
+				this.blocStatistiques.refreshStatistiques(matiere, dateDebut, dateFin);
 			}
 			else {
-				this.dateDebutStatistiquesAJour = dateDebut;
+				
+				// Génération d'un tableau au format id => nom
+				var groupes = new Object();
+				for(var i=0; i<this.calendrierSelectionne.groupesParents.length; i++) {
+					groupes[this.calendrierSelectionne.groupesParents[i]] = this.calendrierSelectionne.nomsGroupesParents[i];
+				}
+				
+				var idGroupes = _.keys(groupes);
+				
+				if(this.dateDebutStatistiquesAJour != null// Méthode déjà appelée (variable initialisée)
+						&& this.dateDebutStatistiquesAJour.getTime() == dateDebut.getTime() // Date déjà mise à jour
+						&& _.intersection(idGroupes, this.idGroupesStatistiquesAJour).length == this.idGroupesStatistiquesAJour.length // Mêmes groupes
+						&& this.matiereStatistiquesAJour == this.calendrierSelectionne.matiere) {
+					return; // Déjà mis à jour (sauf erreur de mise à jour : pas pris en compte)
+				}
+				else {
+					this.dateDebutStatistiquesAJour = dateDebut;
+					this.idGroupesStatistiquesAJour = idGroupes;
+					this.matiereStatistiquesAJour = this.calendrierSelectionne.matiere;
+				}
+				
+				
+				this.blocStatistiques.setGroupes(groupes);
+				this.blocStatistiques.refreshStatistiques(this.calendrierSelectionne.matiere, dateDebut, dateFin);
 			}
-			
-			this.blocStatistiques.setGroupes(this.calendrierSelectionne.groupesParents, this.calendrierSelectionne.nomsGroupesParents);
-			this.blocStatistiques.refreshStatistiques(this.calendrierSelectionne.matiere, dateDebut, dateFin);
 		}
 	};
 	
@@ -262,19 +302,24 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		}
 		
 		// Récupération des groupes de ce calendrier
-		var groupesVueGroupe = new Array();
+		this.groupesVueGroupe = new Object();
+		var groupesAjoutes = new Object();
 		for(var i=0, maxI=this.calendriersVueGroupe.length; i<maxI; i++) {
 			for(var j=0, maxJ=this.calendriersVueGroupe[i].groupesParents.length; j<maxJ; j++) {
-				groupesVueGroupe.push({ id: this.calendriersVueGroupe[i].groupesParents[j], nom: this.calendriersVueGroupe[i].nomsGroupesParents[j] });
+				var idGroupe = this.calendriersVueGroupe[i].groupesParents[j];
+				if(!groupesAjoutes[idGroupe]) { // On n'ajoute pas de doublons
+					this.groupesVueGroupe[idGroupe] = this.calendriersVueGroupe[i].nomsGroupesParents[j];
+					groupesAjoutes[idGroupe] = true;
+				}
 			}
 		}
 		
-		$("#lst_groupes_associes").text(_.pluck(groupesVueGroupe, "nom").join(", "));
+		$("#lst_groupes_associes").text(_.values(this.groupesVueGroupe).join(", "));
 
 		// Initialise le filtre pour les jours spéciaux en fonction des groupes de la matière
-		this.evenementGestion.joursSpeciauxFiltre = _.pluck(groupesVueGroupe, "id");
+		this.evenementGestion.joursSpeciauxFiltre = _.keys(this.groupesVueGroupe);
 
-		this.planningGroupes.resetGroupes(groupesVueGroupe, this.calendriersVueGroupe);
+		this.planningGroupes.resetGroupes(this.groupesVueGroupe);
 	};
 	
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {

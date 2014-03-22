@@ -47,16 +47,16 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 	};
 	
 	PlanningGroupes.prototype.render = function() {
-		
 		var groupes;
-		if(this.groupes.length > 0) {
+		var nbGroupes = _.keys(this.groupes).length; 
+		if(nbGroupes > 0) {
 			groupes = this.groupes;
 		}
 		else {
-			groupes = [{ nom: "(Aucun groupe)" }];
+			groupes = { 0: "(Aucun groupe)" };
 		}
 		
-		this.jqPlanningGroupes.empty().append(this.template({  groupes: groupes }));
+		this.jqPlanningGroupes.empty().append(this.template({  groupes: groupes, nbGroupes: nbGroupes }));
 		
 		this.renderDate();
 	};
