@@ -34,7 +34,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "jquery
 			autoOpen: false,
 			appendTo: "#dialog_hook",
 			draggable: false,
-			width: 500,
+			width: 500, // TODO : pas de "constraint" pour que la dialog ne soit pas automatiquement déplacée si elle dépasse de l'écran
 			open: function(){
 				$(document).bind("click", closeDialogDetailsCallback);
 			},

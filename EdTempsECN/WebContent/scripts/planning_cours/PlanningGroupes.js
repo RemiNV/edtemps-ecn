@@ -18,6 +18,7 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		this.onFetchCallback = onFetchCallback;
 		this.evenementGestion = evenementGestion;
 		this.jqDatepicker = jqDatepicker;
+		this.currentShownEvents = new Array();
 		
 		// Réglage de la langue
 		moment.lang("fr");
@@ -74,6 +75,7 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 	PlanningGroupes.prototype.showEvents = function(events) {
 		
 		var me = this;
+		this.currentShownEvents = events;
 		
 		// Vidage des événements déjà affichés
 		this.jqPlanningGroupes.find(".evenement_groupe").remove();
@@ -102,12 +104,18 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 			
 			// Ajout de l'événement
 			var event = events[i];
-			caseJour.prepend($("<div class='evenement_groupe'></div>").css({ left: offsetDebut + '%', width: width + '%', backgroundColor: events[i].color })
-					.attr("title", events[i].nom));
+			
+			var jqEven = $("<div class='evenement_groupe'></div>").css({ left: offsetDebut + '%', width: width + '%', backgroundColor: events[i].color })
+				.attr("title", events[i].nom)
+				.attr("data-event-index", i);
+			
+			caseJour.prepend(jqEven);
 			
 			if (!event.specialDay) {
-				caseJour.click(function(e) {
-					me.dialogDetailsEvenement.show(event, $(e.target));
+				jqEven.click(function(e) {
+					var jqThis = $(this);
+					var eventIndex = parseInt(jqThis.attr("data-event-index"));
+					me.dialogDetailsEvenement.show(me.currentShownEvents[eventIndex], $(this));
 				});
 			}
 		}
