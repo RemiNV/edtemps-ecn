@@ -453,65 +453,75 @@ define(["RestManager", "GroupeGestion", "CalendrierGestion", "DialogCreationCale
 		$("#bulle_information").html("").hide();
 
 		this.groupeGestion.queryGroupesEtCalendriersEnAttenteRattachement(function(resultCode, listeGroupes, listeCalendriers) {
-			var nbGroupes = listeGroupes.length;
-			var nbCalendriers = listeCalendriers.length;
 			
+			if(resultCode == RestManager.resultCode_Success) {
 			
-			// Ajout des boutons "Gérer" et mise en surbrillance les lignes | pour les groupes en attente de rattachement
-			var dejaMisEnValeur = new Object();
-			for (var i=0; i<nbGroupes; i++) {
-				var idGroupe = listeGroupes[i].parentIdTmp;
-				if (!dejaMisEnValeur[idGroupe]) {
-					$("#tbl_mes_groupes_ligne_"+idGroupe).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Demande de rattachement en attente");
-					$("#tbl_mes_groupes_ligne_"+idGroupe+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+idGroupe+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
-					dejaMisEnValeur[idGroupe] = true;
-				}
-			}
-
-			// Ajout des boutons "Gérer" et mise en surbrillance les lignes | pour les calendriers en attente de rattachement
-			for (var i=0; i<nbCalendriers; i++) {
-				// Récupère l'identifiant du groupe concerné par ce calendrier
-				var idGroupe = null;
-				for (var j=0, maxJ=listeCalendriers[i].groupesParentsTmp.length; j<maxJ; j++) {
-					if (me.listeGroupes[listeCalendriers[i].groupesParentsTmp[j]]) {
-						idGroupe=listeCalendriers[i].groupesParentsTmp[j];
-					}
-				}
 				
-				// Met en valeur la ligne si ce n'est pas déjà fait
-				if (!dejaMisEnValeur[idGroupe]) {
-					$("#tbl_mes_groupes_ligne_"+idGroupe).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
-					$("#tbl_mes_groupes_ligne_"+idGroupe+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+idGroupe+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
-					dejaMisEnValeur[idGroupe] = true;
-				}
-			}
-			
-			// Listeners pour les boutons gérer
-			$(".tbl_mes_groupes_boutons_gerer").click(function() {
-
-				// Récupère la liste des groupes qui demandent le rattachement au groupe sélectionné
-				var listeGroupesEnAttenteDeRattachement = new Array();
+				var nbGroupes = listeGroupes.length;
+				var nbCalendriers = listeCalendriers.length;
+				
+				
+				// Ajout des boutons "Gérer" et mise en surbrillance les lignes | pour les groupes en attente de rattachement
+				var dejaMisEnValeur = new Object();
 				for (var i=0; i<nbGroupes; i++) {
-					if (listeGroupes[i].parentIdTmp==$(this).attr("data-id")) {
-						listeGroupesEnAttenteDeRattachement.push(listeGroupes[i]);
+					var idGroupe = listeGroupes[i].parentIdTmp;
+					if (!dejaMisEnValeur[idGroupe]) {
+						$("#tbl_mes_groupes_ligne_"+idGroupe).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Demande de rattachement en attente");
+						$("#tbl_mes_groupes_ligne_"+idGroupe+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+idGroupe+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
+						dejaMisEnValeur[idGroupe] = true;
 					}
 				}
-				
-				// Récupère la liste des calendriers qui demandent le rattachement au groupe sélectionné
-				var listeCalendriersEnAttenteDeRattachement = new Array();
+	
+				// Ajout des boutons "Gérer" et mise en surbrillance les lignes | pour les calendriers en attente de rattachement
 				for (var i=0; i<nbCalendriers; i++) {
+					// Récupère l'identifiant du groupe concerné par ce calendrier
+					var idGroupe = null;
 					for (var j=0, maxJ=listeCalendriers[i].groupesParentsTmp.length; j<maxJ; j++) {
-						if ($(this).attr("data-id")==listeCalendriers[i].groupesParentsTmp[j]) {
-							listeCalendriersEnAttenteDeRattachement.push(listeCalendriers[i]);	
+						if (me.listeGroupes[listeCalendriers[i].groupesParentsTmp[j]]) {
+							idGroupe=listeCalendriers[i].groupesParentsTmp[j];
 						}
 					}
+					
+					// Met en valeur la ligne si ce n'est pas déjà fait
+					if (!dejaMisEnValeur[idGroupe]) {
+						$("#tbl_mes_groupes_ligne_"+idGroupe).addClass("tbl_mes_groupes_ligne_importante").attr("title", "Des demandes de rattachement sont en attente de validation pour ce groupe. Cliquez sur 'Gérer' pour les traiter.");
+						$("#tbl_mes_groupes_ligne_"+idGroupe+" .tbl_mes_groupes_boutons").prepend("<input type='button' data-id='"+idGroupe+"' class='button tbl_mes_groupes_boutons_gerer' value='Gérer' />");
+						dejaMisEnValeur[idGroupe] = true;
+					}
 				}
 				
-				// Appelle la boîte de dialogue de gestion
-				me.dialogGererGroupeParticipants.show(listeGroupesEnAttenteDeRattachement,
-						listeCalendriersEnAttenteDeRattachement, $(this).attr("data-id"));
-			});
-
+				// Listeners pour les boutons gérer
+				$(".tbl_mes_groupes_boutons_gerer").click(function() {
+	
+					// Récupère la liste des groupes qui demandent le rattachement au groupe sélectionné
+					var listeGroupesEnAttenteDeRattachement = new Array();
+					for (var i=0; i<nbGroupes; i++) {
+						if (listeGroupes[i].parentIdTmp==$(this).attr("data-id")) {
+							listeGroupesEnAttenteDeRattachement.push(listeGroupes[i]);
+						}
+					}
+					
+					// Récupère la liste des calendriers qui demandent le rattachement au groupe sélectionné
+					var listeCalendriersEnAttenteDeRattachement = new Array();
+					for (var i=0; i<nbCalendriers; i++) {
+						for (var j=0, maxJ=listeCalendriers[i].groupesParentsTmp.length; j<maxJ; j++) {
+							if ($(this).attr("data-id")==listeCalendriers[i].groupesParentsTmp[j]) {
+								listeCalendriersEnAttenteDeRattachement.push(listeCalendriers[i]);	
+							}
+						}
+					}
+					
+					// Appelle la boîte de dialogue de gestion
+					me.dialogGererGroupeParticipants.show(listeGroupesEnAttenteDeRattachement,
+							listeCalendriersEnAttenteDeRattachement, $(this).attr("data-id"));
+				});
+			}
+			else if(resultCode == RestManager.resultCode_NetworkError) {
+				window.showToast("Erreur de récupération des calendriers et groupes en attente de rattachement ; vérifiez votre connexion.");
+			}
+			else {
+				window.showToast("Erreur de récupération des calendriers et groupes en attente de rattachement.");
+			}
 		});
 
 	};
