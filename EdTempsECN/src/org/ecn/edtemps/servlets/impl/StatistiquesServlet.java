@@ -6,8 +6,11 @@ import javax.json.JsonValue;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ecn.edtemps.exceptions.EdtempsException;
+import org.ecn.edtemps.exceptions.ResultCode;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.StatistiquesGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion;
+import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.servlets.QueryWithIntervalServlet;
 
 /**
@@ -22,6 +25,13 @@ public class StatistiquesServlet extends QueryWithIntervalServlet {
 	@Override
 	protected JsonValue doQuery(int userId, BddGestion bdd, Date dateDebut,
 			Date dateFin, HttpServletRequest req) throws EdtempsException {
+		
+		// Vérification des droits de l'utilisateur
+		UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+		if(!userGestion.aDroit(ActionsEdtemps.PLANIFIER_COURS, userId)) {
+			throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à planifier des cours");
+		}
+		
 		// Récupération de la matière
 		String matiere = req.getParameter("matiere");
 		
