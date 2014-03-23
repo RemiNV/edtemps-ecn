@@ -256,6 +256,11 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 				this.blocStatistiques.refreshStatistiques(this.calendrierSelectionne.matiere, dateDebut, dateFin);
 			}
 		}
+		else {
+			// Sélection incomplète : supprimer le tableau
+			this.dateDebutStatistiquesAJour = null;
+			this.blocStatistiques.clear();
+		}
 	};
 	
 	EcranPlanningCours.VUE_NORMALE = "vue_normale";
@@ -284,6 +289,9 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 			$("#page_planning_groupes").hide();
 			this.calendrier.gotoDate(date);
 		}
+		
+		// Mise à jour (généralement vidage) du bloc de statistiques
+		this.updateStatistiques();
 	};
 	
 	/**
@@ -357,10 +365,10 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 					}
 				});
 			}
-			
-			// Mise à jour des statistiques (pas de requête effectuée si déjà à jour)
-			this.updateStatistiques();
 		}
+		
+		// Mise à jour des statistiques (pas de requête effectuée si déjà à jour, et rien d'effectué si sélections incomplètes)
+		this.updateStatistiques();
 	};
 	
 	return EcranPlanningCours;

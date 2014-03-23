@@ -53,5 +53,9 @@ define(["underscore", "text!../../templates/bloc_statistiques.tpl", "RestManager
 		this.jqBloc.find("#contenu_statistiques").html(html);
 	};
 	
+	BlocStatistiques.prototype.clear = function() {
+		this.jqBloc.find("#contenu_statistiques").empty();
+	}
+	
 	return BlocStatistiques;
 });
