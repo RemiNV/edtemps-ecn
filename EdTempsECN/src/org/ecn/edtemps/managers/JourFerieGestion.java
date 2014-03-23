@@ -314,21 +314,21 @@ public class JourFerieGestion {
 		datesFeries.add(new JourFerie("Assomption", new GregorianCalendar(annee+1, 7, 15).getTime()));
 		datesFeries.add(new JourFerie("Toussaint", new GregorianCalendar(annee, 10, 1).getTime()));
 
-		// Lundi de pacques
-		GregorianCalendar pacques = calculLundiPacques(annee+1);
-		datesFeries.add(new JourFerie("Lundi de Pâcques", pacques.getTime()));
+		// Lundi de Pâques
+		GregorianCalendar paques = calculLundiPaques(annee+1);
+		datesFeries.add(new JourFerie("Lundi de Pâques", paques.getTime()));
 
-		// Ascension (= pâques + 38 jours)
+		// Ascension (= Pâques + 38 jours)
 		GregorianCalendar ascension = new GregorianCalendar(annee+1,
-				pacques.get(GregorianCalendar.MONTH),
-				pacques.get(GregorianCalendar.DAY_OF_MONTH));
+				paques.get(GregorianCalendar.MONTH),
+				paques.get(GregorianCalendar.DAY_OF_MONTH));
 		ascension.add(GregorianCalendar.DAY_OF_MONTH, 38);
 		datesFeries.add(new JourFerie("Ascension", ascension.getTime()));
 
-		// Pentecôte (= pâques + 49 jours)
+		// Pentecôte (= Pâques + 49 jours)
 		GregorianCalendar pentecote = new GregorianCalendar(annee+1,
-				pacques.get(GregorianCalendar.MONTH),
-				pacques.get(GregorianCalendar.DAY_OF_MONTH));
+				paques.get(GregorianCalendar.MONTH),
+				paques.get(GregorianCalendar.DAY_OF_MONTH));
 		pentecote.add(GregorianCalendar.DAY_OF_MONTH, 49);
 		datesFeries.add(new JourFerie("Pentecôte", pentecote.getTime()));
 
@@ -337,12 +337,12 @@ public class JourFerieGestion {
 	
 	
 	/**
-	 * Calcule la date du lundi de Pacques de l'année
+	 * Calcule la date du lundi de Pâques de l'année
 	 * 
 	 * @param annee Année de calcul
-	 * @return la date du lundi de Pacques
+	 * @return la date du lundi de Pâques
 	 */
-	public GregorianCalendar calculLundiPacques(int annee) {
+	public GregorianCalendar calculLundiPaques(int annee) {
 		int a = annee / 100;
 		int b = annee % 100;
 		int c = (3 * (a + 25)) / 4;
