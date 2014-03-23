@@ -32,15 +32,15 @@ public class StatistiquesGestion {
 		
 		// On convertit l'intervalle datefin-datedebut en secondes
 		String request = "SELECT extract('epoch' from SUM(evenement.eve_datefin - evenement.eve_datedebut)) AS intervalle_cours, typecalendrier.typecal_id, " +
-				"typecalendrier.typecal_libelle, cap.groupeparticipant_id from edt.evenement " +
-				"INNER JOIN edt.evenementappartient ON evenementappartient.eve_id=evenement.eve_id " +
-				"INNER JOIN edt.calendrier ON calendrier.cal_id=evenementappartient.cal_id " +
+				"typecalendrier.typecal_libelle, cap.groupeparticipant_id, MAX(heurescours.heurescours_quantite) AS heurescours_quantite from edt.calendrier " +
 				"INNER JOIN edt.typecalendrier ON calendrier.typecal_id=typecalendrier.typecal_id " +
 				"INNER JOIN edt.calendrierappartientgroupe cap ON calendrier.cal_id=cap.cal_id " +
 				"INNER JOIN edt.groupeparticipant ON groupeparticipant.groupeparticipant_id=cap.groupeparticipant_id AND NOT groupeparticipant.groupeparticipant_estcalendrierunique " +
 				"INNER JOIN edt.matiere ON matiere.matiere_id=calendrier.matiere_id AND matiere.matiere_nom = ? " +
 				"INNER JOIN edt.proprietairecalendrier ON proprietairecalendrier.cal_id=calendrier.cal_id AND proprietairecalendrier.utilisateur_id=" + idUtilisateur +
-				" WHERE evenement.eve_datefin > ? AND evenement.eve_datedebut <= ? " +
+				" LEFT JOIN edt.heurescours ON heurescours.matiere_id=calendrier.matiere_id AND heurescours.typecalendrier_id=typecalendrier.typecal_id " +
+				"LEFT JOIN edt.evenementappartient ON evenementappartient.cal_id=calendrier.cal_id " +
+				"LEFT JOIN edt.evenement ON evenement.eve_id=evenementappartient.eve_id AND evenement.eve_datefin > ? AND evenement.eve_datedebut <= ? " +
 				"GROUP BY typecalendrier.typecal_id, typecalendrier.typecal_libelle, cap.groupeparticipant_id " +
 				"ORDER BY typecalendrier.typecal_id";
 		
@@ -73,8 +73,7 @@ public class StatistiquesGestion {
 					nextMap = new HashMap<Integer, StatistiquesGroupe>();
 				}
 				
-				// TODO : remplir le champ "prevu" (autre chose que 0) depuis les données AGAP
-				nextMap.put(resultSet.getInt("groupeparticipant_id"), new StatistiquesGroupe(resultSet.getInt("intervalle_cours"), 0));
+				nextMap.put(resultSet.getInt("groupeparticipant_id"), new StatistiquesGroupe(resultSet.getInt("intervalle_cours"), resultSet.getInt("heurescours_quantite") * 3600));
 			}
 			
 			resultSet.close();

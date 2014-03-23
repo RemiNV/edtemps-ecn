@@ -992,6 +992,18 @@ table.liste_materiel th {
 	padding: 5px;
 }
 
+#contenu_statistiques .quota_juste {
+	color: #60C003;
+}
+
+#contenu_statistiques .quota_insuffisant {
+	color: #fb863a;
+}
+
+#contenu_statistiques .quota_depasse {
+	color: #FF0000;
+}
+
 /* Dialog répéter événement */
 #dialog_repeter h3 {
 	border-bottom: 1px solid #0187AA;
