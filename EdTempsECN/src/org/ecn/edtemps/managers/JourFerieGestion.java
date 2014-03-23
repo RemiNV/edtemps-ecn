@@ -226,7 +226,7 @@ public class JourFerieGestion {
 	 * 
 	 * @param date Date du jour à vérifier
 	 * @param ignoreId Identifiant du jour à ignorer dans la recherche
-	 * @result VRAI s'il existe déjà un jour férié à cette date en base de données
+	 * @return VRAI s'il existe déjà un jour férié à cette date en base de données
 	 * @throws EdtempsException 
 	 */
 	public boolean verifierPresenceJourFerie(Date date, Integer ignoreId) throws EdtempsException {
@@ -267,7 +267,7 @@ public class JourFerieGestion {
 	 * 
 	 * @param annee Numéro de l'année de départ (par exemple, ce serait 2013 pour l'année scolaire 2013-2014)
 	 * @param userId Identifiant de l'utilisateur qui fait la requête
-	 * @result une map dont la clé vaut le libellé du jour férié et la valeur vaux true si il y a eu ajout, false sinon 
+	 * @return une map dont la clé vaut le libellé du jour férié et la valeur vaux true si il y a eu ajout, false sinon 
 	 * @throws EdtempsException 
 	 */
 	public Map<String, Boolean> ajoutAutomatiqueJoursFeries(int annee, int userId) throws EdtempsException {

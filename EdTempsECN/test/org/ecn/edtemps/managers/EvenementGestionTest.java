@@ -302,8 +302,8 @@ public class EvenementGestionTest {
 	 * @param dateFin : date et heure de fin de l'événement
 	 * @param nomsIntervenants : noms des intervenants de l'événement
 	 * @param nomsSalles : noms des salles dans lesquelles l'événement a lieu
-	 * @param nomMatiere : noms des matières de l'événement
-	 * @param nomType : noms des types de l'événement
+	 * @param nomsMatieres : noms des matières de l'événement
+	 * @param nomsTypes : noms des types de l'événement
 	 */
 	public void comparerEvenementComplet(EvenementComplet evenement, String nom, Date dateDebut, Date dateFin, List<String> nomsIntervenants, List<String> nomsSalles, List<String> nomsMatieres, List<String> nomsTypes){
 		

@@ -192,7 +192,7 @@ public class BddGestion {
 	
 	/**
 	 * Récupérer l'ID (contenu dans la colonne <nomColonne>) d'une ligne spécifique d'une table
-	 * @param requete : requête préparée à effectuer, devant retourner une et une seule ligne 
+	 * @param request : requête préparée à effectuer, devant retourner une et une seule ligne 
 	 * @param nomColonne : nom de la colonne contenant l'id
 	 * @return id : id de la ligne cherchée ou -1 si le résultat n'existe pas / n'est pas unique
 	 * @throws DatabaseException

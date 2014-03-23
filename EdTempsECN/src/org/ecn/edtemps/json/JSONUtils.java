@@ -40,7 +40,7 @@ public class JSONUtils {
 	/**
 	 * Créé un JsonArray à partir d'une collection itérable (List par exemple) d'entiers
 	 * 
-	 * @param Collection itérable d'entiers
+	 * @param integers itérable d'entiers
 	 * @return Array généré
 	 */
 	public static JsonArray getJsonIntArray(Iterable<Integer> integers) {
@@ -57,7 +57,7 @@ public class JSONUtils {
 	/**
 	 * Créé un JsonArray à partir d'une collection itérable (List par exemple) de string
 	 * 
-	 * @param Collection itérable de string
+	 * @param strings itérable de string
 	 * @return Array généré
 	 */
 	public static JsonArray getJsonStringArray(Iterable<String> strings) {
@@ -132,7 +132,7 @@ public class JSONUtils {
 	/**
 	 * Sous-méthode permettant de lire un EvenementClientRepetition à partir d'un JsonObject lu
 	 * @param jsonEvenement
-	 * @return
+	 * @return EvenementClientRepetition
 	 * @throws JsonException
 	 * @throws ClassCastException
 	 */
@@ -155,7 +155,7 @@ public class JSONUtils {
 	/**
 	 * Sous-méthode permettant de lire un EvenementClient à partir d'un JsonObject lu
 	 * @param jsonEvenement
-	 * @return
+	 * @return EvenementClientRepetition
 	 */
 	public static EvenementClient readEvenementClient(JsonObject jsonEvenement) throws JsonException, ClassCastException {
 		

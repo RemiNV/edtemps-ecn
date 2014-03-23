@@ -330,7 +330,7 @@ public class EvenementGestion {
 	 * <p>Permet de supprimer un évènement dans la base de données,
 	 * l'évènement est identifié par son ID entier</p>
 	 * 
-	 * @param idEvement identifiant de l'événement
+	 * @param idEvenement identifiant de l'événement
 	 * @param createTransaction Indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.
 	 * @throws EdtempsException
 	 */
@@ -535,7 +535,7 @@ public class EvenementGestion {
 	
 	/**
 	 * Méthode de listing des évènements de cours ou pas de cours (exclusivement l'un ou l'autre) d'un ensemble de salles
-	 * @param idSalle ID des salles en question
+	 * @param idSalles ID des salles en question
 	 * @param dateDebut Date de début de la fenêtre de recherche d'évènements
 	 * @param dateFin Date de fin de la fenêtre de recherche d'évènements
 	 * @param estCours Lister uniquement les évènements qui sont des cours (true) ou uniquement ceux qui n'en sont pas (false)
@@ -624,7 +624,7 @@ public class EvenementGestion {
 	
 	/**
 	 * Liste les évènements liés à un intervenant
-	 * @param idResponsable identifiant de l'utilisateur intervenant dans les évènements à récupérer
+	 * @param idIntervenant identifiant de l'utilisateur intervenant dans les évènements à récupérer
 	 * @param dateDebut Date de début de la recherche
 	 * @param dateFin Date de fin de la recherche
 	 * @param createTransaction indique s'il faut créer une transaction dans cette méthode. Sinon, elle DOIT être appelée à l'intérieur d'une transaction.

@@ -467,7 +467,7 @@ public class UtilisateurGestion {
 	
 	/**
 	 * Savoir si l'utilisateur a le droit ou non de réaliser une action
-	 * @param actionNom libellé de l'action sur laquelle on recherche les droits de l'utilisateur
+	 * @param action libellé de l'action sur laquelle on recherche les droits de l'utilisateur
 	 * @param idUtilisateur identifiant de l'utilisateur
 	 * @return true si l'action est autorisée pour l'utilisaetur, false si l'action est interdite à l'utilisateur
 	 * @throws DatabaseException
@@ -719,7 +719,7 @@ public class UtilisateurGestion {
 	/**
 	 * Modifie le type d'un utilisateur
 	 * @param userId Identifiant de l'utilisateur
-	 * @param listeIdentifiants Liste des identifiants des types de l'utilisateur
+	 * @param listeIdentifiantsTypes Liste des identifiants des types de l'utilisateur
 	 * @throws DatabaseException 
 	 */
 	public void modifierTypeUtilisateur(int userId, List<Integer> listeIdentifiantsTypes) throws DatabaseException {

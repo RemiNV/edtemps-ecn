@@ -606,7 +606,7 @@ public class GroupeGestion {
 	 * <b>Cette méthode ne peut être appelée qu'une fois par transaction</b>
 	 * Le nom de la table créée est défini par la constante {@link GroupeGestion#NOM_TEMPTABLE_PARENTSENFANTS}
 	 * @param bdd Gestionnaire de base de données
-	 * @param idGroupe ID du groupe pour lequel les parents et enfants sont à lister.
+	 * @param selectRequest requête
 	 * @throws DatabaseException
 	 */
 	public static void makeTempTableListeParentsEnfants(BddGestion bdd, String selectRequest) throws DatabaseException {
@@ -886,7 +886,7 @@ public class GroupeGestion {
 
 	/**
 	 * Listing des groupes desquels l'utilisateur fait parti des propriétaires (sans remonter ni descendre les parents/enfants)
-	 * @param idUtilisateur Utilisateur dont les groupes sont à lister
+	 * @param idProprietaire Utilisateur dont les groupes sont à lister
 	 * @return Liste des groupes trouvés
 	 * @throws DatabaseException
 	 */

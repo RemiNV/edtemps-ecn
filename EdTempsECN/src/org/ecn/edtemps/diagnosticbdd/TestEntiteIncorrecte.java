@@ -72,7 +72,7 @@ public abstract class TestEntiteIncorrecte extends TestBdd {
 	/**
 	 * Retourne la requête qui va permettre de trouver les lignes incorrectes
 	 * @param bdd
-	 * @return
+	 * @return requête préparée
 	 * @throws SQLException
 	 */
 	protected abstract PreparedStatement getStatementListing(BddGestion bdd) throws SQLException;

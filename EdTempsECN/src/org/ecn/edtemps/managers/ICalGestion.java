@@ -40,7 +40,7 @@ public class ICalGestion {
 	/**
 	 * Génération du contenu d'un fichier iCal contenant tous les abonnements de l'utilisateur
 	 * @param idUtilisateur
-	 * @return
+	 * @return calendar ical
 	 * @throws DatabaseException
 	 * @throws MaxRowCountExceededException Nombre d'événements trop élevé
 	 */
