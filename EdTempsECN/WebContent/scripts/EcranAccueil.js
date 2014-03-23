@@ -37,8 +37,6 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		
 		// Dialog de détails des événements
 		this.dialogDetailsEvenement = new DialogDetailsEvenement($("#dialog_details_evenement"), this.evenementGestion, this.dialogAjoutEvenement, null, function() { me.rafraichirCalendrier(); });
-		
-		// TODO : cacher le lien "mode planning cours" pour les utilisateurs non autorisés
 	};
 	
 	EcranAccueil.MODE_GROUPE = 1;
@@ -96,6 +94,11 @@ define(["Calendrier", "EvenementGestion", "ListeGroupesParticipants", "Recherche
 		this.listeGroupesParticipants = new ListeGroupesParticipants(this.restManager, this.calendrier, $("#liste_groupes"), this.evenementGestion);
 		
 		this.verifieAttentesRattachements();
+		
+		// Si l'utilisateur a les droits nécessaires, on affiche le lien "planification de cours"
+		if(this.restManager.aDroit(RestManager.actionsEdtemps_PlanifierCours)) {
+			$("#lien_planning_cours").css("display", "inline");
+		}
 	};
 	
 	EcranAccueil.prototype.rafraichirCalendrier = function() {

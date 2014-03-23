@@ -744,7 +744,7 @@
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (1, 'CREER_GROUPE');
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (2, 'RATTACHER_CALENDRIER_GROUPE');
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (3, 'CREER_GROUPE_COURS');
-	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (4, 'CHOISIR_PROPRIETAIRES_EVENEMENT');
+	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (4, 'PLANIFIER_COURS');
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (5, 'LIMITE_CALENDRIERS_ETENDUE');
 	INSERT INTO edt.droits(droits_id, droits_libelle) VALUES (6, 'GERER_JOURS_BLOQUES');
 

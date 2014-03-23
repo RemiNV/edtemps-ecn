@@ -18,11 +18,13 @@ import org.ecn.edtemps.json.ResponseManager;
 import org.ecn.edtemps.managers.BddGestion;
 import org.ecn.edtemps.managers.CalendrierGestion;
 import org.ecn.edtemps.managers.CalendrierGestion.DroitsCalendriers;
+import org.ecn.edtemps.managers.UtilisateurGestion.ActionsEdtemps;
 import org.ecn.edtemps.managers.EvenementGestion;
 import org.ecn.edtemps.managers.SalleGestion;
 import org.ecn.edtemps.managers.UtilisateurGestion;
 import org.ecn.edtemps.models.TestRepetitionEvenement;
 import org.ecn.edtemps.models.identifie.EvenementIdentifie;
+import org.ecn.edtemps.models.identifie.UtilisateurIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 public class RepeterEvenementServlet extends RequiresConnectionServlet {
@@ -42,6 +44,12 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 		}
 		
 		try {
+			// Vérification des droits de l'utilisateur
+			UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+			if(!userGestion.aDroit(ActionsEdtemps.PLANIFIER_COURS, userId)) {
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à planifier des cours");
+			}
+			
 			// Récupération des paramètres
 			int idEvenement = getIntParam(req, "idEvenement");
 			int nbRepetitions = getIntParam(req, "nbRepetitions");
@@ -56,7 +64,13 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 		}
 		catch(EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
-			logger.error("Erreur lors de la prévisualisation de répétition d'événement", e);
+			
+			if(e.getResultCode() == ResultCode.AUTHORIZATION_ERROR) {
+				logger.warn("Répétition d'événements : droits insuffisants pour l'utilisateur " + userId, e);
+			}
+			else {
+				logger.error("Erreur lors de la prévisualisation de répétition d'événement", e);
+			}
 		}
 		
 		
@@ -82,6 +96,12 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 		}
 		
 		try {
+			// Vérification des droits de l'utilisateur
+			UtilisateurGestion userGestion = new UtilisateurGestion(bdd);
+			if(!userGestion.aDroit(ActionsEdtemps.PLANIFIER_COURS, userId)) {
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non autorisé à planifier des cours");
+			}
+			
 			// Toute la procédure est effectuée dans une transaction
 			bdd.startTransaction();
 			EvenementGestion evenementGestion = new EvenementGestion(bdd);
@@ -93,7 +113,16 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 			EvenementIdentifie evenementRepetition = evenementGestion.getEvenement(idEvenementRepetition);
 			
 			// Vérification que l'utilisateur est propriétaire de l'événement
-			// TODO : écrire !
+			boolean estProprietaire = false;
+			for(UtilisateurIdentifie utilisateur : evenementRepetition.getResponsables()) {
+				if(utilisateur.getId() == userId) {
+					estProprietaire = true;
+					break;
+				}
+			}
+			if(!estProprietaire) {
+				throw new EdtempsException(ResultCode.AUTHORIZATION_ERROR, "Utilisateur non propriétaire de l'événement à répéter : ID d'événement " + idEvenementRepetition);
+			}
 			
 			int idCalendrier = getIntParam(req, "idCalendrier");
 			ArrayList<Integer> lstIdCalendrier = new ArrayList<Integer>(1);
@@ -140,7 +169,12 @@ public class RepeterEvenementServlet extends RequiresConnectionServlet {
 		}
 		catch(EdtempsException e) {
 			resp.getWriter().write(ResponseManager.generateResponse(e.getResultCode(), e.getMessage(), null));
-			logger.error("Erreur lors d'une requête de répétition", e);
+			if(e.getResultCode() == ResultCode.AUTHORIZATION_ERROR) {
+				logger.warn("Répétition d'événements : droits insuffisants pour l'utilisateur " + userId, e);
+			}
+			else {
+				logger.error("Erreur lors d'une requêt de répétition", e);
+			}
 		}
 		
 		bdd.close();

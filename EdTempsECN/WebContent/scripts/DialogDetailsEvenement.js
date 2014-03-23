@@ -34,7 +34,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "jquery
 			autoOpen: false,
 			appendTo: "#dialog_hook",
 			draggable: false,
-			width: 500, // TODO : pas de "constraint" pour que la dialog ne soit pas automatiquement déplacée si elle dépasse de l'écran
+			width: 500,
 			open: function(){
 				$(document).bind("click", closeDialogDetailsCallback);
 			},
@@ -104,6 +104,7 @@ define(["RestManager", "text!../templates/dialog_details_evenement.tpl", "jquery
 				my: "center bottom",
 				at: "top-10",
 				of: jqSource
+				// collision: "none" // Autoriser à sortir de l'écran pour être sûr d'être bien sur l'élément source. Donne des résultats plus ou moins bien.
 			},
 			title: event.title
 		});

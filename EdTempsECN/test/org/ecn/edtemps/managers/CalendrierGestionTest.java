@@ -43,7 +43,7 @@ public class CalendrierGestionTest {
 		
 		// Comparaison des propriétaires
 		List<Integer> proprietairesRecup = calRecup.getIdProprietaires();
-		List<Integer> proprietaires = calRecup.getIdProprietaires(); //TODO: Erreur à corriger ? Ne faut il pas récupérer la liste de propriétaire du calendrier cal ?
+		List<Integer> proprietaires = cal.getIdProprietaires();
 		
 		assertEquals(proprietairesRecup.size(), proprietaires.size());
 		

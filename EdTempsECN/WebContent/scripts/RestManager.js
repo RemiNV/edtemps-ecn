@@ -69,7 +69,7 @@ define(["jquery"], function() {
 	 * - RestManager.actionsEdtemps_CreerGroupe<br>
 	 * - RestManager.actionsEdtemps_RattacherCalendrierGroupe<br>
 	 * - RestManager.actionsEdtemps_CreerGroupeCours<br>
-	 * - RestManager.actionsEdtemps_ChoisirProprietairesEvenement<br>
+	 * - RestManager.actionsEdtemps_PlanifierCours<br>
 	 * - RestManager.actionsEdtemps_LimiteCalendriersEtendue<br>
 	 * - RestManager.actionsEdtemps_GererJoursBloques
 	 * @typedef actionsEdtemps
@@ -78,7 +78,7 @@ define(["jquery"], function() {
 	RestManager.actionsEdtemps_CreerGroupe = 1;
 	RestManager.actionsEdtemps_RattacherCalendrierGroupe = 2;
 	RestManager.actionsEdtemps_CreerGroupeCours = 3;
-	RestManager.actionsEdtemps_ChoisirProprietairesEvenement = 4;
+	RestManager.actionsEdtemps_PlanifierCours = 4;
 	RestManager.actionsEdtemps_LimiteCalendriersEtendue = 5;
 	RestManager.actionsEdtemps_GererJoursBloques = 6;
 	

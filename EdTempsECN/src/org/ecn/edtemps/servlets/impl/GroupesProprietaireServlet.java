@@ -20,7 +20,7 @@ import org.ecn.edtemps.models.identifie.GroupeIdentifie;
 import org.ecn.edtemps.servlets.RequiresConnectionServlet;
 
 /**
- * Servlet pour récupérer la liste des groupes dont un utilisateur est propriétaire (fait parti des propriétaire)
+ * Servlet pour récupérer la liste des groupes dont un utilisateur est propriétaire (fait partie des propriétaire)
  * 
  * @author Joffrey Terrade
  */
