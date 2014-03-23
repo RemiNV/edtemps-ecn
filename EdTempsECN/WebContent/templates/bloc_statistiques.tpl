@@ -10,14 +10,16 @@
 			<td><%= groupes[idGroupe] %></td>
 			<% for(var typeCours in statistiques) { %>
 				<td <%
-				if(statistiques[typeCours][idGroupe].actuel == statistiques[typeCours][idGroupe].prevu) {
-					%>class='quota_juste'<%
-				}
-				else if(statistiques[typeCours][idGroupe].actuel < statistiques[typeCours][idGroupe].prevu) {
-					%>class='quota_insuffisant'<%
-				}
-				else {
-					%>class='quota_depasse'<%
+				if(statistiques[typeCours][idGroupe].prevu) {
+					if(statistiques[typeCours][idGroupe].actuel == statistiques[typeCours][idGroupe].prevu) {
+						%>class='quota_juste'<%
+					}
+					else if(statistiques[typeCours][idGroupe].actuel < statistiques[typeCours][idGroupe].prevu) {
+						%>class='quota_insuffisant'<%
+					}
+					else {
+						%>class='quota_depasse'<%
+					}
 				}
 				%>>
 				<% if(statistiques[typeCours][idGroupe]) { %>

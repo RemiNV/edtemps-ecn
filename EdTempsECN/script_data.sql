@@ -692,7 +692,7 @@
 	
 /* intervenantevenement */
 
-	/* Je ne mets pas le prof en intervenant ici, flemme */
+	/* Je ne mets pas le prof en intervenant ici */
 	INSERT INTO edt.intervenantevenement(utilisateur_id, eve_id)
 		SELECT utilisateur.utilisateur_id, evenement.eve_id
 		FROM edt.utilisateur CROSS JOIN edt.evenement
@@ -832,4 +832,41 @@
 	INSERT INTO edt.Creneau(creneau_libelle, creneau_debut, creneau_fin) VALUES ('S1', '13:45', '15:45');
 	INSERT INTO edt.Creneau(creneau_libelle, creneau_debut, creneau_fin) VALUES ('S2', '16:00', '18:00');
 
+/* Quotas horaires */
+	INSERT INTO edt.heurescours(matiere_id, typecal_id, heurescours_quantite)
+		SELECT matiere.matiere_id, typecalendrier.typecal_id, 15
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='GELOL' AND typecalendrier.typecal_libelle='TD'
+		LIMIT 1;
+		
+	INSERT INTO edt.heurescours(matiere_id, typecal_id, heurescours_quantite)
+		SELECT matiere.matiere_id, typecalendrier.typecal_id, 5
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='GELOL' AND typecalendrier.typecal_libelle='TP'
+		LIMIT 1;
+		
+	INSERT INTO edt.heurescours(matiere_id, typecal_id, heurescours_quantite)
+		SELECT matiere.matiere_id, typecalendrier.typecal_id, 10
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='GELOL' AND typecalendrier.typecal_libelle='CM'
+		LIMIT 1;
+		
+	INSERT INTO edt.heurescours(matiere_id, typecal_id, heurescours_quantite)
+		SELECT matiere.matiere_id, typecalendrier.typecal_id, 20
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='OBJET' AND typecalendrier.typecal_libelle='TD'
+		LIMIT 1;
+		
+	INSERT INTO edt.heurescours(matiere_id, typecal_id, heurescours_quantite)
+		SELECT matiere.matiere_id, typecalendrier.typecal_id, 10
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='OBJET' AND typecalendrier.typecal_libelle='TP'
+		LIMIT 1;
+		
+	INSERT INTO edt.heurescours(matiere_id, typecal_id, heurescours_quantite)
+		SELECT matiere.matiere_id, typecalendrier.typecal_id, 10
+		FROM edt.matiere CROSS JOIN edt.typecalendrier
+		WHERE matiere.matiere_nom='OBJET' AND typecalendrier.typecal_libelle='CM'
+		LIMIT 1;
+	
 COMMIT;

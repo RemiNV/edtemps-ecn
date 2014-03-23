@@ -309,11 +309,11 @@ ALTER SEQUENCE edt.creneau_creneau_id_seq OWNER TO "edtemps-ecn";
 
 CREATE TABLE edt.heurescours(
 	matiere_id integer not null,
-	typecalendrier_id integer not null,
+	typecal_id integer not null,
 	heurescours_quantite integer not null,
-	constraint pk_heurescours primary key(matiere_id, typecalendrier_id),
+	constraint pk_heurescours primary key(matiere_id, typecal_id),
 	constraint fk_heurescours_matiere_id foreign key(matiere_id) references edt.matiere(matiere_id),
-	constraint fk_heurescours_typecalendrier_id foreign key(typecalendrier_id) references edt.typecalendrier(typecal_id)
+	constraint fk_heurescours_typecalendrier_id foreign key(typecal_id) references edt.typecalendrier(typecal_id)
 );
 
 
