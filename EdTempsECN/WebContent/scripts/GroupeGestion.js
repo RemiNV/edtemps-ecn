@@ -15,7 +15,7 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Récupérer les groupes auxquels est abonné / n'est pas abonné l'utilisateur
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryAbonnementsEtNonAbonnements = function(callback) {
 		this.restManager.effectuerRequete("GET", "abonnementsetnonabonnements", {
@@ -34,7 +34,7 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Désabonner l'utilisateur du groupe dont l'id est en paramètre
 	 * @param {number} idgroupe
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.seDesabonner = function(idgroupe, callback) {
 		this.restManager.effectuerRequete("POST", "sedesabonner", {
@@ -49,7 +49,7 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Abonner l'utilisateur au groupe dont l'id est en paramètre
 	 * @param {number} idgroupe
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.sAbonner = function(idgroupe, callback) {
 		this.restManager.effectuerRequete("POST", "sabonner", {
@@ -63,7 +63,7 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Récupérer les groupes desquels l'utilisateur est propriétaire
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryGroupesUtilisateurProprietaire = function(callback) {
 		this.restManager.effectuerRequete("GET", "groupesutilisateurproprietaire", {
@@ -81,7 +81,7 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Supprimer un groupe de participants
 	 * @param {number} groupeId
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.querySupprimerGroupes = function(groupeId, callback) {
 		this.restManager.effectuerRequete("POST", "groupeparticipants/supprimer", {
@@ -95,7 +95,7 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Ne plus être propriétaire d'un groupe de participants
 	 * @param {number} groupeId
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryNePlusEtreProprietaire = function(groupeId, callback) {
 		this.restManager.effectuerRequete("POST", "groupeparticipants/nePlusEtreProprietaire", {
@@ -109,7 +109,7 @@ define(["RestManager"], function(RestManager) {
 	/**
 	 * Récupérer un groupe de participants avec toutes les données complètes
 	 * @param {number} groupeId
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryGetGroupeComplet = function(groupeId, callback) {
 		this.restManager.effectuerRequete("GET", "groupeparticipants/get", {
@@ -126,7 +126,7 @@ define(["RestManager"], function(RestManager) {
 	
 	/**
 	 * Récupérer les groupes et les calendriers en attente de rattachement pour l'utilisateur en cours
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryGroupesEtCalendriersEnAttenteRattachement = function(callback) {
 		this.restManager.effectuerRequete("GET", "rattachementgroupe/listermesdemandes", {
@@ -145,7 +145,7 @@ define(["RestManager"], function(RestManager) {
 	 * Décider du sort du rattachement d'un groupe à un autre (accepté ou refusé)
 	 * @param {boolean} etat VRAI si le rattachement est accepté, FAUX sinon
 	 * @param {number} groupeId identifiant du groupe pour lequel le rattachement a été décidé
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryDeciderRattachementGroupe = function(etat, groupeId, callback) {
 		this.restManager.effectuerRequete("POST", "rattachementgroupe/decidergroupe", {
@@ -161,7 +161,7 @@ define(["RestManager"], function(RestManager) {
 	 * @param {boolean} etat VRAI si le rattachement est accepté, FAUX sinon
 	 * @param {number} calendrierId identifiant du calendrier demandeur
 	 * @param {number} groupeId identifiant du groupe concerné
-	 * @param {function} callback Fonction appellée une fois la requête effectuée
+	 * @param {function} callback Fonction appelée une fois la requête effectuée
 	 */
 	GroupeGestion.prototype.queryDeciderRattachementCalendrier = function(etat, calendrierId, groupeId, callback) {
 		this.restManager.effectuerRequete("POST", "rattachementgroupe/decidercalendrier", {

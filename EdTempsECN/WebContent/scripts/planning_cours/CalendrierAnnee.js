@@ -1,20 +1,17 @@
 /**
  * Module calendrier annuel pour la gestion des jours spéciaux
+ * 
+ * La liste des jours spéciaux contient tous les jours fériés et les jours bloqués (donc les vacances)
+ * Pour détecter la différence entre jour férié et jour bloqué, on regarde si l'attribut Date est présent.
+ * Seuls les jours fériés ont l'attribut Date.
+ * 
  * @module CalendrierAnnee
  */
 define([  ], function() {
 
 	/**
 	 * @constructor
-	 * @alias CalendrierAnnee
-	 * 
-	 * La méthode de callback recevra deux paramètres :
-	 * 		- un objet date à la date du jour cliqué
-	 * 		- l'objet jquery cliqué
-	 * 
-	 * La liste des jours spéciaux contient tous les jours fériés et les jours bloqués (donc les vacances)
-	 * Pour détecter la différence entre jour férié et jour bloqué, on regarde si l'attribut Date est présent.
-	 * Seuls les jours fériés ont l'attribut Date.
+	 * @alias module:CalendrierAnnee
 	 */
 	var CalendrierAnnee = function(restManager, jqEcran, jqCalendar, annee, joursSpeciaux, callback) {
 		this.restManager = restManager;
@@ -174,7 +171,8 @@ define([  ], function() {
 	
 	
 	/**
-	 * Formatter une date (en AAAA-MM-JJ) à partir d'un objet Date javascript 
+	 * Formatter une date (en AAAA-MM-JJ) à partir d'un objet Date javascript
+	 * @param {date} date Date à formater
 	 */
 	function dateToString(date) {
 		return date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
@@ -183,6 +181,7 @@ define([  ], function() {
 	
 	/**
 	 * Formatter une date (en AAAA-MM-JJ) à partir d'un objet Date javascript 
+	 * @param {date} date Date à formater
 	 */
 	CalendrierAnnee.prototype.dateEnTouteLettres = function(date) {
 		var nomJour = this.listeJours[date.getDay()];
@@ -195,6 +194,7 @@ define([  ], function() {
 	
 	/**
 	 * Récupérer un objet date à partir d'une date au format : AAAA-MM-JJ
+	 * @param {date} date Date à convertir
 	 */
 	function stringToDate(date) {
 		return new Date(date);

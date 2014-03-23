@@ -225,7 +225,7 @@ define([ "EvenementGestion", "RestManager", "jqueryrotate" ], function(Evenement
 	};
 
 	/**
-	 * Méthode appellée lors du click sur un triangle
+	 * Méthode appelée lors du click sur un triangle
 	 * 
 	 * @param {number} groupeId Identifiant du groupe
 	 */
@@ -271,7 +271,7 @@ define([ "EvenementGestion", "RestManager", "jqueryrotate" ], function(Evenement
 
 
 	/**
-	 * Méthode appellée lors du click sur les checkbox
+	 * Méthode appelée lors du click sur les checkbox
 	 * 
 	 * @param {number} groupeId Identifiant du groupe
 	 */

@@ -11,7 +11,7 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	
 	/**
 	 * @constructor
-	 * @alias EcranPlanningCours 
+	 * @alias module:EcranPlanningCours 
 	 */
 	var EcranPlanningCours = function(restManager) {
 		var me = this;
@@ -266,6 +266,10 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 	EcranPlanningCours.VUE_NORMALE = "vue_normale";
 	EcranPlanningCours.VUE_GROUPES = "vue_groupes";
 	
+	/**
+	 * Changer la vue
+	 * @param {string} vue Nom de la vue issu des constantes VUE_NORMALE et VUE_GROUPES
+	 */
 	EcranPlanningCours.prototype.setVue = function(vue) {
 		
 		// Changement de vue : suppression du cache
@@ -330,6 +334,12 @@ define(["EvenementGestion", "DialogAjoutEvenement", "RechercheSalle", "Calendrie
 		this.planningGroupes.resetGroupes(this.groupesVueGroupe);
 	};
 	
+	/**
+	 * Récupération des événements pour affichage dans fullCalendar
+	 * @param {date} start Date de début de récupration des événements
+	 * @param {date} end Date de fin de récupration des événements
+	 * @param {function} callback Méthode apelée en retour
+	 */
 	EcranPlanningCours.prototype.onCalendarFetchEvents = function(start, end, callback) {
 		var me = this;
 

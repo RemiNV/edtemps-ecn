@@ -47,6 +47,10 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		this.setDate(new Date());
 	};
 	
+	
+	/**
+	 * Affichage du calendrier
+	 */
 	PlanningGroupes.prototype.render = function() {
 		var groupes;
 		var nbGroupes = _.keys(this.groupes).length; 
@@ -64,7 +68,7 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 	
 	/**
 	 * Définition des nouveaux groupes concernés par l'affichage
-	 * @param newGroupes Nouveaux groupes à utiliser
+	 * @param {object[]} newGroupes Nouveaux groupes à utiliser
 	 */
 	PlanningGroupes.prototype.resetGroupes = function(newGroupes) {
 		this.groupes = newGroupes;
@@ -72,6 +76,11 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		this.refetchEvents();
 	};
 	
+	
+	/**
+	 * Afficher les événements
+	 * @param {object[]} events Evénements à afficher
+	 */
 	PlanningGroupes.prototype.showEvents = function(events) {
 		
 		var me = this;
@@ -121,6 +130,9 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		}
 	};
 	
+	/**
+	 * Recharger l'affichage
+	 */
 	PlanningGroupes.prototype.refetchEvents = function() {
 		var me = this;
 		var dateFin = moment(this.date).add("days", 6).toDate();
@@ -148,6 +160,10 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		});
 	};
 	
+	/**
+	 * Getter sur la date en cours (date du lundi de la semaine affichée)
+	 * @return la date en cours
+	 */
 	PlanningGroupes.prototype.getDate = function() {
 		return this.date;
 	};
@@ -176,17 +192,29 @@ define(["text!../../templates/planning_groupes.tpl", "underscore", "moment", "Ev
 		this.jqLabelJour.text(strIntervalle);
 	};
 
+	/**
+	 * Mettre à jour la date et rafraichissement de l'affichage
+	 * @param {date} date Date à affecter au paramètre
+	 */
 	PlanningGroupes.prototype.setDate = function(date) {
 		this.date = moment(date).startOf("isoweek").toDate();
 		
 		this.refetchEvents();
 	};
 	
+	/**
+	 * Aller à une date précise
+	 * @param {date} date Date de destination
+	 */
 	PlanningGroupes.prototype.gotoDate = function(date) {
 		this.setDate(moment(date).toDate());
 		this.renderDate();
 	};
 
+	/**
+	 * Mettre à jour la date du datepicker
+	 * @param {date} date Date de mise à jour
+	 */
 	PlanningGroupes.prototype.changeDatePicker = function(date) {
 		if (this.jqDatepicker) {
 			this.jqDatepicker.DatePickerSetDate(date, date);

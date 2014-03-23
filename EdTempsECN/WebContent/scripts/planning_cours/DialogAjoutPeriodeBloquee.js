@@ -6,7 +6,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 
 	/**
 	 * @constructor
-	 * @alias DialogAjoutPeriodeBloquee
+	 * @alias module:DialogAjoutPeriodeBloquee
 	 */
 	var DialogAjoutPeriodeBloquee = function(restManager, jqDialog, ecranJoursBloques) {
 		this.restManager = restManager;
@@ -30,7 +30,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 	 * @param {object} periode Objet periode qui peut être null dans le cas d'ajout,
 	 * 						   sinon, il contient toutes les informations d'un jour bloqué standard : libelle, dateDebut, dateFin
 	 * @param {long} date Date du jour à éditer
-	 * @param {function} callback Méthode appellée au clic sur Valider
+	 * @param {function} callback Méthode appelée au clic sur Valider
 	 */
 	DialogAjoutPeriodeBloquee.prototype.show = function(periode, date, callback) {
 		if(!this.initAppele) {
@@ -82,7 +82,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 	 * @param {object} periode Objet periode qui peut être null dans le cas d'ajout,
 	 * 						   sinon, il contient toutes les informations d'un jour bloqué standard : libelle, dateDebut, dateFin
 	 * @param {long} date Date du jour à éditer
-	 * @param {function} callback Méthode appellée au clic sur Valider
+	 * @param {function} callback Méthode appelée au clic sur Valider
 	 */
 	DialogAjoutPeriodeBloquee.prototype.init = function(periode, date, callback) {
 		var me=this;
@@ -200,7 +200,8 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget", "jque
 
 	
 	/**
-	 * Vérifie que les champs saisis sont corrects et retourne vrai ou faux
+	 * Vérifie que les champs saisis sont corrects
+	 * @return VRAI si le formulaire est correct
 	 */
 	DialogAjoutPeriodeBloquee.prototype.isCorrect = function() {
 		var correct = true;

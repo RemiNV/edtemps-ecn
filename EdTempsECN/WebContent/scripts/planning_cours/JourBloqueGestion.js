@@ -6,7 +6,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 
 	/**
 	 * @constructor
-	 * @alias JourBloqueGestion
+	 * @alias module:JourBloqueGestion
 	 */
 	var JourBloqueGestion = function(restManager, jqEcran) {
 		this.restManager = restManager;
@@ -147,7 +147,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	/**
 	 * Supprimer un jour férié
 	 * 
-	 * @param {int} id Identifiant du jour férié à supprimer
+	 * @param {integer} id Identifiant du jour férié à supprimer
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.supprimerJourFerie = function(id, callback) {
@@ -210,7 +210,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	/**
 	 * Modifier un jour férié
 	 * 
-	 * @param {int} id Identifiant du jour férié à modifier
+	 * @param {integer} id Identifiant du jour férié à modifier
 	 * @param {string} libelle Libellé du jour férié
 	 * @param {date} date Date du jour férié
 	 * @param {function} callback Méthode exécutée en cas de réussite
@@ -248,7 +248,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	/**
 	 * Ajouter automatiquement les jours fériés
 	 * 
-	 * @param {int} annee Annee de création, pour l'année scolaire annee<>annee+1
+	 * @param {integer} annee Annee de création, pour l'année scolaire annee<>annee+1
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.ajouterAutoJourFerie = function(annee, callback) {
@@ -288,6 +288,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	 * @param {string} libelle Libellé de la période bloquée
 	 * @param {date} dateDebut Date de début de la période bloquée
 	 * @param {date} dateFin Date de fin de la période bloquée
+	 * @param {object[]} listeGroupes Liste des groupes
 	 * @param {string} type Vaut 'fermetures' ou 'vacances'
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
@@ -333,10 +334,11 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	/**
 	 * Modifier une période bloquée / vacances
 	 * 
-	 * @param {int} id Identifiant de la période bloquée
+	 * @param {integer} id Identifiant de la période bloquée
 	 * @param {string} libelle Libellé de la période bloquée
 	 * @param {date} dateDebut Date de début de la période bloquée
 	 * @param {date} dateFin Date de fin de la période bloquée
+	 * @param {object[]} listeGroupes Liste des groupes
 	 * @param {string} type Vaut 'fermetures' ou 'vacances'
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
@@ -383,7 +385,7 @@ define([ "RestManager", "lib/fullcalendar.translated.min" ], function(RestManage
 	/**
 	 * Supprimer une période bloquée
 	 * 
-	 * @param {int} id Identifiant de la période à supprimer
+	 * @param {integer} id Identifiant de la période à supprimer
 	 * @param {function} callback Méthode exécutée en cas de réussite
 	 */
 	JourBloqueGestion.prototype.supprimerPeriodeBloquee = function(id, callback) {

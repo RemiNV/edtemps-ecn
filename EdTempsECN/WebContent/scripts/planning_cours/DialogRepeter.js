@@ -7,7 +7,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	
 	/**
 	 * @constructor
-	 * @alias DialogRepeter 
+	 * @alias module:DialogRepeter 
 	 */
 	var DialogRepeter = function(restManager, jqBloc, rechercheSalle, evenementGestion, callbackAjout) {
 		var me = this;
@@ -183,7 +183,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	
 	/**
 	 * Callback appelé lors du clic sur un bouton "forcer l'ajout"
-	 * @param jqButton Le bouton cliqué
+	 * @param {jQuery} jqButton Le bouton cliqué
 	 */
 	DialogRepeter.prototype.callbackForcerAjout = function(jqButton) {
 		var id = parseInt(jqButton.attr("data-id"));
@@ -223,7 +223,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	
 	/**
 	 * Callback appelé lors du clic sur un bouton "Rech. salle"
-	 * @param jqButton
+	 * @param {jQuery} jqButton Le bouton cliqué
 	 */
 	DialogRepeter.prototype.callbackRechercheSalle = function(jqButton) {
 		var me = this;
@@ -373,7 +373,7 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 	
 	/**
 	 * Affichage de la boîte de dialogue. setCalendrier doit avoir été appelé précédemment.
-	 * @param evenement L'événement à répéter. Doit appartenir au calendrier défini par setCalendrier
+	 * @param {object} evenement L'événement à répéter. Doit appartenir au calendrier défini par setCalendrier
 	 */
 	DialogRepeter.prototype.show = function(evenement) {
 		this.evenement = evenement;
@@ -397,6 +397,9 @@ define(["underscore", "RestManager", "text!../../templates/dialog_repeter_evenem
 		this.jqBloc.dialog("open");
 	};
 	
+	/**
+	 * Cacher la dialog
+	 */
 	DialogRepeter.prototype.hide = function() {
 		this.jqBloc.dialog("close");
 	};

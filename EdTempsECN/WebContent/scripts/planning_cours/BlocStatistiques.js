@@ -6,7 +6,7 @@ define(["underscore", "text!../../templates/bloc_statistiques.tpl", "RestManager
 	
 	/**
 	 * @constructor
-	 * @alias BlocStatistiques 
+	 * @alias module:BlocStatistiques 
 	 */
 	var BlocStatistiques = function(restManager, jqBloc) {
 		this.restManager = restManager;
@@ -21,7 +21,7 @@ define(["underscore", "text!../../templates/bloc_statistiques.tpl", "RestManager
 	
 	/**
 	 * Définit les groupes affichés dans les statistiques
-	 * @param {Object} Mapping id => nom des groupes
+	 * @param {Object} groupes Mapping id => nom des groupes
 	 */
 	BlocStatistiques.prototype.setGroupes = function(groupes) {
 		this.groupes = groupes;
@@ -55,7 +55,7 @@ define(["underscore", "text!../../templates/bloc_statistiques.tpl", "RestManager
 	
 	BlocStatistiques.prototype.clear = function() {
 		this.jqBloc.find("#contenu_statistiques").empty();
-	}
+	};
 	
 	return BlocStatistiques;
 });

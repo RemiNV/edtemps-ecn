@@ -14,7 +14,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	
 	/**
 	 * @constructor
-	 * @alias EcranJoursBloques
+	 * @alias module:EcranJoursBloques
 	 */
 	var EcranJoursBloques = function(restManager) {
 		var me = this;
@@ -235,8 +235,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	/**
 	 * Actualiser la page
 	 * 
-	 * @param {int} i Nombre d'année de décalage par rapport à l'actuelle
-	 * 				  -1 : année précédente ; 0 : année en cours ; 1 : année suivante
+	 * @param {integer} i Nombre d'année de décalage par rapport à l'actuelle
+	 * 						-1 : année précédente ; 0 : année en cours ; 1 : année suivante
 	 */
 	EcranJoursBloques.prototype.actualiserPage = function(i) {
 		
@@ -255,7 +255,7 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	 * L'utiliateur a cliqué sur un jour
 	 * 
 	 * @param {date} date Date du jour cliqué
-	 * @param {object} jqElement objet jquery de l'élément cliqué
+	 * @param {jquery} jqElement objet jquery de l'élément cliqué
 	 */
 	EcranJoursBloques.prototype.clickSurUnJour = function(date, jqElement) {
 		var me = this;
@@ -298,9 +298,9 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	/**
 	 * Affiche la bulle de détail d'un jour bloqué
 	 * 
-	 * @param {Array} listeEvenementsBloquants liste des événemnts bloquants sur cette journée
+	 * @param object[] listeEvenementsBloquants liste des événements bloquants sur cette journée
 	 * @param {date} date Date du jour cliqué
-	 * @param {object} jqElement objet jquery de l'élément cliqué
+	 * @param {jquery} jqElement objet jquery de l'élément cliqué
 	 */
 	EcranJoursBloques.prototype.afficherDialogDetailJourBloque = function(listeEvenementsBloquants, date, jqElement) {
 		var me = this;
@@ -363,8 +363,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 	/**
 	 * Affiche la bulle de gestion des vacances/fermetures
 	 * 
-	 * @param {Array} listePeriodes Liste des périodes de vacances/fermetures
-	 * @param {object} jqButton Bouton jquery cliqué (pour le positionnement de la dialog)
+	 * @param object[] listePeriodes Liste des périodes de vacances/fermetures
+	 * @param {jquery} jqButton Bouton jquery cliqué (pour le positionnement de la dialog)
 	 * @param {string} type Vaut "fermetures" ou "vacances"
 	 */
 	EcranJoursBloques.prototype.afficherDialogGestionVacances = function(listePeriodes, jqButton, type) {
@@ -449,6 +449,8 @@ define([ "planning_cours/CalendrierAnnee", "planning_cours/JourBloqueGestion",
 
 	/**
 	 * Retourne le début de la chaine et mets trois points si elle est trop longue
+	 * @param {string} str Texte à raccourcir
+	 * @param {integer} size Taille de la chaîne de sortie
 	 */
 	function racourcirChaine(str, size) {
 		var res;

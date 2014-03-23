@@ -6,7 +6,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 
 	/**
 	 * @constructor
-	 * @alias DialogAjoutJourFerie
+	 * @alias module:DialogAjoutJourFerie
 	 */
 	var DialogAjoutJourFerie = function(restManager, jqDialog, ecranJoursBloques) {
 		this.restManager = restManager;
@@ -25,7 +25,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	 * 
 	 * @param {object} jour Objet jour qui peut être null dans le cas d'ajout.
 	 * 		  sinon, il doit contenir les attributs suivants: id, libelle, date et dateStr
-	 * @param {function} callback Méthode appellée au clic sur Valider
+	 * @param {function} callback Méthode appelée au clic sur Valider
 	 * 
 	 */
 	DialogAjoutJourFerie.prototype.show = function(jour, callback) {
@@ -58,7 +58,7 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	 * Initialise la boîte de dialogue
 	 * 
 	 * @param {object} jour Objet jour qui peut être null dans le cas d'ajout
-	 * @param {function} callback Méthode appellée au clic sur Valider
+	 * @param {function} callback Méthode appelée au clic sur Valider
 	 */
 	DialogAjoutJourFerie.prototype.init = function(jour, callback) {
 		var me=this;
@@ -131,18 +131,17 @@ define([ "planning_cours/EcranJoursBloques" ], function(EcranJoursBloques) {
 	/**
 	 * Valider le formulaire (exécute la méthode de callback)
 	 * 
-	 * @param {date} date La date formatée
+	 * @param {date} date La date du jour fériée, formatée
 	 */
 	DialogAjoutJourFerie.prototype.valider = function(date) {
-		
 		this.callback(this.jqLibelle.val(), date);
 		this.jqDialog.dialog("close");
-		
 	};
 
 	
 	/**
-	 * Vérifie que les champs saisis sont corrects et retourne vrai ou faux
+	 * Vérifie que les champs saisis sont corrects
+	 * @return VRAI si le formulaire est correct
 	 */
 	DialogAjoutJourFerie.prototype.isCorrect = function() {
 		var correct = true;

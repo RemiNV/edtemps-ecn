@@ -6,7 +6,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 
 	/**
 	 * @constructor
-	 * @alias DialogAjoutVacances
+	 * @alias module:DialogAjoutVacances
 	 */
 	var DialogAjoutVacances = function(restManager, jqDialog, ecranJoursBloques) {
 		this.restManager = restManager;
@@ -30,7 +30,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 	 * @param {object} periode Objet periode qui peut être null dans le cas d'ajout,
 	 * 						   sinon, il contient toutes les informations d'une période de vacances/fermeture
 	 * @param {string} type Vaut "fermetures" ou "vacances"
-	 * @param {function} callback Méthode appellée au clic sur Valider
+	 * @param {function} callback Méthode appelée au clic sur Valider
 	 */
 	DialogAjoutVacances.prototype.show = function(periode, type, callback) {
 
@@ -95,7 +95,7 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 	 * @param {object} periode Objet periode qui peut être null dans le cas d'ajout,
 	 * 						   sinon, il contient toutes les informations d'une période de vacances/fermetures
 	 * @param {string} type Vaut "fermetures" ou "vacances"
-	 * @param {function} callback Méthode appellée au clic sur Valider
+	 * @param {function} callback Méthode appelée au clic sur Valider
 	 */
 	DialogAjoutVacances.prototype.init = function(periode, type, callback) {
 		var me=this;
@@ -209,7 +209,8 @@ define([ "RestManager", "planning_cours/EcranJoursBloques", "MultiWidget" ], fun
 
 	
 	/**
-	 * Vérifie que les champs saisis sont corrects et retourne vrai ou faux
+	 * Vérifie que les champs saisis sont corrects
+	 * @return VRAI si le formulaire est correct
 	 */
 	DialogAjoutVacances.prototype.isCorrect = function() {
 		var correct = true;

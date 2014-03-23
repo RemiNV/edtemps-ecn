@@ -422,7 +422,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * @param {function} callbackChargement méthode appelée une fois la recherche effectuée, mais que l'utilisateur n'a pas encore sélectionné de salle.
 	 * 	Prend un booléen en paramète indiquant le succès de la requête. Si elle a échoué, aucune salle ne pourra être fournie
 	 * 	par le paramètre suivant "callback". Un message d'erreur est déjà affiché dans cette méthode en cas d'erreur.
-	 * @param {function} callback Méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
+	 * @param {function} callback Méthode appelée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
 	RechercheSalle.prototype.getSalle = function(dateDebut, dateFin, effectif, materiels, inclureSallesOccupees, idEvenementIgnorer, callbackChargement, callback) {
 		var me = this;
@@ -529,7 +529,7 @@ define([ "RestManager", "jquerymaskedinput", "jqueryui", "jquerymultiselect", "j
 	 * Méthode qui affiche le résultat
 	 * 
 	 * @param {Salle[]} data liste des salles retournées par le serveur
-	 * @param {function} callback Méthode appellée en retour et qui recevra les salles sélectionnées en paramètre
+	 * @param {function} callback Méthode appelée en retour et qui recevra les salles sélectionnées en paramètre
 	 */
 	RechercheSalle.prototype.afficherResultat = function(data, callback) {
 		
